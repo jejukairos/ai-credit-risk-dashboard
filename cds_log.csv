@@ -1,0 +1,12 @@
+date,ticker,bp,source_url,note
+2025-11-14,ORCL,106,https://www.bloomberg.com/news/articles/2025-11-14/oracle-credit-derivatives-jump-as-traders-rush-to-hedge-ai-bets,"ICE Data Services 기준 약 106bp(2022년 11월 이후 최고). 원문 유료 - 검색 요약으로 확인"
+2025-12-11,ORCL,139,https://www.roic.ai/news/oracles-5-year-cds-surges-to-139-bps-signaling-heightened-credit-risk-perception-amid-strong-fundamentals-12-11-2025,"S&P Global Market Intelligence 기준. 날짜는 기사 주소(12-11-2025) 기준"
+2026-07-17,ORCL,198.23,https://www.boerse-global.de/oracle-aktie-cds-auf-19823-basispunkte/810169,"당시 사상 최고치(직전 최고 198.18)"
+2026-07-20,ORCL,203,https://letsdatascience.com/news/oracle-credit-risk-rises-amid-ai-buildout-e40ec988,"약 2.03%p = 203bp, 약 18년 만의 최고"
+2026-10-08,ORCL,260,https://www.securitasglobal.com/risk-perspectives/oracle-cds-record-288-basis-points-ai-debt/,"기사 속 '1주 전' 수치 - 날짜는 10/15 기준 7일 전으로 추정"
+2026-10-15,ORCL,288,https://www.securitasglobal.com/risk-perspectives/oracle-cds-record-288-basis-points-ai-debt/,"사상 최고치. S&P Global Market Intelligence·LSEG 데이터"
+2025-10-06,CRWV,368.4,https://blockonomi.com/coreweave-crwv-stock-drops-after-2-billion-convertible-note-announcement/,"기사에 단위 표기 없음(368.395) - 5년물 CDS 스프레드 bp로 해석"
+2025-12-05,CRWV,643,https://blockonomi.com/coreweave-crwv-stock-drops-after-2-billion-convertible-note-announcement/,"기사(2025-12-09) 속 '금요일 종가' 642.965 - 날짜는 2025-12-05로 판단"
+2026-07-29,CRWV,855,https://www.techtimes.com/articles/322222/20260730/coreweave-cds-hits-50-default-odds-bond-market-calls-time-gpu-debt-spiral.htm,"약 855bp, 5년 누적 부도확률 약 50% 수준"
+2026-10-15,CRWV,1038,https://www.fool.com/investing/2026/10/15/coreweave-s-debt-insurance-costs-just-hit-a-record-can-it-keep-funding-its-ai-boom/,"장중(정오 무렵) 수치"
+2026-10-15,CRWV,1194.5,https://thenextweb.com/news/huang-coreweave-backstop-stockholm,"ICE Data Services 장중 사상 최고치(Bloomberg 보도). 부도확률 60% 이상 수준"

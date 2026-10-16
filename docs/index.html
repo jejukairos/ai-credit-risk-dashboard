@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 신용위험 대시보드</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js"></script>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984; --line:#e4e3de;
+  --cds:#d62728; --spread:#ff8c1a; --price:#111111; --warnline:#d62728;
+  --good:#0ca30c; --warn:#fab219; --bad:#d03b3b;
+  --g1:#2a78d6; --g2:#eb6834; --g3:#1baf7a; --g4:#eda100;
+  --banner-err:#fdecea; --banner-err-ink:#8a1c1c; --banner-ok:#eef6ee;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8f8e88; --line:#33332f;
+    --cds:#ff5a5a; --spread:#ff9f43; --price:#f0efec; --warnline:#ff5a5a;
+    --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500;
+    --banner-err:#3a1616; --banner-err-ink:#ffb4b4; --banner-ok:#16261a;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8f8e88; --line:#33332f;
+  --cds:#ff5a5a; --spread:#ff9f43; --price:#f0efec; --warnline:#ff5a5a;
+  --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500;
+  --banner-err:#3a1616; --banner-err-ink:#ffb4b4; --banner-ok:#16261a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:12px 16px 40px}
+h1{font-size:20px;margin:4px 0 2px}
+h2{font-size:16px;margin:22px 0 8px}
+.sub{color:var(--ink2);font-size:12px}
+.banner{border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px}
+.banner.err{background:var(--banner-err);color:var(--banner-err-ink)}
+.banner.ok{background:var(--banner-ok);color:var(--ink2)}
+.banner ul{margin:6px 0 0;padding-left:18px}
+.bar{position:sticky;top:0;z-index:5;background:var(--page);padding:8px 0;display:flex;gap:6px;align-items:center}
+.bar button{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 0;font-size:14px;cursor:pointer}
+.bar button.on{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 5px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--ink2);font-size:11.5px}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+.tk{font-weight:600}
+.small{font-size:10.5px;color:var(--muted)}
+.up{color:var(--good)} .down{color:var(--bad)}
+.risk{display:inline-flex;align-items:center;gap:4px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot.green{background:var(--good)} .dot.yellow{background:var(--warn)} .dot.red{background:var(--bad)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 10px 8px;margin:12px 0}
+.card h3{margin:0 4px;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card .meta{margin:2px 4px 4px;font-size:12px;color:var(--ink2)}
+.plot{width:100%;height:420px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink2);margin:2px 4px}
+.sw{display:inline-block;width:16px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px}
+details{font-size:12px;color:var(--ink2);margin:4px 4px 0}
+details a{color:var(--ink2);word-break:break-all}
+.note{font-size:12px;color:var(--ink2)}
+footer{margin-top:28px;font-size:11.5px;color:var(--muted)}
+footer a{color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI 신용위험 대시보드</h1>
+  <div class="sub" id="updated">불러오는 중…</div>
+  <div id="banner"></div>
+
+  <div class="bar" role="group" aria-label="기간">
+    <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
+  </div>
+
+  <h2>10개 종목 요약</h2>
+  <div class="tablebox"><table id="summary">
+    <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>최근 CDS<br>(bp·날짜)</th></tr></thead>
+    <tbody></tbody></table></div>
+  <p class="note">스프레드 = 같은 신용등급 회사채 평균 수익률 − 미국채 수익률(bp, ICE BofA 지수). CDS = 5년물, 뉴스 기사에서 수집(출처 있는 것만).
+  위험 색깔: <span class="risk"><span class="dot red"></span>빨강</span> CDS ≥ 400bp 또는 스프레드 ≥ 500bp 또는 1개월 주가 ≤ −25% ·
+  <span class="risk"><span class="dot yellow"></span>노랑</span> CDS ≥ 150bp 또는 스프레드 ≥ 200bp 또는 1개월 ≤ −10% · 그 외 <span class="risk"><span class="dot green"></span>초록</span>
+  (CDS는 90일 이내 기록만 반영).</p>
+
+  <h2>엔비디아 GPU 임대가격 ($/GPU·시간)</h2>
+  <div class="card">
+    <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th><th>기준일</th></tr></thead><tbody></tbody></table></div>
+    <div id="gpuplot" class="plot" style="height:300px"></div>
+    <p class="note" style="margin:4px">여러 클라우드 공급사의 온디맨드(즉시 임대) 가격의 일별 중앙값입니다(블랙웰 계열 기록은 2026년 8월부터, 이후 매일 쌓임). 뉴스에 나오는 Compute Desk 지수(1년 계약 실거래가)와는 산출 방식이 달라 수치가 다를 수 있습니다.
+    Data: <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute — priceofcompute.com</a></p>
+  </div>
+
+  <h2>종목별 차트</h2>
+  <div class="legend">
+    <span><span class="sw" style="border-color:var(--cds)"></span>CDS 5년(bp, 점=기사)</span>
+    <span><span class="sw" style="border-color:var(--spread)"></span>등급 스프레드(bp)</span>
+    <span><span class="sw" style="border-color:var(--warnline);border-top-style:dashed"></span>CDS 1,000bp (부도위험 약 60%)</span>
+    <span><span class="sw" style="border-color:var(--price)"></span>주가($)</span>
+  </div>
+  <div id="cards"></div>
+
+  <footer>
+    데이터: 주가 — Yahoo Finance(yfinance) · 스프레드 — ICE BofA 옵션조정 스프레드(FRED, 세인트루이스 연준) · CDS — 각 뉴스 기사(카드의 ‘CDS 출처’에 링크) ·
+    GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a>.
+    투자 권유가 아닌 참고용 정보입니다. 신용등급은 참고용(2026-10 기준)입니다.
+  </footer>
+</div>
+
+<script>
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let DATA = null, STATUS = null, PERIOD = '1y';
+const fmtPct = v => v == null ? '–' : `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+const fmtNum = (v, d = 0) => v == null ? '–' : v.toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
+const riskName = {green: '초록', yellow: '노랑', red: '빨강'};
+
+function periodStart(lastDate) {
+  const d = new Date(lastDate);
+  if (PERIOD === '3m') d.setMonth(d.getMonth() - 3);
+  else if (PERIOD === '1y') d.setFullYear(d.getFullYear() - 1);
+  else return null;
+  return d.toISOString().slice(0, 10);
+}
+function inRange(s, start) {
+  if (!start) return s.y.slice();
+  return s.y.filter((_, i) => s.x[i] >= start);
+}
+function padRange(vals, zero) {
+  if (!vals.length) return undefined;
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = (hi - lo) * 0.08 || hi * 0.05 || 1;
+  return [zero ? 0 : lo - pad, hi + pad];
+}
+
+function renderBanner() {
+  const el = document.getElementById('banner');
+  const up = document.getElementById('updated');
+  const last = STATUS && (STATUS.last_success || STATUS.last_run);
+  up.innerHTML = `마지막 갱신일: <b>${STATUS && STATUS.last_success ? STATUS.last_success : '없음'}</b> (한국시간)` +
+    (STATUS && STATUS.last_run && STATUS.last_run !== STATUS.last_success ? ` · 마지막 시도: ${STATUS.last_run}` : '');
+  const msgs = [];
+  if (STATUS && STATUS.errors && STATUS.errors.length) msgs.push(...STATUS.errors.map(e => '오류: ' + e));
+  if (last) {
+    const ageH = (Date.now() - new Date(last.replace(' ', 'T') + ':00+09:00').getTime()) / 36e5;
+    if (ageH > 36) msgs.push(`자동 갱신이 ${Math.floor(ageH / 24)}일째 멈춰 있습니다 (컴퓨터가 꺼져 있었거나 작업 스케줄러 오류).`);
+  }
+  if (!STATUS) msgs.push('상태 파일(status.json)을 불러오지 못했습니다.');
+  el.innerHTML = msgs.length ? `<div class="banner err"><b>갱신 문제 발생</b> — 아래 데이터는 마지막으로 성공한 시점 기준입니다.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '';
+}
+
+function renderSummary() {
+  const tb = document.querySelector('#summary tbody');
+  tb.innerHTML = DATA.tickers.map(t => `<tr data-t="${t.ticker}" title="${t.risk_reasons.join(', ')}">
+    <td><span class="dot ${t.risk}" role="img" aria-label="위험 ${riskName[t.risk]}"></span> <span class="tk">${t.name}</span><br><span class="small">${riskName[t.risk]} · ${t.ticker} · ${t.rating}</span></td>
+    <td>${fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
+    <td>${fmtNum(t.spread)}<br><span class="small">${t.bucket}등급</span></td>
+    <td>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
+  tb.querySelectorAll('tr').forEach(tr => tr.onclick = () =>
+    document.getElementById('card-' + tr.dataset.t).scrollIntoView({behavior: 'smooth'}));
+}
+
+function baseLayout() {
+  return {
+    paper_bgcolor: css('--surface'), plot_bgcolor: css('--surface'),
+    font: {color: css('--ink2'), size: 11, family: 'inherit'},
+    margin: {l: 44, r: 8, t: 8, b: 28}, showlegend: false, hovermode: 'x unified',
+    hoverlabel: {bgcolor: css('--surface'), bordercolor: css('--line'), font: {color: css('--ink')}},
+    dragmode: false,
+  };
+}
+const axis = extra => Object.assign({gridcolor: css('--line'), zeroline: false, linecolor: css('--line'), fixedrange: true}, extra);
+const CFG = {displayModeBar: false, responsive: true};
+
+function renderCards() {
+  const box = document.getElementById('cards');
+  if (!box.children.length) {
+    box.innerHTML = DATA.tickers.map(t => `<div class="card" id="card-${t.ticker}">
+      <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
+      <div class="meta">주가 $${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating} → ${t.bucket}등급 지수) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
+      <div class="plot" id="plot-${t.ticker}"></div>
+      ${t.series.cds.x.length ? `<details><summary>CDS 출처 ${t.series.cds.x.length}건 (점을 눌러도 기사로 이동)</summary><ul>${
+        t.series.cds.x.map((d, i) => `<li>${d} · ${t.series.cds.y[i]}bp — <a href="${t.series.cds.url[i]}" target="_blank" rel="noopener">${new URL(t.series.cds.url[i]).hostname}</a>${t.series.cds.note[i] ? ' · ' + t.series.cds.note[i] : ''}</li>`).join('')}</ul></details>`
+        : '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>'}
+    </div>`).join('');
+  }
+  for (const t of DATA.tickers) {
+    const s = t.series, last = s.price.x[s.price.x.length - 1];
+    const start = periodStart(last);
+    const hasCds = s.cds.x.length > 0;
+    const topVals = inRange(s.spread, start).concat(inRange(s.cds, start));
+    let topRange = padRange(topVals, true);
+    if (hasCds) topRange = [0, Math.max(1100, ...s.cds.y.map(v => v * 1.08))];
+    const traces = [
+      {x: s.spread.x, y: s.spread.y, name: '스프레드', type: 'scatter', mode: 'lines',
+       line: {color: css('--spread'), width: 2}, hovertemplate: '%{y:.0f}bp'},
+      {x: s.cds.x, y: s.cds.y, name: 'CDS', type: 'scatter', mode: 'lines+markers',
+       line: {color: css('--cds'), width: 2}, marker: {size: 8, color: css('--cds'), line: {color: css('--surface'), width: 2}},
+       customdata: s.cds.url, hovertemplate: '%{y:.0f}bp', connectgaps: true},
+      {x: s.price.x, y: s.price.y, name: '주가', type: 'scatter', mode: 'lines', yaxis: 'y2',
+       line: {color: css('--price'), width: 1.6}, hovertemplate: '$%{y:,.2f}'},
+    ];
+    const layout = Object.assign(baseLayout(), {
+      xaxis: axis({anchor: 'y2', range: [start || s.price.x[0], last], type: 'date', tickformat: '%y.%m'}),
+      yaxis: axis({domain: [0.47, 1], range: topRange, title: {text: 'bp', standoff: 2}}),
+      yaxis2: axis({domain: [0, 0.43], range: padRange(inRange(s.price, start), false), title: {text: '$', standoff: 2}}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 1000, y1: 1000,
+                line: {color: css('--warnline'), width: 1.5, dash: 'dash'}}],
+      annotations: hasCds ? [{xref: 'paper', x: 0.01, yref: 'y', y: 1000, yanchor: 'bottom', xanchor: 'left', showarrow: false,
+                text: 'CDS 1,000bp · 부도위험 약 60%', font: {size: 10, color: css('--warnline')}}] : [],
+    });
+    const el = document.getElementById('plot-' + t.ticker);
+    Plotly.react(el, traces, layout, CFG);
+    if (!el._clickBound) {
+      el.on('plotly_click', ev => { const p = ev.points.find(p => p.data.name === 'CDS'); if (p && p.customdata) window.open(p.customdata, '_blank'); });
+      el._clickBound = true;
+    }
+  }
+}
+
+function renderGpu() {
+  const colors = ['--g1', '--g2', '--g3', '--g4'].map(css);
+  document.querySelector('#gputable tbody').innerHTML = DATA.gpu.map((g, i) => `<tr>
+    <td><span class="sw" style="border-color:${colors[i]};border-top-width:3px"></span>${g.name}</td>
+    <td>$${fmtNum(g.last, 2)}</td><td>${fmtPct(g.w1)}</td><td>${fmtPct(g.m1)}</td><td class="small">${g.last_date ? g.last_date.slice(5).replace('-', '.') : '–'}</td></tr>`).join('');
+  const last = DATA.gpu.map(g => g.x[g.x.length - 1]).sort().pop();
+  const start = periodStart(last);
+  const firstAll = DATA.gpu.filter(g => g.name.startsWith('B')).map(g => g.x[0]).sort()[0];
+  const xStart = start && start > firstAll ? start : (PERIOD === 'all' ? null : firstAll);
+  const traces = DATA.gpu.map((g, i) => ({x: g.x, y: g.y, name: g.name, type: 'scatter', mode: 'lines',
+    line: {color: colors[i], width: 2, shape: 'hv'}, hovertemplate: '$%{y:.2f}'}));
+  const vis = DATA.gpu.flatMap(g => g.y.filter((_, i) => !xStart || g.x[i] >= xStart));
+  const layout = Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', range: [xStart || DATA.gpu[DATA.gpu.length - 1].x[0], last], tickformat: '%y.%m.%d'}),
+    yaxis: axis({range: padRange(vis, true), title: {text: '$/시간', standoff: 2}}),
+    showlegend: true, legend: {orientation: 'h', y: -0.15, font: {size: 11}},
+    margin: {l: 44, r: 8, t: 8, b: 50},
+  });
+  Plotly.react('gpuplot', traces, layout, CFG);
+}
+
+function renderAll() { renderSummary(); renderGpu(); renderCards(); }
+
+document.querySelectorAll('.bar button').forEach(b => b.onclick = () => {
+  PERIOD = b.dataset.p;
+  document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
+  try { localStorage.setItem('period', PERIOD); } catch (e) {}
+  renderGpu(); renderCards();
+});
+try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
+
+(async () => {
+  const bust = '?t=' + Date.now();
+  try { STATUS = await (await fetch('status.json' + bust)).json(); } catch (e) { STATUS = null; }
+  try { DATA = await (await fetch('data.json' + bust)).json(); }
+  catch (e) { renderBanner(); document.getElementById('banner').innerHTML += '<div class="banner err">데이터 파일(data.json)을 불러오지 못했습니다.</div>'; return; }
+  renderBanner();
+  renderAll();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderAll());
+})();
+</script>
+</body>
+</html>
