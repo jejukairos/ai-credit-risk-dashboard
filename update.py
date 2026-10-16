@@ -7,6 +7,7 @@ status.json 에 오류를 기록합니다. 화면 상단에 그 오류가 표시
 import io
 import json
 import os
+import re
 import sys
 import time
 import traceback
@@ -123,6 +124,148 @@ def fetch_gpu():
     allp.sort_values(["sku", "type", "date"]).to_csv(path, index=False)
 
 
+# ---------- D램 현물가격 (TrendForce/DRAMeXchange 무료 공개분) ----------
+DRAM_ITEMS = {  # 대표 품목만: 현물 시세표 품목명 -> 저장 이름
+    "DDR5 16Gb (2Gx8) 4800/5600": "DDR5 16Gb",
+    "DDR4 8Gb (1Gx8) 3200": "DDR4 8Gb",
+}
+
+
+def fetch_dram():
+    errors = []
+    # 1) 주간 기사(Memory Spot Price Update)에서 과거 주력칩(DDR4 8Gb) 가격 — 새 기사만 추가
+    try:
+        sys.path.insert(0, os.path.join(BASE, "tools"))
+        import backfill_dram
+        backfill_dram.main()
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"주간 기사: {e}")
+    # 2) 오늘 현물 시세표 (매일 쌓아서 일별 이력 만들기)
+    try:
+        html = get("https://www.trendforce.com/price/dram/dram_spot").text
+        t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"<script[\s\S]*?</script>", " ", html)))
+        m = re.search(r"Last Update (\d{4}-\d\d-\d\d)", t)
+        if not m:
+            raise RuntimeError("시세표 날짜를 못 찾음 (사이트 구조 변경?)")
+        day = m.group(1)
+        rows = []
+        for item, name in DRAM_ITEMS.items():
+            mm = re.search(re.escape(item) + r" ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)", t)
+            if mm:
+                rows.append({"date": day, "item": name, "usd": float(mm.group(5))})
+        if not rows:
+            raise RuntimeError("현물 시세표에서 가격을 못 찾음 (사이트 구조 변경?)")
+        # DXI(D램 전체 지수) — DRAMeXchange 첫 화면
+        try:
+            h2 = get("https://www.dramexchange.com/").text
+            t2 = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"<script[\s\S]*?</script>", " ", h2)))
+            dm = re.search(r"DXI ([A-Za-z]+)\.?\s?(\d{1,2}), [\d:]+ \(GMT\+8\) ([\d.,]+)", t2)
+            if dm:
+                mon = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].index(dm.group(1)[:3].lower()) + 1
+                today = datetime.now(KST).date()
+                yr = today.year if mon <= today.month else today.year - 1
+                rows.append({"date": f"{yr}-{mon:02d}-{int(dm.group(2)):02d}", "item": "DXI",
+                             "usd": float(dm.group(3).replace(",", ""))})
+            else:
+                errors.append("DXI 지수를 못 찾음")
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"DXI: {e}")
+        path = os.path.join(DATA, "dram_daily.csv")
+        old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["date", "item", "usd"])
+        allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["date", "item"], keep="last")
+        allr.sort_values(["item", "date"]).to_csv(path, index=False)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"일별 시세표: {e}")
+    if errors:
+        raise RuntimeError("; ".join(errors)[:400])
+
+
+# ---------- 미수금·반대매매·신용융자 (금융투자협회 FreeSIS) ----------
+KOFIA_URL = "https://freesis.kofia.or.kr/meta/getMetaDataList.do"
+
+
+def kofia_query(obj, start, end):
+    body = {"dmSearch": {"tmpV40": "1000000", "tmpV41": "1", "tmpV1": "D",
+                         "tmpV45": start, "tmpV46": end, "OBJ_NM": obj}}
+    r = requests.post(KOFIA_URL, json=body, headers=UA, timeout=120)
+    r.raise_for_status()
+    return pd.DataFrame(r.json()["ds1"])
+
+
+def fetch_kofia():
+    path = os.path.join(DATA, "kofia.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
+    start = "20150101" if old is None or old.empty else \
+        (pd.Timestamp(old["date"].max()) - pd.Timedelta(days=40)).strftime("%Y%m%d")
+    end = datetime.now(KST).strftime("%Y%m%d")
+    # 증시자금추이 (단위 백만원): 투자자예탁금, 위탁매매 미수금, 실제 반대매매금액, 미수금 대비 반대매매 비중(%)
+    a = kofia_query("STATSCU0100000060BO", start, end)
+    a = a.rename(columns={"TMPV1": "date", "TMPV2": "deposit", "TMPV5": "misu", "TMPV6": "forced", "TMPV7": "ratio"})
+    a = a[["date", "deposit", "misu", "forced", "ratio"]]
+    # 신용공여 잔고 추이 (단위 백만원): 신용거래융자 전체/코스피/코스닥
+    b = kofia_query("STATSCU0100000070BO", start, end)
+    b = b.rename(columns={"TMPV1": "date", "TMPV2": "credit", "TMPV3": "credit_kospi", "TMPV4": "credit_kosdaq"})
+    b = b[["date", "credit", "credit_kospi", "credit_kosdaq"]]
+    new = a.merge(b, on="date", how="outer")
+    new["date"] = pd.to_datetime(new["date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
+    if old is not None:
+        new = pd.concat([old, new]).drop_duplicates("date", keep="last")
+    if new.empty:
+        raise RuntimeError("금투협 응답이 비어 있음")
+    new.sort_values("date").to_csv(path, index=False)
+
+
+# ---------- 국민연금 자산배분 (기금운용본부 홈페이지, 매월 갱신) ----------
+NPS_ASSETS = ["국내주식", "해외주식", "국내채권", "해외채권", "대체투자", "단기자금"]
+
+
+def fetch_nps():
+    html = get("https://fund.nps.or.kr/main.do").text
+    t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"<script[\s\S]*?</script>", " ", html)))
+    m = re.search(r"기금 포트폴리오 (\d{4})년 (\d{1,2})월 말 기준", t)
+    if not m:
+        raise RuntimeError("기금 포트폴리오 기준월을 못 찾음 (사이트 구조 변경?)")
+    month = f"{m.group(1)}-{int(m.group(2)):02d}"
+    seg = t[m.end():m.end() + 800]
+    rows = []
+    for a in NPS_ASSETS:
+        mm = re.search(a + r" ([\d.,]+) 조 원 ([\d.]+) %", seg)
+        if mm:
+            rows.append({"month": month, "asset": a, "trillion": float(mm.group(1).replace(",", "")),
+                         "pct": float(mm.group(2))})
+    if len(rows) < 5:
+        raise RuntimeError("자산군별 비중을 못 찾음 (사이트 구조 변경?)")
+    path = os.path.join(DATA, "nps.csv")
+    old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["month", "asset", "trillion", "pct"])
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["month", "asset"], keep="last")
+    allr.sort_values(["month", "asset"]).to_csv(path, index=False)
+    # 올해 목표 포트폴리오
+    tm = re.search(r"\((\d{4})년 목표 포트폴리오\)(.{0,400})", t)
+    if tm:
+        target = {"year": tm.group(1)}
+        for a in NPS_ASSETS[:5]:
+            mm = re.search(a + r" ([\d.]+)%", tm.group(2))
+            if mm:
+                target[a] = float(mm.group(1))
+        with open(os.path.join(DATA, "nps_target.json"), "w", encoding="utf-8") as f:
+            json.dump(target, f, ensure_ascii=False)
+
+
+def change_4w(s):
+    """각 시점의 4주(28일) 전 대비 변화율(%) — 기울기가 완만해지는지 보는 용도"""
+    s = s.dropna()
+    idx = pd.to_datetime(s.index)
+    out = []
+    for i, d in enumerate(idx):
+        past = s[idx <= d - pd.Timedelta(days=28)]
+        # 4주 전 근처(±10일) 값이 없으면 계산하지 않음 (데이터 공백 구간)
+        if past.empty or (d - pd.Timestamp(past.index[-1])).days > 38:
+            out.append(None)
+        else:
+            out.append(round((s.iloc[i] / past.iloc[-1] - 1) * 100, 2))
+    return out
+
+
 # ---------- 화면용 data.json 만들기 ----------
 def pct_change(s, days):
     s = s.dropna()
@@ -130,7 +273,8 @@ def pct_change(s, days):
         return None
     last_date = pd.Timestamp(s.index[-1])
     past = s[pd.to_datetime(s.index) <= last_date - pd.Timedelta(days=days)]
-    if past.empty:
+    # 비교 시점 근처(10일 이내)에 값이 없으면 계산하지 않음 (띄엄띄엄한 데이터에서 엉뚱한 비교 방지)
+    if past.empty or (last_date - pd.Timedelta(days=days) - pd.Timestamp(past.index[-1])).days > 10:
         return None
     return round((s.iloc[-1] / past.iloc[-1] - 1) * 100, 2)
 
@@ -157,6 +301,86 @@ def risk_level(cds_bp, cds_date, spread_bp, m1):
         elif m1 <= R["m1_yellow"]:
             level = max(level, 1); reasons.append(f"1개월 주가 {m1:.1f}%")
     return ["green", "yellow", "red"][level], reasons
+
+
+def _series(s):
+    s = s.dropna().sort_index()
+    return {"x": list(s.index), "y": [round(float(v), 3) for v in s.values], "chg4w": change_4w(s)}
+
+
+def build_dram():
+    out = []
+    wk_path, dl_path = os.path.join(DATA, "dram_weekly.csv"), os.path.join(DATA, "dram_daily.csv")
+    wk = pd.read_csv(wk_path) if os.path.exists(wk_path) else pd.DataFrame(columns=["date", "chip", "usd", "source_url"])
+    dl = pd.read_csv(dl_path) if os.path.exists(dl_path) else pd.DataFrame(columns=["date", "item", "usd"])
+    news_path = os.path.join(BASE, "dram_log.csv")
+    news = pd.read_csv(news_path, dtype=str).fillna("") if os.path.exists(news_path) else pd.DataFrame(
+        columns=["date", "item", "usd", "source_url", "note"])
+    news = news[news["source_url"].str.startswith("http")]
+    news["usd"] = pd.to_numeric(news["usd"], errors="coerce")
+    specs = [
+        ("DXI", "DXI 지수 (D램 전체 가격지수)", "DRAMeXchange 첫 화면 공개값(2026-10-16부터 매일 자동 기록, 과거치는 유료)"),
+        ("DDR5 16Gb", "DDR5 16Gb 현물 (2Gx8, 현재 주력)", "DRAMeXchange 일별 시세(2026-10-16부터 자동 기록) + 뉴스 인용 수치"),
+        ("DDR4 8Gb", "DDR4 8Gb 현물 (1Gx8, 과거 기준칩)",
+         "TrendForce 주간 'Memory Spot Price Update' 기사(2024-11까지 2666MT/s, 이후 3200MT/s 기준) + DRAMeXchange 일별 시세"),
+    ]
+    for item, label, src in specs:
+        parts = []
+        if item == "DDR4 8Gb" and len(wk):
+            parts.append(pd.Series(wk["usd"].values, index=wk["date"].values))
+        d = dl[dl["item"] == item]
+        if len(d):
+            parts.append(pd.Series(d["usd"].values, index=d["date"].values))
+        n = news[news["item"] == item]
+        if len(n):
+            parts.append(pd.Series(n["usd"].values, index=n["date"].values))
+        if not parts:
+            continue
+        s = pd.concat(parts)
+        s = s[~s.index.duplicated(keep="last")].sort_index()
+        ser = _series(s)
+        out.append({"item": item, "label": label, "source": src, **ser,
+                    "last": ser["y"][-1], "last_date": ser["x"][-1],
+                    "m1": pct_change(s, 30), "m3": pct_change(s, 91)})
+    return out
+
+
+def build_kofia():
+    path = os.path.join(DATA, "kofia.csv")
+    if not os.path.exists(path):
+        return None
+    k = pd.read_csv(path, dtype={"date": str}).sort_values("date")
+    k = k[k["date"] >= "2015-01-01"]
+    num = lambda c, div, nd=1: [None if pd.isna(v) else round(v / div, nd) for v in k[c]]  # noqa: E731
+    last = k.dropna(subset=["forced"]).iloc[-1]
+    forced_avg_1y = k[k["date"] >= (pd.Timestamp(last["date"]) - pd.Timedelta(days=365)).strftime("%Y-%m-%d")]["forced"].mean()
+    return {
+        "x": list(k["date"]),
+        "misu": num("misu", 100, 0),          # 억원
+        "forced": num("forced", 100, 0),      # 억원
+        "ratio": [None if pd.isna(v) else float(v) for v in k["ratio"]],
+        "credit": num("credit", 1e6, 2),      # 조원
+        "deposit": num("deposit", 1e6, 2),    # 조원
+        "last": {"date": last["date"], "misu": round(last["misu"] / 100), "forced": round(last["forced"] / 100),
+                 "ratio": float(last["ratio"]), "credit": round(last["credit"] / 1e6, 2),
+                 "deposit": round(last["deposit"] / 1e6, 2), "forced_avg_1y": round(forced_avg_1y / 100)},
+    }
+
+
+def build_nps():
+    path = os.path.join(DATA, "nps.csv")
+    if not os.path.exists(path):
+        return None
+    n = pd.read_csv(path)
+    latest = n["month"].max()
+    cur = n[n["month"] == latest]
+    tpath = os.path.join(DATA, "nps_target.json")
+    target = json.load(open(tpath, encoding="utf-8")) if os.path.exists(tpath) else {}
+    hist = {a: {"x": list(g.sort_values("month")["month"]), "y": list(g.sort_values("month")["pct"])}
+            for a, g in n.groupby("asset")}
+    return {"month": latest, "assets": cur[["asset", "trillion", "pct"]].to_dict("records"),
+            "total": round(float(cur["trillion"].sum()), 1), "target": target, "history": hist,
+            "band": config.NPS_BAND}
 
 
 def build():
@@ -215,6 +439,10 @@ def build():
                 "x": list(s.index), "y": [round(float(v), 3) for v in s.values],
             })
 
+    out["dram"] = build_dram()
+    out["kofia"] = build_kofia()
+    out["nps"] = build_nps()
+
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
 
@@ -232,7 +460,9 @@ def main():
     status["errors"] = []
 
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
-             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("화면 데이터 만들기", build)]
+             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("D램 현물가격(TrendForce)", fetch_dram),
+             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:
             fn()

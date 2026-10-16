@@ -10,21 +10,21 @@
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984; --line:#e4e3de;
   --cds:#d62728; --spread:#ff8c1a; --price:#111111; --warnline:#d62728;
   --good:#0ca30c; --warn:#fab219; --bad:#d03b3b;
-  --g1:#2a78d6; --g2:#eb6834; --g3:#1baf7a; --g4:#eda100;
+  --g1:#2a78d6; --g2:#eb6834; --g3:#1baf7a; --g4:#eda100; --g5:#e87ba4; --g7:#6250d6;
   --banner-err:#fdecea; --banner-err-ink:#8a1c1c; --banner-ok:#eef6ee;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8f8e88; --line:#33332f;
     --cds:#ff5a5a; --spread:#ff9f43; --price:#f0efec; --warnline:#ff5a5a;
-    --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500;
+    --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500; --g5:#d55181; --g7:#9085e9;
     --banner-err:#3a1616; --banner-err-ink:#ffb4b4; --banner-ok:#16261a;
   }
 }
 :root[data-theme="dark"]{
   --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8f8e88; --line:#33332f;
   --cds:#ff5a5a; --spread:#ff9f43; --price:#f0efec; --warnline:#ff5a5a;
-  --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500;
+  --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500; --g5:#d55181; --g7:#9085e9;
   --banner-err:#3a1616; --banner-err-ink:#ffb4b4; --banner-ok:#16261a;
 }
 *{box-sizing:border-box}
@@ -62,6 +62,13 @@ tbody tr{cursor:pointer}
 details{font-size:12px;color:var(--ink2);margin:4px 4px 0}
 details a{color:var(--ink2);word-break:break-all}
 .note{font-size:12px;color:var(--ink2)}
+.jump{display:flex;gap:6px;overflow-x:auto;margin:10px 0 0;padding-bottom:2px}
+.jump a{flex:none;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.tile .k{font-size:11.5px;color:var(--ink2)} .tile .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums} .tile .s{font-size:11px;color:var(--muted)}
+.donuts{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.donut{height:210px}
 footer{margin-top:28px;font-size:11.5px;color:var(--muted)}
 footer a{color:var(--ink2)}
 </style>
@@ -72,11 +79,15 @@ footer a{color:var(--ink2)}
   <div class="sub" id="updated">불러오는 중…</div>
   <div id="banner"></div>
 
+  <nav class="jump" aria-label="섹션 바로가기">
+    <a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-dram">D램</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
+  </nav>
+
   <div class="bar" role="group" aria-label="기간">
     <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
   </div>
 
-  <h2>위험 기업 요약 (네오클라우드·AI 부채 우려 기업)</h2>
+  <h2 id="sec-credit">위험 기업 요약 (네오클라우드·AI 부채 우려 기업)</h2>
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
@@ -84,14 +95,6 @@ footer a{color:var(--ink2)}
   위험 색깔: <span class="risk"><span class="dot red"></span>빨강</span> CDS ≥ 400bp 또는 스프레드 ≥ 500bp 또는 1개월 주가 ≤ −25% ·
   <span class="risk"><span class="dot yellow"></span>노랑</span> CDS ≥ 150bp 또는 스프레드 ≥ 200bp 또는 1개월 ≤ −10% · 그 외 <span class="risk"><span class="dot green"></span>초록</span>
   (CDS는 90일 이내 기록만 반영).</p>
-
-  <h2>엔비디아 GPU 임대가격 ($/GPU·시간)</h2>
-  <div class="card">
-    <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th><th>기준일</th></tr></thead><tbody></tbody></table></div>
-    <div id="gpuplot" class="plot" style="height:300px"></div>
-    <p class="note" style="margin:4px">여러 클라우드 공급사의 온디맨드(즉시 임대) 가격의 일별 중앙값입니다(블랙웰 계열 기록은 2026년 8월부터, 이후 매일 쌓임). 뉴스에 나오는 Compute Desk 지수(1년 계약 실거래가)와는 산출 방식이 달라 수치가 다를 수 있습니다.
-    Data: <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute — priceofcompute.com</a></p>
-  </div>
 
   <h2>종목별 차트</h2>
   <div class="legend">
@@ -102,9 +105,39 @@ footer a{color:var(--ink2)}
   </div>
   <div id="cards"></div>
 
+  <h2 id="sec-gpu">엔비디아 GPU 임대가격 ($/GPU·시간)</h2>
+  <div class="card">
+    <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th><th>기준일</th></tr></thead><tbody></tbody></table></div>
+    <div id="gpuplot" class="plot" style="height:300px"></div>
+    <p class="note" style="margin:4px">여러 클라우드 공급사의 온디맨드(즉시 임대) 가격의 일별 중앙값입니다(블랙웰 계열 기록은 2026년 8월부터, 이후 매일 쌓임). 뉴스에 나오는 Compute Desk 지수(1년 계약 실거래가)와는 산출 방식이 달라 수치가 다를 수 있습니다.
+    Data: <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute — priceofcompute.com</a></p>
+  </div>
+
+  <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
+  <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
+  <div id="dramcards"></div>
+
+  <h2 id="sec-kofia">미수금·반대매매 (국내 증시 빚투 지표)</h2>
+  <div class="tiles" id="kofiatiles"></div>
+  <div class="card">
+    <div id="kofiaplot" class="plot" style="height:520px"></div>
+    <p class="note" style="margin:4px">반대매매 = 위탁매매 미수금을 갚지 못해 증권사가 강제로 판 금액(일별). 비중 = 미수금 대비 반대매매 비율. 점선 = 최근 1년 하루 평균 반대매매.
+    신용융자 잔고 = 증권사에서 빌려 산 주식 금액(이 부분의 반대매매는 공식 통계가 없음). 자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a></p>
+  </div>
+
+  <h2 id="sec-nps">국민연금 자산배분 — 실제 vs 목표</h2>
+  <div class="card">
+    <div class="donuts"><div id="npsactual" class="donut"></div><div id="npstarget" class="donut"></div></div>
+    <div class="tablebox" style="border:0"><table id="npstable"><thead><tr><th>자산</th><th>실제</th><th>목표</th><th>차이</th><th>금액(조원)</th></tr></thead><tbody></tbody></table></div>
+    <div id="npsdomestic" class="plot" style="height:120px"></div>
+    <p class="note" style="margin:4px" id="npsnote"></p>
+  </div>
+
   <footer>
     데이터: 주가 — Yahoo Finance(yfinance) · 스프레드 — ICE BofA 옵션조정 스프레드(FRED, 세인트루이스 연준) · CDS — 각 뉴스 기사(카드의 ‘CDS 출처’에 링크) ·
-    GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a>.
+    GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a> ·
+    D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
+    미수금·반대매매 — 금융투자협회 · 국민연금 — <a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a>.
     투자 권유가 아닌 참고용 정보입니다. 신용등급은 참고용(2026-10 기준)이며, '무등급' 기업(네오클라우드 등)은 회사 전체 신용등급이 없어 하이일드 B등급 평균 스프레드를 참고로 보여줍니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
 </div>
@@ -246,13 +279,113 @@ function renderGpu() {
   Plotly.react('gpuplot', traces, layout, CFG);
 }
 
-function renderAll() { renderSummary(); renderGpu(); renderCards(); }
+function xStartFor(lastDate, firstDate) {
+  const s = periodStart(lastDate);
+  return s && s > firstDate ? s : firstDate;
+}
+
+function renderDram() {
+  const box = document.getElementById('dramcards');
+  if (!DATA.dram || !DATA.dram.length) { box.innerHTML = '<p class="note">D램 데이터 없음</p>'; return; }
+  if (!box.children.length) {
+    box.innerHTML = DATA.dram.map((d, i) => `<div class="card" id="dram-${i}">
+      <h3><span>${d.label}</span></h3>
+      <div class="meta"><b>${d.item === 'DXI' ? fmtNum(d.last, 0) : '$' + fmtNum(d.last, 3)}</b> (${d.last_date}) · 1개월 ${fmtPct(d.m1)} · 3개월 ${fmtPct(d.m3)}</div>
+      <div class="plot" id="drplot-${i}" style="height:${d.x.length > 8 ? 360 : 220}px"></div>
+      <div class="meta small">${d.source}${d.x.length <= 8 ? ' · 기록이 4주 이상 쌓이면 기울기 막대가 나타납니다.' : ''}</div></div>`).join('');
+  }
+  DATA.dram.forEach((d, i) => {
+    const last = d.x[d.x.length - 1], xs = xStartFor(last, d.x[0]);
+    const hasSlope = d.chg4w.some(v => v != null);
+    const traces = [{x: d.x, y: d.y, type: 'scatter', mode: d.x.length > 30 ? 'lines' : 'lines+markers', name: '가격',
+      line: {color: css('--g7'), width: 2}, marker: {size: 6}, hovertemplate: (d.item === 'DXI' ? '%{y:,.0f}' : '$%{y:.3f}')}];
+    if (hasSlope) traces.push({x: d.x, y: d.chg4w, type: 'bar', name: '4주 변화율', yaxis: 'y2',
+      marker: {color: d.chg4w.map(v => v == null ? 'rgba(0,0,0,0)' : v >= 0 ? css('--g1') : css('--g2'))},
+      hovertemplate: '%{y:+.1f}%'});
+    const vis = d.y.filter((_, j) => d.x[j] >= xs), visC = d.chg4w.filter((v, j) => v != null && d.x[j] >= xs);
+    const layout = Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: hasSlope ? 'y2' : 'y', range: [xs, last], tickformat: '%y.%m'}),
+      yaxis: axis({domain: hasSlope ? [0.42, 1] : [0, 1], range: padRange(vis, false), title: {text: d.item === 'DXI' ? '지수' : '$', standoff: 2}}),
+    });
+    if (hasSlope) layout.yaxis2 = axis({domain: [0, 0.34], range: padRange(visC.concat([0]), false), title: {text: '4주%', standoff: 2},
+      zeroline: true, zerolinecolor: css('--ink2')});
+    Plotly.react('drplot-' + i, traces, layout, CFG);
+  });
+}
+
+function renderKofia() {
+  const k = DATA.kofia;
+  if (!k) return;
+  const L = k.last;
+  const tile = (key, val, sub) => `<div class="tile"><div class="k">${key}</div><div class="v">${val}</div><div class="s">${sub}</div></div>`;
+  document.getElementById('kofiatiles').innerHTML =
+    tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${L.date} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
+    tile('미수금 대비 반대매매 비중', L.ratio.toFixed(1) + '%', L.date) +
+    tile('위탁매매 미수금', fmtNum(L.misu) + '억', L.date) +
+    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `예탁금 ${fmtNum(L.deposit, 1)}조`);
+  const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
+  const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
+  const traces = [
+    {x: k.x, y: k.forced, type: 'bar', name: '반대매매(억원)', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
+    {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '비중(%)', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
+    {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자(조원)', yaxis: 'y3', line: {color: css('--g1'), width: 2}, hovertemplate: '%{y:.1f}조'},
+  ];
+  const layout = Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.68, 1], range: padRange(inR(k.forced), true), title: {text: '반대매매 억', standoff: 2}}),
+    yaxis2: axis({domain: [0.36, 0.62], range: padRange(inR(k.ratio), true), title: {text: '비중 %', standoff: 2}}),
+    yaxis3: axis({domain: [0, 0.30], range: padRange(inR(k.credit), false), title: {text: '신용 조', standoff: 2}}),
+    shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: L.forced_avg_1y, y1: L.forced_avg_1y, line: {color: css('--ink2'), width: 1, dash: 'dot'}}],
+    bargap: 0.1,
+  });
+  Plotly.react('kofiaplot', traces, layout, CFG);
+}
+
+function renderNps() {
+  const n = DATA.nps;
+  if (!n) return;
+  const order = ['국내주식', '해외주식', '국내채권', '해외채권', '대체투자', '단기자금'];
+  const colors = ['--g1', '--g2', '--g3', '--g4', '--g5', '--muted'].map(css);
+  const byA = Object.fromEntries(n.assets.map(a => [a.asset, a]));
+  const donut = (el, vals, title) => Plotly.react(el, [{type: 'pie', hole: 0.58, labels: order, values: vals, sort: false, direction: 'clockwise',
+      marker: {colors, line: {color: css('--surface'), width: 2}}, textinfo: 'none', hovertemplate: '%{label} %{value:.1f}%<extra></extra>'}],
+    Object.assign(baseLayout(), {margin: {l: 4, r: 4, t: 26, b: 4}, hovermode: 'closest',
+      title: {text: title, font: {size: 12, color: css('--ink2')}, y: 0.98},
+      annotations: [{text: `국내주식<br><b>${vals[0].toFixed(1)}%</b>`, showarrow: false, font: {size: 13, color: css('--ink')}}]}), CFG);
+  donut('npsactual', order.map(a => byA[a] ? byA[a].pct : 0), `실제 (${n.month.replace('-', '년 ')}월 말)`);
+  const t = n.target || {};
+  donut('npstarget', order.map(a => t[a] || 0), `${t.year || ''}년 목표`);
+  // 목표는 단기자금을 채권에 포함한 비중이므로 비교표에서는 채권+단기 합산 없이 그대로 표시
+  document.querySelector('#npstable tbody').innerHTML = order.map((a, i) => {
+    const act = byA[a] ? byA[a].pct : null, tg = t[a];
+    const diff = act != null && tg != null ? act - tg : null;
+    return `<tr><td><span class="sw" style="border-color:${colors[i]};border-top-width:3px"></span>${a}</td>
+      <td>${act == null ? '–' : act.toFixed(1) + '%'}</td><td>${tg == null ? '–' : tg.toFixed(1) + '%'}</td>
+      <td>${diff == null ? '–' : `<b>${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%p</b>`}</td><td>${byA[a] ? fmtNum(byA[a].trillion, 1) : '–'}</td></tr>`;
+  }).join('');
+  // 국내주식: 목표 대비 위치 막대 (+ 허용범위가 공개되면 표시)
+  const act = byA['국내주식'].pct, tg = t['국내주식'], band = (n.band || {})['국내주식'];
+  const shapes = [{type: 'line', x0: tg, x1: tg, y0: -0.5, y1: 0.5, line: {color: css('--ink'), width: 2}}];
+  if (band) shapes.push({type: 'rect', x0: tg - band, x1: tg + band, y0: -0.4, y1: 0.4, fillcolor: css('--line'), line: {width: 0}, layer: 'below'});
+  Plotly.react('npsdomestic', [{type: 'bar', orientation: 'h', x: [act], y: ['국내주식'], marker: {color: css('--g1')},
+      hovertemplate: '실제 %{x:.1f}%<extra></extra>', width: 0.5}],
+    Object.assign(baseLayout(), {margin: {l: 60, r: 10, t: 6, b: 26}, hovermode: 'closest', shapes,
+      xaxis: axis({range: [0, Math.max(act, tg + (band || 0)) * 1.25], ticksuffix: '%'}), yaxis: axis({}),
+      annotations: [{x: tg, y: 0.5, yanchor: 'bottom', text: `목표 ${tg}%`, showarrow: false, font: {size: 11, color: css('--ink')}},
+                    {x: act, y: 0, xanchor: 'left', text: ` 실제 ${act}%`, showarrow: false, font: {size: 11, color: css('--ink')}}]}), CFG);
+  document.getElementById('npsnote').innerHTML =
+    `${n.month.replace('-', '년 ')}월 말 국내주식 비중은 목표보다 <b>${(act - tg).toFixed(1)}%p ${act >= tg ? '높습니다' : '낮습니다'}</b>. ` +
+    (band ? `리밸런싱 허용범위 ±${band}%p (회색 구간).` : `리밸런싱 허용범위(상·하단)는 2026년 5월 '한시 확대' 이후 공개되지 않아 표시하지 않았습니다(연말 재점검 예정). `) +
+    `목표의 국내·해외채권은 단기자금을 포함한 비중입니다. 매월 공시되는 값을 자동으로 쌓아 추이도 기록합니다. 자료: 국민연금기금운용본부`;
+}
+
+function renderAll() { renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderGpu(); renderCards();
+  renderGpu(); renderCards(); renderDram(); renderKofia();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
