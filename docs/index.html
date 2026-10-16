@@ -133,9 +133,11 @@ footer a{color:var(--ink2)}
   </div>
   <div class="tiles" id="kofiatiles"></div>
   <div class="card">
-    <h3><span>고객예탁금 · 신용융자 잔고 (조원)</span></h3>
-    <div id="fundplot" class="plot" style="height:400px"></div>
-    <p class="note" style="margin:4px">점선 = 최근 1년 최고점. 신용융자는 ETF 포함 전체 기준이라 증권사 리포트(ETF 제외)와 조금 다를 수 있어요.</p>
+    <h3><span>고객예탁금 · 신용융자 · 코스피 (2020년 1월~)</span></h3>
+    <div id="fundplot" class="plot" style="height:560px"></div>
+    <p class="note" style="margin:4px">대기 현금(예탁금)이 늘면 주식을 살 돈이 많아져 호황, 줄면 불황 쪽으로 가는 흐름을 코스피와 함께 볼 수 있어요.
+    이 차트는 위 기간 버튼과 상관없이 항상 2020년 1월부터 보여줘요. 점선 = 최근 1년 최고점.
+    신용융자는 ETF 포함 전체 기준이라 증권사 리포트(ETF 제외)와 조금 다를 수 있어요. 코스피: Yahoo Finance</p>
   </div>
   <div class="card">
     <h3><span>반대매매 (억원) · 미수금 대비 비중 (%)</span></h3>
@@ -346,14 +348,18 @@ function renderKofia() {
   const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
   const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
   const peakLine = (yref, v) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color: css('--ink2'), width: 1, dash: 'dot'}});
-  // 주변자금: 예탁금(위)·신용융자(아래) — 단위는 같아도 크기가 달라 칸을 나눠 그림
+  // 주변자금(2020년~ 고정): 예탁금 · 신용융자 · 코스피를 날짜축 맞춰 3칸으로
+  const fs = '2020-01-01', inF = (xx, arr) => arr.filter((v, i) => v != null && xx[i] >= fs);
+  const kp = k.kospi || {x: [], y: []};
   Plotly.react('fundplot', [
     {x: k.x, y: k.deposit, type: 'scatter', mode: 'lines', name: '고객예탁금', line: {color: css('--g2'), width: 2}, hovertemplate: '예탁금 %{y:.1f}조'},
-    {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자', yaxis: 'y2', line: {color: css('--price'), width: 2}, hovertemplate: '신용 %{y:.1f}조'},
+    {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자', yaxis: 'y2', line: {color: css('--g1'), width: 2}, hovertemplate: '신용 %{y:.1f}조'},
+    {x: kp.x, y: kp.y, type: 'scatter', mode: 'lines', name: '코스피', yaxis: 'y3', line: {color: css('--price'), width: 1.6}, hovertemplate: '코스피 %{y:,.0f}'},
   ], Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
-    yaxis: axis({domain: [0.54, 1], range: padRange(inR(k.deposit), false), title: {text: '예탁금', standoff: 2}}),
-    yaxis2: axis({domain: [0, 0.46], range: padRange(inR(k.credit), false), title: {text: '신용융자', standoff: 2}}),
+    xaxis: axis({type: 'date', anchor: 'y3', range: [fs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.70, 1], range: padRange(inF(k.x, k.deposit), false), title: {text: '예탁금 조', standoff: 2}}),
+    yaxis2: axis({domain: [0.36, 0.64], range: padRange(inF(k.x, k.credit), false), title: {text: '신용 조', standoff: 2}}),
+    yaxis3: axis({domain: [0, 0.30], range: padRange(inF(kp.x, kp.y), false), title: {text: '코스피', standoff: 2}}),
     shapes: [peakLine('y', dp.value), peakLine('y2', cp.value)],
   }), CFG);
   Plotly.react('kofiaplot', [

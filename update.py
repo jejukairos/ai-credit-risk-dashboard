@@ -64,6 +64,11 @@ def fetch_prices():
     df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
     df.index.name = "date"
     df.round(4).to_csv(os.path.join(DATA, "prices.csv"))
+    # 코스피 지수 (고객예탁금 차트와 비교용, 2020년부터)
+    k = yf.download("^KS11", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    if not k.empty:
+        k.index = pd.to_datetime(k.index).strftime("%Y-%m-%d")
+        k.rename("kospi").rename_axis("date").round(2).to_csv(os.path.join(DATA, "kospi.csv"))
 
 
 # ---------- 2·3. 등급별 회사채 스프레드 (FRED) ----------
@@ -361,7 +366,13 @@ def build_kofia():
         now = k.dropna(subset=[col]).iloc[-1]
         return {"date": row["date"], "value": round(row[col] / 1e6, 1),
                 "chg": round((now[col] / row[col] - 1) * 100, 1)}
+    kp_path = os.path.join(DATA, "kospi.csv")
+    kospi = {"x": [], "y": []}
+    if os.path.exists(kp_path):
+        kp = pd.read_csv(kp_path, dtype={"date": str})
+        kospi = {"x": list(kp["date"]), "y": [round(float(v), 2) for v in kp["kospi"]]}
     return {
+        "kospi": kospi,
         "x": list(k["date"]),
         "misu": num("misu", 100, 0),          # 억원
         "forced": num("forced", 100, 0),      # 억원
