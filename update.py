@@ -353,7 +353,14 @@ def build_kofia():
     k = k[k["date"] >= "2015-01-01"]
     num = lambda c, div, nd=1: [None if pd.isna(v) else round(v / div, nd) for v in k[c]]  # noqa: E731
     last = k.dropna(subset=["forced"]).iloc[-1]
-    forced_avg_1y = k[k["date"] >= (pd.Timestamp(last["date"]) - pd.Timedelta(days=365)).strftime("%Y-%m-%d")]["forced"].mean()
+    one_y = k[k["date"] >= (pd.Timestamp(last["date"]) - pd.Timedelta(days=365)).strftime("%Y-%m-%d")]
+    forced_avg_1y = one_y["forced"].mean()
+
+    def peak(col):  # 최근 1년 최고점과 지금의 차이
+        row = one_y.loc[one_y[col].idxmax()]
+        now = k.dropna(subset=[col]).iloc[-1]
+        return {"date": row["date"], "value": round(row[col] / 1e6, 1),
+                "chg": round((now[col] / row[col] - 1) * 100, 1)}
     return {
         "x": list(k["date"]),
         "misu": num("misu", 100, 0),          # 억원
@@ -363,7 +370,10 @@ def build_kofia():
         "deposit": num("deposit", 1e6, 2),    # 조원
         "last": {"date": last["date"], "misu": round(last["misu"] / 100), "forced": round(last["forced"] / 100),
                  "ratio": float(last["ratio"]), "credit": round(last["credit"] / 1e6, 2),
-                 "deposit": round(last["deposit"] / 1e6, 2), "forced_avg_1y": round(forced_avg_1y / 100)},
+                 "deposit": round(last["deposit"] / 1e6, 2), "forced_avg_1y": round(forced_avg_1y / 100),
+                 "deposit_peak": peak("deposit"), "credit_peak": peak("credit"),
+                 "deposit_w1": pct_change(k.set_index("date")["deposit"], 7),
+                 "credit_w1": pct_change(k.set_index("date")["credit"], 7)},
     }
 
 

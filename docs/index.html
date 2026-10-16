@@ -125,12 +125,23 @@ footer a{color:var(--ink2)}
   <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
   <div id="dramcards"></div>
 
-  <h2 id="sec-kofia">미수금·반대매매 (국내 증시 빚투 지표)</h2>
+  <h2 id="sec-kofia">국내 증시 주변자금 · 반대매매</h2>
+  <div class="glossary">
+    <div><b>고객예탁금</b> 사람들이 주식 사려고 증권사 계좌에 넣어 둔 <b>대기 현금</b>이에요. 줄면 시장에서 주식을 받아줄 돈이 줄어든 거예요.</div>
+    <div><b>신용융자</b> 증권사에서 <b>돈을 빌려</b> 산 주식 금액이에요. 많을수록 주가가 떨어질 때 강제로 팔리는 물량이 커질 수 있어요.</div>
+    <div><b>반대매매</b> 빌린 돈(미수금)을 못 갚아서 증권사가 <b>강제로 판</b> 금액이에요.</div>
+  </div>
   <div class="tiles" id="kofiatiles"></div>
   <div class="card">
-    <div id="kofiaplot" class="plot" style="height:520px"></div>
-    <p class="note" style="margin:4px">반대매매 = 위탁매매 미수금을 갚지 못해 증권사가 강제로 판 금액(일별). 비중 = 미수금 대비 반대매매 비율. 점선 = 최근 1년 하루 평균 반대매매.
-    신용융자 잔고 = 증권사에서 빌려 산 주식 금액(이 부분의 반대매매는 공식 통계가 없음). 자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a></p>
+    <h3><span>고객예탁금 · 신용융자 잔고 (조원)</span></h3>
+    <div id="fundplot" class="plot" style="height:400px"></div>
+    <p class="note" style="margin:4px">점선 = 최근 1년 최고점. 신용융자는 ETF 포함 전체 기준이라 증권사 리포트(ETF 제외)와 조금 다를 수 있어요.</p>
+  </div>
+  <div class="card">
+    <h3><span>반대매매 (억원) · 미수금 대비 비중 (%)</span></h3>
+    <div id="kofiaplot" class="plot" style="height:360px"></div>
+    <p class="note" style="margin:4px">점선 = 최근 1년 하루 평균 반대매매. 신용융자 쪽 반대매매는 공식 통계가 없어요.
+    자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> (2015년부터 매일)</p>
   </div>
 
   <h2 id="sec-nps">국민연금 자산배분 — 실제 vs 목표</h2>
@@ -326,27 +337,35 @@ function renderKofia() {
   if (!k) return;
   const L = k.last;
   const tile = (key, val, sub) => `<div class="tile"><div class="k">${key}</div><div class="v">${val}</div><div class="s">${sub}</div></div>`;
+  const dp = L.deposit_peak, cp = L.credit_peak, md = s => s.slice(2).replace(/-/g, '.');
   document.getElementById('kofiatiles').innerHTML =
-    tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${L.date} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
-    tile('미수금 대비 반대매매 비중', L.ratio.toFixed(1) + '%', L.date) +
-    tile('위탁매매 미수금', fmtNum(L.misu) + '억', L.date) +
-    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `예탁금 ${fmtNum(L.deposit, 1)}조`);
+    tile('고객예탁금', fmtNum(L.deposit, 1) + '조', `1주 ${fmtPct(L.deposit_w1)} · 고점(${md(dp.date)} ${dp.value}조) 대비 ${fmtPct(dp.chg)}`) +
+    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `1주 ${fmtPct(L.credit_w1)} · 고점(${md(cp.date)} ${cp.value}조) 대비 ${fmtPct(cp.chg)}`) +
+    tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${md(L.date)} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
+    tile('미수금 대비 반대매매', L.ratio.toFixed(1) + '%', `미수금 ${fmtNum(L.misu)}억`);
   const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
   const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
-  const traces = [
+  const peakLine = (yref, v) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color: css('--ink2'), width: 1, dash: 'dot'}});
+  // 주변자금: 예탁금(위)·신용융자(아래) — 단위는 같아도 크기가 달라 칸을 나눠 그림
+  Plotly.react('fundplot', [
+    {x: k.x, y: k.deposit, type: 'scatter', mode: 'lines', name: '고객예탁금', line: {color: css('--g2'), width: 2}, hovertemplate: '예탁금 %{y:.1f}조'},
+    {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자', yaxis: 'y2', line: {color: css('--price'), width: 2}, hovertemplate: '신용 %{y:.1f}조'},
+  ], Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.54, 1], range: padRange(inR(k.deposit), false), title: {text: '예탁금', standoff: 2}}),
+    yaxis2: axis({domain: [0, 0.46], range: padRange(inR(k.credit), false), title: {text: '신용융자', standoff: 2}}),
+    shapes: [peakLine('y', dp.value), peakLine('y2', cp.value)],
+  }), CFG);
+  Plotly.react('kofiaplot', [
     {x: k.x, y: k.forced, type: 'bar', name: '반대매매(억원)', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
     {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '비중(%)', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
-    {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자(조원)', yaxis: 'y3', line: {color: css('--g1'), width: 2}, hovertemplate: '%{y:.1f}조'},
-  ];
-  const layout = Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m'}),
-    yaxis: axis({domain: [0.68, 1], range: padRange(inR(k.forced), true), title: {text: '반대매매 억', standoff: 2}}),
-    yaxis2: axis({domain: [0.36, 0.62], range: padRange(inR(k.ratio), true), title: {text: '비중 %', standoff: 2}}),
-    yaxis3: axis({domain: [0, 0.30], range: padRange(inR(k.credit), false), title: {text: '신용 조', standoff: 2}}),
-    shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: L.forced_avg_1y, y1: L.forced_avg_1y, line: {color: css('--ink2'), width: 1, dash: 'dot'}}],
+  ], Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.52, 1], range: padRange(inR(k.forced), true), title: {text: '반대매매 억', standoff: 2}}),
+    yaxis2: axis({domain: [0, 0.44], range: padRange(inR(k.ratio), true), title: {text: '비중 %', standoff: 2}}),
+    shapes: [peakLine('y', L.forced_avg_1y)],
     bargap: 0.1,
-  });
-  Plotly.react('kofiaplot', traces, layout, CFG);
+  }), CFG);
 }
 
 function renderNps() {
