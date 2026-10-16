@@ -14,18 +14,20 @@ SPREAD_SERIES = {
     "B": "BAMLH0A2HYB",
 }
 
-# rating: S&P 장기 신용등급(참고용, 2026-10 기준). bucket: 위 스프레드 지수 중 어느 것을 쓸지
+# rating: S&P 장기 신용등급(참고용, 2026-10 기준). "무등급" = 회사 전체 신용등급이 없음 → 하이일드 B 지수를 참고로 사용
+# bucket: 위 스프레드 지수 중 어느 것을 쓸지. currency: 주가 통화
+# 구성: CDS가 거래되며 AI 부채 우려가 큰 기업 + 네오클라우드/AI 데이터센터 기업
 TICKERS = [
-    {"ticker": "CRWV", "name": "코어위브", "rating": "B+", "bucket": "B"},
-    {"ticker": "ORCL", "name": "오라클", "rating": "BBB-", "bucket": "BBB"},
-    {"ticker": "META", "name": "메타", "rating": "AA-", "bucket": "AA"},
-    {"ticker": "GOOGL", "name": "구글", "rating": "AA+", "bucket": "AA"},
-    {"ticker": "MSFT", "name": "마이크로소프트", "rating": "AAA", "bucket": "AAA"},
-    {"ticker": "NVDA", "name": "엔비디아", "rating": "AA-", "bucket": "AA"},
-    {"ticker": "TSLA", "name": "테슬라", "rating": "BBB", "bucket": "BBB"},
-    {"ticker": "AMZN", "name": "아마존", "rating": "AA", "bucket": "AA"},
-    {"ticker": "AVGO", "name": "브로드컴", "rating": "BBB+", "bucket": "BBB"},
-    {"ticker": "AMD", "name": "AMD", "rating": "A-", "bucket": "A"},
+    {"ticker": "CRWV", "name": "코어위브", "rating": "B+", "bucket": "B", "group": "네오클라우드"},
+    {"ticker": "NBIS", "name": "네비우스", "rating": "무등급", "bucket": "B", "group": "네오클라우드"},
+    {"ticker": "IREN", "name": "아이렌", "rating": "무등급", "bucket": "B", "group": "네오클라우드"},
+    {"ticker": "APLD", "name": "어플라이드 디지털", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
+    {"ticker": "WULF", "name": "테라울프", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
+    {"ticker": "CIFR", "name": "사이퍼", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
+    {"ticker": "ORCL", "name": "오라클", "rating": "BBB-", "bucket": "BBB", "group": "AI 클라우드"},
+    {"ticker": "9984.T", "name": "소프트뱅크그룹", "rating": "BB+", "bucket": "BB", "group": "AI 투자", "currency": "¥"},
+    {"ticker": "NVDA", "name": "엔비디아", "rating": "AA-", "bucket": "AA", "group": "AI 칩"},
+    {"ticker": "AVGO", "name": "브로드컴", "rating": "BBB+", "bucket": "BBB", "group": "AI 칩"},
 ]
 
 # GPU 임대가격 (Price of Compute 무료 API, 공급사별 시간당 가격의 일별 중앙값)

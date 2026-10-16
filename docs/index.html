@@ -76,9 +76,9 @@ footer a{color:var(--ink2)}
     <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
   </div>
 
-  <h2>10개 종목 요약</h2>
+  <h2>위험 기업 요약 (네오클라우드·AI 부채 우려 기업)</h2>
   <div class="tablebox"><table id="summary">
-    <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>최근 CDS<br>(bp·날짜)</th></tr></thead>
+    <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
   <p class="note">스프레드 = 같은 신용등급 회사채 평균 수익률 − 미국채 수익률(bp, ICE BofA 지수). CDS = 5년물, 뉴스 기사에서 수집(출처 있는 것만).
   위험 색깔: <span class="risk"><span class="dot red"></span>빨강</span> CDS ≥ 400bp 또는 스프레드 ≥ 500bp 또는 1개월 주가 ≤ −25% ·
@@ -98,14 +98,14 @@ footer a{color:var(--ink2)}
     <span><span class="sw" style="border-color:var(--cds)"></span>CDS 5년(bp, 점=기사)</span>
     <span><span class="sw" style="border-color:var(--spread)"></span>등급 스프레드(bp)</span>
     <span><span class="sw" style="border-color:var(--warnline);border-top-style:dashed"></span>CDS 1,000bp (부도위험 약 60%)</span>
-    <span><span class="sw" style="border-color:var(--price)"></span>주가($)</span>
+    <span><span class="sw" style="border-color:var(--price)"></span>주가</span>
   </div>
   <div id="cards"></div>
 
   <footer>
     데이터: 주가 — Yahoo Finance(yfinance) · 스프레드 — ICE BofA 옵션조정 스프레드(FRED, 세인트루이스 연준) · CDS — 각 뉴스 기사(카드의 ‘CDS 출처’에 링크) ·
     GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a>.
-    투자 권유가 아닌 참고용 정보입니다. 신용등급은 참고용(2026-10 기준)입니다.
+    투자 권유가 아닌 참고용 정보입니다. 신용등급은 참고용(2026-10 기준)이며, '무등급' 기업(네오클라우드 등)은 회사 전체 신용등급이 없어 하이일드 B등급 평균 스프레드를 참고로 보여줍니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
 </div>
 
@@ -115,6 +115,8 @@ let DATA = null, STATUS = null, PERIOD = '1y';
 const fmtPct = v => v == null ? '–' : `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
 const fmtNum = (v, d = 0) => v == null ? '–' : v.toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
 const riskName = {green: '초록', yellow: '노랑', red: '빨강'};
+const cur = t => t.currency || '$';
+const bucketLabel = t => t.rating === '무등급' ? 'B지수' : t.bucket + '등급';
 
 function periodStart(lastDate) {
   const d = new Date(lastDate);
@@ -154,8 +156,8 @@ function renderSummary() {
   const tb = document.querySelector('#summary tbody');
   tb.innerHTML = DATA.tickers.map(t => `<tr data-t="${t.ticker}" title="${t.risk_reasons.join(', ')}">
     <td><span class="dot ${t.risk}" role="img" aria-label="위험 ${riskName[t.risk]}"></span> <span class="tk">${t.name}</span><br><span class="small">${riskName[t.risk]} · ${t.ticker} · ${t.rating}</span></td>
-    <td>${fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
-    <td>${fmtNum(t.spread)}<br><span class="small">${t.bucket}등급</span></td>
+    <td>${cur(t) === '¥' ? '¥' + fmtNum(t.price, 0) : fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
+    <td>${fmtNum(t.spread)}<br><span class="small">${bucketLabel(t)}</span></td>
     <td>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
   tb.querySelectorAll('tr').forEach(tr => tr.onclick = () =>
     document.getElementById('card-' + tr.dataset.t).scrollIntoView({behavior: 'smooth'}));
@@ -178,7 +180,7 @@ function renderCards() {
   if (!box.children.length) {
     box.innerHTML = DATA.tickers.map(t => `<div class="card" id="card-${t.ticker}">
       <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
-      <div class="meta">주가 $${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating} → ${t.bucket}등급 지수) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
+      <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
       <div class="plot" id="plot-${t.ticker}"></div>
       ${t.series.cds.x.length ? `<details><summary>CDS 출처 ${t.series.cds.x.length}건 (점을 눌러도 기사로 이동)</summary><ul>${
         t.series.cds.x.map((d, i) => `<li>${d} · ${t.series.cds.y[i]}bp — <a href="${t.series.cds.url[i]}" target="_blank" rel="noopener">${new URL(t.series.cds.url[i]).hostname}</a>${t.series.cds.note[i] ? ' · ' + t.series.cds.note[i] : ''}</li>`).join('')}</ul></details>`
@@ -191,7 +193,9 @@ function renderCards() {
     const hasCds = s.cds.x.length > 0;
     const topVals = inRange(s.spread, start).concat(inRange(s.cds, start));
     let topRange = padRange(topVals, true);
-    if (hasCds) topRange = [0, Math.max(1100, ...s.cds.y.map(v => v * 1.08))];
+    // CDS가 400bp 이상인 종목만 1,000bp 경고선이 보이도록 축을 넓힘 (낮은 종목은 선이 납작해지지 않게)
+    const showWarn = hasCds && Math.max(...s.cds.y) >= 400;
+    if (showWarn) topRange = [0, Math.max(1100, ...s.cds.y.map(v => v * 1.08))];
     const traces = [
       {x: s.spread.x, y: s.spread.y, name: '스프레드', type: 'scatter', mode: 'lines',
        line: {color: css('--spread'), width: 2}, hovertemplate: '%{y:.0f}bp'},
@@ -199,16 +203,18 @@ function renderCards() {
        line: {color: css('--cds'), width: 2}, marker: {size: 8, color: css('--cds'), line: {color: css('--surface'), width: 2}},
        customdata: s.cds.url, hovertemplate: '%{y:.0f}bp', connectgaps: true},
       {x: s.price.x, y: s.price.y, name: '주가', type: 'scatter', mode: 'lines', yaxis: 'y2',
-       line: {color: css('--price'), width: 1.6}, hovertemplate: '$%{y:,.2f}'},
+       line: {color: css('--price'), width: 1.6}, hovertemplate: cur(t) + '%{y:,.2f}'},
     ];
     const layout = Object.assign(baseLayout(), {
       xaxis: axis({anchor: 'y2', range: [start || s.price.x[0], last], type: 'date', tickformat: '%y.%m'}),
       yaxis: axis({domain: [0.47, 1], range: topRange, title: {text: 'bp', standoff: 2}}),
-      yaxis2: axis({domain: [0, 0.43], range: padRange(inRange(s.price, start), false), title: {text: '$', standoff: 2}}),
+      yaxis2: axis({domain: [0, 0.43], range: padRange(inRange(s.price, start), false), title: {text: cur(t), standoff: 2}}),
       shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 1000, y1: 1000,
                 line: {color: css('--warnline'), width: 1.5, dash: 'dash'}}],
-      annotations: hasCds ? [{xref: 'paper', x: 0.01, yref: 'y', y: 1000, yanchor: 'bottom', xanchor: 'left', showarrow: false,
-                text: 'CDS 1,000bp · 부도위험 약 60%', font: {size: 10, color: css('--warnline')}}] : [],
+      annotations: showWarn ? [{xref: 'paper', x: 0.01, yref: 'y', y: 1000, yanchor: 'bottom', xanchor: 'left', showarrow: false,
+                text: 'CDS 1,000bp · 부도위험 약 60%', font: {size: 10, color: css('--warnline')}}]
+        : [{xref: 'paper', x: 0.01, yref: 'paper', y: 1, yanchor: 'top', xanchor: 'left', showarrow: false,
+            text: '1,000bp 경고선은 화면 위쪽 범위 밖', font: {size: 10, color: css('--muted')}}],
     });
     const el = document.getElementById('plot-' + t.ticker);
     Plotly.react(el, traces, layout, CFG);
