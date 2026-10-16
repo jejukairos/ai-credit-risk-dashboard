@@ -62,6 +62,9 @@ tbody tr{cursor:pointer}
 details{font-size:12px;color:var(--ink2);margin:4px 4px 0}
 details a{color:var(--ink2);word-break:break-all}
 .note{font-size:12px;color:var(--ink2)}
+.glossary{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;font-size:12.5px;color:var(--ink2)}
+.glossary div{padding:4px 0;border-bottom:1px solid var(--line)} .glossary div:last-child{border-bottom:0}
+.glossary b{color:var(--ink)}
 .jump{display:flex;gap:6px;overflow-x:auto;margin:10px 0 0;padding-bottom:2px}
 .jump a{flex:none;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
 .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
@@ -87,14 +90,19 @@ footer a{color:var(--ink2)}
     <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
   </div>
 
-  <h2 id="sec-credit">위험 기업 요약 (네오클라우드·AI 부채 우려 기업)</h2>
+  <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
-  <p class="note">스프레드 = 같은 신용등급 회사채 평균 수익률 − 미국채 수익률(bp, ICE BofA 지수). CDS = 5년물, 뉴스 기사에서 수집(출처 있는 것만).
-  위험 색깔: <span class="risk"><span class="dot red"></span>빨강</span> CDS ≥ 400bp 또는 스프레드 ≥ 500bp 또는 1개월 주가 ≤ −25% ·
-  <span class="risk"><span class="dot yellow"></span>노랑</span> CDS ≥ 150bp 또는 스프레드 ≥ 200bp 또는 1개월 ≤ −10% · 그 외 <span class="risk"><span class="dot green"></span>초록</span>
-  (CDS는 90일 이내 기록만 반영).</p>
+  <div class="glossary">
+    <div><b>CDS</b> 회사가 망할 때를 대비한 <b>보험료</b>예요. 숫자가 클수록 "이 회사 망할까 봐 걱정된다"는 뜻이에요.</div>
+    <div><b>신용등급</b> 회사가 빌린 돈을 잘 갚을지 매긴 <b>성적표</b>예요. AAA가 1등이고, BB+부터는 "조심" 등급이에요.</div>
+    <div><b>스프레드</b> 같은 성적표 회사들이 미국 정부보다 이자를 <b>얼마나 더 주고</b> 돈을 빌리는지예요. 많이 줄수록 위험해요.</div>
+    <div><b>셋의 관계</b> 셋 다 "돈 못 갚을 위험"을 재는 자예요. 성적표가 나쁠수록 스프레드와 CDS가 높아요.</div>
+    <div><b>bp</b> 0.01%예요. 100bp = 1%, 1,000bp = 10% (보험료가 1년에 빌린 돈의 10%).</div>
+    <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 400bp 이상이거나 한 달 새 주가 −25% ·
+      <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 150bp 이상이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
+  </div>
 
   <h2>종목별 차트</h2>
   <div class="legend">
@@ -138,7 +146,7 @@ footer a{color:var(--ink2)}
     GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a> ·
     D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
     미수금·반대매매 — 금융투자협회 · 국민연금 — <a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a>.
-    투자 권유가 아닌 참고용 정보입니다. 신용등급은 참고용(2026-10 기준)이며, '무등급' 기업(네오클라우드 등)은 회사 전체 신용등급이 없어 하이일드 B등급 평균 스프레드를 참고로 보여줍니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
+    투자 권유가 아닌 참고용 정보입니다. 신용등급은 S&amp;P 기준 참고용(2026-10)이며, 스프레드는 그 회사 채권이 아니라 같은 등급 회사들의 평균입니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
 </div>
 
@@ -215,8 +223,8 @@ function renderCards() {
       <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
       <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
       <div class="plot" id="plot-${t.ticker}"></div>
-      ${t.series.cds.x.length ? `<details><summary>CDS 출처 ${t.series.cds.x.length}건 (점을 눌러도 기사로 이동)</summary><ul>${
-        t.series.cds.x.map((d, i) => `<li>${d} · ${t.series.cds.y[i]}bp — <a href="${t.series.cds.url[i]}" target="_blank" rel="noopener">${new URL(t.series.cds.url[i]).hostname}</a>${t.series.cds.note[i] ? ' · ' + t.series.cds.note[i] : ''}</li>`).join('')}</ul></details>`
+      ${t.series.cds.x.length ? (s => `<details><summary>CDS 출처 ${s.x.length}건 (점을 눌러도 기사로 이동)</summary><ul>${
+        s.x.map((d, i) => `<li>${d} · ${s.y[i]}bp — <a href="${s.url[i]}" target="_blank" rel="noopener">${new URL(s.url[i]).hostname}</a>${s.note[i] ? ' · ' + s.note[i] : ''}</li>`).join('')}</ul></details>`)(t.series.cds_sources)
         : '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>'}
     </div>`).join('');
   }

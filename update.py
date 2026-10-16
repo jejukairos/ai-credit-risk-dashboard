@@ -399,6 +399,7 @@ def build():
         p = prices[tk].dropna() if tk in prices else pd.Series(dtype=float)
         sp = spreads[t["bucket"]].dropna() if t["bucket"] in spreads else pd.Series(dtype=float)
         c = cds[cds["ticker"] == tk]
+        cl = c.drop_duplicates("date", keep="last")
         cds_last = c.iloc[-1] if len(c) else None
         m1 = pct_change(p, 30)
         sp_last = float(sp.iloc[-1]) if len(sp) else None
@@ -417,8 +418,10 @@ def build():
             "series": {
                 "price": {"x": list(p.index), "y": [round(v, 2) for v in p.values]},
                 "spread": {"x": list(sp.index), "y": [round(v, 1) for v in sp.values]},
-                "cds": {"x": list(c["date"]), "y": [float(v) for v in c["bp"]],
-                        "url": list(c["source_url"]), "note": list(c.get("note", [""] * len(c)))},
+                # 차트 선은 날짜당 1개(같은 날 여러 기사면 마지막=종가 기준). 출처 목록은 전부 보여줌
+                "cds": {"x": list(cl["date"]), "y": [float(v) for v in cl["bp"]], "url": list(cl["source_url"])},
+                "cds_sources": {"x": list(c["date"]), "y": [float(v) for v in c["bp"]],
+                                "url": list(c["source_url"]), "note": list(c.get("note", [""] * len(c)))},
             },
         })
 

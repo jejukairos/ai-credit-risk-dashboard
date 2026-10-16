@@ -16,14 +16,10 @@ SPREAD_SERIES = {
 
 # rating: S&P 장기 신용등급(참고용, 2026-10 기준). "무등급" = 회사 전체 신용등급이 없음 → 하이일드 B 지수를 참고로 사용
 # bucket: 위 스프레드 지수 중 어느 것을 쓸지. currency: 주가 통화
-# 구성: CDS가 거래되며 AI 부채 우려가 큰 기업 + 네오클라우드/AI 데이터센터 기업
+# 구성: CDS(부도 보험료)가 실제로 거래·보도되는 AI 부채 우려 기업만
+# (네비우스·아이렌·어플라이드 디지털·테라울프·사이퍼는 CDS 수치가 없어 2026-10-17 제외)
 TICKERS = [
     {"ticker": "CRWV", "name": "코어위브", "rating": "B+", "bucket": "B", "group": "네오클라우드"},
-    {"ticker": "NBIS", "name": "네비우스", "rating": "무등급", "bucket": "B", "group": "네오클라우드"},
-    {"ticker": "IREN", "name": "아이렌", "rating": "무등급", "bucket": "B", "group": "네오클라우드"},
-    {"ticker": "APLD", "name": "어플라이드 디지털", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
-    {"ticker": "WULF", "name": "테라울프", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
-    {"ticker": "CIFR", "name": "사이퍼", "rating": "무등급", "bucket": "B", "group": "AI 데이터센터"},
     {"ticker": "ORCL", "name": "오라클", "rating": "BBB-", "bucket": "BBB", "group": "AI 클라우드"},
     {"ticker": "9984.T", "name": "소프트뱅크그룹", "rating": "BB+", "bucket": "BB", "group": "AI 투자", "currency": "¥"},
     {"ticker": "NVDA", "name": "엔비디아", "rating": "AA-", "bucket": "AA", "group": "AI 칩"},
