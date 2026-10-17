@@ -738,7 +738,7 @@ date,sku,type,usd
 2026-10-14,h200-sxm,on_demand,5.38375
 2026-10-15,h200-sxm,on_demand,5.87125
 2026-10-16,h200-sxm,on_demand,5.492
-2026-10-17,h200-sxm,on_demand,5.49225
+2026-10-17,h200-sxm,on_demand,5.4925
 2026-08-10,h200-sxm,spot,2.875
 2026-08-11,h200-sxm,spot,2.61625
 2026-08-12,h200-sxm,spot,2.61625
@@ -807,4 +807,4 @@ date,sku,type,usd
 2026-10-14,h200-sxm,spot,2.692
 2026-10-15,h200-sxm,spot,2.718875
 2026-10-16,h200-sxm,spot,2.746
-2026-10-17,h200-sxm,spot,2.746
+2026-10-17,h200-sxm,spot,2.746125
