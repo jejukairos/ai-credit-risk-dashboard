@@ -266,6 +266,26 @@ def fetch_fear_greed():
                    "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
 
 
+# ---------- VIX 지수 (Yahoo Finance) · 하이일드 스프레드 (FRED) ----------
+def fetch_vix():
+    import yfinance as yf
+    v = yf.download("^VIX", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    if v.empty:
+        raise RuntimeError("VIX 데이터가 비어 있음")
+    v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
+    v.rename("vix").rename_axis("date").round(2).to_csv(os.path.join(DATA, "vix.csv"))
+
+
+def fetch_hy():
+    # ICE BofA US High Yield Index Option-Adjusted Spread (블룸버그 하이일드 스프레드와 같은 계열의 무료 데이터, 단위 %)
+    h = fred_series("BAMLH0A0HYM2") / 100
+    path = os.path.join(DATA, "hy_spread.csv")
+    new = h.rename("hy").rename_axis("date").to_frame()
+    if os.path.exists(path):
+        new = new.combine_first(pd.read_csv(path, index_col=0))  # FRED는 최근 3년만 주므로 옛 기록은 보존
+    new.sort_index().round(2).to_csv(path)
+
+
 # ---------- 국민연금 자산배분 (기금운용본부 홈페이지, 매월 갱신) ----------
 NPS_ASSETS = ["국내주식", "해외주식", "국내채권", "해외채권", "대체투자", "단기자금"]
 
@@ -479,6 +499,45 @@ def build_fg():
     return {"now": now, "x": list(fg["date"]), "y": [float(v) for v in fg["score"]], "episodes": episodes}
 
 
+def _level_at(s, days):
+    """마지막 날짜의 days일 전(또는 그 직전 거래일) 값. 7일 넘게 공백이면 None"""
+    idx = pd.to_datetime(s.index)
+    t = idx[-1] - pd.Timedelta(days=days)
+    m = idx <= t
+    if not m.any() or (t - idx[m][-1]).days > 7:
+        return None
+    return float(s[m].iloc[-1])
+
+
+def build_vix():
+    path = os.path.join(DATA, "vix.csv")
+    if not os.path.exists(path):
+        return None
+    v = pd.read_csv(path, dtype={"date": str}).sort_values("date")
+    s = v.set_index("date")["vix"]
+    yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],
+            "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
+            "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 1)},
+            "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
+
+
+def build_hy():
+    path = os.path.join(DATA, "hy_spread.csv")
+    if not os.path.exists(path):
+        return None
+    h = pd.read_csv(path, dtype={"date": str}).sort_values("date").dropna()
+    s = h.set_index("date")["hy"]
+    yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
+    last = float(s.iloc[-1])
+    d = lambda days: None if _level_at(s, days) is None else round(last - _level_at(s, days), 2)  # noqa: E731
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values], "last": round(last, 2),
+            "last_date": s.index[-1], "d1w": d(7), "d1m": d(30),
+            "min_1y": {"date": yr.idxmin(), "value": round(float(yr.min()), 2)},
+            "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 2)},
+            "box_top": config.HY_BOX_TOP}
+
+
 def build_nps():
     path = os.path.join(DATA, "nps.csv")
     if not os.path.exists(path):
@@ -558,6 +617,8 @@ def build():
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
     out["fg"] = build_fg()
+    out["vix"] = build_vix()
+    out["hy"] = build_hy()
 
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
@@ -577,7 +638,8 @@ def main():
 
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("D램 현물가격(TrendForce)", fetch_dram),
-             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
+             ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:

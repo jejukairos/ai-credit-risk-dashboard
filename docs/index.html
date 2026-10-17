@@ -62,6 +62,8 @@ tbody tr{cursor:pointer}
 details{font-size:12px;color:var(--ink2);margin:4px 4px 0}
 details a{color:var(--ink2);word-break:break-all}
 .note{font-size:12px;color:var(--ink2)}
+.vixkey{display:inline-block;width:14px;height:0;border-top:3px dashed;vertical-align:middle;margin-right:2px}
+.vk-warn{border-color:var(--g4)} .vk-bad{border-color:var(--bad)}
 .fgtop{display:flex;align-items:center;gap:14px;margin:2px 4px 8px}
 .fgscore{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
 .fgrating{font-size:17px;font-weight:700}
@@ -99,7 +101,7 @@ footer a{color:var(--ink2)}
   <div id="banner"></div>
 
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-dram">D램</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-dram">D램</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -127,6 +129,41 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin:10px 4px 4px">실제로 그랬을까? — 지수가 10 이하로 떨어진 구간과 그 뒤 S&amp;P500 수익률 (2021년~). '그때 증시'는 최저일에 S&amp;P500이 직전 최고점보다 얼마나 낮았는지예요.</div>
     <div class="tablebox" style="border:0"><table id="fgtable"><thead><tr><th>시작</th><th>최저</th><th>그때<br>증시</th><th>3개월<br>후</th><th>6개월<br>후</th><th>1년<br>후</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:4px" id="fgnote"></p>
+  </div>
+
+  <h2 id="sec-vix">VIX 지수 (증시 변동성)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>VIX</b> 앞으로 한 달 동안 증시가 얼마나 <b>출렁일지</b>에 사람들이 거는 "변동성 보험료"예요. 숫자가 클수록 시장이 불안하다는 뜻이에요.</div>
+      <div><b>보는 법</b> <span class="vixkey vk-warn"></span> 20 위 = <b>주의</b> · <span class="vixkey vk-bad"></span> 30 위 = <b>공포</b></div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="vixscore">–</div><div><div class="fgrating" id="vixrating"></div><div class="small" id="vixprev"></div></div></div>
+    <div class="fgchips" id="vixchips"></div>
+    <div id="vixplot" class="plot" style="height:240px"></div>
+    <div class="memo">
+      <b>🐒 투자 메모</b>
+      <div>· 이 숫자가 <b>20 위</b>로 올라가면 증시가 <b>하루에 1~2% 이상</b> 출렁일 수 있다는 뜻이에요.</div>
+      <div>· 원래 극단적 공포 구간에서는 위아래로 마구 흔들면서 개인들이 손절하게 만들어요. 그래서 당분간 이런 <b>공포 유발</b>이 이어질 수 있어요.</div>
+      <div class="real" id="vixreal"></div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
+  </div>
+
+  <h2 id="sec-hy">하이일드 스프레드 (위기 선행지표)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>하이일드 스프레드</b> 신용등급이 낮은(BB 이하) 회사들이 미국 정부보다 이자를 <b>얼마나 더 주고</b> 돈을 빌리는지예요. 올라가면 투자자들이 "뭔가 터질 수 있다"고 걱정한다는 뜻이에요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="hyscore">–</div><div><div class="fgrating" id="hyrating"></div><div class="small" id="hyprev"></div></div></div>
+    <div class="fgchips" id="hychips"></div>
+    <div id="hyplot" class="plot" style="height:260px"></div>
+    <div class="memo">
+      <b>🐒 투자 메모 — ⚠️ 위기 선행지표</b>
+      <div>· 메모 작성자가 <b>위험지표 1순위</b>로 보는 선행지표예요. 이게 박스권을 뚫고 올라갔다는 건 투자자들이 뭔가 터질 수 있다는 위험을 <b>본격적으로 반영</b>하기 시작했다는 뜻이에요.</div>
+      <div>· 단기적으로는 좋지 않은 신호이고, 고변동·공포 유발 움직임이 이어질 수 있어요.</div>
+      <div class="real" id="hyreal"></div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">블룸버그 값은 유료라, 같은 ICE BofA 하이일드 지수를 무료로 공개하는 <a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2" target="_blank" rel="noopener">FRED</a> 데이터를 씁니다. 블룸버그 화면보다 하루 늦고 0.1%p 안팎 다를 수 있어요. 점선(3.2%)은 메모 차트의 박스권 위쪽 기준선입니다.</p>
   </div>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
@@ -197,6 +234,7 @@ footer a{color:var(--ink2)}
     데이터: 주가 — Yahoo Finance(yfinance) · 스프레드 — ICE BofA 옵션조정 스프레드(FRED, 세인트루이스 연준) · CDS — 각 뉴스 기사(카드의 ‘CDS 출처’에 링크) ·
     GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a> ·
     D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
+    VIX — Yahoo Finance(CBOE) · 하이일드 스프레드 — FRED(ICE BofA US High Yield OAS) ·
     미수금·반대매매 — 금융투자협회 · 국민연금 — <a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a>.
     투자 권유가 아닌 참고용 정보입니다. 신용등급은 S&amp;P 기준 참고용(2026-10)이며, 스프레드는 그 회사 채권이 아니라 같은 등급 회사들의 평균입니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
@@ -532,13 +570,69 @@ function renderFg() {
     `과거 결과가 앞으로를 보장하지는 않아요. 매일 미국 장 마감 후 값으로 갱신. 자료: <a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener">CNN Fear &amp; Greed Index</a>`;
 }
 
-function renderAll() { renderFg(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderVix() {
+  const v = DATA.vix;
+  if (!v) return;
+  const last = v.x[v.x.length - 1], sc = Math.round(v.last * 10) / 10;  // 19.99 → 20.0 (화면 표시와 판정을 같게)
+  document.getElementById('vixscore').textContent = sc.toFixed(1);
+  const zone = sc >= 30 ? ['공포', css('--bad')] : sc >= 20 ? ['주의', css('--spread')] : ['평온', css('--ink2')];
+  const rt = document.getElementById('vixrating');
+  rt.textContent = zone[0]; rt.style.color = zone[1];
+  document.getElementById('vixprev').innerHTML = `${v.last_date} 미국 장 마감 기준<br>전일 ${v.prev.toFixed(1)} · 올해 최고 ${v.max_1y.value.toFixed(1)} (${v.max_1y.date.slice(2).replace(/-/g, '.')})`;
+  const chips = [];
+  if (sc >= 30) chips.push('<span class="chip hot">공포 구간 (30 위)</span>');
+  else if (sc >= 20) chips.push('<span class="chip warm">주의 구간 (20 위) · 하루 1~2% 출렁일 수 있어요</span>');
+  if (sc >= 20 && v.prev < 19.95) chips.push(`<span class="chip">전일 ${v.prev.toFixed(1)} → 오늘 20 위로 올라섰어요</span>`);
+  document.getElementById('vixchips').innerHTML = chips.join('');
+  const xs = xStartFor(last, v.x[0]);
+  Plotly.react('vixplot', [{x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: 'VIX', line: {color: css('--cds'), width: 2}, hovertemplate: '%{y:.1f}'}],
+    Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
+      yaxis: axis({range: [10, Math.max(35, Math.max(...v.y.filter((a, i) => v.x[i] >= xs)) * 1.05)], tickvals: [10, 15, 20, 25, 30, 35]}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 20, y1: 20, line: {color: css('--g4'), width: 1.8, dash: 'dash'}},
+               {type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 30, y1: 30, line: {color: css('--bad'), width: 1.8, dash: 'dash'}}],
+      annotations: [{xref: 'paper', x: 0.99, y: 20, yanchor: 'bottom', xanchor: 'right', showarrow: false, text: '+20 주의', font: {size: 10, color: css('--ink2')}},
+                    {xref: 'paper', x: 0.99, y: 30, yanchor: 'bottom', xanchor: 'right', showarrow: false, text: '+30 공포', font: {size: 10, color: css('--bad')}}],
+    }), CFG);
+  document.getElementById('vixreal').innerHTML = `<b>실제 기록</b> 최근 1년 ${v.days_1y}거래일 중 VIX가 20 위였던 날은 <b>${v.days_above_20_1y}일</b>(${(v.days_above_20_1y / v.days_1y * 100).toFixed(0)}%)이에요. ` +
+    (sc >= 20 ? '지금은 그 구간 입구에 있어요.' : `지금은 20까지 ${(20 - sc).toFixed(1)}포인트 남았어요.`);
+}
+
+function renderHy() {
+  const h = DATA.hy;
+  if (!h) return;
+  const last = h.x[h.x.length - 1], top = h.box_top, sc = h.last;
+  document.getElementById('hyscore').textContent = sc.toFixed(2) + '%';
+  const above = sc > top;
+  const rt = document.getElementById('hyrating');
+  rt.textContent = above ? '박스권 위쪽 돌파' : '박스권 안'; rt.style.color = above ? css('--bad') : css('--ink2');
+  const sgn = x => x == null ? '–' : (x >= 0 ? '+' : '') + x.toFixed(2) + '%p';
+  document.getElementById('hyprev').innerHTML = `${h.last_date} 기준 (${Math.round(sc * 100)}bp)<br>1주 전보다 ${sgn(h.d1w)} · 1개월 전보다 ${sgn(h.d1m)}`;
+  const chips = [];
+  if (above) chips.push(`<span class="chip hot">${top}% 박스권 위쪽을 넘었어요</span>`);
+  if (h.d1m != null && h.d1m >= 0.3) chips.push('<span class="chip warm">한 달 새 0.3%p 이상 올랐어요</span>');
+  document.getElementById('hychips').innerHTML = chips.join('');
+  const xs = xStartFor(last, h.x[0]);
+  const vis = h.y.filter((a, i) => h.x[i] >= xs);
+  Plotly.react('hyplot', [{x: h.x, y: h.y, type: 'scatter', mode: 'lines', name: '하이일드 스프레드', line: {color: css('--spread'), width: 2.4}, hovertemplate: '%{y:.2f}%'}],
+    Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
+      yaxis: axis({range: padRange(vis.concat([top]), false), ticksuffix: '%'}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: top, y1: top, line: {color: css('--bad'), width: 1.8, dash: 'dash'}}],
+      annotations: [{xref: 'paper', x: 0.01, y: top, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `박스권 위쪽 ${top}%`, font: {size: 10, color: css('--bad')}}],
+    }), CFG);
+  const md = s => s.slice(2).replace(/-/g, '.');
+  document.getElementById('hyreal').innerHTML = `<b>실제 기록</b> 최근 1년 범위는 ${h.min_1y.value.toFixed(2)}%(${md(h.min_1y.date)}) ~ ${h.max_1y.value.toFixed(2)}%(${md(h.max_1y.date)})예요. ` +
+    `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
+}
+
+function renderAll() { renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderGpu(); renderCards(); renderDram(); renderKofia();
+  renderFg(); renderVix(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
