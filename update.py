@@ -266,6 +266,55 @@ def fetch_fear_greed():
                    "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
 
 
+# ---------- 내부자(임원·이사) 매수·매도 (Yahoo Finance가 SEC Form 4 공시를 정리한 데이터) ----------
+def _insider_tickers():
+    return [t["ticker"] for t in config.TICKERS if "." not in t["ticker"]]  # 일본 등 해외 상장(9984.T)은 미국식 Form 4가 없음
+
+
+def _insider_kind(text):
+    s = (text or "").strip().lower()
+    if s.startswith("sale"):
+        return "sale"
+    if s.startswith("purchase"):
+        return "purchase"
+    if s.startswith("stock award"):
+        return "award"
+    if s.startswith("stock gift"):
+        return "gift"
+    return "other"  # 설명 없음: 세금 납부용 처분·옵션 행사 등 (금액 미표기)
+
+
+def fetch_insiders():
+    import yfinance as yf
+    path = os.path.join(DATA, "insider_trades.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
+    frames, errors = [], []
+    for t in _insider_tickers():
+        try:
+            d = yf.Ticker(t).insider_transactions
+            if d is None or d.empty:
+                errors.append(f"{t}: 데이터 없음")
+                continue
+            d = d.rename(columns={"Start Date": "date", "Insider": "insider", "Position": "position", "Shares": "shares",
+                                  "Value": "value", "Text": "text", "Ownership": "ownership"})
+            d["ticker"] = t
+            d["date"] = pd.to_datetime(d["date"]).dt.strftime("%Y-%m-%d")
+            d["kind"] = d["text"].map(_insider_kind)
+            frames.append(d[["ticker", "date", "insider", "position", "shares", "value", "text", "ownership", "kind"]])
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"{t}: {e}")
+        time.sleep(1)
+    if not frames:
+        raise RuntimeError("내부자 거래 데이터를 못 받음: " + "; ".join(errors)[:300])
+    new = pd.concat(frames + ([old] if old is not None else []))
+    new["text"] = new["text"].fillna("")
+    # Yahoo는 최근 약 150건만 주므로 매일 받아 쌓아서 기간을 늘림
+    new = new.drop_duplicates(["ticker", "date", "insider", "text", "shares", "value"], keep="first")
+    new.sort_values(["ticker", "date"], ascending=[True, False]).to_csv(path, index=False)
+    if errors:
+        raise RuntimeError("; ".join(errors)[:300])
+
+
 # ---------- VIX 지수 (Yahoo Finance) · 하이일드 스프레드 (FRED) ----------
 def fetch_vix():
     import yfinance as yf
@@ -509,6 +558,56 @@ def _level_at(s, days):
     return float(s[m].iloc[-1])
 
 
+POS_KR = [("chief executive", "CEO"), ("chief financial", "CFO"), ("chief operating", "COO"), ("chief technology", "CTO"),
+          ("president", "사장"), ("general counsel", "법무책임자"), ("director", "이사"), ("officer", "임원")]
+
+
+def _pos_kr(p):
+    s = (p or "").lower()
+    for k, v in POS_KR:
+        if k in s:
+            return v
+    return p or "기타"
+
+
+def build_insider(tk, ins):
+    """종목 하나의 내부자 매수·매도 요약 (없으면 None)"""
+    if ins is None:
+        return None
+    df = ins[(ins["ticker"] == tk) & (ins["kind"].isin(["sale", "purchase"]))].copy()
+    if df.empty:
+        return {"rows": 0, "first": None}
+    price = df["text"].str.extract(r"price ([\d.]+)(?: - ([\d.]+))?").astype(float)
+    avg = price.mean(axis=1)
+    df["amount"] = df["value"].where(df["value"].notna() & (df["value"] > 0), df["shares"] * avg)
+    df["pos"] = df["position"].map(_pos_kr)
+    today = datetime.now(KST).date()
+    c90 = (today - timedelta(days=90)).isoformat()
+    r90 = df[df["date"] >= c90]
+    sell, buy = r90[r90["kind"] == "sale"], r90[r90["kind"] == "purchase"]
+    cxo = r90[r90["pos"].isin(["CEO", "CFO"])]
+    df["month"] = df["date"].str[:7]
+    mon = df.groupby(["month", "kind"])["amount"].sum().unstack(fill_value=0)
+    months = pd.period_range(df["month"].min(), today.strftime("%Y-%m"), freq="M").strftime("%Y-%m")
+    mon = mon.reindex(months, fill_value=0)
+    allrows = ins[ins["ticker"] == tk]
+    recent = df.sort_values("date", ascending=False).head(10)
+    return {
+        "rows": int(len(allrows)), "first": allrows["date"].min(), "last": allrows["date"].max(),
+        "sell90": round(float(sell["amount"].sum())), "sell90_n": int(len(sell)), "sell90_people": int(sell["insider"].nunique()),
+        "buy90": round(float(buy["amount"].sum())), "buy90_n": int(len(buy)),
+        "cxo_sell90": round(float(cxo[cxo["kind"] == "sale"]["amount"].sum())),
+        "cxo_buy90": round(float(cxo[cxo["kind"] == "purchase"]["amount"].sum())),
+        "cxo_n": int(len(cxo)),
+        "months": list(months),
+        "m_sell": [round(float(mon["sale"].get(m, 0)) / 1e6, 2) if "sale" in mon else 0 for m in months],
+        "m_buy": [round(float(mon["purchase"].get(m, 0)) / 1e6, 2) if "purchase" in mon else 0 for m in months],
+        "recent": [{"date": r["date"], "name": r["insider"].title(), "pos": r["pos"], "kind": r["kind"],
+                    "shares": int(r["shares"]), "amount": None if pd.isna(r["amount"]) else round(float(r["amount"])),
+                    "indirect": r["ownership"] == "I"} for _, r in recent.iterrows()],
+    }
+
+
 def build_vix():
     path = os.path.join(DATA, "vix.csv")
     if not os.path.exists(path):
@@ -563,6 +662,8 @@ def build():
     cds = cds.dropna(subset=["bp"])
     cds = cds[cds["source_url"].str.startswith("http")]  # 출처 없는 숫자는 쓰지 않음
     cds = cds.sort_values("date", kind="stable")
+    ins_path = os.path.join(DATA, "insider_trades.csv")
+    ins = pd.read_csv(ins_path, dtype={"date": str}).fillna({"text": ""}) if os.path.exists(ins_path) else None
 
     out = {"generated_at": now_kst(), "tickers": [], "gpu": [], "risk_rules": config.RISK}
     for t in config.TICKERS:
@@ -586,6 +687,7 @@ def build():
             "spread_series": config.SPREAD_SERIES[t["bucket"]],
             "cds": cds_bp, "cds_date": cds_date,
             "risk": color, "risk_reasons": reasons,
+            "insider": build_insider(tk, ins) if "." not in tk else {"rows": -1},
             "series": {
                 "price": {"x": list(p.index), "y": [round(v, 2) for v in p.values]},
                 "spread": {"x": list(sp.index), "y": [round(v, 1) for v in sp.values]},
@@ -639,7 +741,7 @@ def main():
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:

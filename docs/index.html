@@ -80,6 +80,13 @@ details a{color:var(--ink2);word-break:break-all}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
 .chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
+.srcs,.ins{margin:10px 4px 0;font-size:12.5px;color:var(--ink2)}
+.srcs ul,.inslist{list-style:none;margin:6px 0 0;padding:0}
+.srcs li,.inslist li{padding:6px 0;border-top:1px solid var(--line)}
+.srcs a,.ins a{color:var(--g1);word-break:break-all}
+.sd{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:6px}
+.k-sale{color:var(--bad);font-weight:700} .k-purchase{color:var(--good);font-weight:700}
+.ins{border-top:2px solid var(--line);padding-top:10px;margin-top:14px}
 .glossary{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;font-size:12.5px;color:var(--ink2)}
 .glossary div{padding:4px 0;border-bottom:1px solid var(--line)} .glossary div:last-child{border-bottom:0}
 .glossary b{color:var(--ink)}
@@ -303,7 +310,47 @@ function baseLayout() {
     dragmode: false,
   };
 }
-const axis = extra => Object.assign({gridcolor: css('--line'), zeroline: false, linecolor: css('--line'), fixedrange: true}, extra);
+const axis = extra => {
+  const o = Object.assign({gridcolor: css('--line'), zeroline: false, linecolor: css('--line'), fixedrange: true}, extra);
+  if (o.type === 'date' && !o.hoverformat) o.hoverformat = '%Y-%m-%d';  // 그래프를 누르면 '날짜 + 숫자'가 나오게
+  return o;
+};
+const fmtUsd = v => v == null ? '–' : v >= 1e9 ? '$' + (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'K' : '$' + v;
+const secUrl = tk => `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${tk}&type=4&dateb=&owner=include&count=40`;
+
+function srcHtml(t) {
+  const s = t.series.cds_sources;
+  if (!s.x.length) return '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>';
+  const rows = s.x.map((d, i) => ({d, y: s.y[i], u: s.url[i], n: s.note[i]})).reverse();
+  return `<div class="srcs"><b>CDS 출처</b> <span class="small">(누르면 기사·자료로 이동)</span><ul>${rows.map(r =>
+    `<li><span class="sd">${r.d}</span><b>${fmtNum(r.y, r.y % 1 ? 1 : 0)}bp</b> · <a href="${r.u}" target="_blank" rel="noopener">${new URL(r.u).hostname}${r.u.toLowerCase().includes('.pdf') ? ' (PDF 파일)' : ''} ↗</a>${r.n ? `<div class="small">${r.n}</div>` : ''}</li>`).join('')}</ul></div>`;
+}
+
+function insiderHtml(t) {
+  const i = t.insider;
+  const head = '<b>내부자 매수·매도</b> <span class="small">(임원·이사가 자기 회사 주식을 사고판 기록)</span>';
+  if (!i || i.rows === -1) return `<div class="ins">${head}<div class="small" style="margin-top:6px">일본 상장 기업이라 미국식 내부자 공시(Form 4)가 없어요.</div></div>`;
+  if (!i.rows || !i.first) return `<div class="ins">${head}<div class="small" style="margin-top:6px">아직 받은 기록이 없어요.</div></div>`;
+  const md = s => s.slice(2).replace(/-/g, '.');
+  const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v" style="font-size:17px">${v}</div><div class="s">${s}</div></div>`;
+  const cxo = i.cxo_n ? tile('CEO·CFO (90일)', '매도 ' + fmtUsd(i.cxo_sell90), '매수 ' + (i.cxo_buy90 > 0 ? fmtUsd(i.cxo_buy90) : '없음'))
+                      : tile('CEO·CFO (90일)', '거래 없음', '매수·매도 기록 없음');
+  const list = i.recent.length ? `<ul class="inslist">${i.recent.map(r => `<li><span class="sd">${md(r.date)}</span><b>${r.name}</b> <span class="small">(${r.pos}${r.indirect ? ' · 간접보유' : ''})</span><br>
+      <span class="k-${r.kind}">${r.kind === 'sale' ? '매도' : '매수'}</span> ${fmtNum(r.shares)}주 · ${fmtUsd(r.amount)}</li>`).join('')}</ul>` : '';
+  return `<div class="ins">${head}
+    <div class="tiles" style="margin:8px 0">
+      ${tile('내부자 매도 (90일)', i.sell90_n ? fmtUsd(i.sell90) : '없음', i.sell90_n ? `${i.sell90_n}건 · ${i.sell90_people}명` : '최근 90일 매도 기록 없음')}
+      ${tile('내부자 매수 (90일)', i.buy90_n ? fmtUsd(i.buy90) : '없음', i.buy90_n ? `${i.buy90_n}건` : '최근 90일 매수 기록 없음')}
+      ${cxo}
+      ${tile('기록 범위', `${md(i.first)}~${md(i.last)}`, `${i.rows}건 (매일 쌓는 중)`)}
+    </div>
+    <div class="small">월별 금액 ($M) — 빨강 위쪽 = 매도, 초록 아래쪽 = 매수</div>
+    <div class="plot" id="ins-${t.ticker}" style="height:190px"></div>
+    ${list}
+    <div class="small" style="margin-top:6px">공시 원문: <a href="${secUrl(t.ticker)}" target="_blank" rel="noopener">SEC Form 4 목록 ↗</a> · <a href="https://finance.yahoo.com/quote/${t.ticker}/insider-transactions/" target="_blank" rel="noopener">Yahoo 내부자 거래 ↗</a></div>
+    <div class="small" style="margin-top:4px">Yahoo Finance가 SEC 공시(Form 4)를 정리한 자료(최근 약 150건)예요. 미리 정해둔 매도계획(10b5-1)인지는 표시되지 않아요. 매도는 세금·생활비 때문일 수도 있어서, 그 자체가 나쁜 신호라는 뜻은 아니에요.</div>
+  </div>`;
+}
 const CFG = {displayModeBar: false, responsive: true};
 
 function renderCards() {
@@ -313,9 +360,9 @@ function renderCards() {
       <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
       <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
       <div class="plot" id="plot-${t.ticker}"></div>
-      ${t.series.cds.x.length ? (s => `<details><summary>CDS 출처 ${s.x.length}건 (점을 눌러도 기사로 이동)</summary><ul>${
-        s.x.map((d, i) => `<li>${d} · ${s.y[i]}bp — <a href="${s.url[i]}" target="_blank" rel="noopener">${new URL(s.url[i]).hostname}</a>${s.note[i] ? ' · ' + s.note[i] : ''}</li>`).join('')}</ul></details>`)(t.series.cds_sources)
-        : '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>'}
+      <div class="small" style="margin:0 4px">그래프를 누르면 그날의 날짜와 숫자가 나와요.</div>
+      ${srcHtml(t)}
+      ${insiderHtml(t)}
     </div>`).join('');
   }
   for (const t of DATA.tickers) {
@@ -332,7 +379,7 @@ function renderCards() {
        line: {color: css('--spread'), width: 2}, hovertemplate: '%{y:.0f}bp'},
       {x: s.cds.x, y: s.cds.y, name: 'CDS', type: 'scatter', mode: 'lines+markers',
        line: {color: css('--cds'), width: 2}, marker: {size: 8, color: css('--cds'), line: {color: css('--surface'), width: 2}},
-       customdata: s.cds.url, hovertemplate: '%{y:.0f}bp', connectgaps: true},
+       hovertemplate: '%{y:.0f}bp', connectgaps: true},
       {x: s.price.x, y: s.price.y, name: '주가', type: 'scatter', mode: 'lines', yaxis: 'y2',
        line: {color: css('--price'), width: 1.6}, hovertemplate: cur(t) + '%{y:,.2f}'},
     ];
@@ -348,10 +395,18 @@ function renderCards() {
             text: '1,000bp 경고선은 화면 위쪽 범위 밖', font: {size: 10, color: css('--muted')}}],
     });
     const el = document.getElementById('plot-' + t.ticker);
-    Plotly.react(el, traces, layout, CFG);
-    if (!el._clickBound) {
-      el.on('plotly_click', ev => { const p = ev.points.find(p => p.data.name === 'CDS'); if (p && p.customdata) window.open(p.customdata, '_blank'); });
-      el._clickBound = true;
+    Plotly.react(el, traces, layout, CFG);  // 그래프를 눌러도 페이지가 이동하지 않음 (링크는 아래 '출처' 목록에서만)
+    const i = t.insider;
+    if (i && i.rows > 0 && i.months && document.getElementById('ins-' + t.ticker)) {
+      const xm = i.months.map(m => m + '-01');
+      Plotly.react('ins-' + t.ticker, [
+        {x: xm, y: i.m_sell, type: 'bar', name: '매도', marker: {color: css('--bad')}, hovertemplate: '매도 $%{y:.1f}M'},
+        {x: xm, y: i.m_buy.map(v => -v), customdata: i.m_buy, type: 'bar', name: '매수', marker: {color: css('--good')}, hovertemplate: '매수 $%{customdata:.1f}M'},
+      ], Object.assign(baseLayout(), {
+        margin: {l: 44, r: 8, t: 6, b: 26}, barmode: 'relative', bargap: 0.25,
+        xaxis: axis({type: 'date', tickformat: '%y.%m', hoverformat: '%Y-%m', nticks: 6}),
+        yaxis: axis({title: {text: '$M', standoff: 2}}),
+      }), CFG);
     }
   }
 }
