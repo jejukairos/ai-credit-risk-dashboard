@@ -64,11 +64,12 @@ def fetch_prices():
     df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
     df.index.name = "date"
     df.round(4).to_csv(os.path.join(DATA, "prices.csv"))
-    # 코스피 지수 (고객예탁금 차트와 비교용, 2020년부터)
-    k = yf.download("^KS11", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
-    if not k.empty:
-        k.index = pd.to_datetime(k.index).strftime("%Y-%m-%d")
-        k.rename("kospi").rename_axis("date").round(2).to_csv(os.path.join(DATA, "kospi.csv"))
+    # 코스피(고객예탁금 비교용) · S&P500(공포탐욕지수 이후 수익률 계산용), 2020년부터
+    for sym, name in [("^KS11", "kospi"), ("^GSPC", "sp500")]:
+        k = yf.download(sym, start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+        if not k.empty:
+            k.index = pd.to_datetime(k.index).strftime("%Y-%m-%d")
+            k.rename(name).rename_axis("date").round(2).to_csv(os.path.join(DATA, f"{name}.csv"))
 
 
 # ---------- 2·3. 등급별 회사채 스프레드 (FRED) ----------
@@ -218,6 +219,51 @@ def fetch_kofia():
     if new.empty:
         raise RuntimeError("금투협 응답이 비어 있음")
     new.sort_values("date").to_csv(path, index=False)
+
+
+# ---------- CNN 공포·탐욕 지수 (CNN 사이트가 쓰는 공개 데이터 주소, 비공식) ----------
+CNN_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Origin": "https://edition.cnn.com",
+    "Referer": "https://edition.cnn.com/",
+    "sec-ch-ua": '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
+}
+
+
+def fetch_fear_greed():
+    path = os.path.join(DATA, "fear_greed.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
+    # 처음엔 2021년부터 전체, 그 뒤엔 최근 1년치만 받아서 합침
+    starts = ["/2021-01-01"] if old is None or old.empty else [""]
+    j = None
+    for s in starts + [""]:
+        r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata" + s,
+                         headers=CNN_HEADERS, timeout=60)
+        if r.status_code == 200:
+            j = r.json()
+            break
+    if j is None:
+        raise RuntimeError(f"CNN 응답 오류 {r.status_code}")
+    rows = [{"date": datetime.fromtimestamp(p["x"] / 1000, timezone.utc).strftime("%Y-%m-%d"),
+             "score": round(float(p["y"]), 1)} for p in j["fear_and_greed_historical"]["data"]]
+    now = j["fear_and_greed"]
+    ts = pd.Timestamp(now["timestamp"]).tz_convert("America/New_York").strftime("%Y-%m-%d")
+    rows.append({"date": ts, "score": round(float(now["score"]), 1)})
+    new = pd.DataFrame(rows)
+    if old is not None:
+        new = pd.concat([old, new])
+    new.drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
+    with open(os.path.join(DATA, "fear_greed_now.json"), "w", encoding="utf-8") as f:
+        json.dump({"score": round(float(now["score"]), 1), "rating": now["rating"], "timestamp": now["timestamp"],
+                   "previous_close": now.get("previous_close"), "previous_1_week": now.get("previous_1_week"),
+                   "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
 
 
 # ---------- 국민연금 자산배분 (기금운용본부 홈페이지, 매월 갱신) ----------
@@ -388,6 +434,42 @@ def build_kofia():
     }
 
 
+def build_fg():
+    path = os.path.join(DATA, "fear_greed.csv")
+    if not os.path.exists(path):
+        return None
+    fg = pd.read_csv(path, dtype={"date": str}).sort_values("date")
+    now = json.load(open(os.path.join(DATA, "fear_greed_now.json"), encoding="utf-8"))
+    sp_path = os.path.join(DATA, "sp500.csv")
+    sp = pd.read_csv(sp_path, dtype={"date": str}).set_index("date")["sp500"] if os.path.exists(sp_path) else pd.Series(dtype=float)
+    spd = pd.to_datetime(sp.index)
+
+    def sp_at(d, months):  # d 이후 months개월 뒤(또는 그 직전 거래일) 종가
+        t = pd.Timestamp(d) + pd.DateOffset(months=months)
+        if len(sp) == 0 or t > spd[-1]:
+            return None
+        return float(sp[spd <= t].iloc[-1])
+
+    # 10 이하로 떨어진 '구간' 찾기 (10 이하 날들이 30일 안에 이어지면 같은 구간)
+    low = fg[fg["score"] <= 10]
+    episodes = []
+    for d, s in zip(low["date"], low["score"]):
+        if episodes and (pd.Timestamp(d) - pd.Timestamp(episodes[-1]["end"])).days <= 30:
+            e = episodes[-1]
+            e["end"] = d
+            if s < e["min"]:
+                e["min"], e["min_date"] = s, d
+        else:
+            episodes.append({"start": d, "end": d, "min": s, "min_date": d})
+    for e in episodes:
+        base = sp_at(e["start"], 0)
+        e["sp_start"] = base
+        for m in (3, 6, 12):
+            v = sp_at(e["start"], m)
+            e[f"r{m}"] = round((v / base - 1) * 100, 1) if base and v else None
+    return {"now": now, "x": list(fg["date"]), "y": [float(v) for v in fg["score"]], "episodes": episodes}
+
+
 def build_nps():
     path = os.path.join(DATA, "nps.csv")
     if not os.path.exists(path):
@@ -466,6 +548,7 @@ def build():
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
+    out["fg"] = build_fg()
 
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
@@ -485,7 +568,7 @@ def main():
 
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("D램 현물가격(TrendForce)", fetch_dram),
-             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:
