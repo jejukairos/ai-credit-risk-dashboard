@@ -72,6 +72,12 @@ details a{color:var(--ink2);word-break:break-all}
 .fgscale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin:4px 4px 0}
 .memo{background:var(--page);border-radius:10px;padding:10px 12px;margin:8px 0 0;font-size:13px;line-height:1.55}
 .memo div{margin-top:3px}
+.memo .quote{border-left:3px solid var(--spread);padding:2px 0 2px 10px;margin:8px 0;color:var(--ink2);font-style:italic}
+.memo .real{font-size:12px;color:var(--ink2);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+.fgchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 12px}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
+.chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
+.chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
 .glossary{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;font-size:12.5px;color:var(--ink2)}
 .glossary div{padding:4px 0;border-bottom:1px solid var(--line)} .glossary div:last-child{border-bottom:0}
 .glossary b{color:var(--ink)}
@@ -103,18 +109,23 @@ footer a{color:var(--ink2)}
   <h2 id="sec-fg">CNN 공포·탐욕 지수 (미국 증시 분위기)</h2>
   <div class="card">
     <div class="fgtop"><div class="fgscore" id="fgscore">–</div><div><div class="fgrating" id="fgrating"></div><div class="small" id="fgprev"></div></div></div>
+    <div class="fgchips" id="fgchips"></div>
     <div class="fgbar" aria-hidden="true"><span style="flex:25" class="z1"></span><span style="flex:20" class="z2"></span><span style="flex:10" class="z3"></span><span style="flex:20" class="z4"></span><span style="flex:25" class="z5"></span><i id="fgmark"></i></div>
     <div class="fgscale"><span>0 극단적 공포</span><span>50 중립</span><span>극단적 탐욕 100</span></div>
     <div id="fgplot" class="plot" style="height:240px"></div>
     <div class="memo">
       <b>🐒 투자 메모</b>
-      <div>· 공포지수가 <b>10 근처(극단적 공포)</b>까지 내려가는 건 보통 상반기에 한 번, 하반기에 한 번 정도예요.</div>
-      <div>· 그럴 때마다 시장지수나 우량주를 <b>장기 계좌에 나눠 담아두면</b> 성과가 꽤 좋았어요.</div>
-      <div>· <b>10 이하</b>는 1년에 한 번 올까 말까 한 기회인 경우가 많아요 → <b>기계적 매수 대응 구간</b>.</div>
-      <div>· 뉴스를 열심히 보는 것보다 공포지수 10일 때 담는 게 나을 수도 있어요. 뉴스는 이성적인 판단을 방해하거든요.</div>
+      <div>· <b>20 이하</b> → <b>분할매수를 시작하기 좋은 기회</b>예요.</div>
+      <div>· <b>10 이하(한 자리 숫자)</b> → <b>절호의 기회</b>예요. 지나고 보면 보통 기회였어요 (기계적 매수 대응 구간).</div>
+      <div>· 이런 구간은 <b>1년에 1~2번꼴</b>로 와요. 그때마다 시장지수나 우량주를 <b>장기 계좌에 나눠 담아두면</b> 성과가 꽤 좋았어요.</div>
+      <div>· 뉴스를 열심히 보는 것보다 공포지수를 보고 나눠 담는 게 나을 수도 있어요. 뉴스는 이성적인 판단을 방해하거든요.</div>
+      <div>· 지나고 나면 누구나 <b>"그때 샀어야지"</b> 하지만, 막상 또 그 상황이 오면 <b>"이번엔 달라…"</b> 하는 게 사람이에요.</div>
+      <div class="quote">새로 닥친 위기는 항상 이전 위기보다 더 심각해 보인다. 그래서 악재를 무시하는 건 언제나 어렵다. <span class="small">— 피터 린치</span></div>
+      <div>· <b>메모 작성자 개인 의견:</b> 이번에도 10 내외 부근에서는 적극적인 비중 확대를 노려볼 생각이라고 해요.</div>
+      <div class="real" id="fgreal"></div>
     </div>
-    <div class="small" style="margin:10px 4px 4px">실제로 그랬을까? — 지수가 10 이하로 떨어진 구간과 그 뒤 S&amp;P500 수익률 (2021년~)</div>
-    <div class="tablebox" style="border:0"><table id="fgtable"><thead><tr><th>10 이하 시작</th><th>최저</th><th>3개월 후</th><th>6개월 후</th><th>1년 후</th></tr></thead><tbody></tbody></table></div>
+    <div class="small" style="margin:10px 4px 4px">실제로 그랬을까? — 지수가 10 이하로 떨어진 구간과 그 뒤 S&amp;P500 수익률 (2021년~). '그때 증시'는 최저일에 S&amp;P500이 직전 최고점보다 얼마나 낮았는지예요.</div>
+    <div class="tablebox" style="border:0"><table id="fgtable"><thead><tr><th>시작</th><th>최저</th><th>그때<br>증시</th><th>3개월<br>후</th><th>6개월<br>후</th><th>1년<br>후</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:4px" id="fgnote"></p>
   </div>
 
@@ -447,7 +458,40 @@ function renderFg() {
   const n = f.now, sc = n.score;
   document.getElementById('fgscore').textContent = Math.round(sc);
   const rt = document.getElementById('fgrating');
-  rt.textContent = (kr[n.rating] || n.rating) + (sc <= 10 ? ' · 기계적 매수 구간' : '');
+  rt.textContent = kr[n.rating] || n.rating;
+  // 상태 배지: 점수 구간 + (극단적 공포일 때) 이번 반기 첫 진입 여부 + 이번 반기 최저 여부
+  const lastD = f.x[f.x.length - 1], half = +lastD.slice(5, 7) >= 7 ? '하반기' : '상반기';
+  const hs = lastD.slice(0, 4) + (half === '하반기' ? '-07-01' : '-01-01');
+  const chips = [];
+  if (sc <= 10) chips.push('<span class="chip hot">절호의 기회 (10 이하)</span>');
+  else if (sc <= 20) chips.push('<span class="chip warm">분할매수 시작 구간 (20 이하)</span>');
+  if (sc <= 25) {
+    let s = f.x.length - 1;
+    while (s > 0 && f.y[s - 1] <= 25) s--;
+    if (!f.x.some((d, i) => i < s && d >= hs && f.y[i] <= 25)) chips.push(`<span class="chip">극단적 공포 ${half} 첫 진입</span>`);
+  }
+  if (sc <= Math.min(...f.y.filter((v, i) => f.x[i] >= hs))) chips.push(`<span class="chip">${half} 최저</span>`);
+  document.getElementById('fgchips').innerHTML = chips.join('');
+  // 실제 기록: 최근 1년간 20 이하 / 10 이하 구간
+  const cutD = new Date(lastD); cutD.setDate(cutD.getDate() - 365);
+  const cut = cutD.toISOString().slice(0, 10);
+  const epsBelow = th => {
+    const out = [];
+    f.x.forEach((d, i) => {
+      if (d < cut || f.y[i] > th) return;
+      const e = out[out.length - 1];
+      if (e && (new Date(d) - new Date(e.end)) / 864e5 <= 30) e.end = d; else out.push({start: d, end: d});
+    });
+    return out;
+  };
+  const lbl = e => {
+    const a = e.start.slice(2, 7).replace('-', '.'), b = e.end.slice(2, 7).replace('-', '.');
+    const t = a === b ? a : (a.slice(0, 2) === b.slice(0, 2) ? a + '~' + b.slice(3) : a + '~' + b);
+    return e.end === lastD ? t + ' 진행 중' : t;
+  };
+  const list = th => { const e = epsBelow(th); return e.length ? `${e.length}번 (${e.map(lbl).join(', ')})` : '없었어요'; };
+  document.getElementById('fgreal').innerHTML = `<b>실제 기록</b> 최근 1년간 20 이하는 ${list(20)}, 10 이하는 ${list(10)}.` +
+    (sc > 10 ? ` 지금은 ${sc.toFixed(0)}로, 10까지 ${(sc - 10).toFixed(0)}포인트 남았어요.` : ' 지금이 바로 그 구간이에요.');
   rt.style.color = sc < 25 ? css('--bad') : sc < 45 ? css('--spread') : sc <= 55 ? css('--ink2') : css('--good');
   const r = v => v == null ? '–' : Math.round(v);
   document.getElementById('fgprev').innerHTML = `${n.timestamp.slice(0, 10)} 미국 장 마감 기준<br>전일 ${r(n.previous_close)} · 1주 전 ${r(n.previous_1_week)} · 1개월 전 ${r(n.previous_1_month)} · 1년 전 ${r(n.previous_1_year)}`;
@@ -460,17 +504,22 @@ function renderFg() {
      marker: {size: 9, color: css('--bad'), line: {color: css('--surface'), width: 2}}, hovertemplate: '최저 %{y:.0f}'},
   ], Object.assign(baseLayout(), {
     xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
-    yaxis: axis({range: [0, 100], tickvals: [0, 10, 25, 50, 75, 100]}),
+    yaxis: axis({range: [0, 100], tickvals: [0, 10, 20, 50, 75, 100]}),
     shapes: [
-      {type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 10, fillcolor: css('--bad'), opacity: 0.15, line: {width: 0}, layer: 'below'},
+      {type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 10, y1: 20, fillcolor: css('--spread'), opacity: 0.16, line: {width: 0}, layer: 'below'},
+      {type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 10, fillcolor: css('--bad'), opacity: 0.2, line: {width: 0}, layer: 'below'},
       {type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 25, y1: 25, line: {color: css('--muted'), width: 1, dash: 'dot'}},
     ],
-    annotations: [{xref: 'paper', x: 0.01, y: 10, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: '10 이하 = 기계적 매수 구간',
-                   font: {size: 10, color: css('--bad')}}],
+    annotations: [
+      {xref: 'paper', x: 0.01, y: 20, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: '20 이하 분할매수 시작',
+       font: {size: 10, color: css('--ink2')}},
+      {xref: 'paper', x: 0.99, y: 5, yanchor: 'middle', xanchor: 'right', showarrow: false, text: '10 이하 절호의 기회',
+       font: {size: 10, color: css('--bad')}},
+    ],
   }), CFG);
   const pc = v => v == null ? '<span class="small">아직</span>' : fmtPct(v);
   document.querySelector('#fgtable tbody').innerHTML = ep.slice().reverse().map(e => `<tr>
-    <td>${e.start.slice(2).replace(/-/g, '.')}</td><td>${e.min.toFixed(1)}</td><td>${pc(e.r3)}</td><td>${pc(e.r6)}</td><td>${pc(e.r12)}</td></tr>`).join('');
+    <td>${e.start.slice(2).replace(/-/g, '.')}</td><td>${e.min.toFixed(1)}</td><td>${pc(e.dd)}</td><td>${pc(e.r3)}</td><td>${pc(e.r6)}</td><td>${pc(e.r12)}</td></tr>`).join('');
   const done3 = ep.filter(e => e.r3 != null), up3 = done3.filter(e => e.r3 > 0).length;
   const done12 = ep.filter(e => e.r12 != null), up12 = done12.filter(e => e.r12 > 0).length;
   const y0 = +f.x[0].slice(0, 4), y1 = +last.slice(0, 4), epY = new Set(ep.map(e => +e.start.slice(0, 4)));

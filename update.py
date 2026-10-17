@@ -461,7 +461,16 @@ def build_fg():
                 e["min"], e["min_date"] = s, d
         else:
             episodes.append({"start": d, "end": d, "min": s, "min_date": d})
+    runmax = sp.cummax() if len(sp) else sp
+
+    def dd_at(d):  # d일에 S&P500이 직전 최고점(2020년~)보다 몇 % 낮았는지
+        m = spd <= pd.Timestamp(d)
+        if len(sp) == 0 or not m.any():
+            return None
+        return round(float(sp[m].iloc[-1] / runmax[m].iloc[-1] - 1) * 100, 1)
+
     for e in episodes:
+        e["dd"] = dd_at(e["min_date"])
         base = sp_at(e["start"], 0)
         e["sp_start"] = base
         for m in (3, 6, 12):
