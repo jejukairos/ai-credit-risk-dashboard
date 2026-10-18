@@ -1,8 +1,8 @@
 ticker,date,insider,position,shares,value,text,ownership,kind
 AVGO,2026-07-10,DELLY GAYLA J,Director,500,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-07-10,BRAZEAL MARK DAVID,Officer,25000,10033225.0,Sale at price 401.33 per share.,D,sale
-AVGO,2026-07-08,DELLY GAYLA J,Director,1890,728368.0,Sale at price 385.38 per share.,D,sale
 AVGO,2026-07-08,BRAZEAL MARK DAVID,Officer,25000,9479700.0,Sale at price 379.19 per share.,D,sale
+AVGO,2026-07-08,DELLY GAYLA J,Director,1890,728368.0,Sale at price 385.38 per share.,D,sale
 AVGO,2026-06-29,PAGE JUSTINE F.,Director,1602,598916.0,Sale at price 373.86 per share.,D,sale
 AVGO,2026-06-25,BRAZEAL MARK DAVID,Officer,25000,9675000.0,Sale at price 387.00 per share.,D,sale
 AVGO,2026-06-24,SAMUELI HENRY,Director,336893,0.0,Stock Gift at price 0.00 per share.,D/I,gift
@@ -11,36 +11,36 @@ AVGO,2026-06-17,BRAZEAL MARK DAVID,Officer,8152,3175919.0,Sale at price 377.10 -
 AVGO,2026-06-15,O TOOLE AMIE THUENER,Chief Financial Officer,50000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-06-11,YOU HARRY L,Director,1000,373570.0,Purchase at price 373.57 per share.,D,purchase
 AVGO,2026-04-21,SAMUELI HENRY,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-04-20,HAO KENNETH Y,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,YOU HARRY L,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,BRYANT DIANE M,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,LOW CHECK KIAN,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,PAGE JUSTINE F.,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,DELLY GAYLA J,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2026-04-20,HAO KENNETH Y,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-10,VELAGA S. RAM,Officer,8000,2964178.0,Sale at price 370.52 per share.,D,sale
-AVGO,2026-04-09,DELLY GAYLA J,Director,1000,358310.0,Sale at price 358.31 per share.,D,sale
 AVGO,2026-04-09,VELAGA S. RAM,Officer,30215,10638012.0,Sale at price 352.02 - 352.12 per share.,D,sale
+AVGO,2026-04-09,DELLY GAYLA J,Director,1000,358310.0,Sale at price 358.31 per share.,D,sale
 AVGO,2026-04-08,TAN HOCK E,Chief Executive Officer,22000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-04-08,KAWWAS CHARLIE B,Officer,10000,3452270.0,Sale at price 345.23 per share.,I,sale
 AVGO,2026-04-08,PAGE JUSTINE F.,Director,2018,712354.0,Sale at price 353.00 per share.,D,sale
-AVGO,2026-03-17,BRAZEAL MARK DAVID,Officer,83682,27061694.0,Sale at price 317.97 - 328.84 per share.,D,sale
 AVGO,2026-03-17,KAWWAS CHARLIE B,Officer,64834,20966675.0,Sale at price 317.97 - 328.70 per share.,D,sale
 AVGO,2026-03-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,60154,19452716.0,Sale at price 318.05 - 328.52 per share.,D,sale
+AVGO,2026-03-17,BRAZEAL MARK DAVID,Officer,83682,27061694.0,Sale at price 317.97 - 328.84 per share.,D,sale
 AVGO,2026-03-17,VELAGA S. RAM,Officer,64379,20819103.0,Sale at price 317.95 - 328.77 per share.,D,sale
 AVGO,2026-03-02,KAWWAS CHARLIE B,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,BRAZEAL MARK DAVID,Officer,151250,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,110640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,VELAGA S. RAM,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-01-06,TAN HOCK E,Chief Executive Officer,70000,24310684.0,Sale at price 346.75 - 348.28 per share.,D,sale
 AVGO,2026-01-06,BRAZEAL MARK DAVID,Officer,30000,10413693.0,Sale at price 346.99 - 347.66 per share.,D,sale
+AVGO,2026-01-06,TAN HOCK E,Chief Executive Officer,70000,24310684.0,Sale at price 346.75 - 348.28 per share.,D,sale
 AVGO,2025-12-31,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,30000,10434603.0,Sale at price 346.64 - 347.82 per share.,D,sale
 AVGO,2025-12-26,BRAZEAL MARK DAVID,Officer,25921,9126058.0,Sale at price 352.07 per share.,D,sale
 AVGO,2025-12-23,TAN HOCK E,Chief Executive Officer,100000,34564807.0,Sale at price 339.11 - 349.85 per share.,I,sale
 AVGO,2025-12-18,YOU HARRY L,Director,1000,325129.0,Purchase at price 325.13 per share.,D,purchase
 AVGO,2025-12-18,TAN HOCK E,Chief Executive Officer,130000,42382600.0,Sale at price 326.02 per share.,I,sale
-AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
 AVGO,2025-12-17,KAWWAS CHARLIE B,Officer,3163,1053112.0,Sale at price 322.33 - 345.99 per share.,D,sale
 AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
+AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
 AVGO,2025-12-16,PAGE JUSTINE F.,Director,400,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-12-16,BRAZEAL MARK DAVID,Officer,24527,8361500.0,Sale at price 337.21 - 347.14 per share.,D,sale
 AVGO,2025-12-15,PAGE JUSTINE F.,Director,800,289512.0,Sale at price 361.89 per share.,D,sale
@@ -51,8 +51,8 @@ AVGO,2025-10-14,PAGE JUSTINE F.,Director,800,280120.0,Sale at price 350.15 per s
 AVGO,2025-09-24,SAMUELI HENRY,Director,75678,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-09-24,SAMUELI HENRY,Director,368797,124620222.0,Sale at price 334.59 - 339.38 per share.,I,sale
 AVGO,2025-09-23,TAN HOCK E,Chief Executive Officer,100000,33958393.0,Sale at price 339.22 - 340.26 per share.,I,sale
-AVGO,2025-09-17,BRAZEAL MARK DAVID,Officer,27204,9592387.0,Sale at price 343.13 - 365.15 per share.,D,sale
 AVGO,2025-09-17,KAWWAS CHARLIE B,Officer,6397,2256460.0,Sale at price 343.93 - 365.32 per share.,D,sale
+AVGO,2025-09-17,BRAZEAL MARK DAVID,Officer,27204,9592387.0,Sale at price 343.13 - 365.15 per share.,D,sale
 AVGO,2025-09-15,PAGE JUSTINE F.,Director,800,288000.0,Sale at price 360.00 per share.,D,sale
 AVGO,2025-09-10,YOU HARRY L,Director,3550,1227870.0,Purchase at price 339.38 - 363.38 per share.,D,purchase
 AVGO,2025-09-10,TAN HOCK E,Chief Executive Officer,148154,49879007.0,Sale at price 336.67 per share.,I,sale
@@ -65,9 +65,9 @@ AVGO,2025-06-26,DELLY GAYLA J,Director,3000,795390.0,Sale at price 265.13 per sh
 AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,473898,125737538.0,Sale at price 264.16 - 269.62 per share.,I,sale
-AVGO,2025-06-24,TAN HOCK E,Chief Executive Officer,40000,10486920.0,Sale at price 262.17 per share.,I,sale
-AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
 AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
+AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
+AVGO,2025-06-24,TAN HOCK E,Chief Executive Officer,40000,10486920.0,Sale at price 262.17 per share.,I,sale
 AVGO,2025-06-23,TAN HOCK E,Chief Executive Officer,190000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-23,BRAZEAL MARK DAVID,Officer,50000,12664250.0,Sale at price 253.28 per share.,D,sale
 AVGO,2025-06-18,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,56310,14175986.0,Sale at price 251.75 per share.,D,sale
@@ -96,8 +96,8 @@ AVGO,2025-01-08,HARTENSTEIN EDDY W.,Director,4000,918548.0,Sale at price 229.64 
 AVGO,2025-01-06,LOW CHECK KIAN,Director,48000,11296800.0,Sale at price 235.35 per share.,D,sale
 AVGO,2025-01-02,KAWWAS CHARLIE B,Officer,40000,9279200.0,Sale at price 231.98 per share.,I,sale
 AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,130000,0.0,Stock Gift at price 0.00 per share.,D,gift
-AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,45000,10798200.0,Sale at price 239.96 per share.,D,sale
 AVGO,2024-12-24,BRAZEAL MARK DAVID,Officer,20168,4815937.0,Sale at price 238.79 per share.,D,sale
+AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,45000,10798200.0,Sale at price 239.96 per share.,D,sale
 AVGO,2024-12-23,BRYANT DIANE M,Director,15000,3400200.0,Sale at price 226.68 per share.,D,sale
 AVGO,2024-12-20,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,12570,2886323.0,Sale at price 229.62 per share.,D,sale
 AVGO,2024-12-17,PAGE JUSTINE F.,Director,1000,0.0,Stock Gift at price 0.00 per share.,D,gift
