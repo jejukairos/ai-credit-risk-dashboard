@@ -80,6 +80,7 @@ details a{color:var(--ink2);word-break:break-all}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
 .chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
+.srcs summary{cursor:pointer;padding:4px 0}
 .srcs,.ins{margin:10px 4px 0;font-size:12.5px;color:var(--ink2)}
 .srcs ul,.inslist{list-style:none;margin:6px 0 0;padding:0}
 .srcs li,.inslist li{padding:6px 0;border-top:1px solid var(--line)}
@@ -108,7 +109,7 @@ footer a{color:var(--ink2)}
   <div id="banner"></div>
 
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-dram">D램</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-dram">D램</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -196,7 +197,25 @@ footer a{color:var(--ink2)}
   </div>
   <div id="cards"></div>
 
-  <h2 id="sec-gpu">엔비디아 GPU 임대가격 ($/GPU·시간)</h2>
+  <h2 id="sec-gpu">엔비디아 GPU 임대가격 · LLM 토큰 가격</h2>
+  <div class="glossary">
+    <div><b>GPU 임대가격</b> AI용 그래픽카드(GPU) 1장을 1시간 빌리는 값이에요. 오르면 AI 컴퓨팅 수요가 공급보다 세다는 뜻이에요.</div>
+    <div><b>LLM Token Index</b> AI가 답변 100만 토큰을 만들 때 사람들이 <b>평균 얼마를 쓰는지</b> 매일 집계한 가격이에요. 내려가면 싼 모델(오픈웨이트·중국 모델)이 더 많이 쓰인다는 뜻이에요.</div>
+  </div>
+  <div class="card">
+    <h3><span>Silicon Data 지수 (업계 기준 지수, 블룸버그에도 실림)</span></h3>
+    <div class="tablebox" style="border:0"><table id="sdtable"><thead><tr><th>지수</th><th>최근가</th><th>1주</th><th>기록<br>시작 대비</th></tr></thead><tbody></tbody></table></div>
+    <div class="small" style="margin:8px 4px 0">첫 기록일 = 100으로 맞춘 비교 (사진의 Silicon Data 차트와 같은 방식)</div>
+    <div id="sdplot" class="plot" style="height:300px"></div>
+    <div class="memo">
+      <b>🐒 투자 메모</b>
+      <div>· B300이 약간 주춤하긴 하지만 H100·H200은 전반적으로 다 좋아요. <b>D램 현물가격과 GPU 임대가격</b>, 제일 중요하고 객관적인 두 지표가 좋아요.</div>
+      <div>· 다만 <b>LLM Token Index는 하락 중</b>이에요. 비싼 모델보다 <b>저가 모델이 더 많이 쓰인다</b>는 얘기예요.</div>
+      <div class="real" id="sdreal"></div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
+  </div>
+  <div class="small" style="margin:14px 4px 4px"><b>참고: 온디맨드(즉시 임대) 가격</b> — 여러 클라우드 공급사 가격의 중앙값</div>
   <div class="card">
     <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th><th>기준일</th></tr></thead><tbody></tbody></table></div>
     <div id="gpuplot" class="plot" style="height:300px"></div>
@@ -204,8 +223,34 @@ footer a{color:var(--ink2)}
     Data: <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute — priceofcompute.com</a></p>
   </div>
 
+  <h2 id="sec-ai">AI 회사 매출(ARR) — Anthropic · OpenAI</h2>
+  <div class="glossary">
+    <div><b>ARR(연환산 매출)</b> 지금 한 달 매출 속도로 1년을 벌면 얼마인지예요. AI 회사가 돈을 잘 버는지, 그래서 AI 투자(데이터센터·GPU)가 계속될 수 있는지를 보는 핵심 숫자예요.</div>
+  </div>
+  <div class="card">
+    <div class="tiles" id="arrtiles" style="margin:0 0 8px"></div>
+    <div id="arrplot" class="plot" style="height:380px"></div>
+    <div class="small" style="margin:2px 4px">● 채운 점 = 회사 발표·주요 언론 보도 · ◇ = TickerTrends 추정치 · ○ = 총액식(파트너 경유 매출 포함, 직접 비교 어려움)</div>
+    <div class="memo">
+      <b>🐒 투자 메모 — 부정적인 이야기</b>
+      <div>· AI 대장주라 할 수 있는 <b>Anthropic의 ARR이 7월 무렵 고점</b>을 찍고 이후 평평해요(마침 그즈음부터 코스피 하락이 시작됐어요).</div>
+      <div>· Anthropic 매출이 더 오르지 못하면 <b>역대급 AI Capex(투자)가 정당화되기 어려워요</b>. 돈을 벌어야 학습·추론에 컴퓨팅을 더 쓸 테니까요.</div>
+      <div>· 그나마 다행인 건 <b>OpenAI의 ARR은 7월 이후에도 괜찮게 상승</b> 중이라는 것.</div>
+      <div>· 프런티어 랩 매출이 치고 올라가지 못하는 이유는 <b>중국산 오픈웨이트 모델의 약진</b> 때문이에요. 비용을 아끼는 AI 스타트업에선 중국 모델 사용이 필수가 된 지 오래예요.</div>
+      <div>· 토큰 사용량은 이미 오픈웨이트가 넘긴 지 오래고, <b>비용 지출 기준으로도 오픈웨이트 모델이 27%</b>까지 올라왔어요(OpenRouter, 10/12 주간).</div>
+      <div class="real" id="arrreal"></div>
+    </div>
+    <div class="srcs" id="arrsrcs"></div>
+    <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
+  </div>
+
   <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
   <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
+  <div class="memo" style="margin:0 0 10px">
+    <b>🐒 투자 메모</b>
+    <div>· DDR4가 살짝 아쉽지만, <b>메인은 DDR5</b>라는 걸 감안해야 해요. <b>DDR5 현물가격 분위기는 너무 좋아요.</b></div>
+    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
+  </div>
   <div id="dramcards"></div>
 
   <h2 id="sec-kofia">국내 증시 주변자금 · 반대매매</h2>
@@ -452,10 +497,13 @@ function renderDram() {
     const hasSlope = d.chg4w.some(v => v != null);
     const traces = [{x: d.x, y: d.y, type: 'scatter', mode: d.x.length > 30 ? 'lines' : 'lines+markers', name: '가격',
       line: {color: css('--g7'), width: 2}, marker: {size: 6}, hovertemplate: (d.item === 'DXI' ? '%{y:,.0f}' : '$%{y:.3f}')}];
+    if (d.contract) traces.push({x: d.contract.x, y: d.contract.y, type: 'scatter', mode: 'lines+markers', name: '계약가격',
+      line: {color: css('--good'), width: 2, dash: 'dot', shape: 'hv'}, marker: {size: 7}, hovertemplate: '계약 $%{y:.2f}'});
     if (hasSlope) traces.push({x: d.x, y: d.chg4w, type: 'bar', name: '4주 변화율', yaxis: 'y2',
       marker: {color: d.chg4w.map(v => v == null ? 'rgba(0,0,0,0)' : v >= 0 ? css('--g1') : css('--g2'))},
       hovertemplate: '%{y:+.1f}%'});
-    const vis = d.y.filter((_, j) => d.x[j] >= xs), visC = d.chg4w.filter((v, j) => v != null && d.x[j] >= xs);
+    const vis = d.y.filter((_, j) => d.x[j] >= xs).concat(d.contract ? d.contract.y.filter((_, j) => d.contract.x[j] >= xs) : []);
+    const visC = d.chg4w.filter((v, j) => v != null && d.x[j] >= xs);
     const layout = Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', anchor: hasSlope ? 'y2' : 'y', range: [xs, last], tickformat: '%y.%m'}),
       yaxis: axis({domain: hasSlope ? [0.42, 1] : [0, 1], range: padRange(vis, false), title: {text: d.item === 'DXI' ? '지수' : '$', standoff: 2}}),
@@ -681,7 +729,79 @@ function renderHy() {
     `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
 }
 
-function renderAll() { renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderSilicon() {
+  const S = DATA.silicon;
+  if (!S || !S.length) return;
+  const by = Object.fromEntries(S.map(s => [s.name, s]));
+  const unit = n => /LLM/.test(n) ? '$/백만 토큰' : '$/GPU·시간';
+  const kr = {'LLM Token': 'LLM Token Index', 'Open LLM': '└ 오픈웨이트 모델', 'Proprietary LLM': '└ 독점(유료) 모델'};
+  const since = s => (s.y[s.y.length - 1] / s.y[0] - 1) * 100;
+  document.querySelector('#sdtable tbody').innerHTML = ['H100', 'H200', 'B200', 'B300', 'LLM Token', 'Open LLM', 'Proprietary LLM']
+    .filter(n => by[n]).map(n => { const s = by[n]; return `<tr><td>${kr[n] || n}<br><span class="small">${unit(n)}</span></td>
+      <td>$${s.last.toFixed(s.last < 1 ? 3 : 2)}<br><span class="small">${s.last_date.slice(5).replace('-', '.')}</span></td><td>${fmtPct(s.w1)}</td><td>${fmtPct(since(s))}<br><span class="small">${s.x[0].slice(5).replace('-', '.')}~</span></td></tr>`; }).join('');
+  // 첫 공통 기록일 = 100 으로 맞춘 비교 (한 축으로 단위가 다른 GPU·토큰 지수를 같이 봄)
+  const plotN = [['LLM Token', '--price'], ['H100', '--g1'], ['H200', '--g7'], ['B200', '--g2'], ['B300', '--g3']].filter(([n]) => by[n]);
+  const base = plotN.map(([n]) => by[n].x[0]).sort().pop();
+  const traces = plotN.map(([n, c]) => {
+    const s = by[n], i0 = s.x.findIndex(x => x >= base), b = s.y[i0];
+    return {x: s.x.slice(i0), y: s.y.slice(i0).map(v => v / b * 100), customdata: s.y.slice(i0), type: 'scatter', mode: 'lines',
+      name: n === 'LLM Token' ? 'LLM Token' : n, line: {color: css(c), width: n === 'LLM Token' ? 2.6 : 2},
+      hovertemplate: `${n} %{y:.1f} ($%{customdata:.${n === 'LLM Token' ? 3 : 2}f})<extra></extra>`};
+  });
+  const last = plotN.map(([n]) => by[n].x[by[n].x.length - 1]).sort().pop();
+  const allY = traces.flatMap(t => t.y);
+  Plotly.react('sdplot', traces, Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', range: [base, last], tickformat: '%m.%d'}),
+    yaxis: axis({range: padRange(allY.concat([100]), false), title: {text: `${base.slice(5).replace('-', '.')} = 100`, standoff: 2}}),
+    shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 100, y1: 100, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
+    showlegend: true, legend: {orientation: 'h', y: -0.18, font: {size: 11}}, margin: {l: 44, r: 8, t: 8, b: 56},
+  }), CFG);
+  const f = n => by[n] ? `${n === 'LLM Token' ? 'LLM Token Index' : n} ${since(by[n]) >= 0 ? '+' : ''}${since(by[n]).toFixed(1)}%` : '';
+  document.getElementById('sdreal').innerHTML = `<b>실제 기록</b> 기록 시작(9월 중순) 이후 ${['H100', 'H200', 'B200', 'B300'].map(f).filter(Boolean).join(', ')} · ${f('LLM Token')}. ` +
+    (by['Open LLM'] && by['Proprietary LLM'] ? `지금 오픈웨이트 모델은 독점 모델의 약 ${(by['Open LLM'].last / by['Proprietary LLM'].last * 100).toFixed(0)}% 가격이에요.` : '');
+}
+
+function renderArr() {
+  const A = DATA.arr;
+  if (!A || !A.length) return;
+  const col = {Anthropic: css('--g2'), OpenAI: css('--g3')};
+  const md = s => s.slice(2).replace(/-/g, '.');
+  const traces = [];
+  const tiles = [];
+  for (const c of A) {
+    const rep = c.rows.filter(r => r.kind === 'reported'), est = c.rows.filter(r => r.kind === 'estimate'), gro = c.rows.filter(r => r.kind === 'gross');
+    traces.push({x: rep.map(r => r.date), y: rep.map(r => r.arr_b), type: 'scatter', mode: 'lines+markers', name: c.company + ' 발표·보도',
+      line: {color: col[c.company], width: 2.4}, marker: {size: 8, color: col[c.company]}, hovertemplate: c.company + ' $%{y:.1f}B<extra></extra>'});
+    if (est.length) traces.push({x: est.map(r => r.date), y: est.map(r => r.arr_b), type: 'scatter', mode: 'markers', name: c.company + ' 추정',
+      marker: {size: 11, symbol: 'diamond-open', color: col[c.company], line: {width: 2}}, hovertemplate: c.company + ' 추정 $%{y:.1f}B<extra></extra>'});
+    if (gro.length) traces.push({x: gro.map(r => r.date), y: gro.map(r => r.arr_b), type: 'scatter', mode: 'markers', name: c.company + ' 총액식',
+      marker: {size: 11, symbol: 'circle-open', color: col[c.company], line: {width: 2}}, hovertemplate: c.company + ' 총액식 $%{y:.0f}B<extra></extra>'});
+    const lr = rep[rep.length - 1], le = est[est.length - 1];
+    const ye = rep.filter(r => r.date.endsWith('12-31')).pop();
+    tiles.push(`<div class="tile"><div class="k"><span class="sw" style="border-color:${col[c.company]};border-top-width:3px"></span>${c.company} 최근 발표</div>
+      <div class="v">$${lr.arr_b}B</div><div class="s">${md(lr.date)}${ye ? ` · ${ye.date.slice(0, 4)}년 말 $${ye.arr_b}B의 ${(lr.arr_b / ye.arr_b).toFixed(1)}배` : ''}${le ? `<br>추정 $${le.arr_b}B (${md(le.date)})` : ''}</div></div>`);
+  }
+  document.getElementById('arrtiles').innerHTML = tiles.join('');
+  Plotly.react('arrplot', traces, Object.assign(baseLayout(), {
+    hovermode: 'closest',
+    xaxis: axis({type: 'date', tickformat: '%y.%m'}),
+    yaxis: axis({rangemode: 'tozero', title: {text: '$B', standoff: 2}}),
+    showlegend: true, legend: {orientation: 'h', y: -0.12, yanchor: 'top', font: {size: 10.5}}, margin: {l: 44, r: 8, t: 8, b: 110},
+  }), CFG);
+  const an = A.find(c => c.company === 'Anthropic'), op = A.find(c => c.company === 'OpenAI');
+  if (an && op) {
+    const aE = an.rows.filter(r => r.kind === 'estimate'), oE = op.rows.filter(r => r.kind === 'estimate');
+    document.getElementById('arrreal').innerHTML = '<b>실제 기록</b> ' +
+      (aE.length >= 2 ? `TickerTrends 추정으로 Anthropic은 ${md(aE[aE.length - 2].date)} $${aE[aE.length - 2].arr_b}B → ${md(aE[aE.length - 1].date)} $${aE[aE.length - 1].arr_b}B로 ${((aE[aE.length - 1].arr_b / aE[aE.length - 2].arr_b - 1) * 100).toFixed(0)}% 늘어 증가세가 크게 둔화됐어요. ` : '') +
+      `OpenAI는 8월 $40B 돌파 → 9월 말 약 $50B로 계속 오르고 있어요. 두 회사는 매출 집계 방식(총액·순액)이 달라 숫자를 그대로 비교하기는 어려워요.`;
+  }
+  const rows = A.flatMap(c => c.rows.map(r => ({...r, company: c.company}))).sort((a, b) => b.date.localeCompare(a.date));
+  const kindKr = {reported: '발표·보도', estimate: '추정', gross: '총액식'};
+  document.getElementById('arrsrcs').innerHTML = `<details><summary><b>ARR 출처 ${rows.length}건</b> <span class="small">(누르면 펼쳐져요)</span></summary><ul>${rows.map(r =>
+    `<li><span class="sd">${r.date}</span><b>${r.company} $${r.arr_b}B</b> <span class="small">${kindKr[r.kind] || r.kind}</span> · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a><div class="small">${r.note}</div></li>`).join('')}</ul></details>`;
+}
+
+function renderAll() { renderSilicon(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

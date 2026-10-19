@@ -161,6 +161,10 @@ def fetch_dram():
                 rows.append({"date": day, "item": name, "usd": float(mm.group(5))})
         if not rows:
             raise RuntimeError("현물 시세표에서 가격을 못 찾음 (사이트 구조 변경?)")
+        # 계약(고정거래)가격 — 같은 페이지 아래 표, 반월(2주)마다 갱신. 대표 칩 DDR4 8Gb만
+        cm = re.search(r"DRAM Contract Price.{0,200}?Last Update (\d{4}-\d\d-\d\d).{0,600}?DDR4 8Gb 1Gx8 ([\d.]+) ([\d.]+) ([\d.]+)", t)
+        if cm:
+            rows.append({"date": cm.group(1), "item": "DDR4 8Gb 계약", "usd": float(cm.group(4))})
         # DXI(D램 전체 지수) — DRAMeXchange 첫 화면
         try:
             h2 = get("https://www.dramexchange.com/").text
@@ -264,6 +268,31 @@ def fetch_fear_greed():
         json.dump({"score": round(float(now["score"]), 1), "rating": now["rating"], "timestamp": now["timestamp"],
                    "previous_close": now.get("previous_close"), "previous_1_week": now.get("previous_1_week"),
                    "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
+
+
+# ---------- Silicon Data 지수 (GPU 임대·LLM 토큰 가격, 공개 페이지에 실린 최근 30일치를 매일 저장) ----------
+SILICON_SERIES = {  # 페이지 표기 -> 저장 이름
+    "H100(SDH100RT)": "H100", "H200": "H200", "B200(SDB200RT)": "B200", "B300": "B300",
+    "LLM Token(SDLLMTK)": "LLM Token", "Open LLM": "Open LLM", "Proprietary LLM": "Proprietary LLM",
+}
+
+
+def fetch_silicon():
+    html = get("https://www.silicondata.com/products/silicon-index?gpu=h100").text.replace('\\"', '"')
+    rows = []
+    for m in re.finditer(r'"(?:title|name|label|ticker|symbol)":"([^"]{1,60})"[^\[]{0,400}?"points":\[(.*?)\]', html):
+        name = SILICON_SERIES.get(m.group(1))
+        if not name:
+            continue
+        for d, p in re.findall(r'"date":"(\d{4}-\d\d-\d\d)","price":([\d.]+)', m.group(2)):
+            rows.append({"date": d, "series": name, "price": float(p)})
+    got = {r["series"] for r in rows}
+    if len(got) < 5:
+        raise RuntimeError(f"Silicon Data 지수를 일부만 찾음({sorted(got)}) — 사이트 구조 변경?")
+    path = os.path.join(DATA, "silicon.csv")
+    old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["date", "series", "price"])
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["date", "series"], keep="last")
+    allr.sort_values(["series", "date"]).to_csv(path, index=False)
 
 
 # ---------- 내부자(임원·이사) 매수·매도 (Yahoo Finance가 SEC Form 4 공시를 정리한 데이터) ----------
@@ -459,9 +488,13 @@ def build_dram():
         s = pd.concat(parts)
         s = s[~s.index.duplicated(keep="last")].sort_index()
         ser = _series(s)
-        out.append({"item": item, "label": label, "source": src, **ser,
-                    "last": ser["y"][-1], "last_date": ser["x"][-1],
-                    "m1": pct_change(s, 30), "m3": pct_change(s, 91)})
+        entry = {"item": item, "label": label, "source": src, **ser,
+                 "last": ser["y"][-1], "last_date": ser["x"][-1],
+                 "m1": pct_change(s, 30), "m3": pct_change(s, 91)}
+        c = dl[dl["item"] == item + " 계약"].sort_values("date")
+        if len(c):  # 같은 칩의 계약(고정거래)가격을 함께 표시
+            entry["contract"] = {"x": list(c["date"]), "y": [float(v) for v in c["usd"]]}
+        out.append(entry)
     return out
 
 
@@ -608,6 +641,35 @@ def build_insider(tk, ins):
     }
 
 
+def build_silicon():
+    path = os.path.join(DATA, "silicon.csv")
+    if not os.path.exists(path):
+        return None
+    sd = pd.read_csv(path, dtype={"date": str})
+    out = []
+    for name in SILICON_SERIES.values():
+        g = sd[sd["series"] == name].sort_values("date")
+        if g.empty:
+            continue
+        s = pd.Series(g["price"].values, index=g["date"].values)
+        out.append({"name": name, "x": list(s.index), "y": [float(v) for v in s.values],
+                    "last": float(s.iloc[-1]), "last_date": s.index[-1],
+                    "w1": pct_change(s, 7), "m1": pct_change(s, 30)})
+    return out
+
+
+def build_arr():
+    path = os.path.join(BASE, "arr_log.csv")
+    if not os.path.exists(path):
+        return None
+    a = pd.read_csv(path, dtype=str).fillna("")
+    a = a[a["source_url"].str.startswith("http")]  # 출처 없는 숫자는 쓰지 않음
+    a["arr_b"] = pd.to_numeric(a["arr_b"], errors="coerce")
+    a = a.dropna(subset=["arr_b"]).sort_values("date", kind="stable")
+    return [{"company": c, "rows": g[["date", "arr_b", "kind", "source_url", "note"]].to_dict("records")}
+            for c, g in a.groupby("company", sort=False)]
+
+
 def build_vix():
     path = os.path.join(DATA, "vix.csv")
     if not os.path.exists(path):
@@ -719,6 +781,8 @@ def build():
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
     out["fg"] = build_fg()
+    out["silicon"] = build_silicon()
+    out["arr"] = build_arr()
     out["vix"] = build_vix()
     out["hy"] = build_hy()
 
@@ -739,7 +803,7 @@ def main():
     status["errors"] = []
 
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
-             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("D램 현물가격(TrendForce)", fetch_dram),
+             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]

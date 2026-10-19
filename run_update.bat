@@ -7,7 +7,7 @@ if not exist logs mkdir logs
 echo ===== %date% %time% ===== >> logs\update.log
 python update.py >> logs\update.log 2>&1
 echo python exit code %errorlevel% >> logs\update.log
-git add docs data cds_log.csv dram_log.csv >> logs\update.log 2>&1
+git add docs data cds_log.csv dram_log.csv arr_log.csv >> logs\update.log 2>&1
 git commit -m "자동 갱신 %date%" >> logs\update.log 2>&1
 git push origin main >> logs\update.log 2>&1
 echo push exit code %errorlevel% >> logs\update.log
