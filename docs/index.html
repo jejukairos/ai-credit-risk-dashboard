@@ -635,7 +635,8 @@ function renderFg() {
     (sc > 10 ? ` 지금은 ${sc.toFixed(0)}로, 10까지 ${(sc - 10).toFixed(0)}포인트 남았어요.` : ' 지금이 바로 그 구간이에요.');
   rt.style.color = sc < 25 ? css('--bad') : sc < 45 ? css('--spread') : sc <= 55 ? css('--ink2') : css('--good');
   const r = v => v == null ? '–' : Math.round(v);
-  document.getElementById('fgprev').innerHTML = `${n.timestamp.slice(0, 10)} 미국 장 마감 기준<br>전일 ${r(n.previous_close)} · 1주 전 ${r(n.previous_1_week)} · 1개월 전 ${r(n.previous_1_month)} · 1년 전 ${r(n.previous_1_year)}`;
+  const kst = new Date(n.timestamp).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false});
+  document.getElementById('fgprev').innerHTML = `CNN 기준 ${kst} (한국시간)<br>전일 마감 ${r(n.previous_close)} · 1주 전 ${r(n.previous_1_week)} · 1개월 전 ${r(n.previous_1_month)} · 1년 전 ${r(n.previous_1_year)}`;
   document.getElementById('fgmark').style.left = sc + '%';
   const last = f.x[f.x.length - 1], xs = xStartFor(last, f.x[0]);
   const ep = f.episodes;
