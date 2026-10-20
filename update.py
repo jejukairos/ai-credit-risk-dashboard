@@ -296,6 +296,34 @@ def fetch_silicon():
     allr.sort_values(["series", "date"]).to_csv(path, index=False)
 
 
+# ---------- 네비우스 GPU 현물(스팟) 가격 — 공개 API, 인증 없음, 최근 30일 시간별 ----------
+NEBIUS_API = "https://api.nebius.cloud/billing/v1alpha1/spot-price"
+
+
+def _nebius_model(platform):
+    m = re.search(r"gpu-([a-z]+\d+)", platform or "")
+    return m.group(1).upper() if m else None
+
+
+def fetch_nebius():
+    start = (datetime.now(timezone.utc) - timedelta(days=29)).strftime("%Y-%m-%dT%H:00:00Z")
+    j = get(NEBIUS_API + "/list-series", params={"filters.startTime": start, "aggregation.granularity": "GRANULARITY_HOUR_1",
+                                                 "aggregation.method": "METHOD_AVG_PRICE", "pageSize": 100}, timeout=120).json()
+    rows = []
+    for s in j.get("items", []):
+        model = _nebius_model(s["computeInstance"]["platform"])
+        if model not in ("B300", "B200", "H200", "H100"):
+            continue
+        for p in s.get("points", []):
+            rows.append({"time": p["timestamp"][:16], "model": model, "region": s["region"], "usd": float(p["value"])})
+    if not rows:
+        raise RuntimeError("네비우스 현물가격 응답이 비어 있음")
+    path = os.path.join(DATA, "nebius_spot.csv")  # 시간별·지역별 기록을 계속 쌓음 (API는 30일만 줌)
+    old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["time", "model", "region", "usd"])
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["time", "model", "region"], keep="last")
+    allr.sort_values(["model", "region", "time"]).to_csv(path, index=False)
+
+
 # ---------- 내부자(임원·이사) 매수·매도 (Yahoo Finance가 SEC Form 4 공시를 정리한 데이터) ----------
 def _insider_tickers():
     return [t["ticker"] for t in config.TICKERS if "." not in t["ticker"]]  # 일본 등 해외 상장(9984.T)은 미국식 Form 4가 없음
@@ -662,6 +690,30 @@ def build_silicon():
     return out
 
 
+def build_nebius():
+    path = os.path.join(DATA, "nebius_spot.csv")
+    if not os.path.exists(path):
+        return None
+    n = pd.read_csv(path)
+    n["t"] = pd.to_datetime(n["time"])
+    out = []
+    for model in ["B300", "B200", "H200", "H100"]:
+        g = n[n["model"] == model]
+        if g.empty:
+            continue
+        avg = g.groupby("t")["usd"].mean().sort_index()  # 지역 평균
+        # 30일이 넘게 쌓이면 화면은 일별 평균으로 (데이터 가볍게)
+        ser = avg if (avg.index[-1] - avg.index[0]).days <= 35 else avg.resample("D").mean().dropna()
+        last_t = avg.index[-1]
+        past = avg[avg.index <= last_t - pd.Timedelta(days=7)]
+        cur = g[g["t"] == last_t]
+        out.append({"model": model, "x": [t.strftime("%Y-%m-%d %H:%M") for t in ser.index], "y": [round(float(v), 3) for v in ser.values],
+                    "last": round(float(avg.iloc[-1]), 2), "last_time": last_t.strftime("%Y-%m-%d %H:%M"),
+                    "min": round(float(cur["usd"].min()), 2), "max": round(float(cur["usd"].max()), 2), "regions": int(cur["region"].nunique()),
+                    "d7": None if past.empty else round((float(avg.iloc[-1]) / float(past.iloc[-1]) - 1) * 100, 1)})
+    return out
+
+
 def build_arr():
     path = os.path.join(BASE, "arr_log.csv")
     if not os.path.exists(path):
@@ -817,6 +869,7 @@ def build():
     out["nps"] = build_nps()
     out["fg"] = build_fg()
     out["silicon"] = build_silicon()
+    out["nebius"] = build_nebius()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
     out["hy"] = build_hy()
@@ -838,7 +891,8 @@ def main():
     status["errors"] = []
 
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
-             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon), ("D램 현물가격(TrendForce)", fetch_dram),
+             ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
+             ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]

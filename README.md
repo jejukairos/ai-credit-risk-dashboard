@@ -24,6 +24,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 | 채권 스프레드 | FRED — ICE BofA 등급별 옵션조정 스프레드 | 종목별 개별 채권이 아니라 **같은 신용등급 회사채 평균**. (FINRA 무료 API에는 종목별 TRACE 거래 데이터가 없어 대체) |
 | CDS 5년물 | 뉴스 기사 | `cds_log.csv` 에 날짜·종목·bp·출처URL·메모. 출처 없는 숫자는 넣지 않음 |
 | GPU·LLM 토큰 지수 | [Silicon Data](https://www.silicondata.com/products/silicon-index) 공개 페이지 | H100·H200·B200·B300 임대지수, LLM Token Index(오픈웨이트·독점 포함). 페이지에 실린 최근 30일치를 매일 저장해 쌓음(2026-09-18~) |
+| GPU 현물(스팟) 가격 | [네비우스(NBIS)](https://nebius.com/spot-prices) 공개 API(인증 없음) | B300·B200·H200·H100 지역별 현물가격, 최근 30일 시간별을 매일 받아 쌓음 |
 | GPU 임대가격(참고) | [Price of Compute](https://priceofcompute.com) 무료 API | 여러 클라우드의 온디맨드 가격 일별 중앙값 |
 | AI 매출(ARR) | 회사 발표·언론 보도·TickerTrends 추정 보도 | `arr_log.csv` 에 날짜·회사·금액($B)·종류(발표/추정/총액식)·출처URL. 매주 월요일 자동 검색으로 추가 |
 | D램 가격 | TrendForce/DRAMeXchange 공개 시세 + 주간 'Memory Spot Price Update' 기사 | DDR4 8Gb 계약가격(반월 갱신)도 함께. 대표 3개만: DXI 지수, DDR5 16Gb 현물, DDR4 8Gb 현물(2023-07부터). DXI·DDR5는 과거치가 유료라 2026-10-16부터 매일 쌓임. 뉴스 수치는 `dram_log.csv` 에 출처와 함께 추가 가능 |

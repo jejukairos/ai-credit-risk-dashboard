@@ -233,9 +233,16 @@ footer a{color:var(--ink2)}
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
   </div>
+  <div class="card">
+    <h3><span>네비우스(NBIS) GPU 현물(스팟) 가격</span></h3>
+    <div class="small" style="margin:2px 4px 6px">네비우스가 직접 공개하는 실시간 시장가격이에요. <b>현물(스팟)</b> = 남는 GPU를 싸게 빌려주되 필요하면 중간에 회수할 수 있는 임대라, 수요가 몰리면 가격이 바로 튀어요. 여러 지역 가격의 평균이에요.</div>
+    <div class="tablebox" style="border:0"><table id="nbtable"><thead><tr><th>GPU</th><th>지금<br>(지역 평균)</th><th>7일<br>변화</th><th>지역별<br>범위</th></tr></thead><tbody></tbody></table></div>
+    <div id="nbplot" class="plot" style="height:280px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="nbnote"></p>
+  </div>
   <div class="small" style="margin:14px 4px 4px"><b>참고: 온디맨드(즉시 임대) 가격</b> — 여러 클라우드 공급사 가격의 중앙값</div>
   <div class="card">
-    <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th><th>기준일</th></tr></thead><tbody></tbody></table></div>
+    <div class="tablebox" style="border:0"><table id="gputable"><thead><tr><th>GPU</th><th>최근가</th><th>1주</th><th>1개월</th></tr></thead><tbody></tbody></table></div>
     <div id="gpuplot" class="plot" style="height:300px"></div>
     <p class="note" style="margin:4px">여러 클라우드 공급사의 온디맨드(즉시 임대) 가격의 일별 중앙값입니다(블랙웰 계열 기록은 2026년 8월부터, 이후 매일 쌓임). 뉴스에 나오는 Compute Desk 지수(1년 계약 실거래가)와는 산출 방식이 달라 수치가 다를 수 있습니다.
     Data: <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute — priceofcompute.com</a></p>
@@ -490,7 +497,7 @@ function renderGpu() {
   const colors = ['--g1', '--g2', '--g3', '--g4'].map(css);
   document.querySelector('#gputable tbody').innerHTML = DATA.gpu.map((g, i) => `<tr>
     <td><span class="sw" style="border-color:${colors[i]};border-top-width:3px"></span>${g.name}</td>
-    <td>$${fmtNum(g.last, 2)}</td><td>${fmtPct(g.w1)}</td><td>${fmtPct(g.m1)}</td><td class="small">${g.last_date ? g.last_date.slice(5).replace('-', '.') : '–'}</td></tr>`).join('');
+    <td>$${fmtNum(g.last, 2)}</td><td>${fmtPct(g.w1)}</td><td>${fmtPct(g.m1)}</td></tr>`).join('');
   const last = DATA.gpu.map(g => g.x[g.x.length - 1]).sort().pop();
   const start = periodStart(last);
   const firstAll = DATA.gpu.filter(g => g.name.startsWith('B')).map(g => g.x[0]).sort()[0];
@@ -782,6 +789,25 @@ function renderHy() {
     `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
 }
 
+function renderNebius() {
+  const N = DATA.nebius;
+  if (!N || !N.length) return;
+  const col = {B300: '--g3', B200: '--g2', H200: '--g7', H100: '--g1'};
+  document.querySelector('#nbtable tbody').innerHTML = N.map(m => `<tr><td><span class="sw" style="border-color:${css(col[m.model])};border-top-width:3px"></span>${m.model}</td>
+    <td><b>$${m.last.toFixed(2)}</b><br><span class="small">/GPU·시간</span></td><td>${fmtPct(m.d7)}</td>
+    <td>$${m.min.toFixed(2)}~${m.max.toFixed(2)}<br><span class="small">${m.regions}개 지역</span></td></tr>`).join('');
+  Plotly.react('nbplot', N.map(m => ({x: m.x, y: m.y, type: 'scatter', mode: 'lines', name: m.model, line: {color: css(col[m.model]), width: 1.8, shape: 'hv'},
+    hovertemplate: `${m.model} $%{y:.2f}<extra></extra>`})), Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', tickformat: '%m.%d', hoverformat: '%Y-%m-%d %H시'}),
+    yaxis: axis({rangemode: 'tozero', title: {text: '$/시간', standoff: 2}}),
+    showlegend: true, legend: {orientation: 'h', y: -0.15, font: {size: 11}}, margin: {l: 44, r: 8, t: 8, b: 50},
+  }), CFG);
+  const kst = s => new Date(s.replace(' ', 'T') + ':00Z').toLocaleString('ko-KR', {timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', hour12: false});
+  document.getElementById('nbnote').innerHTML = `최근 7일 변화가 가장 큰 GPU: <b>${N.slice().sort((a, b) => (b.d7 ?? -1e9) - (a.d7 ?? -1e9))[0].model}</b>. ` +
+    `기준 ${kst(N[0].last_time)}(한국시간). 네비우스 사이트의 7일 변화는 지역별 값이라 이 표(지역 평균)와 다를 수 있어요. ` +
+    `자료: <a href="https://nebius.com/spot-prices" target="_blank" rel="noopener">Nebius 현물가격</a> 공개 API(최근 30일 시간별, 매일 쌓음)`;
+}
+
 function renderSilicon() {
   const S = DATA.silicon;
   if (!S || !S.length) return;
@@ -854,7 +880,7 @@ function renderArr() {
     `<li><span class="sd">${r.date}</span><b>${r.company} $${r.arr_b}B</b> <span class="small">${kindKr[r.kind] || r.kind}</span> · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a><div class="small">${r.note}</div></li>`).join('')}</ul></details>`;
 }
 
-function renderAll() { renderSilicon(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { renderSilicon(); renderNebius(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
