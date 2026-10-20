@@ -65,7 +65,7 @@ def fetch_prices():
     df.index.name = "date"
     df.round(4).to_csv(os.path.join(DATA, "prices.csv"))
     # 코스피(고객예탁금 비교용) · S&P500(공포탐욕지수 이후 수익률 계산용), 2020년부터
-    for sym, name in [("^KS11", "kospi"), ("^GSPC", "sp500")]:
+    for sym, name in [("^KS11", "kospi"), ("^KQ11", "kosdaq"), ("^GSPC", "sp500")]:
         k = yf.download(sym, start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if not k.empty:
             k.index = pd.to_datetime(k.index).strftime("%Y-%m-%d")
@@ -294,6 +294,23 @@ def fetch_silicon():
     old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["date", "series", "price"])
     allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["date", "series"], keep="last")
     allr.sort_values(["series", "date"]).to_csv(path, index=False)
+
+
+# ---------- ADR(등락비율) — adrinfo.kr 차트 페이지에 실린 일별 값 (2019-10~) ----------
+def fetch_adr():
+    html = get("http://adrinfo.kr/chart").text
+    rows = []
+    for market in ("kospi", "kosdaq"):
+        m = re.search(market + r"_adr\s*=\s*(\[.*?\])\s*;", html, re.S)  # 배열은 '[[..], [..], ];' 로 끝남
+        if not m:
+            raise RuntimeError(f"{market} ADR 데이터를 못 찾음 (사이트 구조 변경?)")
+        for ms, v in re.findall(r"\[(\d{12,13}),\s*([\d.]+)\]", m.group(1)):  # 값 없는 날(null 등)은 건너뜀
+            day = datetime.fromtimestamp(int(ms) / 1000, KST).strftime("%Y-%m-%d")
+            rows.append({"date": day, "market": market, "adr": float(v)})
+    path = os.path.join(DATA, "adr.csv")
+    old = pd.read_csv(path) if os.path.exists(path) else pd.DataFrame(columns=["date", "market", "adr"])
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates(["date", "market"], keep="last")
+    allr.sort_values(["market", "date"]).to_csv(path, index=False)
 
 
 # ---------- 네비우스 GPU 현물(스팟) 가격 — 공개 API, 인증 없음, 최근 30일 시간별 ----------
@@ -714,6 +731,24 @@ def build_nebius():
     return out
 
 
+def build_adr():
+    path = os.path.join(DATA, "adr.csv")
+    if not os.path.exists(path):
+        return None
+    a = pd.read_csv(path, dtype={"date": str})
+    out = {}
+    for market in ("kospi", "kosdaq"):
+        g = a[a["market"] == market].sort_values("date")
+        ip = os.path.join(DATA, f"{market}.csv")
+        idx = {"x": [], "y": []}
+        if os.path.exists(ip):
+            k = pd.read_csv(ip, dtype={"date": str})
+            idx = {"x": list(k["date"]), "y": [round(float(v), 2) for v in k[market]]}
+        out[market] = {"x": list(g["date"]), "y": [round(float(v), 2) for v in g["adr"]], "index": idx,
+                       "recent": [{"date": d, "adr": round(float(v), 1)} for d, v in zip(g["date"].tail(10), g["adr"].tail(10))]}
+    return out
+
+
 def build_arr():
     path = os.path.join(BASE, "arr_log.csv")
     if not os.path.exists(path):
@@ -870,6 +905,7 @@ def build():
     out["fg"] = build_fg()
     out["silicon"] = build_silicon()
     out["nebius"] = build_nebius()
+    out["adr"] = build_adr()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
     out["hy"] = build_hy()
@@ -893,7 +929,7 @@ def main():
     steps = [("주가(야후파이낸스)", fetch_prices), ("회사채 스프레드(FRED)", fetch_spreads),
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
-             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
+             ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
