@@ -23,3 +23,4 @@ date,ticker,bp,source_url,note
 2026-10-15,9984.T,424,https://www.businessday.co.za/world/international-companies/2026-10-15-ai-credit-fears-push-tech-default-insurance-to-record-highs/,"Reuters 기사(BusinessDay 게재) 5년물, 24bp 상승. 날짜 미표기 - 기사 발행일로 기록, 데이터 출처기관 미표기"
 2026-10-19,ORCL,322.1,user:블룸버그 화면 캡처(CX356615 CMAN),"사용자 제공 블룸버그 화면(기준일 10/19), 사상 최고. 원본 이미지는 내 컴퓨터 user_sources 폴더에만 보관"
 2026-10-19,CRWV,1089.9,user:블룸버그 화면 캡처(코어위브 5년 CDS),"사용자 제공 블룸버그 화면(10/19~20 마지막 값). 1,000bp 위 유지. 원본 이미지는 user_sources 폴더에만 보관"
+2026-10-20,9984.T,432.3,user:블룸버그 화면 캡처(CSOF1J5 CMAN),"사용자 제공 블룸버그 화면(10/20). 블룸버그 기사 차트 설명상 약 4년 만의 최고, 2022년 고점 약 570bp 이후 최고. 원본 이미지는 user_sources 폴더에만 보관"
