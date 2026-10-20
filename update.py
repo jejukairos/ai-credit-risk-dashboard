@@ -449,19 +449,23 @@ def fetch_nps():
             json.dump(target, f, ensure_ascii=False)
 
 
-def change_4w(s):
-    """각 시점의 4주(28일) 전 대비 변화율(%) — 기울기가 완만해지는지 보는 용도"""
+def change_n(s, days, tol=10):
+    """각 시점의 days일 전 대비 변화율(%). 그 시점 근처(tol일 이내)에 값이 없으면 None"""
     s = s.dropna()
     idx = pd.to_datetime(s.index)
     out = []
     for i, d in enumerate(idx):
-        past = s[idx <= d - pd.Timedelta(days=28)]
-        # 4주 전 근처(±10일) 값이 없으면 계산하지 않음 (데이터 공백 구간)
-        if past.empty or (d - pd.Timestamp(past.index[-1])).days > 38:
+        past = s[idx <= d - pd.Timedelta(days=days)]
+        if past.empty or (d - pd.Timestamp(past.index[-1])).days > days + tol:
             out.append(None)
         else:
             out.append(round((s.iloc[i] / past.iloc[-1] - 1) * 100, 2))
     return out
+
+
+def change_4w(s):
+    """각 시점의 4주(28일) 전 대비 변화율(%) — 기울기가 완만해지는지 보는 용도"""
+    return change_n(s, 28)
 
 
 # ---------- 화면용 data.json 만들기 ----------
@@ -537,9 +541,11 @@ def build_dram():
         s = pd.concat(parts)
         s = s[~s.index.duplicated(keep="last")].sort_index()
         ser = _series(s)
+        yoy, qoq = change_n(s, 365, 14), change_n(s, 91, 14)  # 작년 같은 때 대비, 석 달 전 대비
         entry = {"item": item, "label": label, "source": src, **ser,
                  "last": ser["y"][-1], "last_date": ser["x"][-1],
-                 "m1": pct_change(s, 30), "m3": pct_change(s, 91)}
+                 "m1": pct_change(s, 30), "m3": pct_change(s, 91),
+                 "yoy": yoy, "qoq": qoq, "yoy_last": yoy[-1], "qoq_last": qoq[-1]}
         c = dl[dl["item"] == item + " 계약"].sort_values("date")
         if len(c):  # 같은 칩의 계약(고정거래)가격을 함께 표시
             entry["contract"] = {"x": list(c["date"]), "y": [float(v) for v in c["usd"]]}
@@ -749,6 +755,18 @@ def build_adr():
     return out
 
 
+def build_opinions():
+    path = os.path.join(BASE, "opinion_log.csv")
+    if not os.path.exists(path):
+        return None
+    o = pd.read_csv(path, dtype=str).fillna("")
+    o = o[o["source_url"].str.startswith("http")].sort_values("date", ascending=False, kind="stable")
+    cut = (datetime.now(KST).date() - timedelta(days=60)).isoformat()
+    recent = o[o["date"] >= cut]
+    return {"rows": o.to_dict("records"),
+            "count60": {s: int((recent["stance"] == s).sum()) for s in ("강세", "중립", "약세")}}
+
+
 def build_arr():
     path = os.path.join(BASE, "arr_log.csv")
     if not os.path.exists(path):
@@ -906,6 +924,7 @@ def build():
     out["silicon"] = build_silicon()
     out["nebius"] = build_nebius()
     out["adr"] = build_adr()
+    out["opinions"] = build_opinions()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
     out["hy"] = build_hy()

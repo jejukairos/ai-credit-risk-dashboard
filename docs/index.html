@@ -81,6 +81,10 @@ details a{color:var(--ink2);word-break:break-all}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
 .chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
 .srcs summary{cursor:pointer;padding:4px 0}
+.opbar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:0 4px;gap:2px}
+.opbar span{display:block;height:100%}
+.st{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;color:#fff;margin-right:4px}
+.st-강세{background:var(--good)} .st-약세{background:var(--bad)} .st-중립{background:var(--muted)}
 .srcs,.ins{margin:10px 4px 0;font-size:12.5px;color:var(--ink2)}
 .srcs ul,.inslist{list-style:none;margin:6px 0 0;padding:0}
 .srcs li,.inslist li{padding:6px 0;border-top:1px solid var(--line)}
@@ -277,6 +281,15 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
   </div>
   <div id="dramcards"></div>
+  <div class="card">
+    <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
+    <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
+    <div class="tiles" id="opitiles" style="margin:0 0 8px"></div>
+    <div class="opbar" id="opbar"></div>
+    <div class="real" id="opreal" style="margin:8px 4px"></div>
+    <ul class="inslist" id="oplist"></ul>
+    <p class="note" style="margin:6px 4px 2px">새 의견은 매주 월요일 자동 검색으로 추가돼요(출처 있는 것만). 의견 수는 "누가 더 많이 말했나"일 뿐 맞고 틀림은 아니에요 — 실제 가격 기울기(위 YoY·QoQ)와 함께 보세요.</p>
+  </div>
 
   <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
   <div class="glossary">
@@ -544,9 +557,11 @@ function renderDram() {
   if (!box.children.length) {
     box.innerHTML = DATA.dram.map((d, i) => `<div class="card" id="dram-${i}">
       <h3><span>${d.label}</span></h3>
-      <div class="meta"><b>${d.item === 'DXI' ? fmtNum(d.last, 0) : '$' + fmtNum(d.last, 3)}</b> (${d.last_date}) · 1개월 ${fmtPct(d.m1)} · 3개월 ${fmtPct(d.m3)}</div>
+      <div class="meta"><b>${d.item === 'DXI' ? fmtNum(d.last, 0) : '$' + fmtNum(d.last, 3)}</b> (${d.last_date}) · 1개월 ${fmtPct(d.m1)} · 3개월 ${fmtPct(d.m3)}${d.yoy_last != null ? `<br><b>YoY ${fmtPct(d.yoy_last)}</b> (작년 같은 때의 ${(1 + d.yoy_last / 100).toFixed(1)}배) · <b>QoQ ${fmtPct(d.qoq_last)}</b>` : ''}</div>
       <div class="plot" id="drplot-${i}" style="height:${d.x.length > 8 ? 360 : 220}px"></div>
-      <div class="meta small">${d.source}${d.x.length <= 8 ? ' · 기록이 4주 이상 쌓이면 기울기 막대가 나타납니다.' : ''}</div></div>`).join('');
+      ${d.yoy && d.yoy.some(v => v != null) ? `<div class="small" style="margin:8px 4px 0"><b>성장률 추이</b> — 위: YoY(작년 같은 때 대비) · 아래: QoQ(석 달 전 대비). 둘 다 꺾여 내려오면 "아직 오르지만 오름세가 식는 중"이에요.</div>
+      <div class="plot" id="drgrow-${i}" style="height:300px"></div>` : ''}
+      <div class="meta small">${d.source}${d.x.length <= 8 ? ' · 기록이 4주 이상 쌓이면 기울기 막대가 나타납니다.' : ''}${d.yoy && !d.yoy.some(v => v != null) ? ' · YoY는 기록이 1년 쌓이면 계산돼요.' : ''}</div></div>`).join('');
   }
   DATA.dram.forEach((d, i) => {
     const last = d.x[d.x.length - 1], xs = xStartFor(last, d.x[0]);
@@ -567,6 +582,18 @@ function renderDram() {
     if (hasSlope) layout.yaxis2 = axis({domain: [0, 0.34], range: padRange(visC.concat([0]), false), title: {text: '4주%', standoff: 2},
       zeroline: true, zerolinecolor: css('--ink2')});
     Plotly.react('drplot-' + i, traces, layout, CFG);
+    if (document.getElementById('drgrow-' + i)) {
+      const keep = arr => arr.map((v, j) => d.x[j] >= xs ? v : null);
+      const yv = d.yoy.filter((v, j) => v != null && d.x[j] >= xs), qv = d.qoq.filter((v, j) => v != null && d.x[j] >= xs);
+      Plotly.react('drgrow-' + i, [
+        {x: d.x, y: keep(d.yoy), type: 'scatter', mode: 'lines', name: 'YoY', line: {color: css('--bad'), width: 2}, connectgaps: false, hovertemplate: 'YoY %{y:+.0f}%<extra></extra>'},
+        {x: d.x, y: keep(d.qoq), type: 'scatter', mode: 'lines', name: 'QoQ', yaxis: 'y2', line: {color: css('--g1'), width: 2}, connectgaps: false, hovertemplate: 'QoQ %{y:+.1f}%<extra></extra>'},
+      ], Object.assign(baseLayout(), {
+        xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+        yaxis: axis({domain: [0.55, 1], range: padRange(yv.concat([0]), false), ticksuffix: '%', title: {text: 'YoY', standoff: 2}, zeroline: true, zerolinecolor: css('--ink2')}),
+        yaxis2: axis({domain: [0, 0.45], range: padRange(qv.concat([0]), false), ticksuffix: '%', title: {text: 'QoQ', standoff: 2}, zeroline: true, zerolinecolor: css('--ink2')}),
+      }), CFG);
+    }
   });
 }
 
@@ -808,6 +835,26 @@ function renderHy() {
     `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
 }
 
+function renderOpinions() {
+  const O = DATA.opinions;
+  if (!O) return;
+  const c = O.count60, tot = c['강세'] + c['중립'] + c['약세'] || 1;
+  const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  document.getElementById('opitiles').innerHTML = tile('강세론 (최근 60일)', c['강세'] + '건', '2028년까지 공급 부족 등') + tile('보수론·약세 (최근 60일)', c['약세'] + '건', `중립(상승 둔화) ${c['중립']}건 별도`);
+  document.getElementById('opbar').innerHTML = `<span style="flex:${c['강세']};background:var(--good)"></span><span style="flex:${c['중립']};background:var(--muted)"></span><span style="flex:${c['약세']};background:var(--bad)"></span>`;
+  const d4 = (DATA.dram || []).find(d => d.item === 'DDR4 8Gb');
+  let sig = '';
+  if (d4 && d4.yoy_last != null) {
+    const yv = d4.yoy.filter(v => v != null), peak = Math.max(...yv.slice(-60));
+    const qv = d4.qoq.filter(v => v != null), qpeak = Math.max(...qv.slice(-60));
+    sig = ` 가격 데이터로는 DDR4 YoY가 최근 1년 고점 ${fmtPct(peak)} → 지금 ${fmtPct(d4.yoy_last)}, QoQ는 ${fmtPct(qpeak)} → ${fmtPct(d4.qoq_last)}로 <b>${d4.qoq_last < qpeak * 0.7 ? '오름세가 식는 중' : '오름세 유지'}</b>이에요` +
+      `${d4.qoq_last > 0 ? '(아직 꺾이진 않음)' : '(QoQ 마이너스 = 가격 하락 전환)'}.`;
+  }
+  document.getElementById('opreal').innerHTML = `<b>힘의 균형</b> 최근 60일 의견은 강세 ${c['강세']} : 중립 ${c['중립']} : 약세 ${c['약세']}로 <b>${c['강세'] > c['약세'] * 1.5 ? '강세론이 우세' : c['약세'] > c['강세'] * 1.5 ? '보수론이 우세' : '팽팽'}</b>해요.` + sig;
+  document.getElementById('oplist').innerHTML = O.rows.map(r => `<li><span class="sd">${r.date.slice(2).replace(/-/g, '.')}</span><span class="st st-${r.stance}">${r.stance}</span><b>${r.who}</b>
+    <div class="small" style="margin-top:2px">${r.summary} · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a></div></li>`).join('');
+}
+
 let ADR_PERIOD = 'all';
 function renderAdr() {
   const A = DATA.adr;
@@ -946,7 +993,7 @@ function renderArr() {
     `<li><span class="sd">${r.date}</span><b>${r.company} $${r.arr_b}B</b> <span class="small">${kindKr[r.kind] || r.kind}</span> · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a><div class="small">${r.note}</div></li>`).join('')}</ul></details>`;
 }
 
-function renderAll() { renderSilicon(); renderNebius(); renderAdr(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { renderSilicon(); renderNebius(); renderAdr(); renderOpinions(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
