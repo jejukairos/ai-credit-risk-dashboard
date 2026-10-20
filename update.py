@@ -541,11 +541,12 @@ def build_dram():
         s = pd.concat(parts)
         s = s[~s.index.duplicated(keep="last")].sort_index()
         ser = _series(s)
-        yoy, qoq = change_n(s, 365, 14), change_n(s, 91, 14)  # 작년 같은 때 대비, 석 달 전 대비
+        # 작년 같은 때 대비, 석 달 전 대비, 한 달 전 대비
+        yoy, qoq, mom = change_n(s, 365, 14), change_n(s, 91, 14), change_n(s, 30, 10)
         entry = {"item": item, "label": label, "source": src, **ser,
                  "last": ser["y"][-1], "last_date": ser["x"][-1],
                  "m1": pct_change(s, 30), "m3": pct_change(s, 91),
-                 "yoy": yoy, "qoq": qoq, "yoy_last": yoy[-1], "qoq_last": qoq[-1]}
+                 "yoy": yoy, "qoq": qoq, "mom": mom, "yoy_last": yoy[-1], "qoq_last": qoq[-1], "mom_last": mom[-1]}
         c = dl[dl["item"] == item + " 계약"].sort_values("date")
         if len(c):  # 같은 칩의 계약(고정거래)가격을 함께 표시
             entry["contract"] = {"x": list(c["date"]), "y": [float(v) for v in c["usd"]]}
@@ -867,7 +868,7 @@ def build():
     ins = pd.read_csv(ins_path, dtype={"date": str}).fillna({"text": ""}) if os.path.exists(ins_path) else None
 
     out = {"generated_at": now_kst(), "tickers": [], "gpu": [], "risk_rules": config.RISK,
-           "cds_recovery": config.CDS_RECOVERY}
+           "cds_recovery": config.CDS_RECOVERY, "hidden": getattr(config, "HIDDEN_SECTIONS", [])}
     for t in config.TICKERS:
         tk = t["ticker"]
         p = prices[tk].dropna() if tk in prices else pd.Series(dtype=float)

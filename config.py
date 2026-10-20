@@ -70,6 +70,12 @@ LONG_EVENTS = [
     ("2026-10-01", "2026-12-31", "코어위브발 AI 자금조달 우려", "AI 기업 빚 우려, 코어위브 CDS 1,000bp 돌파", "", ""),
 ]
 
+# 화면에서 숨길 섹션 (코드·기록은 그대로 둠 — 다시 보이게 하려면 목록에서 지우면 됨)
+#   "insider"  = 종목 카드의 내부자 매수·매도
+#   "arr"      = AI 회사 매출(ARR) — Anthropic·OpenAI
+#   "opinions" = 메모리 전망 의견 트래커
+HIDDEN_SECTIONS = ["insider", "arr", "opinions"]
+
 # CDS → 5년 내 부도확률 계산에 쓰는 회수율(부도 나도 돌려받는 비율). 업계 관행 40%
 CDS_RECOVERY = 0.40
 

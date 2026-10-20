@@ -281,7 +281,7 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
   </div>
   <div id="dramcards"></div>
-  <div class="card">
+  <div class="card" id="opcard">
     <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
     <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
     <div class="tiles" id="opitiles" style="margin:0 0 8px"></div>
@@ -436,11 +436,21 @@ function srcHtml(t) {
   const s = t.series.cds_sources;
   if (!s.x.length) return '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>';
   const rows = s.x.map((d, i) => ({d, y: s.y[i], u: s.url[i], n: s.note[i]})).reverse();
-  return `<div class="srcs"><b>CDS 출처</b> <span class="small">(누르면 기사·자료로 이동)</span><ul>${rows.map(r =>
-    `<li><span class="sd">${r.d}</span><b>${fmtNum(r.y, r.y % 1 ? 1 : 0)}bp</b> · ${r.u.startsWith('user:') ? `<span class="small">${r.u.slice(5)} (사용자 제공)</span>` : `<a href="${r.u}" target="_blank" rel="noopener">${new URL(r.u).hostname}${r.u.toLowerCase().includes('.pdf') ? ' (PDF 파일)' : ''} ↗</a>`}${r.n ? `<div class="small">${r.n}</div>` : ''}</li>`).join('')}</ul></div>`;
+  return `<details class="srcs"><summary><b>CDS 출처 ${rows.length}건</b> <span class="small">(▶ 누르면 펼쳐져요 · 링크는 기사·자료로 이동)</span></summary><ul>${rows.map(r =>
+    `<li><span class="sd">${r.d}</span><b>${fmtNum(r.y, r.y % 1 ? 1 : 0)}bp</b> · ${r.u.startsWith('user:') ? `<span class="small">${r.u.slice(5)} (사용자 제공)</span>` : `<a href="${r.u}" target="_blank" rel="noopener">${new URL(r.u).hostname}${r.u.toLowerCase().includes('.pdf') ? ' (PDF 파일)' : ''} ↗</a>`}${r.n ? `<div class="small">${r.n}</div>` : ''}</li>`).join('')}</ul></details>`;
+}
+
+const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
+// 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
+function applyHidden() {
+  const hideFrom = id => { let el = document.getElementById(id); if (!el) return; el.style.display = 'none'; el = el.nextElementSibling;
+    while (el && el.tagName !== 'H2') { el.style.display = 'none'; el = el.nextElementSibling; } };
+  if (isHidden('arr')) { hideFrom('sec-ai'); document.querySelectorAll('a[href="#sec-ai"]').forEach(a => a.style.display = 'none'); }
+  if (isHidden('opinions')) { const c = document.getElementById('opcard'); if (c) c.style.display = 'none'; }
 }
 
 function insiderHtml(t) {
+  if (isHidden('insider')) return '';
   const i = t.insider;
   const head = '<b>내부자 매수·매도</b> <span class="small">(임원·이사가 자기 회사 주식을 사고판 기록)</span>';
   if (!i || i.rows === -1) return `<div class="ins">${head}<div class="small" style="margin-top:6px">일본 상장 기업이라 미국식 내부자 공시(Form 4)가 없어요.</div></div>`;
@@ -557,10 +567,10 @@ function renderDram() {
   if (!box.children.length) {
     box.innerHTML = DATA.dram.map((d, i) => `<div class="card" id="dram-${i}">
       <h3><span>${d.label}</span></h3>
-      <div class="meta"><b>${d.item === 'DXI' ? fmtNum(d.last, 0) : '$' + fmtNum(d.last, 3)}</b> (${d.last_date}) · 1개월 ${fmtPct(d.m1)} · 3개월 ${fmtPct(d.m3)}${d.yoy_last != null ? `<br><b>YoY ${fmtPct(d.yoy_last)}</b> (작년 같은 때의 ${(1 + d.yoy_last / 100).toFixed(1)}배) · <b>QoQ ${fmtPct(d.qoq_last)}</b>` : ''}</div>
+      <div class="meta"><b>${d.item === 'DXI' ? fmtNum(d.last, 0) : '$' + fmtNum(d.last, 3)}</b> (${d.last_date}) · 1개월 ${fmtPct(d.m1)} · 3개월 ${fmtPct(d.m3)}${d.yoy_last != null ? `<br><b>YoY ${fmtPct(d.yoy_last)}</b> (작년 같은 때의 ${(1 + d.yoy_last / 100).toFixed(1)}배) · <b>QoQ ${fmtPct(d.qoq_last)}</b> · <b>MoM ${fmtPct(d.mom_last)}</b>` : ''}</div>
       <div class="plot" id="drplot-${i}" style="height:${d.x.length > 8 ? 360 : 220}px"></div>
-      ${d.yoy && d.yoy.some(v => v != null) ? `<div class="small" style="margin:8px 4px 0"><b>성장률 추이</b> — 위: YoY(작년 같은 때 대비) · 아래: QoQ(석 달 전 대비). 둘 다 꺾여 내려오면 "아직 오르지만 오름세가 식는 중"이에요.</div>
-      <div class="plot" id="drgrow-${i}" style="height:300px"></div>` : ''}
+      ${d.yoy && d.yoy.some(v => v != null) ? `<div class="small" style="margin:8px 4px 0"><b>성장률 추이</b> — 위부터 YoY(작년 같은 때 대비) · QoQ(석 달 전 대비) · MoM(한 달 전 대비). 셋 다 꺾여 내려오면 "아직 오르지만 오름세가 식는 중"이에요.</div>
+      <div class="plot" id="drgrow-${i}" style="height:400px"></div>` : ''}
       <div class="meta small">${d.source}${d.x.length <= 8 ? ' · 기록이 4주 이상 쌓이면 기울기 막대가 나타납니다.' : ''}${d.yoy && !d.yoy.some(v => v != null) ? ' · YoY는 기록이 1년 쌓이면 계산돼요.' : ''}</div></div>`).join('');
   }
   DATA.dram.forEach((d, i) => {
@@ -584,14 +594,18 @@ function renderDram() {
     Plotly.react('drplot-' + i, traces, layout, CFG);
     if (document.getElementById('drgrow-' + i)) {
       const keep = arr => arr.map((v, j) => d.x[j] >= xs ? v : null);
-      const yv = d.yoy.filter((v, j) => v != null && d.x[j] >= xs), qv = d.qoq.filter((v, j) => v != null && d.x[j] >= xs);
+      const vis = arr => (arr || []).filter((v, j) => v != null && d.x[j] >= xs);
+      const yv = vis(d.yoy), qv = vis(d.qoq), mv = vis(d.mom);
+      const zl = {zeroline: true, zerolinecolor: css('--ink2')};
       Plotly.react('drgrow-' + i, [
         {x: d.x, y: keep(d.yoy), type: 'scatter', mode: 'lines', name: 'YoY', line: {color: css('--bad'), width: 2}, connectgaps: false, hovertemplate: 'YoY %{y:+.0f}%<extra></extra>'},
         {x: d.x, y: keep(d.qoq), type: 'scatter', mode: 'lines', name: 'QoQ', yaxis: 'y2', line: {color: css('--g1'), width: 2}, connectgaps: false, hovertemplate: 'QoQ %{y:+.1f}%<extra></extra>'},
+        {x: d.x, y: keep(d.mom || []), type: 'scatter', mode: 'lines', name: 'MoM', yaxis: 'y3', line: {color: css('--g3'), width: 2}, connectgaps: false, hovertemplate: 'MoM %{y:+.1f}%<extra></extra>'},
       ], Object.assign(baseLayout(), {
-        xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
-        yaxis: axis({domain: [0.55, 1], range: padRange(yv.concat([0]), false), ticksuffix: '%', title: {text: 'YoY', standoff: 2}, zeroline: true, zerolinecolor: css('--ink2')}),
-        yaxis2: axis({domain: [0, 0.45], range: padRange(qv.concat([0]), false), ticksuffix: '%', title: {text: 'QoQ', standoff: 2}, zeroline: true, zerolinecolor: css('--ink2')}),
+        xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m'}),
+        yaxis: axis(Object.assign({domain: [0.70, 1], range: padRange(yv.concat([0]), false), ticksuffix: '%', title: {text: 'YoY', standoff: 2}}, zl)),
+        yaxis2: axis(Object.assign({domain: [0.36, 0.64], range: padRange(qv.concat([0]), false), ticksuffix: '%', title: {text: 'QoQ', standoff: 2}}, zl)),
+        yaxis3: axis(Object.assign({domain: [0, 0.30], range: padRange(mv.concat([0]), false), ticksuffix: '%', title: {text: 'MoM', standoff: 2}}, zl)),
       }), CFG);
     }
   });
@@ -993,7 +1007,7 @@ function renderArr() {
     `<li><span class="sd">${r.date}</span><b>${r.company} $${r.arr_b}B</b> <span class="small">${kindKr[r.kind] || r.kind}</span> · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a><div class="small">${r.note}</div></li>`).join('')}</ul></details>`;
 }
 
-function renderAll() { renderSilicon(); renderNebius(); renderAdr(); renderOpinions(); renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { applyHidden(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

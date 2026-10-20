@@ -66,6 +66,8 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
   2. 로그인 후 https://fredaccount.stlouisfed.org/apikeys 에서 **Request API Key** → 사용 목적에 "personal dashboard" 정도 입력 → 키 복사
   3. 이 폴더의 `set_fred_key.bat` 더블클릭 → 키 붙여넣기 → Enter
 - **갱신 기록 보기**: `logs\update.log`
+- **숨긴 섹션 다시 켜기**: `config.py` 의 `HIDDEN_SECTIONS` 에서 이름을 지우면 다음 갱신부터 다시 보임
+  (`insider` = 내부자 매수·매도, `arr` = AI 매출, `opinions` = 메모리 전망 의견. 내부자 기록은 숨겨도 매일 계속 쌓임)
 
 ## 파일 설명
 
