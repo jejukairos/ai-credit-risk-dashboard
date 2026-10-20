@@ -73,12 +73,13 @@ def fetch_prices():
 
 
 # ---------- 2·3. 등급별 회사채 스프레드 (FRED) ----------
-def fred_series(series_id):
+def fred_series(series_id, start=None):
+    start = start or config.START_DATE
     key = os.environ.get("FRED_API_KEY", "").strip()
     if key:
         r = get("https://api.stlouisfed.org/fred/series/observations",
                 params={"series_id": series_id, "api_key": key, "file_type": "json",
-                        "observation_start": config.START_DATE})
+                        "observation_start": start})
         obs = r.json()["observations"]
         s = pd.Series({o["date"]: o["value"] for o in obs})
     else:
@@ -362,6 +363,9 @@ def fetch_hy():
     if os.path.exists(path):
         new = new.combine_first(pd.read_csv(path, index_col=0))  # FRED는 최근 3년만 주므로 옛 기록은 보존
     new.sort_index().round(2).to_csv(path)
+    # 장기 비교용: Moody's Baa 회사채 - 10년 국채 스프레드 (1986~, 라이선스 제한 없음, 단위 %)
+    b = fred_series("BAA10Y", start="1986-01-01") / 100
+    b.rename("baa").rename_axis("date").round(2).to_csv(os.path.join(DATA, "baa_spread.csv"))
 
 
 # ---------- 국민연금 자산배분 (기금운용본부 홈페이지, 매월 갱신) ----------
@@ -692,11 +696,40 @@ def build_hy():
     yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
     last = float(s.iloc[-1])
     d = lambda days: None if _level_at(s, days) is None else round(last - _level_at(s, days), 2)  # noqa: E731
+    sd = pd.to_datetime(s.index)
+
+    def peak(ser, idx, a, b):
+        w = ser[(idx >= pd.Timestamp(a)) & (idx <= pd.Timestamp(b))]
+        return None if w.empty else {"date": w.idxmax(), "value": round(float(w.max()), 2)}
+
+    events = []
+    for a, b, label in config.HY_EVENTS:
+        p = peak(s, sd, a, b)
+        if p:
+            events.append({"label": label, **p})
+    # 장기(1986~) Baa 스프레드: 주간(금요일)으로 줄여서 화면 데이터를 가볍게
+    long, long_events = None, []
+    bpath = os.path.join(DATA, "baa_spread.csv")
+    if os.path.exists(bpath):
+        bb = pd.read_csv(bpath, dtype={"date": str}).dropna()
+        bs = pd.Series(bb["baa"].values, index=pd.to_datetime(bb["date"]))
+        wk = bs.resample("W-FRI").last().dropna()
+        long = {"x": [d.strftime("%Y-%m-%d") for d in wk.index], "y": [round(float(v), 2) for v in wk.values]}
+        for a, b, label, desc, hy_txt, hy_url in config.LONG_EVENTS:
+            pb = peak(bs, bs.index, a, b)
+            if not pb:
+                continue
+            pb["date"] = pb["date"].strftime("%Y-%m-%d")
+            ph = peak(s, sd, a, b)  # 최근 3년 안의 사건이면 하이일드 실제 최고치도 계산
+            long_events.append({"label": label, "desc": desc, "baa": pb,
+                                "hy": f"{ph['value']:.2f}% ({ph['date'][5:].replace('-', '/')})" if ph else hy_txt,
+                                "hy_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2" if ph else hy_url})
     return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values], "last": round(last, 2),
             "last_date": s.index[-1], "d1w": d(7), "d1m": d(30),
             "min_1y": {"date": yr.idxmin(), "value": round(float(yr.min()), 2)},
             "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 2)},
-            "box_top": config.HY_BOX_TOP}
+            "box_top": config.HY_BOX_TOP, "events": events, "long": long, "long_events": long_events,
+            "baa_last": None if long is None else long["y"][-1]}
 
 
 def build_nps():
@@ -722,12 +755,14 @@ def build():
     cds = pd.read_csv(os.path.join(BASE, "cds_log.csv"), dtype=str).fillna("")
     cds["bp"] = pd.to_numeric(cds["bp"], errors="coerce")
     cds = cds.dropna(subset=["bp"])
-    cds = cds[cds["source_url"].str.startswith("http")]  # 출처 없는 숫자는 쓰지 않음
+    # 출처 없는 숫자는 쓰지 않음 (http 링크, 또는 'user:' = 사용자가 직접 준 자료 화면)
+    cds = cds[cds["source_url"].str.startswith("http") | cds["source_url"].str.startswith("user:")]
     cds = cds.sort_values("date", kind="stable")
     ins_path = os.path.join(DATA, "insider_trades.csv")
     ins = pd.read_csv(ins_path, dtype={"date": str}).fillna({"text": ""}) if os.path.exists(ins_path) else None
 
-    out = {"generated_at": now_kst(), "tickers": [], "gpu": [], "risk_rules": config.RISK}
+    out = {"generated_at": now_kst(), "tickers": [], "gpu": [], "risk_rules": config.RISK,
+           "cds_recovery": config.CDS_RECOVERY}
     for t in config.TICKERS:
         tk = t["ticker"]
         p = prices[tk].dropna() if tk in prices else pd.Series(dtype=float)

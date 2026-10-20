@@ -164,7 +164,8 @@ footer a{color:var(--ink2)}
     </div>
     <div class="fgtop"><div class="fgscore" id="hyscore">–</div><div><div class="fgrating" id="hyrating"></div><div class="small" id="hyprev"></div></div></div>
     <div class="fgchips" id="hychips"></div>
-    <div id="hyplot" class="plot" style="height:260px"></div>
+    <div class="small" style="margin:0 4px">2025년 2월~ (사진과 같은 기간) · 파란 점 = 사건별 최고점</div>
+    <div id="hyplot" class="plot" style="height:300px"></div>
     <div class="memo">
       <b>🐒 투자 메모 — ⚠️ 위기 선행지표</b>
       <div>· 메모 작성자가 <b>위험지표 1순위</b>로 보는 선행지표예요. 이게 박스권을 뚫고 올라갔다는 건 투자자들이 뭔가 터질 수 있다는 위험을 <b>본격적으로 반영</b>하기 시작했다는 뜻이에요.</div>
@@ -172,6 +173,13 @@ footer a{color:var(--ink2)}
       <div class="real" id="hyreal"></div>
     </div>
     <p class="note" style="margin:6px 4px 2px">블룸버그 값은 유료라, 같은 ICE BofA 하이일드 지수를 무료로 공개하는 <a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2" target="_blank" rel="noopener">FRED</a> 데이터를 씁니다. 블룸버그 화면보다 하루 늦고 0.1%p 안팎 다를 수 있어요. 점선(3.2%)은 메모 차트의 박스권 위쪽 기준선입니다.</p>
+  </div>
+  <div class="card">
+    <h3><span>더 길게 보기 — 신용 스프레드가 치솟았을 때 무슨 일이 있었나 (1986~)</span></h3>
+    <div class="small" style="margin:2px 4px 6px">하이일드 스프레드 무료 자료는 최근 3년만 공개돼서, 같은 위기 때 함께 치솟는 <b>Moody's Baa 회사채 스프레드</b>(투자등급 하단 회사채 − 10년 국채, 1986년부터)로 길게 봐요. 하이일드보다 숫자는 작지만 오르내리는 시기가 같아요. 빨간 번호 = 아래 표의 사건.</div>
+    <div id="hylong" class="plot" style="height:260px"></div>
+    <div class="tablebox" style="border:0"><table id="hyevents"><thead><tr><th style="text-align:left">사건</th><th>Baa<br>최고</th><th>하이일드<br>최고</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </div>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
@@ -184,15 +192,24 @@ footer a{color:var(--ink2)}
     <div><b>스프레드</b> 같은 성적표 회사들이 미국 정부보다 이자를 <b>얼마나 더 주고</b> 돈을 빌리는지예요. 많이 줄수록 위험해요.</div>
     <div><b>셋의 관계</b> 셋 다 "돈 못 갚을 위험"을 재는 자예요. 성적표가 나쁠수록 스프레드와 CDS가 높아요.</div>
     <div><b>bp</b> 0.01%예요. 100bp = 1%, 1,000bp = 10% (보험료가 1년에 빌린 돈의 10%).</div>
+    <div><b>부도확률은 어떻게 알까?</b> CDS 보험료에서 거꾸로 계산해요. ① 부도가 나도 빌려준 돈의 <b>40%는 돌려받는다</b>고 가정(업계 관행) ② 그러면 1년에 부도날 확률 ≈ CDS ÷ 60% ③ 그게 5년 동안 쌓인 값이 <b>5년 내 부도확률</b>이에요.
+      <div class="tablebox" style="border:0;margin-top:6px"><table id="pdtable"><thead><tr><th>CDS</th><th>1년 부도율</th><th>5년 내 부도확률</th></tr></thead><tbody></tbody></table></div>
+      <span class="small">시장 가격에서 뽑은 "시장이 걱정하는 정도"이지, 실제로 그만큼 부도가 난다는 뜻은 아니에요(보험료엔 걱정·수급도 섞여 있어요).</span></div>
     <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 400bp 이상이거나 한 달 새 주가 −25% ·
       <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 150bp 이상이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
+  </div>
+  <div class="memo" style="margin:0 0 10px">
+    <b>🐒 투자 메모 (동향 파악용)</b>
+    <div>· <b>⚠️ 오라클 역시 부도위험 지속 상승</b> — 진짜 부도가 나는 건 아니지만, 빅테크의 가장 약한 고리인 오라클도 신용리스크가 계속 높아지고 있어요. CDS 300이면 5년 내 부도위험 약 20%.</div>
+    <div>· <b>⚠️ 코어위브 부도위험 여전히 60% 이상</b> — CDS가 1,000 이상이면 임계점 돌파(부실채권 취급)인데, 크게 진정되지 않고 있어요.</div>
+    <div class="real" id="cdsreal"></div>
   </div>
 
   <h2>종목별 차트</h2>
   <div class="legend">
     <span><span class="sw" style="border-color:var(--cds)"></span>CDS 5년(bp, 점=기사)</span>
     <span><span class="sw" style="border-color:var(--spread)"></span>등급 스프레드(bp)</span>
-    <span><span class="sw" style="border-color:var(--warnline);border-top-style:dashed"></span>CDS 1,000bp (부도위험 약 60%)</span>
+    <span><span class="sw" style="border-color:var(--warnline);border-top-style:dashed"></span>CDS 1,000bp (5년 부도확률 약 57%, 부실채권 수준)</span>
     <span><span class="sw" style="border-color:var(--price)"></span>주가</span>
   </div>
   <div id="cards"></div>
@@ -335,13 +352,23 @@ function renderBanner() {
   el.innerHTML = msgs.length ? `<div class="banner err"><b>갱신 문제 발생</b> — 아래 데이터는 마지막으로 성공한 시점 기준입니다.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '';
 }
 
+function renderPd() {
+  const rec = DATA.cds_recovery || 0.4;
+  document.querySelector('#pdtable tbody').innerHTML = [100, 200, 300, 500, 1000, 1200].map(bp =>
+    `<tr><td>${fmtNum(bp)}bp</td><td>${(bp / 100 / (1 - rec)).toFixed(1)}%</td><td><b>${pd5(bp).toFixed(0)}%</b></td></tr>`).join('');
+  const w = DATA.tickers.filter(t => t.cds != null).sort((a, b) => b.cds - a.cds);
+  document.getElementById('cdsreal').innerHTML = '<b>실제 기록 (최근 CDS → 5년 내 부도확률)</b> ' +
+    w.map(t => `${t.name} ${fmtNum(t.cds, 0)}bp → <b>${pd5(t.cds).toFixed(0)}%</b> <span class="small">(${t.cds_date.slice(5).replace('-', '/')})</span>`).join(' · ');
+}
+
 function renderSummary() {
+  renderPd();
   const tb = document.querySelector('#summary tbody');
   tb.innerHTML = DATA.tickers.map(t => `<tr data-t="${t.ticker}" title="${t.risk_reasons.join(', ')}">
     <td><span class="dot ${t.risk}" role="img" aria-label="위험 ${riskName[t.risk]}"></span> <span class="tk">${t.name}</span><br><span class="small">${riskName[t.risk]} · ${t.ticker} · ${t.rating}</span></td>
     <td>${cur(t) === '¥' ? '¥' + fmtNum(t.price, 0) : fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
     <td>${fmtNum(t.spread)}<br><span class="small">${bucketLabel(t)}</span></td>
-    <td>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
+    <td>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">부도 ${pd5(t.cds).toFixed(0)}%</span><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
   tb.querySelectorAll('tr').forEach(tr => tr.onclick = () =>
     document.getElementById('card-' + tr.dataset.t).scrollIntoView({behavior: 'smooth'}));
 }
@@ -360,6 +387,8 @@ const axis = extra => {
   if (o.type === 'date' && !o.hoverformat) o.hoverformat = '%Y-%m-%d';  // 그래프를 누르면 '날짜 + 숫자'가 나오게
   return o;
 };
+// CDS(bp) → 5년 내 부도확률(%). 1년 부도율 ≈ CDS ÷ (1 − 회수율), 5년 누적 = 1 − e^(−5 × 1년 부도율)
+const pd5 = bp => (1 - Math.exp(-5 * (bp / 10000) / (1 - ((DATA && DATA.cds_recovery) || 0.4)))) * 100;
 const fmtUsd = v => v == null ? '–' : v >= 1e9 ? '$' + (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'K' : '$' + v;
 const secUrl = tk => `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${tk}&type=4&dateb=&owner=include&count=40`;
 
@@ -368,7 +397,7 @@ function srcHtml(t) {
   if (!s.x.length) return '<div class="meta">CDS: 무료 뉴스에서 확인된 수치가 아직 없습니다 (주 1회 자동 검색).</div>';
   const rows = s.x.map((d, i) => ({d, y: s.y[i], u: s.url[i], n: s.note[i]})).reverse();
   return `<div class="srcs"><b>CDS 출처</b> <span class="small">(누르면 기사·자료로 이동)</span><ul>${rows.map(r =>
-    `<li><span class="sd">${r.d}</span><b>${fmtNum(r.y, r.y % 1 ? 1 : 0)}bp</b> · <a href="${r.u}" target="_blank" rel="noopener">${new URL(r.u).hostname}${r.u.toLowerCase().includes('.pdf') ? ' (PDF 파일)' : ''} ↗</a>${r.n ? `<div class="small">${r.n}</div>` : ''}</li>`).join('')}</ul></div>`;
+    `<li><span class="sd">${r.d}</span><b>${fmtNum(r.y, r.y % 1 ? 1 : 0)}bp</b> · ${r.u.startsWith('user:') ? `<span class="small">${r.u.slice(5)} (사용자 제공)</span>` : `<a href="${r.u}" target="_blank" rel="noopener">${new URL(r.u).hostname}${r.u.toLowerCase().includes('.pdf') ? ' (PDF 파일)' : ''} ↗</a>`}${r.n ? `<div class="small">${r.n}</div>` : ''}</li>`).join('')}</ul></div>`;
 }
 
 function insiderHtml(t) {
@@ -403,7 +432,7 @@ function renderCards() {
   if (!box.children.length) {
     box.innerHTML = DATA.tickers.map(t => `<div class="card" id="card-${t.ticker}">
       <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
-      <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ')'}</div>
+      <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ') → 5년 부도확률 약 ' + pd5(t.cds).toFixed(0) + '%'}</div>
       <div class="plot" id="plot-${t.ticker}"></div>
       <div class="small" style="margin:0 4px">그래프를 누르면 그날의 날짜와 숫자가 나와요.</div>
       ${srcHtml(t)}
@@ -424,7 +453,7 @@ function renderCards() {
        line: {color: css('--spread'), width: 2}, hovertemplate: '%{y:.0f}bp'},
       {x: s.cds.x, y: s.cds.y, name: 'CDS', type: 'scatter', mode: 'lines+markers',
        line: {color: css('--cds'), width: 2}, marker: {size: 8, color: css('--cds'), line: {color: css('--surface'), width: 2}},
-       hovertemplate: '%{y:.0f}bp', connectgaps: true},
+       customdata: s.cds.y.map(v => pd5(v)), hovertemplate: '%{y:.0f}bp (부도확률 %{customdata:.0f}%)', connectgaps: true},
       {x: s.price.x, y: s.price.y, name: '주가', type: 'scatter', mode: 'lines', yaxis: 'y2',
        line: {color: css('--price'), width: 1.6}, hovertemplate: cur(t) + '%{y:,.2f}'},
     ];
@@ -435,7 +464,7 @@ function renderCards() {
       shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 1000, y1: 1000,
                 line: {color: css('--warnline'), width: 1.5, dash: 'dash'}}],
       annotations: showWarn ? [{xref: 'paper', x: 0.01, yref: 'y', y: 1000, yanchor: 'bottom', xanchor: 'left', showarrow: false,
-                text: 'CDS 1,000bp · 부도위험 약 60%', font: {size: 10, color: css('--warnline')}}]
+                text: 'CDS 1,000bp · 5년 부도확률 약 57% (부실채권 수준)', font: {size: 10, color: css('--warnline')}}]
         : [{xref: 'paper', x: 0.01, yref: 'paper', y: 1, yanchor: 'top', xanchor: 'left', showarrow: false,
             text: '1,000bp 경고선은 화면 위쪽 범위 밖', font: {size: 10, color: css('--muted')}}],
     });
@@ -716,15 +745,37 @@ function renderHy() {
   if (above) chips.push(`<span class="chip hot">${top}% 박스권 위쪽을 넘었어요</span>`);
   if (h.d1m != null && h.d1m >= 0.3) chips.push('<span class="chip warm">한 달 새 0.3%p 이상 올랐어요</span>');
   document.getElementById('hychips').innerHTML = chips.join('');
-  const xs = xStartFor(last, h.x[0]);
+  // 사진처럼 2025년 2월부터 고정 표시 (관세 쇼크가 보이도록, 기간 버튼과 무관)
+  const xs = h.x.find(x => x >= '2025-02-01') || h.x[0];
   const vis = h.y.filter((a, i) => h.x[i] >= xs);
-  Plotly.react('hyplot', [{x: h.x, y: h.y, type: 'scatter', mode: 'lines', name: '하이일드 스프레드', line: {color: css('--spread'), width: 2.4}, hovertemplate: '%{y:.2f}%'}],
+  const ev = (h.events || []).filter(e => e.date >= xs);
+  const evAnn = ev.map((e, i) => ({x: e.date, y: e.value, xref: 'x', yref: 'y', showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--g1'),
+    ax: i === ev.length - 1 ? -30 : 0, ay: -34 - (i % 2) * 14, xanchor: i === ev.length - 1 ? 'right' : 'center', text: `${e.label}<br>${e.value.toFixed(2)}% (${e.date.slice(2, 7).replace('-', '.')})`,
+    font: {size: 10, color: css('--g1')}, bgcolor: css('--surface'), borderpad: 1}));
+  Plotly.react('hyplot', [{x: h.x, y: h.y, type: 'scatter', mode: 'lines', name: '하이일드 스프레드', line: {color: css('--spread'), width: 2.4}, hovertemplate: '%{y:.2f}%'},
+    {x: ev.map(e => e.date), y: ev.map(e => e.value), type: 'scatter', mode: 'markers', name: '사건 최고점', marker: {size: 9, color: css('--g1'), line: {color: css('--surface'), width: 2}}, hoverinfo: 'skip'}],
     Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
-      yaxis: axis({range: padRange(vis.concat([top]), false), ticksuffix: '%'}),
+      yaxis: axis({range: [Math.min(...vis, top) - 0.1, Math.max(...vis, top) + 0.55], ticksuffix: '%'}),
       shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: top, y1: top, line: {color: css('--bad'), width: 1.8, dash: 'dash'}}],
-      annotations: [{xref: 'paper', x: 0.01, y: top, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `박스권 위쪽 ${top}%`, font: {size: 10, color: css('--bad')}}],
+      annotations: [{xref: 'paper', x: 0.01, y: top, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `박스권 위쪽 ${top}%`, font: {size: 10, color: css('--bad')}}].concat(evAnn),
     }), CFG);
+  // 장기: Moody's Baa 스프레드(1986~) + 신용위기 표시
+  if (h.long) {
+    const le = h.long_events || [];
+    Plotly.react('hylong', [{x: h.long.x, y: h.long.y, type: 'scatter', mode: 'lines', name: 'Baa 스프레드', line: {color: css('--ink2'), width: 1.4}, hovertemplate: '%{y:.2f}%'},
+      {x: le.map(e => e.baa.date), y: le.map(e => e.baa.value), customdata: le.map(e => e.label), type: 'scatter', mode: 'markers+text', name: '위기',
+       text: le.map((e, i) => String(i + 1)), textposition: 'top center', textfont: {size: 10, color: css('--bad')},
+       marker: {size: 8, color: css('--bad'), line: {color: css('--surface'), width: 1.5}}, hovertemplate: '%{customdata} %{y:.2f}%<extra></extra>'}],
+      Object.assign(baseLayout(), {
+        hovermode: 'closest',
+        xaxis: axis({type: 'date', tickformat: '%Y'}),
+        yaxis: axis({rangemode: 'tozero', ticksuffix: '%'}),
+      }), CFG);
+    document.querySelector('#hyevents tbody').innerHTML = le.map((e, i) => `<tr><td style="white-space:normal;text-align:left"><b>${i + 1}. ${e.label}</b><br><span class="small">${e.desc}</span></td>
+      <td>${e.baa.value.toFixed(2)}%<br><span class="small">${e.baa.date.slice(0, 7).replace('-', '.')}</span></td>
+      <td>${e.hy ? (e.hy_url ? `<a href="${e.hy_url}" target="_blank" rel="noopener">${e.hy}</a>` : e.hy) : '<span class="small">–</span>'}</td></tr>`).join('');
+  }
   const md = s => s.slice(2).replace(/-/g, '.');
   document.getElementById('hyreal').innerHTML = `<b>실제 기록</b> 최근 1년 범위는 ${h.min_1y.value.toFixed(2)}%(${md(h.min_1y.date)}) ~ ${h.max_1y.value.toFixed(2)}%(${md(h.max_1y.date)})예요. ` +
     `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
