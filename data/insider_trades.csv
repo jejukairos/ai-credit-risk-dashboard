@@ -1,107 +1,107 @@
 ticker,date,insider,position,shares,value,text,ownership,kind
-AVGO,2026-07-10,DELLY GAYLA J,Director,500,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-07-10,BRAZEAL MARK DAVID,Officer,25000,10033225.0,Sale at price 401.33 per share.,D,sale
-AVGO,2026-07-08,BRAZEAL MARK DAVID,Officer,25000,9479700.0,Sale at price 379.19 per share.,D,sale
+AVGO,2026-07-10,DELLY GAYLA J,Director,500,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-07-08,DELLY GAYLA J,Director,1890,728368.0,Sale at price 385.38 per share.,D,sale
+AVGO,2026-07-08,BRAZEAL MARK DAVID,Officer,25000,9479700.0,Sale at price 379.19 per share.,D,sale
 AVGO,2026-06-29,PAGE JUSTINE F.,Director,1602,598916.0,Sale at price 373.86 per share.,D,sale
 AVGO,2026-06-25,BRAZEAL MARK DAVID,Officer,25000,9675000.0,Sale at price 387.00 per share.,D,sale
-AVGO,2026-06-24,SAMUELI HENRY,Director,336893,0.0,Stock Gift at price 0.00 per share.,D/I,gift
 AVGO,2026-06-24,SAMUELI HENRY,Director,654241,250005852.0,Sale at price 377.61 - 388.17 per share.,I,sale
+AVGO,2026-06-24,SAMUELI HENRY,Director,336893,0.0,Stock Gift at price 0.00 per share.,D/I,gift
 AVGO,2026-06-17,BRAZEAL MARK DAVID,Officer,8152,3175919.0,Sale at price 377.10 - 400.29 per share.,D,sale
 AVGO,2026-06-15,O TOOLE AMIE THUENER,Chief Financial Officer,50000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-06-11,YOU HARRY L,Director,1000,373570.0,Purchase at price 373.57 per share.,D,purchase
 AVGO,2026-04-21,SAMUELI HENRY,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-04-20,YOU HARRY L,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,BRYANT DIANE M,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,LOW CHECK KIAN,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,PAGE JUSTINE F.,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,DELLY GAYLA J,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,HAO KENNETH Y,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2026-04-20,YOU HARRY L,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-10,VELAGA S. RAM,Officer,8000,2964178.0,Sale at price 370.52 per share.,D,sale
-AVGO,2026-04-09,VELAGA S. RAM,Officer,30215,10638012.0,Sale at price 352.02 - 352.12 per share.,D,sale
 AVGO,2026-04-09,DELLY GAYLA J,Director,1000,358310.0,Sale at price 358.31 per share.,D,sale
-AVGO,2026-04-08,TAN HOCK E,Chief Executive Officer,22000,0.0,Stock Gift at price 0.00 per share.,D,gift
+AVGO,2026-04-09,VELAGA S. RAM,Officer,30215,10638012.0,Sale at price 352.02 - 352.12 per share.,D,sale
 AVGO,2026-04-08,PAGE JUSTINE F.,Director,2018,712354.0,Sale at price 353.00 per share.,D,sale
 AVGO,2026-04-08,KAWWAS CHARLIE B,Officer,10000,3452270.0,Sale at price 345.23 per share.,I,sale
+AVGO,2026-04-08,TAN HOCK E,Chief Executive Officer,22000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-03-17,VELAGA S. RAM,Officer,64379,20819103.0,Sale at price 317.95 - 328.77 per share.,D,sale
-AVGO,2026-03-17,BRAZEAL MARK DAVID,Officer,83682,27061694.0,Sale at price 317.97 - 328.84 per share.,D,sale
-AVGO,2026-03-17,KAWWAS CHARLIE B,Officer,64834,20966675.0,Sale at price 317.97 - 328.70 per share.,D,sale
 AVGO,2026-03-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,60154,19452716.0,Sale at price 318.05 - 328.52 per share.,D,sale
-AVGO,2026-03-02,KAWWAS CHARLIE B,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2026-03-17,KAWWAS CHARLIE B,Officer,64834,20966675.0,Sale at price 317.97 - 328.70 per share.,D,sale
+AVGO,2026-03-17,BRAZEAL MARK DAVID,Officer,83682,27061694.0,Sale at price 317.97 - 328.84 per share.,D,sale
 AVGO,2026-03-02,BRAZEAL MARK DAVID,Officer,151250,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-03-02,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,110640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,VELAGA S. RAM,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-01-06,BRAZEAL MARK DAVID,Officer,30000,10413693.0,Sale at price 346.99 - 347.66 per share.,D,sale
+AVGO,2026-03-02,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,110640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2026-03-02,KAWWAS CHARLIE B,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-01-06,TAN HOCK E,Chief Executive Officer,70000,24310684.0,Sale at price 346.75 - 348.28 per share.,D,sale
+AVGO,2026-01-06,BRAZEAL MARK DAVID,Officer,30000,10413693.0,Sale at price 346.99 - 347.66 per share.,D,sale
 AVGO,2025-12-31,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,30000,10434603.0,Sale at price 346.64 - 347.82 per share.,D,sale
 AVGO,2025-12-26,BRAZEAL MARK DAVID,Officer,25921,9126058.0,Sale at price 352.07 per share.,D,sale
 AVGO,2025-12-23,TAN HOCK E,Chief Executive Officer,100000,34564807.0,Sale at price 339.11 - 349.85 per share.,I,sale
-AVGO,2025-12-18,YOU HARRY L,Director,1000,325129.0,Purchase at price 325.13 per share.,D,purchase
 AVGO,2025-12-18,TAN HOCK E,Chief Executive Officer,130000,42382600.0,Sale at price 326.02 per share.,I,sale
-AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
-AVGO,2025-12-17,KAWWAS CHARLIE B,Officer,3163,1053112.0,Sale at price 322.33 - 345.99 per share.,D,sale
+AVGO,2025-12-18,YOU HARRY L,Director,1000,325129.0,Purchase at price 325.13 per share.,D,purchase
 AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
-AVGO,2025-12-16,PAGE JUSTINE F.,Director,400,0.0,Stock Gift at price 0.00 per share.,D,gift
+AVGO,2025-12-17,KAWWAS CHARLIE B,Officer,3163,1053112.0,Sale at price 322.33 - 345.99 per share.,D,sale
+AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
 AVGO,2025-12-16,BRAZEAL MARK DAVID,Officer,24527,8361500.0,Sale at price 337.21 - 347.14 per share.,D,sale
+AVGO,2025-12-16,PAGE JUSTINE F.,Director,400,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-12-15,PAGE JUSTINE F.,Director,800,289512.0,Sale at price 361.89 per share.,D,sale
-AVGO,2025-12-08,SAMUELI HENRY,Director,68933,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-12-08,SAMUELI HENRY,Director,320316,128297553.0,Sale at price 398.14 - 407.01 per share.,I,sale
+AVGO,2025-12-08,SAMUELI HENRY,Director,68933,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-11-14,PAGE JUSTINE F.,Director,800,264912.0,Sale at price 331.14 per share.,D,sale
 AVGO,2025-10-14,PAGE JUSTINE F.,Director,800,280120.0,Sale at price 350.15 per share.,D,sale
-AVGO,2025-09-24,SAMUELI HENRY,Director,75678,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-09-24,SAMUELI HENRY,Director,368797,124620222.0,Sale at price 334.59 - 339.38 per share.,I,sale
+AVGO,2025-09-24,SAMUELI HENRY,Director,75678,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-09-23,TAN HOCK E,Chief Executive Officer,100000,33958393.0,Sale at price 339.22 - 340.26 per share.,I,sale
-AVGO,2025-09-17,BRAZEAL MARK DAVID,Officer,27204,9592387.0,Sale at price 343.13 - 365.15 per share.,D,sale
 AVGO,2025-09-17,KAWWAS CHARLIE B,Officer,6397,2256460.0,Sale at price 343.93 - 365.32 per share.,D,sale
+AVGO,2025-09-17,BRAZEAL MARK DAVID,Officer,27204,9592387.0,Sale at price 343.13 - 365.15 per share.,D,sale
 AVGO,2025-09-15,PAGE JUSTINE F.,Director,800,288000.0,Sale at price 360.00 per share.,D,sale
-AVGO,2025-09-10,YOU HARRY L,Director,3550,1227870.0,Purchase at price 339.38 - 363.38 per share.,D,purchase
 AVGO,2025-09-10,TAN HOCK E,Chief Executive Officer,148154,49879007.0,Sale at price 336.67 per share.,I,sale
 AVGO,2025-09-10,TAN HOCK E,Chief Executive Officer,148514,50000208.0,Sale at price 336.67 per share.,I,sale
+AVGO,2025-09-10,YOU HARRY L,Director,3550,1227870.0,Purchase at price 339.38 - 363.38 per share.,D,purchase
 AVGO,2025-08-14,PAGE JUSTINE F.,Director,800,245968.0,Sale at price 307.46 per share.,D,sale
 AVGO,2025-07-14,PAGE JUSTINE F.,Director,800,219440.0,Sale at price 274.30 per share.,D,sale
 AVGO,2025-07-09,SAMUELI HENRY,Director,49670,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-06-26,TAN HOCK E,Chief Executive Officer,40000,10731720.0,Sale at price 268.29 per share.,D,sale
 AVGO,2025-06-26,DELLY GAYLA J,Director,3000,795390.0,Sale at price 265.13 per share.,D,sale
-AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
-AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,473898,125737538.0,Sale at price 264.16 - 269.62 per share.,I,sale
-AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
-AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
+AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
+AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-06-24,TAN HOCK E,Chief Executive Officer,40000,10486920.0,Sale at price 262.17 per share.,I,sale
-AVGO,2025-06-23,TAN HOCK E,Chief Executive Officer,190000,0.0,Stock Gift at price 0.00 per share.,D,gift
+AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
+AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
 AVGO,2025-06-23,BRAZEAL MARK DAVID,Officer,50000,12664250.0,Sale at price 253.28 per share.,D,sale
+AVGO,2025-06-23,TAN HOCK E,Chief Executive Officer,190000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-18,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,56310,14175986.0,Sale at price 251.75 per share.,D,sale
 AVGO,2025-06-16,PAGE JUSTINE F.,Director,800,200280.0,Sale at price 250.35 per share.,D,sale
 AVGO,2025-06-12,TAN HOCK E,Chief Executive Officer,117758,29782176.0,Sale at price 252.91 per share.,I,sale
 AVGO,2025-06-11,KAWWAS CHARLIE B,Officer,10000,2528810.0,Sale at price 252.88 per share.,I,sale
 AVGO,2025-05-14,PAGE JUSTINE F.,Director,800,184152.0,Sale at price 230.19 per share.,D,sale
-AVGO,2025-04-21,YOU HARRY L,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,BRYANT DIANE M,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,LOW CHECK KIAN,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,PAGE JUSTINE F.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2025-04-21,SAMUELI HENRY,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,DELLY GAYLA J,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,HAO KENNETH Y,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2025-04-21,YOU HARRY L,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,HARTENSTEIN EDDY W.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2025-04-21,SAMUELI HENRY,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-14,PAGE JUSTINE F.,Director,800,148000.0,Sale at price 185.00 per share.,D,sale
-AVGO,2025-03-26,SAMUELI HENRY,Director,136248,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-03-26,SAMUELI HENRY,Director,663976,120576863.0,Sale at price 178.36 - 187.79 per share.,I,sale
+AVGO,2025-03-26,SAMUELI HENRY,Director,136248,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-03-24,BRAZEAL MARK DAVID,Officer,30000,5839500.0,Sale at price 194.65 per share.,D,sale
 AVGO,2025-03-14,BRAZEAL MARK DAVID,Officer,60000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-03-14,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,60000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2025-03-04,KAWWAS CHARLIE B,Officer,150000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-03-04,BRAZEAL MARK DAVID,Officer,262500,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-03-04,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,118760,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2025-03-04,KAWWAS CHARLIE B,Officer,150000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-01-08,HARTENSTEIN EDDY W.,Director,4000,918548.0,Sale at price 229.64 per share.,I,sale
 AVGO,2025-01-06,LOW CHECK KIAN,Director,48000,11296800.0,Sale at price 235.35 per share.,D,sale
 AVGO,2025-01-02,KAWWAS CHARLIE B,Officer,40000,9279200.0,Sale at price 231.98 per share.,I,sale
-AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,130000,0.0,Stock Gift at price 0.00 per share.,D,gift
-AVGO,2024-12-24,BRAZEAL MARK DAVID,Officer,20168,4815937.0,Sale at price 238.79 per share.,D,sale
 AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,45000,10798200.0,Sale at price 239.96 per share.,D,sale
+AVGO,2024-12-24,BRAZEAL MARK DAVID,Officer,20168,4815937.0,Sale at price 238.79 per share.,D,sale
+AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,130000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2024-12-23,BRYANT DIANE M,Director,15000,3400200.0,Sale at price 226.68 per share.,D,sale
 AVGO,2024-12-20,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,12570,2886323.0,Sale at price 229.62 per share.,D,sale
-AVGO,2024-12-17,PAGE JUSTINE F.,Director,1000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2024-12-17,YOU HARRY L,Director,6540,1569626.0,Sale at price 240.00 per share.,D,sale
+AVGO,2024-12-17,PAGE JUSTINE F.,Director,1000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2024-12-16,SAMUELI HENRY,Director,137795,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2024-11-06,TAN HOCK E,Chief Executive Officer,1477110,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 CRWV,2026-10-13,JONES JONATHAN,Officer,37380,2940519.0,Sale at price 77.18 - 80.36 per share.,D,sale
@@ -235,8 +235,8 @@ CRWV,2026-06-30,GOLDBERG CHEN,Officer,4,383.0,Sale at price 95.69 per share.,D,s
 CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,194000,,,D/I,other
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,55500,,,I,other
-CRWV,2026-06-29,MCBEE BRANNIN,Officer,194000,18298925.0,Sale at price 90.24 - 98.31 per share.,D/I,sale
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,55500,5234995.0,Sale at price 90.24 - 98.31 per share.,I,sale
+CRWV,2026-06-29,MCBEE BRANNIN,Officer,194000,18298925.0,Sale at price 90.24 - 98.31 per share.,D/I,sale
 CRWV,2026-06-24,VENTURO BRIAN M,Officer and Director,76924,,,I,other
 CRWV,2026-06-24,VENTURO BRIAN M,Officer and Director,76924,7793608.0,Sale at price 98.83 - 104.44 per share.,I,sale
 CRWV,2026-06-23,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
@@ -406,22 +406,22 @@ NVDA,2025-03-03,KRESS COLETTE M.,Chief Financial Officer,139640,0.0,Stock Award(
 ORCL,2026-09-29,RUSCKOWSKI STEPHEN H,Director,25000,3483800.0,Purchase at price 139.35 per share.,I,purchase
 ORCL,2026-09-22,SMITH MARIA,Officer,2631,399123.0,Sale at price 151.70 per share.,D,sale
 ORCL,2026-09-22,SICILIA MICHAEL D,Chief Executive Officer,22562,3420174.0,Sale at price 151.59 per share.,D,sale
+ORCL,2026-09-18,HENLEY JEFFREY O,Officer and Director,46461,,,I,other
 ORCL,2026-09-18,LEVEY STUART A,Officer,20885,,,D,other
 ORCL,2026-09-18,SMITH MARIA,Officer,17440,,,D,other
 ORCL,2026-09-18,SICILIA MICHAEL D,Chief Executive Officer,109213,,,D,other
 ORCL,2026-09-18,MAGOUYRK CLAYTON M,Chief Executive Officer,129862,,,D,other
 ORCL,2026-09-18,HURA MARK,Officer,67110,,,D,other
-ORCL,2026-09-18,HENLEY JEFFREY O,Officer and Director,46461,,,I,other
 ORCL,2026-09-16,SICILIA MICHAEL D,Chief Executive Officer,10882,1522827.0,Sale at price 139.94 per share.,D,sale
 ORCL,2026-09-15,SICILIA MICHAEL D,Chief Executive Officer,52673,,,D,other
-ORCL,2026-06-24,HENLEY JEFFREY O,Officer and Director,400000,63664040.0,Sale at price 156.06 - 165.57 per share.,D,sale
 ORCL,2026-06-24,HENLEY JEFFREY O,Officer and Director,400000,16372000.0,Conversion of Exercise of derivative security at price 40.93 per share.,D,other
-ORCL,2026-05-29,BERG JEFFREY S,Director,2114,,,I,other
-ORCL,2026-05-29,FAIRHEAD RONA ALISON,Director,2114,,,D,other
-ORCL,2026-05-29,ABLO AWO,Director,2114,,,D,other
+ORCL,2026-06-24,HENLEY JEFFREY O,Officer and Director,400000,63664040.0,Sale at price 156.06 - 165.57 per share.,D,sale
 ORCL,2026-05-29,MOORMAN CHARLES W IV,Director,2114,,,D,other
 ORCL,2026-05-29,BOSKIN MICHAEL J,Director,2114,,,D,other
 ORCL,2026-05-29,CHIZEN BRUCE R,Director,2114,,,D,other
+ORCL,2026-05-29,ABLO AWO,Director,2114,,,D,other
+ORCL,2026-05-29,BERG JEFFREY S,Director,2114,,,I,other
+ORCL,2026-05-29,FAIRHEAD RONA ALISON,Director,2114,,,D,other
 ORCL,2026-04-16,LEVEY STUART A,Officer,15000,2642850.0,Sale at price 176.19 per share.,D,sale
 ORCL,2026-03-30,HENLEY JEFFREY O,Officer and Director,16810,0.0,Stock Gift at price 0.00 per share.,I,gift
 ORCL,2026-02-09,MAGOUYRK CLAYTON M,Chief Executive Officer,10000,1552318.0,Sale at price 155.23 per share.,D,sale
@@ -435,64 +435,64 @@ ORCL,2025-10-28,BERG JEFFREY S,Director,49365,13971267.0,Sale at price 281.58 - 
 ORCL,2025-10-23,SMITH MARIA,Officer,10000,2803122.0,Sale at price 280.00 - 280.62 per share.,D,sale
 ORCL,2025-10-21,MAGOUYRK CLAYTON M,Chief Executive Officer,40000,11065508.0,Sale at price 276.64 per share.,D,sale
 ORCL,2025-10-10,LEVEY STUART A,Officer,19758,5927400.0,Sale at price 300.00 per share.,D,sale
-ORCL,2025-09-26,SELIGMAN NAOMI O,Director,2222,641958.0,Sale at price 288.91 per share.,D,sale
 ORCL,2025-09-26,SELIGMAN NAOMI O,Director,1406,0.0,Stock Gift at price 0.00 per share.,D,gift
+ORCL,2025-09-26,SELIGMAN NAOMI O,Director,2222,641958.0,Sale at price 288.91 per share.,D,sale
 ORCL,2025-09-23,SICILIA MICHAEL D,Officer,33845,10869660.0,Sale at price 321.16 per share.,D,sale
+ORCL,2025-09-19,HENLEY JEFFREY O,Officer and Director,46460,,,I,other
 ORCL,2025-09-19,LEVEY STUART A,Officer,20884,,,D,other
 ORCL,2025-09-19,SMITH MARIA,Officer,17440,,,D,other
 ORCL,2025-09-19,SICILIA MICHAEL D,Officer,109212,,,D,other
 ORCL,2025-09-19,MAGOUYRK CLAYTON M,Officer,129861,,,D,other
-ORCL,2025-09-19,HENLEY JEFFREY O,Officer and Director,46460,,,I,other
 ORCL,2025-09-16,SICILIA MICHAEL D,Officer,16323,5118893.0,Sale at price 313.60 per share.,D,sale
+ORCL,2025-09-15,HENLEY JEFFREY O,Officer and Director,19753,,,I,other
 ORCL,2025-09-15,LEVEY STUART A,Officer,26337,,,D,other
 ORCL,2025-09-15,SMITH MARIA,Officer,13169,,,D,other
 ORCL,2025-09-15,SICILIA MICHAEL D,Officer,52673,,,D,other
 ORCL,2025-09-15,MAGOUYRK CLAYTON M,President,61452,,,D,other
-ORCL,2025-09-15,HENLEY JEFFREY O,Officer and Director,19753,,,I,other
 ORCL,2025-09-12,PARRETT WILLIAM GREGORY,Director,11500,3519000.0,Sale at price 306.00 per share.,I,sale
 ORCL,2025-09-12,MAGOUYRK CLAYTON M,President,21241,6310865.0,Sale at price 297.11 per share.,D,sale
 ORCL,2025-08-05,SICILIA MICHAEL D,Officer,15880,4041142.0,Sale at price 254.48 per share.,D,sale
-ORCL,2025-08-04,SICILIA MICHAEL D,Officer,183,44222.0,Stock Award(Grant) at price 241.21 per share.,D,award
+ORCL,2025-08-04,HENLEY JEFFREY O,Officer and Director,25000,,,I,other
 ORCL,2025-08-04,SMITH MARIA,Officer,3375,,,D,other
 ORCL,2025-08-04,SICILIA MICHAEL D,Officer,50000,,,D,other
 ORCL,2025-08-04,MAGOUYRK CLAYTON M,Officer,62500,,,D,other
-ORCL,2025-08-04,HENLEY JEFFREY O,Officer and Director,25000,,,I,other
+ORCL,2025-08-04,SICILIA MICHAEL D,Officer,183,44222.0,Stock Award(Grant) at price 241.21 per share.,D,award
 ORCL,2025-07-16,SELIGMAN NAOMI O,Director,3303,770656.0,Sale at price 233.32 per share.,D,sale
 ORCL,2025-07-15,ELLISON LAWRENCE JOSEPH,Chief Technology Officer,6500000,332345000.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
 ORCL,2025-07-09,ELLISON LAWRENCE JOSEPH,Chief Technology Officer,6000000,306780000.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
 ORCL,2025-07-07,FAIRHEAD RONA ALISON,Director,480,112258.0,Purchase at price 233.87 per share.,D,purchase
 ORCL,2025-07-03,SMITH MARIA,Officer,10000,2329897.0,Sale at price 232.99 per share.,D,sale
-ORCL,2025-06-27,CATZ SAFRA A,Chief Executive Officer,1260508,267244339.0,Sale at price 210.35 - 214.25 per share.,D,sale
 ORCL,2025-06-27,CATZ SAFRA A,Chief Executive Officer,1260508,64449774.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
-ORCL,2025-06-26,CATZ SAFRA A,Chief Executive Officer,3739492,794635666.0,Sale at price 210.64 - 216.82 per share.,D,sale
+ORCL,2025-06-27,CATZ SAFRA A,Chief Executive Officer,1260508,267244339.0,Sale at price 210.35 - 214.25 per share.,D,sale
 ORCL,2025-06-26,CATZ SAFRA A,Chief Executive Officer,3739492,191200226.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
-ORCL,2025-06-23,CATZ SAFRA A,Chief Executive Officer,3694918,764007886.0,Sale at price 203.36 - 213.19 per share.,D,sale
+ORCL,2025-06-26,CATZ SAFRA A,Chief Executive Officer,3739492,794635666.0,Sale at price 210.64 - 216.82 per share.,D,sale
 ORCL,2025-06-23,CATZ SAFRA A,Chief Executive Officer,3694918,188921157.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
 ORCL,2025-06-23,HENLEY JEFFREY O,Officer and Director,147000,0.0,Stock Gift at price 0.00 per share.,I,gift
+ORCL,2025-06-23,CATZ SAFRA A,Chief Executive Officer,3694918,764007886.0,Sale at price 203.36 - 213.19 per share.,D,sale
 ORCL,2025-06-17,CONRADES GEORGE HENRY,Director,8169,1744000.0,Sale at price 213.49 per share.,D,sale
 ORCL,2025-06-17,MAGOUYRK CLAYTON M,Officer,15000,3211484.0,Sale at price 214.10 per share.,D,sale
-ORCL,2025-06-12,HENLEY JEFFREY O,Officer and Director,400000,76169016.0,Sale at price 190.41 - 191.00 per share.,I,sale
 ORCL,2025-06-12,HENLEY JEFFREY O,Officer and Director,400000,16144000.0,Conversion of Exercise of derivative security at price 40.36 per share.,I,other
-ORCL,2025-05-30,SELIGMAN NAOMI O,Director,2986,,,D,other
-ORCL,2025-05-30,BERG JEFFREY S,Director,2986,,,I,other
-ORCL,2025-05-30,FAIRHEAD RONA ALISON,Director,2986,,,D,other
-ORCL,2025-05-30,CONRADES GEORGE HENRY,Director,2986,,,D,other
-ORCL,2025-05-30,PANETTA LEON E,Director,2986,,,I,other
-ORCL,2025-05-30,PARRETT WILLIAM GREGORY,Director,2986,,,D,other
-ORCL,2025-05-30,ABLO AWO,Director,2986,,,D,other
+ORCL,2025-06-12,HENLEY JEFFREY O,Officer and Director,400000,76169016.0,Sale at price 190.41 - 191.00 per share.,I,sale
 ORCL,2025-05-30,MOORMAN CHARLES W IV,Director,2986,,,D,other
 ORCL,2025-05-30,BOSKIN MICHAEL J,Director,2986,,,D,other
 ORCL,2025-05-30,CHIZEN BRUCE R,Director,2986,,,D,other
+ORCL,2025-05-30,ABLO AWO,Director,2986,,,D,other
+ORCL,2025-05-30,PARRETT WILLIAM GREGORY,Director,2986,,,D,other
+ORCL,2025-05-30,PANETTA LEON E,Director,2986,,,I,other
+ORCL,2025-05-30,CONRADES GEORGE HENRY,Director,2986,,,D,other
+ORCL,2025-05-30,SELIGMAN NAOMI O,Director,2986,,,D,other
+ORCL,2025-05-30,BERG JEFFREY S,Director,2986,,,I,other
+ORCL,2025-05-30,FAIRHEAD RONA ALISON,Director,2986,,,D,other
 ORCL,2025-05-14,BERG JEFFREY S,Director,12334,0.0,Stock Gift at price 0.00 per share.,I,gift
 ORCL,2025-05-05,SELIGMAN NAOMI O,Director,2866,428562.0,Sale at price 149.53 per share.,D,sale
-ORCL,2025-05-02,PANETTA LEON E,Director,17500,2646651.0,Sale at price 151.24 per share.,I,sale
 ORCL,2025-05-02,PANETTA LEON E,Director,17500,761075.0,Conversion of Exercise of derivative security at price 43.49 per share.,I,other
+ORCL,2025-05-02,PANETTA LEON E,Director,17500,2646651.0,Sale at price 151.24 per share.,I,sale
 ORCL,2025-04-21,CONRADES GEORGE HENRY,Director,22500,978525.0,Conversion of Exercise of derivative security at price 43.49 per share.,D,other
 ORCL,2025-04-16,HENLEY JEFFREY O,Officer and Director,199071,0.0,Stock Gift at price 0.00 per share.,I,gift
 ORCL,2025-04-02,SELIGMAN NAOMI O,Director,2000,291620.0,Sale at price 145.81 per share.,D,sale
 ORCL,2025-02-12,MOORMAN CHARLES W IV,Director,5500,947913.0,Purchase at price 172.35 per share.,I,purchase
-ORCL,2025-01-24,CATZ SAFRA A,Chief Executive Officer,3805082,705455414.0,Sale at price 185.12 - 190.10 per share.,D,sale
 ORCL,2025-01-24,CATZ SAFRA A,Chief Executive Officer,3805082,194553843.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
+ORCL,2025-01-24,CATZ SAFRA A,Chief Executive Officer,3805082,705455414.0,Sale at price 185.12 - 190.10 per share.,D,sale
 ORCL,2024-12-05,SMITH MARIA,Officer,11016,,,D,other
 ORCL,2024-11-07,SELIGMAN NAOMI O,Director,1444,0.0,Stock Gift at price 0.00 per share.,D,gift
 ORCL,2024-10-28,HENLEY JEFFREY O,Officer and Director,68000,0.0,Stock Gift at price 0.00 per share.,I,gift
