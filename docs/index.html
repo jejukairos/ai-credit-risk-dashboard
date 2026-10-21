@@ -534,6 +534,40 @@ function insiderHtml(t) {
 }
 const CFG = {displayModeBar: false, responsive: true};
 
+// 모든 선·막대 차트: 가장 최근 값을 각 칸 오른쪽 위 작은 상자에 자동 표시 (눌러 보지 않아도 보이게)
+const NOW_SKIP = ['npsdomestic'];
+function addNowBoxes(el, data, layout) {
+  const id = typeof el === 'string' ? el : el.id;
+  if (NOW_SKIP.includes(id) || !Array.isArray(data)) return;
+  const groups = {};
+  for (const t of data) {
+    if (!['scatter', 'bar'].includes(t.type) || t.orientation === 'h' || !t.name || t.showlegend === false || t.hoverinfo === 'skip' || t.mode === 'markers') continue;
+    const ys = t.y || []; let i = ys.length - 1; while (i >= 0 && (ys[i] == null || typeof ys[i] !== 'number')) i--;
+    if (i < 0) continue;
+    const m = /%\{y:?([^}]*)\}([^<]*)/.exec(t.hovertemplate || '') || [];
+    const dm = /\.(\d)f/.exec(m[1] || ''), v = ys[i];
+    const dec = dm ? +dm[1] : (Math.abs(v) >= 1000 ? 0 : Math.abs(v) >= 100 ? 1 : 2);
+    const unit = ((m[2] || '').trim().match(/^[%조억원배pt]{1,2}/) || [''])[0];
+    const txt = v.toLocaleString('ko-KR', {minimumFractionDigits: dec, maximumFractionDigits: dec}) + unit;
+    const xv = t.x && t.x[i], dt = typeof xv === 'string' && /^\d{4}-\d\d-\d\d/.test(xv) ? xv.slice(5, 10).replace('-', '.') : '';
+    const col = (t.line && t.line.color) || (t.marker && typeof t.marker.color === 'string' && t.marker.color) || null;
+    const ax = t.yaxis || 'y';
+    (groups[ax] = groups[ax] || []).push({name: t.name, txt, dt, col});
+  }
+  const anns = (layout.annotations || []).slice();
+  for (const [ax, rows] of Object.entries(groups)) {
+    if (rows.length > 3) continue;                       // 선이 너무 많은 차트는 어지러워서 생략
+    const key = 'yaxis' + (ax === 'y' ? '' : ax.slice(1));
+    const dom = (layout[key] && layout[key].domain) || [0, 1];
+    anns.push({xref: 'paper', yref: 'paper', x: 0.995, y: dom[1] - 0.005, xanchor: 'right', yanchor: 'top', showarrow: false, align: 'right',
+      bgcolor: css('--surface'), opacity: 0.92, bordercolor: 'rgba(120,120,120,0.35)', borderwidth: 1, borderpad: 3, font: {size: 11.5, color: css('--ink')},
+      text: rows.map(r => `<span style="color:${r.col || css('--ink2')}">●</span> ${rows.length > 1 || r.name.length < 9 ? r.name + ' ' : ''}<b>${r.txt}</b>`).join('<br>') + (rows[0].dt ? `<br><span style="font-size:9.5px;color:${css('--muted')}">${rows[0].dt} 기준</span>` : '')});
+  }
+  layout.annotations = anns;
+}
+const _plotlyReact = Plotly.react;
+Plotly.react = function (el, data, layout, cfg) { try { if (layout) addNowBoxes(el, data, layout); } catch (e) { console.warn('now-box', e); } return _plotlyReact.call(Plotly, el, data, layout, cfg); };
+
 function renderCards() {
   const box = document.getElementById('cards');
   if (!box.children.length) {
@@ -690,9 +724,6 @@ function renderKofia() {
     return {x: [xs_[i]], y: [ys_[i]], type: 'scatter', mode: 'markers+text', yaxis, showlegend: false, hoverinfo: 'skip', cliponaxis: false,
       marker: {color, size: 7}, text: [`<b>${fmt(ys_[i])}</b>`], textposition: 'top left', textfont: {size: 13, color}}; };
   Plotly.react('fundplot', [
-    lastLbl(k.x, k.deposit, 'y', v => v.toFixed(1) + '조', css('--g2')),
-    lastLbl(k.x, k.credit, 'y2', v => v.toFixed(1) + '조', css('--g1')),
-    lastLbl(kp.x, kp.y, 'y3', v => v.toLocaleString('ko-KR', {maximumFractionDigits: 0}), css('--price')),
     {x: k.x, y: k.deposit, type: 'scatter', mode: 'lines', name: '고객예탁금', line: {color: css('--g2'), width: 2}, hovertemplate: '예탁금 %{y:.1f}조'},
     {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자', yaxis: 'y2', line: {color: css('--g1'), width: 2}, hovertemplate: '신용 %{y:.1f}조'},
     {x: kp.x, y: kp.y, type: 'scatter', mode: 'lines', name: '코스피', yaxis: 'y3', line: {color: css('--price'), width: 1.6}, hovertemplate: '코스피 %{y:,.0f}'},
@@ -708,8 +739,6 @@ function renderKofia() {
     const pk = arr => Math.max(...arr.filter((a, i) => a != null && k.x[i] >= y1));
     const ck = k.credit_kospi, cq = k.credit_kosdaq;
     Plotly.react('creditmkt', [
-      lastLbl(k.x, ck, 'y', v => v.toFixed(2) + '조', css('--g1')),
-      lastLbl(k.x, cq, 'y2', v => v.toFixed(2) + '조', css('--bad')),
       {x: k.x, y: ck, type: 'scatter', mode: 'lines', name: '코스피 신용', line: {color: css('--g1'), width: 2}, hovertemplate: '코스피 신용 %{y:.2f}조'},
       {x: k.x, y: cq, type: 'scatter', mode: 'lines', name: '코스닥 신용', yaxis: 'y2', line: {color: css('--bad'), width: 2}, hovertemplate: '코스닥 신용 %{y:.2f}조'},
     ], Object.assign(baseLayout(), {
@@ -721,7 +750,7 @@ function renderKofia() {
   }
   if (k.monthly) {
     const m = k.monthly, mx = Math.max(...m.y);
-    Plotly.react('forcedmonth', [{x: m.x, y: m.y, type: 'bar', marker: {color: css('--bad')}, hovertemplate: '%{x} 일평균 %{y:,.0f}억<extra></extra>',
+    Plotly.react('forcedmonth', [{x: m.x, y: m.y, type: 'bar', name: '이번 달', marker: {color: css('--bad')}, hovertemplate: '%{x} 일평균 %{y:,.0f}억<extra></extra>',
       text: m.y.map((v, i) => (v >= 300 || i === m.y.length - 1) ? String(v) : ''), textposition: 'outside', cliponaxis: false, textfont: {size: 11}}],
     Object.assign(baseLayout(), {xaxis: axis({type: 'category', tickangle: -60, tickvals: m.x.filter((_, i) => i % 3 === 0 || i === m.x.length - 1), tickfont: {size: 9}}),
       yaxis: axis({range: [0, mx * 1.18]}), bargap: 0.25}), CFG);
