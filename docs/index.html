@@ -100,6 +100,8 @@ details a{color:var(--ink2);word-break:break-all}
 .tabs button{font-size:15px;font-weight:700;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
 .tabs button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .offtab{display:none!important}
+.nowline{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--ink2);margin:2px 4px 4px}
+.nowline i{font-style:normal;margin-right:3px} .nowline b{color:var(--ink)} .nowline .nowdt{color:var(--muted);font-size:11px}
 .jump a{flex:none;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
 .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
@@ -534,11 +536,11 @@ function insiderHtml(t) {
 }
 const CFG = {displayModeBar: false, responsive: true};
 
-// 모든 선·막대 차트: 가장 최근 값을 각 칸 오른쪽 위 작은 상자에 자동 표시 (눌러 보지 않아도 보이게)
-const NOW_SKIP = ['npsdomestic'];
+// 위에 큰 숫자가 따로 없는 차트만: 가장 최근 값을 차트 바로 위 한 줄로 표시 (그래프는 가리지 않음)
+const NOW_ONLY = ['fundplot', 'creditmkt', 'kofiaplot'];
 function addNowBoxes(el, data, layout) {
   const id = typeof el === 'string' ? el : el.id;
-  if (NOW_SKIP.includes(id) || !Array.isArray(data)) return;
+  if (!NOW_ONLY.includes(id) || !Array.isArray(data)) return;
   const groups = {};
   for (const t of data) {
     if (!['scatter', 'bar'].includes(t.type) || t.orientation === 'h' || !t.name || t.showlegend === false || t.hoverinfo === 'skip' || t.mode === 'markers') continue;
@@ -554,16 +556,13 @@ function addNowBoxes(el, data, layout) {
     const ax = t.yaxis || 'y';
     (groups[ax] = groups[ax] || []).push({name: t.name, txt, dt, col});
   }
-  const anns = (layout.annotations || []).slice();
-  for (const [ax, rows] of Object.entries(groups)) {
-    if (rows.length > 3) continue;                       // 선이 너무 많은 차트는 어지러워서 생략
-    const key = 'yaxis' + (ax === 'y' ? '' : ax.slice(1));
-    const dom = (layout[key] && layout[key].domain) || [0, 1];
-    anns.push({xref: 'paper', yref: 'paper', x: 0.995, y: dom[1] - 0.005, xanchor: 'right', yanchor: 'top', showarrow: false, align: 'right',
-      bgcolor: css('--surface'), opacity: 0.92, bordercolor: 'rgba(120,120,120,0.35)', borderwidth: 1, borderpad: 3, font: {size: 11.5, color: css('--ink')},
-      text: rows.map(r => `<span style="color:${r.col || css('--ink2')}">●</span> ${rows.length > 1 || r.name.length < 9 ? r.name + ' ' : ''}<b>${r.txt}</b>`).join('<br>') + (rows[0].dt ? `<br><span style="font-size:9.5px;color:${css('--muted')}">${rows[0].dt} 기준</span>` : '')});
-  }
-  layout.annotations = anns;
+  const rows = Object.values(groups).flat();
+  if (!rows.length) return;
+  const plot = document.getElementById(id);
+  let box = document.getElementById(id + '-now');
+  if (!box) { box = document.createElement('div'); box.id = id + '-now'; box.className = 'nowline'; plot.parentNode.insertBefore(box, plot); }
+  box.innerHTML = rows.map(r => `<span><i style="color:${r.col || css('--ink2')}">●</i>${r.name} <b>${r.txt}</b></span>`).join('') +
+    (rows[0].dt ? `<span class="nowdt">${rows[0].dt} 기준</span>` : '');
 }
 const _plotlyReact = Plotly.react;
 Plotly.react = function (el, data, layout, cfg) { try { if (layout) addNowBoxes(el, data, layout); } catch (e) { console.warn('now-box', e); } return _plotlyReact.call(Plotly, el, data, layout, cfg); };
@@ -758,8 +757,8 @@ function renderKofia() {
   const w = k.w1_val;
   document.getElementById('creditmktnow').innerHTML = `1주 전(코스피 ${fmtNum(w.credit_kospi, 2)}조 · 코스닥 ${fmtNum(w.credit_kosdaq, 2)}조) → 지금(코스피 ${fmtNum(k.credit_kospi[k.credit_kospi.length - 1], 2)}조 · 코스닥 ${fmtNum(k.credit_kosdaq[k.credit_kosdaq.length - 1], 2)}조)`;
   Plotly.react('kofiaplot', [
-    {x: k.x, y: k.forced, type: 'bar', name: '반대매매(억원)', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
-    {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '비중(%)', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
+    {x: k.x, y: k.forced, type: 'bar', name: '반대매매', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
+    {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '미수금 대비 비중', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
   ], Object.assign(baseLayout(), {
     xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
     yaxis: axis({domain: [0.52, 1], range: padRange(inR(k.forced), true), title: {text: '반대매매 억', standoff: 2}}),
