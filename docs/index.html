@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -159,6 +159,20 @@ footer a{color:var(--ink2)}
       <div class="real" id="vixreal"></div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
+  </div>
+
+  <h2 id="sec-move">MOVE 지수 (채권 시장 변동성)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>MOVE</b> VIX가 <b>주식</b>의 불안 지수라면, MOVE는 <b>미국 국채(채권)</b>의 불안 지수예요. 앞으로 한 달 동안 채권 값이 얼마나 <b>출렁일지</b>에 거는 "변동성 보험료"예요.</div>
+      <div><b>왜 봐요?</b> 채권은 금리를 정하는 기준이라, 여기가 흔들리면 기업들이 빚을 내는 비용도 같이 흔들려요. 그래서 하이일드·CDS와 함께 보면 좋아요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="movescore">–</div><div><div class="fgrating" id="moverating"></div><div class="small" id="moveprev"></div></div></div>
+    <div id="moveplot" class="plot" style="height:240px"></div>
+    <div class="memo">
+      <div class="real" id="movereal"></div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(ICE BofA MOVE Index, ^MOVE), 매일 갱신. 위 그래프 기간 버튼으로 길게(전체) 볼 수 있어요.</p>
   </div>
 
   <h2 id="sec-hy">하이일드 스프레드 (위기 선행지표)</h2>
@@ -799,6 +813,26 @@ function renderVix() {
     (sc >= 20 ? '지금은 그 구간 입구에 있어요.' : `지금은 20까지 ${(20 - sc).toFixed(1)}포인트 남았어요.`);
 }
 
+function renderMove() {
+  const v = DATA.move;
+  if (!v) return;
+  const last = v.x[v.x.length - 1];
+  document.getElementById('movescore').textContent = v.last.toFixed(1);
+  const hi = v.last >= v.median_all;
+  const rt = document.getElementById('moverating');
+  rt.textContent = hi ? '평소보다 불안' : '평소 수준'; rt.style.color = hi ? css('--spread') : css('--ink2');
+  document.getElementById('moveprev').innerHTML = `${v.last_date} 미국 장 마감 기준<br>전일 ${v.prev.toFixed(1)} · 올해 최고 ${v.max_1y.value.toFixed(1)} (${v.max_1y.date.slice(2).replace(/-/g, '.')})`;
+  const xs = xStartFor(last, v.x[0]);
+  Plotly.react('moveplot', [{x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: 'MOVE', line: {color: css('--cds'), width: 2}, hovertemplate: '%{y:.1f}'}],
+    Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({rangemode: 'tozero'}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: v.median_all, y1: v.median_all, line: {color: css('--g4'), width: 1.8, dash: 'dash'}}],
+      annotations: [{xref: 'paper', x: 0.99, y: v.median_all, yanchor: 'bottom', xanchor: 'right', showarrow: false, text: `${v.since.slice(0, 4)}년 이후 중앙값 ${v.median_all}`, font: {size: 10, color: css('--ink2')}}],
+    }), CFG);
+  document.getElementById('movereal').innerHTML = `<b>실제 기록</b> ${v.since.slice(0, 4)}년 이후 날짜들 중 지금보다 낮았던 날이 <b>${v.pct_rank}%</b>예요(점선 = 그 기간 중앙값 ${v.median_all}). 숫자가 높을수록 채권 시장이 불안하다는 뜻이에요.`;
+}
+
 function renderHy() {
   const h = DATA.hy;
   if (!h) return;
@@ -1007,13 +1041,13 @@ function renderArr() {
     `<li><span class="sd">${r.date}</span><b>${r.company} $${r.arr_b}B</b> <span class="small">${kindKr[r.kind] || r.kind}</span> · <a href="${r.source_url}" target="_blank" rel="noopener">${new URL(r.source_url).hostname} ↗</a><div class="small">${r.note}</div></li>`).join('')}</ul></details>`;
 }
 
-function renderAll() { applyHidden(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { applyHidden(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia();
+  renderFg(); renderVix(); renderMove(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
