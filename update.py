@@ -584,7 +584,15 @@ def build_kofia():
     if os.path.exists(kp_path):
         kp = pd.read_csv(kp_path, dtype={"date": str})
         kospi = {"x": list(kp["date"]), "y": [round(float(v), 2) for v in kp["kospi"]]}
+    # 월별 일평균 반대매매(억원): 그 달 거래일 반대매매금액의 평균. 2023-11부터
+    km = k.dropna(subset=["forced"]).copy()
+    km = km[km["date"] >= "2023-11-01"]
+    mg = (km.assign(m=km["date"].str[:7]).groupby("m")["forced"].mean() / 100).round(0)
+    ks = k.set_index("date")
+    wk = lambda c: None if _level_at(ks[c].dropna(), 7) is None else round(_level_at(ks[c].dropna(), 7) / 1e6, 2)  # noqa: E731
     return {
+        "monthly": {"x": list(mg.index), "y": [int(v) for v in mg.values]},
+        "w1_val": {c: wk(c) for c in ("deposit", "credit", "credit_kospi", "credit_kosdaq")},
         "kospi": kospi,
         "x": list(k["date"]),
         "misu": num("misu", 100, 0),          # 억원

@@ -350,6 +350,13 @@ footer a{color:var(--ink2)}
     <div id="creditmkt" class="plot" style="height:420px"></div>
     <p class="note" style="margin:4px">위 = 코스피(유가증권), 아래 = 코스닥 시장에서 <b>빚내서 산 주식</b> 금액이에요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
+    <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+  </div>
+  <div class="card">
+    <h3><span>월별 일평균 반대매매 (억원)</span></h3>
+    <div id="forcedmonth" class="plot" style="height:280px"></div>
+    <p class="note" style="margin:4px">그 달에 하루 평균 몇 억원이 강제로 팔렸는지예요(이번 달은 지금까지 평균). 막대가 높을수록 빚내서 산 주식이 많이 강제 청산된 달이에요.
+    금투협 일별 반대매매 금액을 달별로 평균 낸 값이에요. 2023년 11월부터.</p>
   </div>
   <div class="card">
     <h3><span>반대매매 (억원) · 미수금 대비 비중 (%)</span></h3>
@@ -668,8 +675,8 @@ function renderKofia() {
   const tile = (key, val, sub) => `<div class="tile"><div class="k">${key}</div><div class="v">${val}</div><div class="s">${sub}</div></div>`;
   const dp = L.deposit_peak, cp = L.credit_peak, md = s => s.slice(2).replace(/-/g, '.');
   document.getElementById('kofiatiles').innerHTML =
-    tile('고객예탁금', fmtNum(L.deposit, 1) + '조', `1주 ${fmtPct(L.deposit_w1)} · 고점(${md(dp.date)} ${dp.value}조) 대비 ${fmtPct(dp.chg)}`) +
-    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `1주 ${fmtPct(L.credit_w1)} · 고점(${md(cp.date)} ${cp.value}조) 대비 ${fmtPct(cp.chg)}`) +
+    tile('고객예탁금', fmtNum(L.deposit, 1) + '조', `1주 전 ${fmtNum(k.w1_val.deposit, 1)}조 → ${fmtPct(L.deposit_w1)}<br>고점(${md(dp.date)} ${dp.value}조) 대비 ${fmtPct(dp.chg)}`) +
+    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `1주 전 ${fmtNum(k.w1_val.credit, 1)}조 → ${fmtPct(L.credit_w1)}<br>고점(${md(cp.date)} ${cp.value}조) 대비 ${fmtPct(cp.chg)}`) +
     tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${md(L.date)} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
     tile('미수금 대비 반대매매', L.ratio.toFixed(1) + '%', `미수금 ${fmtNum(L.misu)}억`);
   const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
@@ -678,7 +685,14 @@ function renderKofia() {
   // 주변자금(2020년~ 고정): 예탁금 · 신용융자 · 코스피를 날짜축 맞춰 3칸으로
   const fs = '2020-01-01', inF = (xx, arr) => arr.filter((v, i) => v != null && xx[i] >= fs);
   const kp = k.kospi || {x: [], y: []};
+  // 눌러 보지 않아도 가장 최근 숫자가 그래프 끝에 항상 보이게
+  const lastLbl = (xs_, ys_, yaxis, fmt, color) => { let i = ys_.length - 1; while (i > 0 && ys_[i] == null) i--;
+    return {x: [xs_[i]], y: [ys_[i]], type: 'scatter', mode: 'markers+text', yaxis, showlegend: false, hoverinfo: 'skip', cliponaxis: false,
+      marker: {color, size: 7}, text: [`<b>${fmt(ys_[i])}</b>`], textposition: 'top left', textfont: {size: 13, color}}; };
   Plotly.react('fundplot', [
+    lastLbl(k.x, k.deposit, 'y', v => v.toFixed(1) + '조', css('--g2')),
+    lastLbl(k.x, k.credit, 'y2', v => v.toFixed(1) + '조', css('--g1')),
+    lastLbl(kp.x, kp.y, 'y3', v => v.toLocaleString('ko-KR', {maximumFractionDigits: 0}), css('--price')),
     {x: k.x, y: k.deposit, type: 'scatter', mode: 'lines', name: '고객예탁금', line: {color: css('--g2'), width: 2}, hovertemplate: '예탁금 %{y:.1f}조'},
     {x: k.x, y: k.credit, type: 'scatter', mode: 'lines', name: '신용융자', yaxis: 'y2', line: {color: css('--g1'), width: 2}, hovertemplate: '신용 %{y:.1f}조'},
     {x: kp.x, y: kp.y, type: 'scatter', mode: 'lines', name: '코스피', yaxis: 'y3', line: {color: css('--price'), width: 1.6}, hovertemplate: '코스피 %{y:,.0f}'},
@@ -694,6 +708,8 @@ function renderKofia() {
     const pk = arr => Math.max(...arr.filter((a, i) => a != null && k.x[i] >= y1));
     const ck = k.credit_kospi, cq = k.credit_kosdaq;
     Plotly.react('creditmkt', [
+      lastLbl(k.x, ck, 'y', v => v.toFixed(2) + '조', css('--g1')),
+      lastLbl(k.x, cq, 'y2', v => v.toFixed(2) + '조', css('--bad')),
       {x: k.x, y: ck, type: 'scatter', mode: 'lines', name: '코스피 신용', line: {color: css('--g1'), width: 2}, hovertemplate: '코스피 신용 %{y:.2f}조'},
       {x: k.x, y: cq, type: 'scatter', mode: 'lines', name: '코스닥 신용', yaxis: 'y2', line: {color: css('--bad'), width: 2}, hovertemplate: '코스닥 신용 %{y:.2f}조'},
     ], Object.assign(baseLayout(), {
@@ -703,6 +719,15 @@ function renderKofia() {
       shapes: [peakLine('y', pk(ck)), peakLine('y2', pk(cq))],
     }), CFG);
   }
+  if (k.monthly) {
+    const m = k.monthly, mx = Math.max(...m.y);
+    Plotly.react('forcedmonth', [{x: m.x, y: m.y, type: 'bar', marker: {color: css('--bad')}, hovertemplate: '%{x} 일평균 %{y:,.0f}억<extra></extra>',
+      text: m.y.map((v, i) => (v >= 300 || i === m.y.length - 1) ? String(v) : ''), textposition: 'outside', cliponaxis: false, textfont: {size: 11}}],
+    Object.assign(baseLayout(), {xaxis: axis({type: 'category', tickangle: -60, tickvals: m.x.filter((_, i) => i % 3 === 0 || i === m.x.length - 1), tickfont: {size: 9}}),
+      yaxis: axis({range: [0, mx * 1.18]}), bargap: 0.25}), CFG);
+  }
+  const w = k.w1_val;
+  document.getElementById('creditmktnow').innerHTML = `1주 전(코스피 ${fmtNum(w.credit_kospi, 2)}조 · 코스닥 ${fmtNum(w.credit_kosdaq, 2)}조) → 지금(코스피 ${fmtNum(k.credit_kospi[k.credit_kospi.length - 1], 2)}조 · 코스닥 ${fmtNum(k.credit_kosdaq[k.credit_kosdaq.length - 1], 2)}조)`;
   Plotly.react('kofiaplot', [
     {x: k.x, y: k.forced, type: 'bar', name: '반대매매(억원)', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
     {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '비중(%)', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
