@@ -96,6 +96,10 @@ details a{color:var(--ink2);word-break:break-all}
 .glossary div{padding:4px 0;border-bottom:1px solid var(--line)} .glossary div:last-child{border-bottom:0}
 .glossary b{color:var(--ink)}
 .jump{display:flex;gap:6px;overflow-x:auto;margin:10px 0 0;padding-bottom:2px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0 0}
+.tabs button{font-size:15px;font-weight:700;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink2)}
+.tabs button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.offtab{display:none!important}
 .jump a{flex:none;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
 .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
@@ -112,8 +116,11 @@ footer a{color:var(--ink2)}
   <div class="sub" id="updated">불러오는 중…</div>
   <div id="banner"></div>
 
+  <div class="tabs" role="tablist" aria-label="미국·한국">
+    <button data-tab="us" class="on">🇺🇸 미국</button><button data-tab="kr">🇰🇷 한국</button>
+  </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-dram">D램</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-dram">D램</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -339,6 +346,12 @@ footer a{color:var(--ink2)}
     신용융자는 ETF 포함 전체 기준이라 증권사 리포트(ETF 제외)와 조금 다를 수 있어요. 코스피: Yahoo Finance</p>
   </div>
   <div class="card">
+    <h3><span>신용융자 잔고 — 코스피 · 코스닥 (조원)</span></h3>
+    <div id="creditmkt" class="plot" style="height:420px"></div>
+    <p class="note" style="margin:4px">위 = 코스피(유가증권), 아래 = 코스닥 시장에서 <b>빚내서 산 주식</b> 금액이에요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
+    점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
+  </div>
+  <div class="card">
     <h3><span>반대매매 (억원) · 미수금 대비 비중 (%)</span></h3>
     <div id="kofiaplot" class="plot" style="height:360px"></div>
     <p class="note" style="margin:4px">점선 = 최근 1년 하루 평균 반대매매. 신용융자 쪽 반대매매는 공식 통계가 없어요.
@@ -456,6 +469,29 @@ function srcHtml(t) {
 
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
+// 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-nps': 'kr'};
+function setupTabs() {
+  let cur = null;
+  for (const el of document.querySelector('.wrap').children) {
+    if (el.tagName === 'FOOTER') break;
+    if (el.tagName === 'H2') cur = TAB_OF[el.id] || cur;
+    if (cur) el.dataset.tab = cur;
+  }
+  document.querySelectorAll('.jump a').forEach(a => a.dataset.tab = TAB_OF[a.getAttribute('href').slice(1)] || 'us');
+  let saved = 'us';
+  try { saved = localStorage.getItem('tab') || 'us'; } catch (e) {}
+  showTab(saved);
+  document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { showTab(b.dataset.tab); window.scrollTo(0, 0); });
+}
+function showTab(t) {
+  try { localStorage.setItem('tab', t); } catch (e) {}
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  document.querySelectorAll('[data-tab]').forEach(el => { if (el.parentElement.className !== 'tabs') el.classList.toggle('offtab', el.dataset.tab !== t); });
+  document.querySelectorAll('.js-plotly-plot').forEach(p => { if (p.offsetParent) Plotly.Plots.resize(p); });
+}
+
 function applyHidden() {
   const hideFrom = id => { let el = document.getElementById(id); if (!el) return; el.style.display = 'none'; el = el.nextElementSibling;
     while (el && el.tagName !== 'H2') { el.style.display = 'none'; el = el.nextElementSibling; } };
@@ -653,6 +689,20 @@ function renderKofia() {
     yaxis3: axis({domain: [0, 0.30], range: padRange(inF(kp.x, kp.y), false), title: {text: '코스피', standoff: 2}}),
     shapes: [peakLine('y', dp.value), peakLine('y2', cp.value)],
   }), CFG);
+  if (k.credit_kospi) {
+    const y1 = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);  // 최근 1년 최고점
+    const pk = arr => Math.max(...arr.filter((a, i) => a != null && k.x[i] >= y1));
+    const ck = k.credit_kospi, cq = k.credit_kosdaq;
+    Plotly.react('creditmkt', [
+      {x: k.x, y: ck, type: 'scatter', mode: 'lines', name: '코스피 신용', line: {color: css('--g1'), width: 2}, hovertemplate: '코스피 신용 %{y:.2f}조'},
+      {x: k.x, y: cq, type: 'scatter', mode: 'lines', name: '코스닥 신용', yaxis: 'y2', line: {color: css('--bad'), width: 2}, hovertemplate: '코스닥 신용 %{y:.2f}조'},
+    ], Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({domain: [0.54, 1], range: padRange(inR(ck), false), title: {text: '코스피 조', standoff: 2}}),
+      yaxis2: axis({domain: [0, 0.46], range: padRange(inR(cq), false), title: {text: '코스닥 조', standoff: 2}}),
+      shapes: [peakLine('y', pk(ck)), peakLine('y2', pk(cq))],
+    }), CFG);
+  }
   Plotly.react('kofiaplot', [
     {x: k.x, y: k.forced, type: 'bar', name: '반대매매(억원)', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
     {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '비중(%)', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
@@ -1058,6 +1108,7 @@ try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.qu
   catch (e) { renderBanner(); document.getElementById('banner').innerHTML += '<div class="banner err">데이터 파일(data.json)을 불러오지 못했습니다.</div>'; return; }
   renderBanner();
   renderAll();
+  setupTabs();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderAll());
 })();
 </script>

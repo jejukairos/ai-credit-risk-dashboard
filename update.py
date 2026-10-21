@@ -400,6 +400,15 @@ def fetch_vix():
     v.rename("vix").rename_axis("date").round(2).to_csv(os.path.join(DATA, "vix.csv"))
 
 
+def fetch_move():
+    import yfinance as yf
+    v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    if v.empty:
+        raise RuntimeError("MOVE 데이터가 비어 있음")
+    v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
+    v.rename("move").rename_axis("date").round(2).to_csv(os.path.join(DATA, "move.csv"))
+
+
 def fetch_hy():
     # ICE BofA US High Yield Index Option-Adjusted Spread (블룸버그 하이일드 스프레드와 같은 계열의 무료 데이터, 단위 %)
     h = fred_series("BAMLH0A0HYM2") / 100
@@ -582,6 +591,8 @@ def build_kofia():
         "forced": num("forced", 100, 0),      # 억원
         "ratio": [None if pd.isna(v) else float(v) for v in k["ratio"]],
         "credit": num("credit", 1e6, 2),      # 조원
+        "credit_kospi": num("credit_kospi", 1e6, 2),
+        "credit_kosdaq": num("credit_kosdaq", 1e6, 2),
         "deposit": num("deposit", 1e6, 2),    # 조원
         "last": {"date": last["date"], "misu": round(last["misu"] / 100), "forced": round(last["forced"] / 100),
                  "ratio": float(last["ratio"]), "credit": round(last["credit"] / 1e6, 2),
@@ -793,6 +804,19 @@ def build_vix():
             "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
 
 
+def build_move():
+    path = os.path.join(DATA, "move.csv")
+    if not os.path.exists(path):
+        return None
+    s = pd.read_csv(path, dtype={"date": str}).sort_values("date").set_index("date")["move"]
+    yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],
+            "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
+            "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 1)},
+            "median_all": round(float(s.median()), 1), "since": s.index[0],
+            "pct_rank": round(float((s < s.iloc[-1]).mean() * 100))}
+
+
 def build_hy():
     path = os.path.join(DATA, "hy_spread.csv")
     if not os.path.exists(path):
@@ -928,6 +952,7 @@ def build():
     out["opinions"] = build_opinions()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
+    out["move"] = build_move()
     out["hy"] = build_hy()
 
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
@@ -950,7 +975,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:
