@@ -110,6 +110,8 @@ details a{color:var(--ink2);word-break:break-all}
 .donut{height:210px}
 footer{margin-top:28px;font-size:11.5px;color:var(--muted)}
 footer a{color:var(--ink2)}
+#totop{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--ink);color:var(--surface);font-size:20px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+#totop.show{opacity:.85;pointer-events:auto}
 </style>
 </head>
 <body>
@@ -385,6 +387,7 @@ footer a{color:var(--ink2)}
   </footer>
 </div>
 
+<button id="totop" type="button" aria-label="맨 위로">↑</button>
 <script>
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 let DATA = null, STATUS = null, PERIOD = '1y';
@@ -1164,6 +1167,10 @@ try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.qu
   setupTabs();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderAll());
 })();
+
+const totop = document.getElementById('totop');
+addEventListener('scroll', () => totop.classList.toggle('show', scrollY > 600), { passive: true });
+totop.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 </script>
 </body>
 </html>
