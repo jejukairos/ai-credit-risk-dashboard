@@ -508,6 +508,11 @@ function baseLayout() {
 const axis = extra => {
   const o = Object.assign({gridcolor: css('--line'), zeroline: false, linecolor: css('--line'), fixedrange: true}, extra);
   if (o.type === 'date' && !o.hoverformat) o.hoverformat = '%Y-%m-%d';  // 그래프를 누르면 '날짜 + 숫자'가 나오게
+  // '연.월' 눈금이 반달 간격으로 찍혀 같은 달이 두 번 나오지 않게, 보이는 기간에 맞춰 1·2·3달 간격으로
+  if (o.type === 'date' && o.tickformat === '%y.%m' && !o.dtick && o.range) {
+    const months = (new Date(o.range[1]) - new Date(o.range[0])) / 2.63e9;
+    if (months <= 5) o.dtick = 'M1'; else if (months <= 14) o.dtick = 'M2'; else if (months <= 30) o.dtick = 'M3';
+  }
   return o;
 };
 // CDS(bp) → 5년 내 부도확률(%). 1년 부도율 ≈ CDS ÷ (1 − 회수율), 5년 누적 = 1 − e^(−5 × 1년 부도율)
