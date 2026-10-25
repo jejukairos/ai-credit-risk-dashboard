@@ -422,6 +422,165 @@ def fetch_hy():
     b.rename("baa").rename_axis("date").round(2).to_csv(os.path.join(DATA, "baa_spread.csv"))
 
 
+# ---------- 판독기 탭: AAII 심리 · CBOE 풋콜 · FINRA 신용잔고 · S&P500 이평선 위 종목 비율 · FactSet P/E ----------
+# 일부 사이트는 프로그램 이름이 붙은 요청을 막아서 일반 브라우저처럼 요청
+BROWSER_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
+
+
+def fetch_aaii():
+    # AAII 주간 투자자 심리 설문 (매주 목요일 발표). Bull-Bear Spread = 강세 응답 − 약세 응답
+    r = requests.get("https://www.aaii.com/files/surveys/sentiment.xls", headers=BROWSER_UA, timeout=60)
+    r.raise_for_status()
+    df = pd.read_excel(io.BytesIO(r.content), sheet_name="SENTIMENT", header=None, engine="xlrd")
+    df[0] = pd.to_datetime(df[0].where(df[0].map(lambda x: isinstance(x, (datetime, pd.Timestamp)))), errors="coerce")
+    df = df[df[0].notna() & pd.to_numeric(df[1], errors="coerce").notna() & pd.to_numeric(df[6], errors="coerce").notna()]
+    if df.empty:
+        raise RuntimeError("AAII 표를 못 읽음 (파일 구조 변경?)")
+    out = pd.DataFrame({"date": df[0].dt.strftime("%Y-%m-%d"), "bullish": df[1].astype(float) * 100,
+                        "neutral": df[2].astype(float) * 100, "bearish": df[3].astype(float) * 100,
+                        "spread": df[6].astype(float) * 100})
+    out.drop_duplicates("date", keep="last").round(1).to_csv(os.path.join(DATA, "aaii.csv"), index=False)
+
+
+def fetch_putcall():
+    # CBOE 일별 옵션 통계의 '주식(EQUITY) 풋/콜 비율'. 하루치씩 주므로 없는 날짜만 받아 쌓음(처음엔 1년치)
+    path = os.path.join(DATA, "putcall.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "equity", "total"])
+    today = datetime.now(timezone(timedelta(hours=-5))).date()  # 미국 동부 기준
+    d = today - timedelta(days=365)
+    if len(old):
+        d = max(d, datetime.strptime(old["date"].max(), "%Y-%m-%d").date() + timedelta(days=1))
+    rows, errs = [], 0
+    while d <= today:
+        if d.weekday() < 5:
+            r = requests.get(f"https://cdn.cboe.com/data/us/options/market_statistics/daily/{d.isoformat()}_daily_options",
+                             headers=UA, timeout=30)
+            if r.status_code == 200:  # 휴장일·아직 안 나온 날은 403
+                ratios = {x.get("name"): x.get("value") for x in r.json().get("ratios", [])}
+                try:
+                    rows.append({"date": d.isoformat(), "equity": float(ratios["EQUITY PUT/CALL RATIO"]),
+                                 "total": float(ratios.get("TOTAL PUT/CALL RATIO") or "nan")})
+                except (KeyError, ValueError):
+                    errs += 1
+            elif r.status_code not in (403, 404):
+                errs += 1
+        d += timedelta(days=1)
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date")
+    if allr.empty or (today - datetime.strptime(allr["date"].max(), "%Y-%m-%d").date()).days > 7:
+        raise RuntimeError(f"최근 풋/콜 비율을 못 받음 (오류 {errs}건)")
+    allr.to_csv(path, index=False)
+
+
+def xlsx_rows(content):
+    """엑셀(xlsx) 첫 시트를 글자 목록으로 (openpyxl 없이)"""
+    import xml.etree.ElementTree as ET
+    import zipfile
+    ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    z = zipfile.ZipFile(io.BytesIO(content))
+    shared = []
+    if "xl/sharedStrings.xml" in z.namelist():
+        shared = ["".join(t.text or "" for t in si.iter(ns + "t")) for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall(ns + "si")]
+    rows = []
+    for row in ET.fromstring(z.read("xl/worksheets/sheet1.xml")).iter(ns + "row"):
+        vals = []
+        for c in row.findall(ns + "c"):
+            v, t = c.find(ns + "v"), c.get("t")
+            if t == "inlineStr":
+                vals.append("".join(x.text or "" for x in c.iter(ns + "t")))
+            elif v is None:
+                vals.append(None)
+            else:
+                vals.append(shared[int(v.text)] if t == "s" else v.text)
+        rows.append(vals)
+    return rows
+
+
+def fetch_margin():
+    # FINRA 신용잔고(증권사 고객이 빌려서 산 주식 금액, 백만 달러), 매월 3주쯤 뒤 발표
+    page = "https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics"
+    m = re.search(r'href="([^"]*margin-statistics[^"]*\.xlsx)"', requests.get(page, headers=BROWSER_UA, timeout=60).text)
+    url = "https://www.finra.org" + m.group(1) if m and m.group(1).startswith("/") else (m.group(1) if m else
+          "https://www.finra.org/sites/default/files/2021-03/margin-statistics.xlsx")
+    r = requests.get(url, headers=BROWSER_UA, timeout=60)
+    r.raise_for_status()
+    rows = []
+    for v in xlsx_rows(r.content):
+        if len(v) < 2 or not v[0] or not v[1]:
+            continue
+        a = v[0].strip()
+        try:
+            if re.fullmatch(r"\d{4}-\d{2}", a):  # 2026-09
+                month = a
+            elif re.fullmatch(r"\d+(\.\d+)?", a):  # 엑셀 날짜 숫자
+                month = (pd.Timestamp("1899-12-30") + pd.Timedelta(days=float(a))).strftime("%Y-%m")
+            else:  # Sep-26
+                month = datetime.strptime(a, "%b-%y").strftime("%Y-%m")
+            rows.append({"month": month, "debit": float(v[1])})
+        except ValueError:
+            continue
+    if len(rows) < 24:
+        raise RuntimeError("FINRA 신용잔고 표를 못 읽음 (파일 구조 변경?)")
+    pd.DataFrame(rows).drop_duplicates("month").sort_values("month").to_csv(os.path.join(DATA, "margin_debt.csv"), index=False)
+
+
+def fetch_breadth():
+    # S&P500 종목 중 50일·200일 이동평균선 위에 있는 종목 비율(%) — 지금 구성 종목(위키백과 목록)의 주가로 직접 계산
+    import yfinance as yf
+    html = get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies").text
+    syms = pd.read_html(io.StringIO(html), attrs={"id": "constituents"})[0]["Symbol"].astype(str).str.replace(".", "-", regex=False).tolist()
+    if len(syms) < 490:
+        raise RuntimeError(f"S&P500 종목 목록이 {len(syms)}개뿐")
+    start = (datetime.now() - timedelta(days=365 * 3)).strftime("%Y-%m-%d")
+    px = yf.download(syms, start=start, progress=False, auto_adjust=True, threads=True)["Close"].dropna(axis=1, how="all")
+    if px.shape[1] < len(syms) * 0.95:
+        raise RuntimeError(f"주가를 받은 종목이 {px.shape[1]}/{len(syms)}개뿐")
+    out = {}
+    for w in (50, 200):
+        sma = px.rolling(w, min_periods=w).mean()
+        ok = sma.notna() & px.notna()
+        n = ok.sum(axis=1)
+        out[f"above{w}"] = ((px > sma) & ok).sum(axis=1) / n.where(n >= px.shape[1] * 0.9) * 100
+    df = pd.DataFrame(out).dropna()
+    df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
+    df.rename_axis("date").round(2).to_csv(os.path.join(DATA, "sp500_breadth.csv"))
+
+
+FACTSET_PDF = ("https://advantage.factset.com/hubfs/Website/Resources%20Section/Research%20Desk/"
+               "Earnings%20Insight/EarningsInsight_{}.pdf")
+
+
+def fetch_pe():
+    # FactSet 주간 'Earnings Insight' 보고서 첫 장의 S&P500 12개월 예상 P/E와 5년·10년 평균. 보고서마다 출처 URL 저장
+    from pypdf import PdfReader
+    path = os.path.join(DATA, "sp500_pe.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "pe", "avg5", "avg10", "url"])
+    have = set(old["date"])
+    today = datetime.now(KST).date()
+    rows = []
+    for wk in range(52):  # 최근 1년치 금요일(없으면 목요일) 보고서 중 아직 없는 것
+        fri = today - timedelta(days=(today.weekday() - 4) % 7 + 7 * wk)
+        if len(old) and wk >= 3 and fri.isoformat() < old["date"].max():
+            break
+        for d in (fri, fri - timedelta(days=1)):
+            if d.isoformat() in have:
+                break
+            url = FACTSET_PDF.format(d.strftime("%m%d%y"))
+            r = requests.get(url, headers=BROWSER_UA, timeout=60)
+            if r.status_code != 200 or not r.content.startswith(b"%PDF"):
+                continue
+            txt = re.sub(r"\s+", " ", " ".join((p.extract_text() or "") for p in PdfReader(io.BytesIO(r.content)).pages[:2]))
+            m = re.search(r"forward 12 ?- ?month P/E ratio for the S&P 500 is (\d+\.\d+).{0,120}?5-year average \((\d+\.\d+)\)"
+                          r".{0,80}?10-year average \((\d+\.\d+)\)", txt)
+            if m:
+                rows.append({"date": d.isoformat(), "pe": float(m.group(1)), "avg5": float(m.group(2)),
+                             "avg10": float(m.group(3)), "url": url})
+            break
+    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date")
+    if allr.empty or (today - datetime.strptime(allr["date"].max(), "%Y-%m-%d").date()).days > 14:
+        raise RuntimeError("최근 FactSet P/E 보고서를 못 읽음")
+    allr.to_csv(path, index=False)
+
+
 # ---------- 국민연금 자산배분 (기금운용본부 홈페이지, 매월 갱신) ----------
 NPS_ASSETS = ["국내주식", "해외주식", "국내채권", "해외채권", "대체투자", "단기자금"]
 
@@ -870,6 +1029,142 @@ def build_hy():
             "baa_last": None if long is None else long["y"][-1]}
 
 
+def reader_score(v, rule):
+    """config 점수표(cuts)로 1~5점"""
+    for i, c in enumerate(rule["cuts"]):
+        if (v <= c) if rule.get("low") else (v >= c):
+            return 5 - i
+    return 1
+
+
+def reader_bands(rule):
+    """화면에 보여줄 5점→1점 구간 글자"""
+    c = [f"{x:g}" for x in rule["cuts"]]
+    if rule.get("low"):
+        return [f"{c[0]} 이하"] + [f"{c[i]}~{c[i + 1]}" for i in range(3)] + [f"{c[3]} 초과"]
+    return [f"{c[0]} 이상"] + [f"{c[i + 1]}~{c[i]}" for i in range(3)] + [f"{c[3]} 미만"]
+
+
+def reader_label(avg):
+    """엑셀과 같은 판정: 1 이하 공포, 2 이하 불안, 3 이하 중립, 4 이하 과열, 그 위 광기"""
+    for lim, name in zip((1, 2, 3, 4), config.READER_LABELS):
+        if avg <= lim:
+            return name
+    return config.READER_LABELS[4]
+
+
+def _csv_series(name, col, since=None):
+    path = os.path.join(DATA, name)
+    if not os.path.exists(path):
+        return None
+    d = pd.read_csv(path, dtype={"date": str}).dropna(subset=[col]).sort_values("date")
+    s = pd.Series(d[col].values.astype(float), index=d["date"].values)
+    return s[s.index >= since] if since else s
+
+
+def _item(key, s, rule, digits=2, extra=None):
+    """지표 1개: 최근 값·점수·구간·차트용 기록"""
+    if s is None or s.empty:
+        return {"key": key, "value": None}
+    v = round(float(s.iloc[-1]), digits)
+    sc = reader_score(v, rule)
+    return {"key": key, "value": v, "date": s.index[-1], "score": sc, "label": config.READER_LABELS[sc - 1],
+            "bands": reader_bands(rule), "cuts": rule["cuts"], "low": bool(rule.get("low")),
+            "x": list(s.index), "y": [round(float(a), digits) for a in s.values], **(extra or {})}
+
+
+def _hy_item():
+    s = _csv_series("hy_spread.csv", "hy")
+    if s is None or s.empty:
+        return {"key": "hy", "value": None}
+    r = config.HY_READER
+    yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
+    last, lo, hi = float(s.iloc[-1]), float(yr.min()), float(yr.max())
+    if last <= r["low"]:
+        sc, why = 5, f"{r['low']:g}% 이하"
+    elif hi >= r["high"] and last <= hi - r["step"]:
+        sc, why = 1, f"{r['high']:g}%를 넘었다가 1년 고점 {hi:.2f}%에서 {r['step']:g}%p 이상 내려옴"
+    elif last > r["high"]:
+        sc, why = 2, f"{r['high']:g}%를 넘어 오르는 중"
+    elif last >= lo + r["step"]:
+        sc, why = 4, f"1년 최저점 {lo:.2f}%보다 {r['step']:g}%p 이상 오름"
+    else:
+        sc, why = 3, f"{r['low']:g}~{r['high']:g}% 박스권 (1년 최저점 {lo:.2f}% 근처)"
+    return {"key": "hy", "value": round(last, 2), "date": s.index[-1], "score": sc, "label": config.READER_LABELS[sc - 1],
+            "why": why, "bands": [f"{r['low']:g}% 이하", f"1년 바닥 +{r['step']:g}%p", f"{r['low']:g}~{r['high']:g}% 박스",
+                                  f"{r['high']:g}% 넘어 상승", f"{r['high']:g}% 넘은 뒤 고점 −{r['step']:g}%p"],
+            "cuts": [r["low"], r["high"]], "x": list(s.index), "y": [round(float(a), 2) for a in s.values]}
+
+
+def _summary(items):
+    sc = [i["score"] for i in items if i.get("value") is not None and i.get("in_score", True)]
+    if not sc:
+        return None
+    avg = round(sum(sc) / len(sc), 2)
+    return {"score": avg, "label": reader_label(avg), "n": len(sc),
+            "n_all": sum(1 for i in items if i.get("in_score", True))}
+
+
+def build_readers():
+    # 역발상 판독기: 사람들 마음(심리)이 한쪽으로 쏠렸는지
+    margin = None
+    mpath = os.path.join(DATA, "margin_debt.csv")
+    if os.path.exists(mpath):
+        m = pd.read_csv(mpath).sort_values("month")
+        yoy = (m["debit"] / m["debit"].shift(12) - 1) * 100  # 1년(12개월) 전 대비 %
+        ok = yoy.notna() & (m["month"] >= "2000-01")
+        margin = pd.Series(yoy[ok].values, index=(pd.to_datetime(m["month"][ok]) + pd.offsets.MonthEnd(0)).dt.strftime("%Y-%m-%d").values)
+        last_debit = float(m["debit"].iloc[-1])
+    contra = [
+        _item("aaii", _csv_series("aaii.csv", "spread", since="2015-01-01"), config.CONTRA_RULES["aaii"], 1),
+        _item("putcall", _csv_series("putcall.csv", "equity"), config.CONTRA_RULES["putcall"], 2),
+        _item("vix", _csv_series("vix.csv", "vix"), config.CONTRA_RULES["vix"], 2),
+        _item("margin", margin, config.CONTRA_RULES["margin"], 1,
+              {"debit_b": round(last_debit / 1000, 1)} if margin is not None else None),
+        _hy_item(),
+    ]
+    # 차트 판독기: S&P500 차트가 얼마나 달아올랐는지 (이격도·RSI는 S&P500 지수 종가로 계산)
+    chart = []
+    sp = _csv_series("sp500.csv", "sp500")
+    br_since = None
+    for key in ("above200", "above50"):
+        b = _csv_series("sp500_breadth.csv", key)
+        chart.append(_item(key, b, config.CHART_RULES[key], 1))
+        br_since = br_since or (b.index[0] if b is not None and len(b) else None)
+    direction = None
+    if sp is not None and len(sp) > 260:
+        ma200, ma50 = sp.rolling(200).mean(), sp.rolling(50).mean()
+        gap200, gap50 = ((sp / ma200 - 1) * 100).dropna(), ((sp / ma50 - 1) * 100).dropna()
+        ch = sp.diff()
+        n = config.RSI_DAYS  # 와일더 방식 RSI: 오른 폭·내린 폭의 지수평균 비율
+        up = ch.clip(lower=0).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+        dn = (-ch.clip(upper=0)).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+        rsi = (100 - 100 / (1 + up / dn)).dropna()
+        chart += [_item("gap200", gap200, config.CHART_RULES["gap200"], 2),
+                  _item("rsi", rsi, config.CHART_RULES["rsi"], 2),
+                  _item("gap50", gap50, config.CHART_RULES["gap50"], 2, {"in_score": False})]
+        # 방향성 (엑셀 '시장 방향성' 표): 지수가 200일선 위인지, 200일선·50일선이 20거래일 전보다 올라갔는지
+        direction = {"date": sp.index[-1], "close": round(float(sp.iloc[-1]), 2),
+                     "ma200": round(float(ma200.iloc[-1]), 2), "ma50": round(float(ma50.iloc[-1]), 2),
+                     "above200": bool(sp.iloc[-1] > ma200.iloc[-1]),
+                     "ma200_up": bool(ma200.iloc[-1] > ma200.iloc[-21]), "ma50_up": bool(ma50.iloc[-1] > ma50.iloc[-21])}
+    else:
+        chart += [{"key": k, "value": None} for k in ("gap200", "rsi")]
+    # 장기(실적): S&P500 12개월 예상 P/E
+    pe = None
+    ppath = os.path.join(DATA, "sp500_pe.csv")
+    if os.path.exists(ppath):
+        p = pd.read_csv(ppath, dtype={"date": str}).sort_values("date")
+        if len(p):
+            pe = _item("pe", pd.Series(p["pe"].values.astype(float), index=p["date"].values), config.PE_RULE, 1)
+            last = p.iloc[-1]
+            pe.update({"avg5": float(last["avg5"]), "avg10": float(last["avg10"]), "url": last["url"],
+                       "urls": list(p["url"]), "earn_yield": round(100 / float(last["pe"]), 2)})
+    return {"contra": {"items": contra, "summary": _summary(contra)},
+            "chart": {"items": chart, "summary": _summary(chart), "direction": direction, "pe": pe,
+                      "breadth_since": br_since}}
+
+
 def build_nps():
     path = os.path.join(DATA, "nps.csv")
     if not os.path.exists(path):
@@ -962,6 +1257,7 @@ def build():
     out["vix"] = build_vix()
     out["move"] = build_move()
     out["hy"] = build_hy()
+    out["readers"] = build_readers()
 
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
@@ -984,6 +1280,8 @@ def main():
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
+             ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:
