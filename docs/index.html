@@ -426,6 +426,7 @@ footer a{color:var(--ink2)}
     <div><b>보는 순서</b> 오래 갈수록 <b>회사가 돈을 얼마나 버는지(실적)</b>가, 1~5년은 <b>금리</b>가, 1년 안쪽은 <b>사람들 마음</b>이 주가를 움직인다는 틀이에요. 금리 쪽은 '미국' 탭의 하이일드·MOVE, 마음 쪽은 '역발상 판독기' 탭과 함께 보세요.</div>
     <div><b>경제 사이클 (중기·금리)</b> 금리인하 → 돈 풀기 → 경기호황 → 금리인상 → 경기둔화 → 다시 금리인하. 1~5년 흐름은 지금이 이 바퀴의 어디쯤인지에 따라 움직여요.</div>
   </div>
+  <div class="card" id="phase-card"></div>
   <div class="card" id="pe-card"></div>
   <div class="card" id="chart-top"></div>
   <div id="chart-cards"></div>
@@ -1349,6 +1350,61 @@ function readerPlot(it) {
     }), CFG);
 }
 
+// ---------- 시장 4국면 (우라가미 구니오) ----------
+const PH = ['금융장세', '실적장세', '역금융장세', '역실적장세'];
+const PH_TABLE = {금리: ['↓', '↗', '↑', '↘'], 실적: ['↘', '↑', '↗', '↓'], 주가: ['↑', '↗', '↓', '↘']};
+const PH_SEG = [[[10, 150], [70, 96], [80, 108]], [[80, 108], [150, 16]], [[150, 16], [205, 76], [215, 66]], [[215, 66], [290, 132]]];
+const PH_MID = [[40, 123], [115, 62], [177, 46], [252, 99]];
+const PH_LBL = [[30, 112, -42], [104, 52, -53], [200, 40, 47], [262, 84, 41]];
+
+function phaseSpot(m) {  // 3개월·1개월 판단이 같으면 그 국면 가운데, 바로 다음 국면이면 두 국면 경계에 점
+  const i3 = PH.indexOf((m['3m'].phase || [])[0]), i1 = PH.indexOf((m['1m'].phase || [])[0]);
+  if (i1 < 0 && i3 < 0) return null;
+  if (i3 >= 0 && i1 === i3 + 1) return {pt: PH_SEG[i1][0], txt: `${PH[i3]} → ${PH[i1]}로 넘어가는 중`, on: [i3, i1]};
+  const i = i1 >= 0 ? i1 : i3;
+  return {pt: PH_MID[i], txt: PH[i], on: [i]};
+}
+
+function renderPhase() {
+  const P = DATA.phase, el = document.getElementById('phase-card');
+  if (!P) { el.innerHTML = ''; return; }
+  const us = phaseSpot(P.us), kr = phaseSpot(P.kr), on = new Set([...(us ? us.on : []), ...(kr ? kr.on : [])]);
+  const segs = PH_SEG.map((s, i) => `<polyline points="${s.map(p => p.join(',')).join(' ')}" fill="none" stroke="${on.has(i) ? css('--g3') : css('--line')}" stroke-width="${on.has(i) ? 4 : 3}" stroke-linejoin="round"/>`).join('');
+  const lbls = PH_LBL.map(([x, y, a], i) => `<text x="${x}" y="${y}" transform="rotate(${a} ${x} ${y})" text-anchor="middle" font-size="11" font-weight="${on.has(i) ? 800 : 500}" fill="${on.has(i) ? css('--ink') : css('--muted')}">${PH[i]}</text>`).join('');
+  // 점 이름은 점 왼쪽에 (국면 이름은 선 오른쪽에 있어서 겹치지 않게)
+  const dot = (s, name, col, dy) => s ? `<circle cx="${s.pt[0]}" cy="${s.pt[1]}" r="6.5" fill="${col}" stroke="${css('--surface')}" stroke-width="2"/><text x="${s.pt[0] - 10}" y="${s.pt[1] + dy}" text-anchor="end" font-size="11" font-weight="800" fill="${col}">${name}</text>` : '';
+  const sameSpot = us && kr && us.pt === kr.pt;
+  const arrowCell = (v, a, unit) => v == null ? '<span class="small">자료 없음</span>' : `<b style="font-size:15px">${a}</b> ${v > 0 ? '+' : ''}${v}${unit}`;
+  const row = (k, unit, label) => `<tr><td style="white-space:normal">${label}</td>${[P.us['3m'], P.us['1m'], P.kr['3m']].map(m => `<td>${arrowCell(m[k], m.arrows[{rate: 0, eps: 1, price: 2}[k]], unit)}</td>`).join('')}</tr>`;
+  const ph = m => m.phase.length ? m.phase.join(' / ') : '–';
+  const md = s => s ? s.slice(2).replace(/-/g, '.') : '';
+  el.innerHTML = `<h3><span>지금은 어느 국면? — 금리·실적·주가 4국면</span></h3>
+    <div class="small" style="margin:2px 4px 6px">주식시장은 <b>금융장세 → 실적장세 → 역금융장세 → 역실적장세</b>를 돌아요. 실적장세와 역금융장세를 가르는 건 <b>금리가 많이 올라 버티기 힘든 수준에 닿았는지</b>예요.</div>
+    <svg viewBox="0 0 300 160" role="img" aria-label="시장 4국면 그림" style="width:100%;max-width:440px;display:block;margin:0 auto">${segs}${lbls}
+      ${dot(us, '미국', css('--ink'), sameSpot ? -8 : 4)}${dot(kr, '한국', css('--cds'), sameSpot ? 10 : 4)}</svg>
+    <div class="tablebox" style="border:0;margin-top:4px"><table><thead><tr><th>구분</th>${PH.map((p, i) => `<th style="${on.has(i) ? 'color:var(--ink)' : ''}">${p.replace('장세', '')}<br>장세</th>`).join('')}</tr></thead>
+      <tbody>${Object.entries(PH_TABLE).map(([k, a]) => `<tr><td>${k}</td>${a.map((x, i) => `<td style="text-align:center;font-size:15px;${on.has(i) ? 'font-weight:800;color:var(--g3)' : ''}">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="small" style="margin:6px 4px 2px"><b>자동 판단</b> (매일 갱신): ${us ? `미국 <b>${us.txt}</b>` : ''}${kr ? ` · 한국 <b>${kr.txt}</b>` : ''}</div>
+    <div class="tablebox" style="border:0"><table><thead><tr><th>지금 데이터</th><th>미국<br>3개월</th><th>미국<br>1개월</th><th>한국<br>3개월</th></tr></thead><tbody>
+      ${row('rate', '%p', '금리<br><span class="small">10년물</span>')}
+      ${row('eps', '%', '실적<br><span class="small">예상 EPS</span>')}
+      ${row('price', '%', '주가<br><span class="small">S&amp;P500·코스피</span>')}
+      <tr><td><b>가까운 국면</b></td><td><b>${ph(P.us['3m'])}</b></td><td><b>${ph(P.us['1m'])}</b></td><td><b>${ph(P.kr['3m'])}</b></td></tr></tbody></table></div>
+    <div class="small" style="margin:4px">미국 10년물 ${P.us.rate_last}%(${md(P.us.rate_date)}) · 기준금리 ${P.us.fedfunds}%(6개월 ${P.us.fedfunds_6m > 0 ? '+' : ''}${P.us.fedfunds_6m}%p) · 예상 EPS $${P.us.eps_last}(${md(P.us.eps_date)}${P.us.eps_first ? `, ${md(P.us.eps_first.date)} $${P.us.eps_first.value}에서` : ''}) · 한국 10년물 ${P.kr.rate_last}%(${P.kr.rate_date.slice(0, 7)}월, 월별 자료). 한국 기업 예상 이익은 무료 자료가 없어 실적 칸은 비워 두고 금리·주가로만 맞춰 봐요.</div>
+    <div class="memo">
+      <b>🧭 Claude 해석 (2026-10-26 기준)</b>
+      <div>· <b>글쓴이 의견</b>: 금리가 오르고 투자심리가 약해져 <b>역금융장세에 들어섰다</b>고 봐요. 2021년 하반기~2022년 상반기와 비슷하다는 거예요. 실적이 최고라 주가가 빠지면 싸 보이지만, 그게 사이클 꼭대기의 <b>'밸류 트랩'</b>일 수 있다는 경고예요.</div>
+      <div>· <b>한국은 그 말과 잘 맞아요</b>: 한국 10년물 금리가 1년 새 2.85% → 4.45%(9월)로 뛰었고, 코스피는 6/22 고점 9,115에서 5,550으로 <b>−39%</b>예요. 반면 D램 가격은 아직 오르고 있어요(DDR4 8Gb 4주 +2.7%). "실적은 좋은데 주가가 떨어지는" 역금융장세 모양 그대로예요.</div>
+      <div>· <b>미국은 넘어가는 중</b>: 3개월로 보면 실적장세(금리↗ · 예상 이익 +11% · 주가 +2.9%), 1개월로 보면 역금융장세 쪽(금리 제자리 · 이익 +2.5% · 주가 −1.1%)이에요. 예상 P/E가 22.9배(25.10.31) → 18.7배로 줄었어요. <b>이익은 느는데 주가가 못 따라가는</b> 역금융장세 초입의 특징이에요.</div>
+      <div>· <b>다르게 갈 수 있는 길 ① 다시 실적장세</b>: 그림처럼 역금융장세 중간에도 반등이 있어요. 미국 10년물은 10/5 5.31%가 최고였고 지금 4.96%로 내려왔어요. 금리가 계속 내려오고 이익이 계속 늘면 실적장세로 돌아갈 수 있어요.</div>
+      <div>· <b>② 역실적장세로 빨리 넘어감</b>: 이익이 꺾이면 다음 단계예요. 지켜볼 신호는 미국 예상 이익이 줄기 시작하는지, D램 4주 변화율이 마이너스로 가는지, 하이일드 스프레드가 5%를 넘는지예요. 하이일드는 지금 3.40%로, 8/28 2.60%에서 오르는 중이에요.</div>
+      <div class="small" style="margin-top:4px">위 '자동 판단'은 매일 바뀌고, 이 해석은 날짜 기준 글이라 그대로예요. 투자 권유가 아닌 참고용이에요.</div>
+    </div>
+    <div class="small" style="margin:6px 4px 2px;color:var(--muted)">자료: 그림·표 — 우라가미 구니오 『주식시장 흐름 읽는 법』, DB증권(다시 그림) · 글쓴이 의견 — 블로그 '진득춘의 투자 기록' 캡처(사용자 제공) ·
+      금리 — <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">FRED DGS10</a>·<a href="https://fred.stlouisfed.org/series/DFF" target="_blank" rel="noopener">DFF</a>·<a href="https://fred.stlouisfed.org/series/IRLTLT01KRM156N" target="_blank" rel="noopener">한국 10년물</a> ·
+      예상 EPS = S&amp;P500 종가 ÷ FactSet 예상 P/E(아래 카드) · 주가 — Yahoo Finance · D램 — TrendForce('한국' 탭) · 하이일드 — FRED</div>`;
+}
+
 function renderReaders() {
   const R = DATA.readers;
   if (!R) return;
@@ -1389,7 +1445,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

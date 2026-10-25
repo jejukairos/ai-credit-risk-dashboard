@@ -441,6 +441,15 @@ VKOSPI_URL = "https://www.investing.com/indices/kospi-volatility-historical-data
 BROWSER_UA ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
 
 
+RATE_SERIES = {"us10y": "DGS10", "fedfunds": "DFF", "kr10y": "IRLTLT01KRM156N"}  # 미국 10년물·기준금리(일별), 한국 10년물(월별)
+
+
+def fetch_rates():
+    # 시장 국면 판단용 금리 (FRED, 단위 %)
+    for name, sid in RATE_SERIES.items():
+        (fred_series(sid, start="2020-01-01") / 100).rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"rate_{name}.csv"))
+
+
 def fetch_aaii():
     # AAII 주간 투자자 심리 설문 (매주 목요일 발표). Bull-Bear Spread = 강세 응답 − 약세 응답
     r = requests.get("https://www.aaii.com/files/surveys/sentiment.xls", headers=BROWSER_UA, timeout=60)
@@ -1192,6 +1201,74 @@ def build_readers():
                       "breadth_since": br_since}}
 
 
+def _arrow(chg, cuts):
+    """변화량 → (화살표, 방향 +1/0/−1)"""
+    if chg is None:
+        return None, None
+    if chg >= cuts[0]:
+        return "↑", 1
+    if chg >= cuts[1]:
+        return "↗", 1
+    if chg > cuts[2]:
+        return "→", 0
+    if chg > cuts[3]:
+        return "↘", -1
+    return "↓", -1
+
+
+def _chg(s, days, pct):
+    """s의 마지막 값과 days일 전(그 직전 값) 비교. pct=True면 %, 아니면 차이"""
+    if s is None or len(s) < 2:
+        return None
+    idx = pd.to_datetime(s.index)
+    prev = s[idx <= idx[-1] - pd.Timedelta(days=days)]
+    if prev.empty:
+        return None
+    a, b = float(s.iloc[-1]), float(prev.iloc[-1])
+    return round((a / b - 1) * 100, 1) if pct else round(a - b, 2)
+
+
+def _match_phase(signs):
+    """(금리, 실적, 주가) 방향과 가장 가까운 국면. 자료 없는 칸(None)은 빼고 비교, 동점이면 둘 다"""
+    dist = {p: sum(abs(s - e) for s, e in zip(signs, pat) if s is not None) for p, pat in config.PHASES.items()}
+    best = min(dist.values())
+    return [p for p, d in dist.items() if d == best]
+
+
+def build_phase():
+    sp = _csv_series("sp500.csv", "sp500")
+    pe_path = os.path.join(DATA, "sp500_pe.csv")
+    eps = None
+    if sp is not None and os.path.exists(pe_path):  # 예상 EPS = 보고서 전날 S&P500 종가 ÷ 예상 P/E
+        spi = pd.Series(sp.values, index=pd.to_datetime(sp.index))
+        pe = pd.read_csv(pe_path, dtype={"date": str}).sort_values("date")
+        vals = {}
+        for d, v in zip(pe["date"], pe["pe"]):
+            before = spi[spi.index < pd.Timestamp(d)]
+            if len(before):
+                vals[d] = round(float(before.iloc[-1]) / float(v), 1)
+        eps = pd.Series(vals)
+    us10, kr10 = _csv_series("rate_us10y.csv", "us10y"), _csv_series("rate_kr10y.csv", "kr10y")
+    ff, ks = _csv_series("rate_fedfunds.csv", "fedfunds"), _csv_series("kospi.csv", "kospi")
+    out = {}
+    for mkt, rate, earn, px in (("us", us10, eps, sp), ("kr", kr10, None, ks)):
+        m = {"rate_last": None if rate is None else round(float(rate.iloc[-1]), 2), "rate_date": None if rate is None else rate.index[-1],
+             "price_last": None if px is None else round(float(px.iloc[-1]), 1), "price_date": None if px is None else px.index[-1],
+             "eps_last": None if earn is None or earn.empty else float(earn.iloc[-1]), "eps_date": None if earn is None or earn.empty else earn.index[-1]}
+        for lbl, days in (("3m", 91), ("1m", 30)):
+            r, e, p = _chg(rate, days, False), _chg(earn, days, True), _chg(px, days, True)
+            ar, ae, ap = _arrow(r, config.PHASE_RATE_CUTS), _arrow(e, config.PHASE_PCT_CUTS), _arrow(p, config.PHASE_PCT_CUTS)
+            m[lbl] = {"rate": r, "eps": e, "price": p, "arrows": [ar[0], ae[0], ap[0]],
+                      "phase": _match_phase((ar[1], ae[1], ap[1])) if None not in (ar[1], ap[1]) else []}
+        out[mkt] = m
+    if ff is not None:
+        out["us"]["fedfunds"] = round(float(ff.iloc[-1]), 2)
+        out["us"]["fedfunds_6m"] = _chg(ff, 182, False)
+    if eps is not None and len(eps):
+        out["us"]["eps_first"] = {"date": eps.index[0], "value": float(eps.iloc[0])}
+    return out
+
+
 def build_nps():
     path = os.path.join(DATA, "nps.csv")
     if not os.path.exists(path):
@@ -1286,6 +1363,7 @@ def build():
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
+    out["phase"] = build_phase()
 
     with open(os.path.join(DOCS, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
@@ -1309,7 +1387,7 @@ def main():
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
-             ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe),
+             ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
         try:
