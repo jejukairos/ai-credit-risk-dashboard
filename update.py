@@ -400,6 +400,19 @@ def fetch_vix():
     v.rename("vix").rename_axis("date").round(2).to_csv(os.path.join(DATA, "vix.csv"))
 
 
+def fetch_vkospi():
+    # VKOSPI(코스피200 변동성지수): 인베스팅닷컴 공개 '과거 데이터' 페이지에 실린 최근 약 20거래일 종가를 매일 저장해 쌓음
+    # (야후에는 없고, 한국거래소 데이터 사이트는 로그인이 필요)
+    html = requests.get(VKOSPI_URL, headers=BROWSER_UA, timeout=60).text
+    rows = [{"date": datetime.strptime(d, "%b %d, %Y").strftime("%Y-%m-%d"), "vkospi": float(v.replace(",", ""))}
+            for d, v in re.findall(r'<time[^>]*dateTime="([^"]+)"[^<]*</time></td><td[^>]*>([\d.,]+)<', html)]
+    if len(rows) < 5:
+        raise RuntimeError("VKOSPI 표를 못 읽음 (사이트 구조 변경?)")
+    path = os.path.join(DATA, "vkospi.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "vkospi"])
+    pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
+
+
 def fetch_move():
     import yfinance as yf
     v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
@@ -424,7 +437,8 @@ def fetch_hy():
 
 # ---------- 판독기 탭: AAII 심리 · CBOE 풋콜 · FINRA 신용잔고 · S&P500 이평선 위 종목 비율 · FactSet P/E ----------
 # 일부 사이트는 프로그램 이름이 붙은 요청을 막아서 일반 브라우저처럼 요청
-BROWSER_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
+VKOSPI_URL = "https://www.investing.com/indices/kospi-volatility-historical-data"
+BROWSER_UA ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
 
 
 def fetch_aaii():
@@ -971,6 +985,19 @@ def build_vix():
             "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
 
 
+def build_vkospi():
+    path = os.path.join(DATA, "vkospi.csv")
+    if not os.path.exists(path):
+        return None
+    s = pd.read_csv(path, dtype={"date": str}).sort_values("date").set_index("date")["vkospi"]
+    if len(s) < 2:
+        return None
+    yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],
+            "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
+            "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 2)}, "since": s.index[0], "url": VKOSPI_URL}
+
+
 def build_move():
     path = os.path.join(DATA, "move.csv")
     if not os.path.exists(path):
@@ -1255,6 +1282,7 @@ def build():
     out["opinions"] = build_opinions()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
+    out["vkospi"] = build_vkospi()
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
@@ -1279,7 +1307,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe),
              ("화면 데이터 만들기", build)]

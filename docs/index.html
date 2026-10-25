@@ -142,7 +142,7 @@ footer a{color:var(--ink2)}
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-dram">D램</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -188,6 +188,17 @@ footer a{color:var(--ink2)}
       <div class="real" id="vixreal"></div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
+  </div>
+
+  <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>VKOSPI</b> <b>한국판 VIX</b>예요. 코스피200 옵션 가격으로 계산한, 앞으로 한 달 동안 코스피가 얼마나 <b>출렁일지</b>에 대한 예상이에요. 숫자가 클수록 한국 시장이 불안하다는 뜻이에요.</div>
+      <div><b>같이 보기</b> 회색 선은 미국 VIX예요. 두 숫자는 같은 방식으로 계산해서 같은 눈금으로 비교할 수 있어요. VKOSPI만 높으면 한국 시장만 유독 불안한 거예요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="vkscore">–</div><div><div class="fgrating" id="vkrating"></div><div class="small" id="vkprev"></div></div></div>
+    <div id="vkplot" class="plot" style="height:240px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
   <h2 id="sec-move">MOVE 지수 (채권 시장 변동성)</h2>
@@ -316,24 +327,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
   </div>
 
-  <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
-  <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
-  <div class="memo" style="margin:0 0 10px">
-    <b>🐒 투자 메모</b>
-    <div>· DDR4가 살짝 아쉽지만, <b>메인은 DDR5</b>라는 걸 감안해야 해요. <b>DDR5 현물가격 분위기는 너무 좋아요.</b></div>
-    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
-  </div>
-  <div id="dramcards"></div>
-  <div class="card" id="opcard">
-    <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
-    <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
-    <div class="tiles" id="opitiles" style="margin:0 0 8px"></div>
-    <div class="opbar" id="opbar"></div>
-    <div class="real" id="opreal" style="margin:8px 4px"></div>
-    <ul class="inslist" id="oplist"></ul>
-    <p class="note" style="margin:6px 4px 2px">새 의견은 매주 월요일 자동 검색으로 추가돼요(출처 있는 것만). 의견 수는 "누가 더 많이 말했나"일 뿐 맞고 틀림은 아니에요 — 실제 가격 기울기(위 YoY·QoQ)와 함께 보세요.</p>
-  </div>
-
   <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
   <div class="glossary">
     <div><b>ADR</b> 최근 <b>20거래일</b> 동안 <b>오른 종목 수 합 ÷ 내린 종목 수 합 × 100</b>이에요. 100%면 오른 종목과 내린 종목 수가 같고, 지수보다 "시장 전체 종목들의 분위기"를 보여줘요.</div>
@@ -385,6 +378,24 @@ footer a{color:var(--ink2)}
     <div id="kofiaplot" class="plot" style="height:360px"></div>
     <p class="note" style="margin:4px">점선 = 최근 1년 하루 평균 반대매매. 신용융자 쪽 반대매매는 공식 통계가 없어요.
     자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> (2015년부터 매일)</p>
+  </div>
+
+  <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
+  <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
+  <div class="memo" style="margin:0 0 10px">
+    <b>🐒 투자 메모</b>
+    <div>· DDR4가 살짝 아쉽지만, <b>메인은 DDR5</b>라는 걸 감안해야 해요. <b>DDR5 현물가격 분위기는 너무 좋아요.</b></div>
+    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
+  </div>
+  <div id="dramcards"></div>
+  <div class="card" id="opcard">
+    <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
+    <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
+    <div class="tiles" id="opitiles" style="margin:0 0 8px"></div>
+    <div class="opbar" id="opbar"></div>
+    <div class="real" id="opreal" style="margin:8px 4px"></div>
+    <ul class="inslist" id="oplist"></ul>
+    <p class="note" style="margin:6px 4px 2px">새 의견은 매주 월요일 자동 검색으로 추가돼요(출처 있는 것만). 의견 수는 "누가 더 많이 말했나"일 뿐 맞고 틀림은 아니에요 — 실제 가격 기울기(위 YoY·QoQ)와 함께 보세요.</p>
   </div>
 
   <h2 id="sec-nps">국민연금 자산배분 — 실제 vs 목표</h2>
@@ -531,7 +542,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'us','sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
 function setupTabs() {
   let cur = null;
@@ -968,6 +979,25 @@ function renderVix() {
     (sc >= 20 ? '지금은 그 구간 입구에 있어요.' : `지금은 20까지 ${(20 - sc).toFixed(1)}포인트 남았어요.`);
 }
 
+function renderVkospi() {
+  const k = DATA.vkospi;
+  if (!k) return;
+  const last = k.x[k.x.length - 1], v = DATA.vix;
+  document.getElementById('vkscore').textContent = k.last.toFixed(2);
+  const vi = v ? v.x.filter(d => d <= last).length - 1 : -1;  // 같은 날(또는 그 전) 미국 VIX
+  if (vi >= 0) document.getElementById('vkrating').textContent = `같은 날 미국 VIX ${v.y[vi].toFixed(2)}의 ${(k.last / v.y[vi]).toFixed(1)}배`;
+  document.getElementById('vkprev').innerHTML = `${k.last_date} 한국 장 마감 기준<br>전일 ${k.prev.toFixed(2)} · 기록 중 최고 ${k.max_1y.value.toFixed(2)} (${k.max_1y.date.slice(2).replace(/-/g, '.')})`;
+  const xs = xStartFor(last, k.x[0]);
+  const traces = [{x: k.x, y: k.y, type: 'scatter', mode: k.x.length < 40 ? 'lines+markers' : 'lines', name: 'VKOSPI', line: {color: css('--cds'), width: 2.2}, marker: {size: 4}, hovertemplate: '%{y:.2f}'}];
+  if (v) traces.push({x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: '미국 VIX', line: {color: css('--muted'), width: 1.4}, hovertemplate: '%{y:.2f}'});
+  const vis = k.y.filter((_, i) => k.x[i] >= xs).concat(v ? v.y.filter((_, i) => v.x[i] >= xs) : []);
+  Plotly.react('vkplot', traces, Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({range: padRange(vis)}),
+  }), CFG);
+  document.getElementById('vknote').innerHTML = `빨간 선 = VKOSPI, 회색 선 = 미국 VIX. 자료: <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a> (최근 약 20거래일만 공개돼서 ${k.since}부터 매일 쌓는 중)`;
+}
+
 function renderMove() {
   const v = DATA.move;
   if (!v) return;
@@ -1359,13 +1389,13 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderMove(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
