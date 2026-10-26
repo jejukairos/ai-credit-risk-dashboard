@@ -771,9 +771,25 @@ def build_kofia():
     km = km[km["date"] >= "2023-11-01"]
     mg = (km.assign(m=km["date"].str[:7]).groupby("m")["forced"].mean() / 100).round(0)
     ks = k.set_index("date")
+    # 코스닥 신용융자 청산 신호: 하루 감소액(억원)이 기준 이상인 날, 그날과 5거래일 뒤 코스닥
+    cq = ks["credit_kosdaq"].dropna()
+    dq = (cq.diff() / 100).round(0)
+    qp = os.path.join(DATA, "kosdaq.csv")
+    q = pd.read_csv(qp, dtype={"date": str}).set_index("date")["kosdaq"] if os.path.exists(qp) else pd.Series(dtype=float)
+    liq = []
+    for d, v in dq[(dq <= -config.KOSDAQ_LIQ_EOK) & (dq.index >= one_y["date"].iloc[0])].items():
+        i = q.index.searchsorted(d)
+        p0 = float(q.iloc[i]) if i < len(q) else None
+        p5 = float(q.iloc[i + 5]) if i + 5 < len(q) else None
+        liq.append({"date": d, "drop": int(-v), "kosdaq": None if p0 is None else round(p0, 1),
+                    "after5": None if p5 is None else round((p5 / p0 - 1) * 100, 1)})
+    yr_q = cq[cq.index >= one_y["date"].iloc[0]]
     wk = lambda c: None if _level_at(ks[c].dropna(), 7) is None else round(_level_at(ks[c].dropna(), 7) / 1e6, 2)  # noqa: E731
     return {
         "monthly": {"x": list(mg.index), "y": [int(v) for v in mg.values]},
+        "liq": {"threshold": config.KOSDAQ_LIQ_EOK, "events": liq, "last_date": cq.index[-1], "last_chg": int(dq.iloc[-1]),
+                "balance": round(float(cq.iloc[-1]) / 1e6, 2), "min_1y": {"date": yr_q.idxmin(), "value": round(float(yr_q.min()) / 1e6, 2)},
+                "max_1y": {"date": yr_q.idxmax(), "value": round(float(yr_q.max()) / 1e6, 2)}},
         "w1_val": {c: wk(c) for c in ("deposit", "credit", "credit_kospi", "credit_kosdaq")},
         "kospi": kospi,
         "x": list(k["date"]),

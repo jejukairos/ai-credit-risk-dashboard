@@ -374,6 +374,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">위 = 코스피(유가증권), 아래 = 코스닥 시장에서 <b>빚내서 산 주식</b> 금액이에요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <div id="liqbox"></div>
   </div>
   <div class="card">
     <h3><span>월별 일평균 반대매매 (억원)</span></h3>
@@ -838,6 +839,25 @@ function renderKofia() {
     shapes: [peakLine('y', L.forced_avg_1y)],
     bargap: 0.1,
   }), CFG);
+}
+
+function renderLiq() {
+  const K = DATA.kofia, L = K && K.liq;
+  if (!L) return;
+  const md = s => s.slice(2).replace(/-/g, '.'), eok = v => fmtNum(v) + '억';
+  const now = -L.last_chg >= L.threshold;
+  const last = L.events[L.events.length - 1];
+  document.getElementById('liqbox').innerHTML = `<div class="memo">
+    <b>🔔 코스닥 신용융자 청산 신호</b> <span class="small">(하루에 ${eok(L.threshold)} 넘게 줄면 표시)</span>
+    <div class="fgchips" style="margin:6px 0">${now ? `<span class="chip hot">${md(L.last_date)} 청산 신호! 하루 ${eok(-L.last_chg)} 감소</span>`
+      : `<span class="chip">${md(L.last_date)} 기준 신호 없음 (하루 ${L.last_chg > 0 ? '+' : ''}${eok(L.last_chg)})</span>`}${last ? `<span class="chip">최근 신호 ${md(last.date)}</span>` : ''}</div>
+    <div>· <b>무슨 뜻?</b> 빚내서 산 주식이 하루에 크게 줄었다는 건 <b>억지로 팔렸거나 급히 갚았다</b>는 뜻이에요. 팔 사람이 거의 다 팔고 나면, 그 뒤에 <b>반등</b>이 자주 나왔어요.</div>
+    <div class="tablebox" style="border:0;margin:6px 0"><table><thead><tr><th>신호 날짜</th><th>하루 감소</th><th>그날 코스닥</th><th>5거래일 뒤</th></tr></thead><tbody>${L.events.slice().reverse().map(e =>
+      `<tr><td>${md(e.date)}</td><td>${eok(e.drop)}</td><td>${e.kosdaq == null ? '–' : fmtNum(e.kosdaq, 1)}</td><td>${e.after5 == null ? '<span class="small">아직</span>' : fmtPct(e.after5)}</td></tr>`).join('') || '<tr><td colspan="4" class="small">최근 1년 신호 없음</td></tr>'}</tbody></table></div>
+    <div>· <b>지금 다른 점</b>: 반등하려면 사 줄 돈이 필요한데, 대기 현금(고객예탁금)이 <b>${fmtNum(K.last.deposit, 1)}조</b>로 1년 최고(${md(K.last.deposit_peak.date)} ${fmtNum(K.last.deposit_peak.value, 1)}조)보다 ${Math.abs(K.last.deposit_peak.chg)}% 줄었어요. 신호가 나와도 예전만큼 세게 튀지 않을 수 있어요.</div>
+    <div>· <b>좋은 점</b>: 코스닥 신용융자 잔고가 ${fmtNum(L.balance, 2)}조로 1년 최저(${md(L.min_1y.date)} ${fmtNum(L.min_1y.value, 2)}조)에 가까워요. 억지로 팔릴 물량 자체가 많이 줄었다는 뜻이에요.</div>
+    <div class="small" style="color:var(--muted);margin-top:4px">신호만으로 바닥이라고 단정할 수는 없어요. 생각의 출처: SK증권 리포트 요약(사용자 제공) · 숫자: 금융투자협회 FreeSIS, 코스닥 — Yahoo Finance</div>
+  </div>`;
 }
 
 function renderNps() {
@@ -1455,7 +1475,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
