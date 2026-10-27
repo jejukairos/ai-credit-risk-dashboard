@@ -426,6 +426,33 @@ def fetch_kospi_long():
         .to_csv(os.path.join(DATA, "kospi_long.csv"), index=False)
 
 
+TV_URL = "https://finance.daum.net/api/market_index/days"
+
+
+def fetch_trading_value():
+    # 코스피·코스닥 일별 거래대금(백만원) — 다음 금융 지수 일별 시세. 처음엔 2020년부터 받고, 이후엔 최근 100일만 받아 합침
+    path = os.path.join(DATA, "trading_value.csv")
+    old = pd.read_csv(path, dtype={"date": str}).set_index("date") if os.path.exists(path) else None
+    h = {**BROWSER_UA, "Referer": "https://finance.daum.net/domestic/kospi"}
+    cols = {}
+    for mk in ("KOSPI", "KOSDAQ"):
+        got = {}
+        for page in range(1, 2 if old is not None else 30):
+            rows = requests.get(TV_URL, headers=h, timeout=30,
+                                params={"page": page, "perPage": 100, "market": mk, "pagination": "true"}).json()["data"]
+            got.update({r["date"][:10]: float(r["accTradePrice"]) for r in rows})
+            if not rows or rows[-1]["date"] < "2020-01-01":
+                break
+        if len(got) < 20:
+            raise RuntimeError(f"{mk} 거래대금을 못 읽음")
+        cols[mk.lower()] = pd.Series(got)
+    new = pd.DataFrame(cols).rename_axis("date")
+    new = new[new.index >= "2020-01-01"]
+    if old is not None:
+        new = new.combine_first(old)
+    new.sort_index().to_csv(path)
+
+
 def fetch_move():
     import yfinance as yf
     v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
@@ -1081,6 +1108,21 @@ def build_mdd():
             "deeper_pct": round(float((dd < now).mean() * 100), 1), "since": dd.index[0]}
 
 
+def build_tv():
+    path = os.path.join(DATA, "trading_value.csv")
+    if not os.path.exists(path):
+        return None
+    t = pd.read_csv(path, dtype={"date": str}).set_index("date").sort_index() / 1e6  # 백만원 → 조원
+    a = t.rolling(20).mean()
+    yr = a[pd.to_datetime(a.index) >= pd.Timestamp(a.index[-1]) - pd.Timedelta(days=365)]
+    out = {"x": list(t.index), "last_date": t.index[-1], "url": "https://finance.daum.net/domestic/kospi"}
+    for c in ("kospi", "kosdaq"):
+        out[c] = [None if pd.isna(v) else round(float(v), 2) for v in t[c]]
+        out[c + "_avg"] = [None if pd.isna(v) else round(float(v), 2) for v in a[c]]
+        out[c + "_peak"] = {"date": yr[c].idxmax(), "value": round(float(yr[c].max()), 1)}
+    return out
+
+
 def build_move():
     path = os.path.join(DATA, "move.csv")
     if not os.path.exists(path):
@@ -1435,6 +1477,7 @@ def build():
     out["vix"] = build_vix()
     out["vkospi"] = build_vkospi()
     out["mdd"] = build_mdd()
+    out["tv"] = build_tv()
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
@@ -1460,7 +1503,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
