@@ -396,6 +396,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">위 = 코스피(유가증권), 아래 = 코스닥 시장에서 <b>빚내서 산 주식</b> 금액이에요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <div id="cleanbox"></div>
     <div id="liqbox"></div>
   </div>
   <div class="card">
@@ -908,6 +909,28 @@ function renderKofia() {
     shapes: [peakLine('y', L.forced_avg_1y)],
     bargap: 0.1,
   }), CFG);
+}
+
+// 코스피 빚(신용융자) 정리 진행도 = 신용 1년 고점 대비 감소율 ÷ 코스피 고점 대비 하락률 (생각의 출처: 사용자 제공 방송 요약 2026-10-28)
+function renderClean() {
+  const K = DATA.kofia, M = DATA.mdd;
+  if (!K || !K.credit_kospi || !M) return;
+  const md = s => s.slice(2).replace(/-/g, '.'), x = K.x, c = K.credit_kospi;
+  let li = c.length - 1; while (li > 0 && c[li] == null) li--;
+  const y1 = new Date(new Date(x[li]) - 365 * 864e5).toISOString().slice(0, 10);
+  let pi = -1; for (let i = 0; i <= li; i++) if (x[i] >= y1 && c[i] != null && (pi < 0 || c[i] > c[pi])) pi = i;
+  let lo = -1; for (let i = pi + 1; i < li; i++) if (c[i] != null && (lo < 0 || c[i] < c[lo])) lo = i;  // 고점 뒤 직전 저점(오늘 제외)
+  const cd = (c[li] / c[pi] - 1) * 100, idd = M.last, ratio = Math.round(cd / idd * 100);
+  const gap = lo >= 0 ? c[li] - c[lo] : null;
+  document.getElementById('cleanbox').innerHTML = `<div class="memo">
+    <b>🧹 코스피 빚 정리, 얼마나 됐나?</b> <span class="small">(매일 자동)</span>
+    <div class="fgchips" style="margin:6px 0"><span class="chip">빚 정리 ${ratio}% 진행</span>${gap != null ? `<span class="chip">직전 저점까지 ${gap > 0 ? fmtNum(gap, 2) + '조 남음' : '저점 아래로 내려감'}</span>` : ''}</div>
+    <div>· 코스피 신용융자: 1년 고점 ${fmtNum(c[pi], 2)}조(${md(x[pi])}) → 지금 ${fmtNum(c[li], 2)}조(${md(x[li])}) = <b>${fmtPct(cd)}</b></div>
+    <div>· 코스피 지수: 최고점(${md(M.peak_date)}) 대비 <b>${fmtPct(idd)}</b> → 지수가 빠진 만큼의 <b>${ratio}%</b>만 빚이 줄었어요. 과거엔 지수가 빠진 만큼 빚도 비슷하게 줄어든 경우가 많았대요. 그래서 아직 정리가 덜 됐다고 보는 시각이 있어요.</div>
+    ${lo >= 0 ? `<div>· 직전 저점: ${fmtNum(c[lo], 2)}조(${md(x[lo])}). 여기까지 내려가면 단기 바닥일 가능성이 높다고 보는 의견이 있어요.</div>` : ''}
+    <div>· <b>타이밍 주의</b>: 신용 바닥은 지수 바닥보다 <b>늦게</b>와요(평균 3~19거래일). 신용 바닥이 확인됐을 땐 지수가 이미 5~18% 오른 뒤였대요. 실제로 26년 여름에도 지수 바닥 7/30 → 신용 바닥 8/4(3거래일 뒤). 그때 코스피는 이미 +13.7%였어요.</div>
+    <div class="small" style="color:var(--muted);margin-top:4px">'빚 정리 %' = 신용 1년 고점 대비 감소율 ÷ 코스피 최고점 대비 하락률. 생각의 출처: 사용자 제공 방송 요약(2026-10-28) · 숫자: 금융투자협회 FreeSIS, 네이버 금융</div>
+  </div>`;
 }
 
 function renderLiq() {
@@ -1614,7 +1637,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
