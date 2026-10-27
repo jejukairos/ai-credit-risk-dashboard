@@ -142,7 +142,7 @@ footer a{color:var(--ink2)}
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -389,6 +389,18 @@ footer a{color:var(--ink2)}
     자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> (2015년부터 매일)</p>
   </div>
 
+  <h2 id="sec-mdd">코스피 MDD — 최고점에서 얼마나 빠졌나?</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>MDD</b> 그날까지 <b>가장 높았던 코스피</b>에서 지금 몇 % 내려와 있는지예요. 0이면 최고점, −40이면 최고점보다 40% 싸진 거예요.</div>
+      <div><b>구간</b> 0~−10% 보통 흔들림 · −10~−20% 조정 · −20~−40% 약세장 · −40% 아래 <b>역사적 폭락 구간</b>(1990년 이후 몇 번 없었어요).</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="mddscore">–</div><div><div class="fgrating" id="mddzone"></div><div class="small" id="mddprev"></div></div></div>
+    <div id="mddplot" class="plot" style="height:260px"></div>
+    <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
+  </div>
+
   <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
   <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다.</p>
   <div class="memo" style="margin:0 0 10px">
@@ -446,7 +458,7 @@ footer a{color:var(--ink2)}
     GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a> ·
     D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
     VIX — Yahoo Finance(CBOE) · 하이일드 스프레드 — FRED(ICE BofA US High Yield OAS) ·
-    미수금·반대매매 — 금융투자협회 · 국민연금 — <a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a> ·
+    미수금·반대매매 — 금융투자협회 · 코스피 MDD — <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> ·국민연금 — <a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a> ·
     판독기 — AAII · CBOE · FINRA · FactSet · 위키백과(S&amp;P500 종목 목록) · Yahoo Finance.
     투자 권유가 아닌 참고용 정보입니다. 신용등급은 S&amp;P 기준 참고용(2026-10)이며, 스프레드는 그 회사 채권이 아니라 같은 등급 회사들의 평균입니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
@@ -553,7 +565,7 @@ const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
 const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'us','sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
-                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
+                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
 function setupTabs() {
   let cur = null;
   for (const el of document.querySelector('.wrap').children) {
@@ -858,6 +870,36 @@ function renderLiq() {
     <div>· <b>좋은 점</b>: 코스닥 신용융자 잔고가 ${fmtNum(L.balance, 2)}조로 1년 최저(${md(L.min_1y.date)} ${fmtNum(L.min_1y.value, 2)}조)에 가까워요. 억지로 팔릴 물량 자체가 많이 줄었다는 뜻이에요.</div>
     <div class="small" style="color:var(--muted);margin-top:4px">신호만으로 바닥이라고 단정할 수는 없어요. 생각의 출처: SK증권 리포트 요약(사용자 제공) · 숫자: 금융투자협회 FreeSIS, 코스닥 — Yahoo Finance</div>
   </div>`;
+}
+
+function renderMdd() {
+  const m = DATA.mdd;
+  if (!m) return;
+  const md = s => s.slice(2).replace(/-/g, '.'), ym = s => s.slice(2, 7).replace('-', '.');
+  const yrs = (a, b) => ((new Date(b) - new Date(a)) / 3.156e10).toFixed(1) + '년';
+  document.getElementById('mddscore').textContent = m.last.toFixed(1) + '%';
+  const z = document.getElementById('mddzone');
+  z.textContent = m.zone; z.style.color = m.last <= -20 ? css('--bad') : m.last <= -10 ? css('--spread') : css('--ink2');
+  document.getElementById('mddprev').innerHTML = `${m.last_date} 코스피 ${fmtNum(m.close, 0)}<br>최고점 ${fmtNum(m.peak, 0)} (${md(m.peak_date)}) · 이번 하락기 바닥 ${m.cur_low.mdd.toFixed(1)}% (${md(m.cur_low.date)})`;
+  const marks = m.big.map(b => ({x: b.date, y: b.mdd})).concat(m.cur_low.mdd <= -10 ? [{x: m.cur_low.date, y: m.cur_low.mdd, right: true}] : []);
+  Plotly.react('mddplot', [{x: m.x, y: m.y, type: 'scatter', mode: 'lines', name: 'MDD', fill: 'tozeroy',
+      line: {color: css('--ink'), width: 1.2}, fillcolor: 'rgba(128,128,128,0.15)', hovertemplate: '%{y:.1f}%'}],
+    Object.assign(baseLayout(), {
+      showlegend: false,
+      xaxis: axis({type: 'date', range: [m.since, m.last_date], tickformat: "'%y", dtick: 'M48'}),
+      yaxis: axis({range: [-82, 3], dtick: 10, ticksuffix: '%'}),
+      shapes: m.zones.slice(0, -1).map(([lim]) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, y0: -lim, y1: -lim,
+        line: {color: lim >= 40 ? css('--bad') : css('--g4'), width: 1, dash: 'dot'}})),
+      annotations: marks.map(p => ({x: p.x, y: p.y, text: `(${Math.abs(p.y).toFixed(1)})`, showarrow: false, yanchor: 'top', yshift: -2, xanchor: p.right ? 'right' : 'center',
+        font: {size: 10, color: css('--bad')}})),
+    }), CFG);
+  document.querySelector('#mddtable tbody').innerHTML =
+    `<tr><td style="text-align:left">${ym(m.cur_low.date)}<br><span class="small">지금 하락기</span></td><td>${fmtNum(m.peak, 0)}<br>→${fmtNum(m.cur_low.low, 0)}</td><td style="color:var(--bad)">${m.cur_low.mdd.toFixed(1)}%</td><td>아직</td></tr>` +
+    m.big.slice().reverse().map(b =>
+    `<tr><td style="text-align:left">${ym(b.date)}<br><span class="small">${b.name || ''}</span></td><td>${fmtNum(b.peak, 0)}<br>→${fmtNum(b.low, 0)}</td>` +
+    `<td style="color:var(--bad)">${b.mdd.toFixed(1)}%</td><td>${b.recovered ? yrs(b.peak_date, b.recovered) + '<br><span class="small">' + ym(b.recovered) + '</span>' : '아직'}</td></tr>`).join('');
+  document.getElementById('mddnote').innerHTML = `빨간 숫자 = 하락기마다 가장 깊었던 바닥(%). 점선 = −10·−20·−40%. ${m.since.slice(0, 4)}년 이후 날짜 중 지금보다 더 깊이 빠져 있던 날은 <b>${m.deeper_pct}%</b>예요. ` +
+    `'최고점 회복' = 직전 최고점에서 다시 그 높이로 돌아오기까지 걸린 시간. 매일 갱신(그래프는 주 단위). 자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융 코스피</a>`;
 }
 
 function renderNps() {
@@ -1475,7 +1517,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

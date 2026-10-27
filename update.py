@@ -413,6 +413,19 @@ def fetch_vkospi():
     pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
 
 
+def fetch_kospi_long():
+    # 코스피 1990년~ 일별 종가 (네이버 금융 차트 데이터, 야후는 1996년 12월부터라 MDD 계산엔 부족)
+    r = requests.get("https://api.finance.naver.com/siseJson.naver", headers=BROWSER_UA, timeout=60,
+                     params={"symbol": "KOSPI", "requestType": 1, "startTime": "19900101",
+                             "endTime": datetime.now().strftime("%Y%m%d"), "timeframe": "day"})
+    # 행 모양: ["19900104", 시가, 고가, 저가, 종가, ...]
+    rows = re.findall(r'\["(\d{8})",\s*[\d.]+,\s*[\d.]+,\s*[\d.]+,\s*([\d.]+)', r.text)
+    if len(rows) < 8000 or rows[0][0] > "19900110":
+        raise RuntimeError(f"네이버 코스피 장기 데이터가 이상함 ({len(rows)}행)")
+    pd.DataFrame([{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "kospi": float(v)} for d, v in rows]) \
+        .to_csv(os.path.join(DATA, "kospi_long.csv"), index=False)
+
+
 def fetch_move():
     import yfinance as yf
     v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
@@ -1023,6 +1036,39 @@ def build_vkospi():
             "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 2)}, "since": s.index[0], "url": VKOSPI_URL}
 
 
+def build_mdd():
+    path = os.path.join(DATA, "kospi_long.csv")
+    if not os.path.exists(path):
+        return None
+    s = pd.read_csv(path, dtype={"date": str}).set_index("date")["kospi"]
+    peak = s.cummax()
+    dd = (s / peak - 1) * 100
+    # 화면용은 주 단위(그 주에서 가장 깊이 빠진 날)로 줄임 — 바닥값은 그대로 남음
+    di = pd.Series(dd.values, index=pd.to_datetime(dd.index))
+    wk = di.resample("W-FRI").min().dropna()
+    x = [d.strftime("%Y-%m-%d") for d in wk.index[:-1]] + [dd.index[-1]]
+    # 하락기 = 최고점을 새로 찍은 날부터 다음 최고점 전까지. 그 안의 가장 깊은 바닥이 '큰 폭락'이면 기록
+    grp = (s >= peak).cumsum()
+    big = []
+    for g, part in dd.groupby(grp):
+        if part.min() <= -config.KOSPI_MDD_BIG and g < grp.iloc[-1]:  # 지금 진행 중인 하락기는 cur_low로 따로
+            b = part.idxmin()
+            nxt = grp[grp == g + 1]
+            big.append({"date": b, "mdd": round(float(part.min()), 1), "peak_date": part.index[0],
+                        "peak": float(s[part.index[0]]), "low": float(s[b]),
+                        "name": config.KOSPI_MDD_NAMES.get(b[:4], ""),
+                        "recovered": nxt.index[0] if len(nxt) else None})
+    now = float(dd.iloc[-1])
+    cur = dd[grp == grp.iloc[-1]]
+    zone = next(n for lim, n in config.KOSPI_MDD_ZONES if -now < lim)
+    return {"x": x, "y": [round(float(v), 1) for v in wk.values[:-1]] + [round(now, 1)],
+            "last": round(now, 1), "last_date": dd.index[-1], "close": float(s.iloc[-1]),
+            "peak": float(peak.iloc[-1]), "peak_date": s[s == peak.iloc[-1]].index[0],
+            "cur_low": {"date": cur.idxmin(), "mdd": round(float(cur.min()), 1), "low": float(s[cur.idxmin()])},
+            "zone": zone, "zones": config.KOSPI_MDD_ZONES, "big": big, "big_cut": config.KOSPI_MDD_BIG,
+            "deeper_pct": round(float((dd < now).mean() * 100), 1), "since": dd.index[0]}
+
+
 def build_move():
     path = os.path.join(DATA, "move.csv")
     if not os.path.exists(path):
@@ -1376,6 +1422,7 @@ def build():
     out["arr"] = build_arr()
     out["vix"] = build_vix()
     out["vkospi"] = build_vkospi()
+    out["mdd"] = build_mdd()
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
@@ -1401,7 +1448,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
