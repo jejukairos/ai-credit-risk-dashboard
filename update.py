@@ -434,18 +434,22 @@ def fetch_trading_value():
     path = os.path.join(DATA, "trading_value.csv")
     old = pd.read_csv(path, dtype={"date": str}).set_index("date") if os.path.exists(path) else None
     h = {**BROWSER_UA, "Referer": "https://finance.daum.net/domestic/kospi"}
+    if old is not None and "kospi_idx" not in old.columns:
+        old = None  # 지수 열이 없던 옛 파일이면 처음부터 다시 받음
     cols = {}
     for mk in ("KOSPI", "KOSDAQ"):
-        got = {}
+        got, idx = {}, {}
         for page in range(1, 2 if old is not None else 30):
             rows = requests.get(TV_URL, headers=h, timeout=30,
                                 params={"page": page, "perPage": 100, "market": mk, "pagination": "true"}).json()["data"]
             got.update({r["date"][:10]: float(r["accTradePrice"]) for r in rows})
+            idx.update({r["date"][:10]: float(r["tradePrice"]) for r in rows})
             if not rows or rows[-1]["date"] < "2020-01-01":
                 break
         if len(got) < 20:
             raise RuntimeError(f"{mk} 거래대금을 못 읽음")
         cols[mk.lower()] = pd.Series(got)
+        cols[mk.lower() + "_idx"] = pd.Series(idx)
     new = pd.DataFrame(cols).rename_axis("date")
     new = new[new.index >= "2020-01-01"]
     if old is not None:
@@ -1112,14 +1116,19 @@ def build_tv():
     path = os.path.join(DATA, "trading_value.csv")
     if not os.path.exists(path):
         return None
-    t = pd.read_csv(path, dtype={"date": str}).set_index("date").sort_index() / 1e6  # 백만원 → 조원
-    a = t.rolling(20).mean()
+    t = pd.read_csv(path, dtype={"date": str}).set_index("date").sort_index()
+    a = t[["kospi", "kosdaq"]].rolling(5).mean() / 1e6  # 5거래일 평균, 백만원 → 조원
     yr = a[pd.to_datetime(a.index) >= pd.Timestamp(a.index[-1]) - pd.Timedelta(days=365)]
     out = {"x": list(t.index), "last_date": t.index[-1], "url": "https://finance.daum.net/domestic/kospi"}
+    r2 = lambda s: [None if pd.isna(v) else round(float(v), 2) for v in s]
     for c in ("kospi", "kosdaq"):
-        out[c] = [None if pd.isna(v) else round(float(v), 2) for v in t[c]]
-        out[c + "_avg"] = [None if pd.isna(v) else round(float(v), 2) for v in a[c]]
-        out[c + "_peak"] = {"date": yr[c].idxmax(), "value": round(float(yr[c].max()), 1)}
+        pk = yr[c].idxmax()
+        after = yr[c][pk:]  # 최근 1년 최고점 이후 가장 낮았던 5일 평균 = '거래대금 바닥'
+        low = after.idxmin()
+        out[c] = {"avg5": r2(a[c]), "idx": r2(t[c + "_idx"]), "last": round(float(a[c].iloc[-1]), 2),
+                  "peak": {"date": pk, "value": round(float(yr[c].max()), 2)},
+                  "low": {"date": low, "value": round(float(after.min()), 2)},
+                  "new_low": bool(low in a.index[-5:])}  # 바닥이 최근 5거래일 안에 생겼으면 '바닥을 새로 깨는 중'
     return out
 
 

@@ -368,12 +368,14 @@ footer a{color:var(--ink2)}
     이 차트는 위 기간 버튼과 상관없이 항상 2020년 1월부터 보여줘요. 점선 = 최근 1년 최고점. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: Yahoo Finance</p>
   </div>
   <div class="card">
-    <h3><span>거래대금 — 코스피 · 코스닥 (하루, 조원)</span></h3>
-    <div id="tvplot" class="plot" style="height:260px"></div>
-    <div class="small" id="tvnow" style="margin:2px 4px 4px"></div>
-    <p class="note" style="margin:4px">하루 동안 주식이 사고팔린 <b>금액</b>이에요. 늘면 시장에 돈이 <b>몰리는</b> 중(유동성 풍부), 줄면 돈이 <b>마르는</b> 중이에요.
-    파랑 = 코스피, 빨강 = 코스닥. 가는 선 = 하루 값, 굵은 선 = 최근 20거래일 평균(흐름 보기용). 위 기간 버튼으로 기간을 바꿀 수 있어요.
-    매일 갱신. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a> (2020년부터)</p>
+    <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
+    <p class="note" style="margin:4px 4px 6px">하루 동안 주식이 사고팔린 <b>금액</b>을 최근 5거래일로 평균 낸 거예요. 늘면 시장에 돈이 <b>몰리는</b> 중(유동성 풍부), 줄면 돈이 <b>마르는</b> 중이에요.
+    점선 = 최근 1년 최고점 이후 가장 낮았던 값(<b>거래대금 바닥</b>). 이 아래로 깨면 돈이 더 빠지는 중이고, 바닥을 높여 가면 돈이 다시 들어오는 중이에요.</p>
+    <div id="tvkospi" class="plot" style="height:300px"></div>
+    <div class="small" id="tvkospinow" style="margin:2px 4px 10px"></div>
+    <div id="tvkosdaq" class="plot" style="height:300px"></div>
+    <div class="small" id="tvkosdaqnow" style="margin:2px 4px 4px"></div>
+    <p class="note" style="margin:4px">위 기간 버튼으로 기간을 바꿀 수 있어요. 매일 갱신. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(한국거래소 숫자와 같음, 2020년부터)</p>
   </div>
   <div class="card">
     <h3><span>신용융자 잔고 — 코스피 · 코스닥 (조원)</span></h3>
@@ -831,19 +833,27 @@ function renderKofia() {
   if (tv) {
     const tl = tv.x[tv.x.length - 1], tx = xStartFor(tl, tv.x[0]);
     const tvR = arr => arr.filter((v, i) => v != null && tv.x[i] >= tx);
-    const ln = (y, name, color, width, dash) => ({x: tv.x, y, type: 'scatter', mode: 'lines', name, line: {color, width, dash}, hovertemplate: name + ' %{y:.1f}조<extra></extra>'});
-    Plotly.react('tvplot', [
-      ln(tv.kospi, '코스피', css('--g1'), 1, 'solid'), ln(tv.kospi_avg, '코스피 20일 평균', css('--g1'), 2.6, 'solid'),
-      ln(tv.kosdaq, '코스닥', css('--bad'), 1, 'solid'), ln(tv.kosdaq_avg, '코스닥 20일 평균', css('--bad'), 2.6, 'solid'),
-    ], Object.assign(baseLayout(), {
-      showlegend: false,
-      xaxis: axis({type: 'date', range: [tx, tl], tickformat: '%y.%m'}),
-      yaxis: axis({range: [0, Math.max(...tvR(tv.kospi), ...tvR(tv.kosdaq)) * 1.08]}),
-    }), CFG);
-    const nowA = c => tv[c + '_avg'][tv[c + '_avg'].length - 1], pk = tv.kospi_peak, qk = tv.kosdaq_peak;
-    const chg = (v, p) => fmtPct((v / p.value - 1) * 100);
-    document.getElementById('tvnow').innerHTML = `<b>지금 20일 평균</b> 코스피 ${fmtNum(nowA('kospi'), 1)}조 · 코스닥 ${fmtNum(nowA('kosdaq'), 1)}조 (${md(tv.last_date)})<br>` +
-      `1년 중 가장 많던 때보다 코스피 ${chg(nowA('kospi'), pk)} (${md(pk.date)} ${pk.value}조) · 코스닥 ${chg(nowA('kosdaq'), qk)} (${md(qk.date)} ${qk.value}조)`;
+    // 시장마다 위 = 거래대금 5일 평균, 아래 = 지수 (날짜축 공유). 점선 = 최근 1년 최고 이후 '거래대금 바닥'
+    [['kospi', '코스피', 'tvkospi', 'tvkospinow'], ['kosdaq', '코스닥', 'tvkosdaq', 'tvkosdaqnow']].forEach(([c, nm, id, nowId]) => {
+      const d = tv[c];
+      Plotly.react(id, [
+        {x: tv.x, y: d.avg5, type: 'scatter', mode: 'lines', name: '거래대금 5일 평균', line: {color: css('--bad'), width: 2}, hovertemplate: '5일 평균 %{y:.2f}조<extra></extra>'},
+        {x: tv.x, y: d.idx, type: 'scatter', mode: 'lines', name: nm, yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'},
+      ], Object.assign(baseLayout(), {
+        showlegend: false,
+        xaxis: axis({type: 'date', anchor: 'y2', range: [tx, tl], tickformat: '%y.%m'}),
+        yaxis: axis({domain: [0.5, 0.93], range: [0, Math.max(...tvR(d.avg5)) * 1.08]}),
+        yaxis2: axis({domain: [0, 0.38], range: padRange(tvR(d.idx), false)}),
+        shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: d.low.value, y1: d.low.value, line: {color: css('--ink2'), width: 1.2, dash: 'dot'}}],
+        annotations: [panelLbl(0.94, `${nm} 거래대금 5일 평균 (조원)`), panelLbl(0.39, `${nm} 지수`),
+          {xref: 'paper', yref: 'y', x: 1, y: d.low.value, xanchor: 'right', yanchor: 'top', showarrow: false,
+           text: `바닥 ${d.low.value.toFixed(2)}조 (${md(d.low.date)})`, font: {size: 10, color: css('--ink2')}}],
+      }), CFG);
+      const vs = (d.last / d.low.value - 1) * 100;
+      document.getElementById(nowId).innerHTML = `<b>지금 ${d.last.toFixed(2)}조</b> (${md(tl)}) · ` +
+        (d.new_low ? `<b style="color:var(--bad)">바닥을 새로 깨는 중</b> — 돈이 계속 빠지고 있어요` : `바닥보다 ${fmtPct(vs)} 위`) +
+        ` · 1년 최고(${md(d.peak.date)} ${d.peak.value.toFixed(1)}조)의 ${Math.round(d.last / d.peak.value * 100)}% 수준`;
+    });
   }
   if (k.credit_kospi) {
     const y1 = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);  // 최근 1년 최고점
