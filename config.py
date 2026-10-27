@@ -118,7 +118,8 @@ KOSPI_MDD_NAMES = {"1992": "1989년 거품 붕괴 후 침체", "1998": "IMF 외�
 #   "insider"  = 종목 카드의 내부자 매수·매도
 #   "arr"      = AI 회사 매출(ARR) — Anthropic·OpenAI
 #   "opinions" = 메모리 전망 의견 트래커
-HIDDEN_SECTIONS = ["insider", "arr", "opinions"]
+#   "phase"    = 차트 판독기 탭의 시장 4국면(금융·실적·역금융·역실적장세) 카드
+HIDDEN_SECTIONS = ["insider", "arr", "opinions", "phase"]
 
 # CDS → 5년 내 부도확률 계산에 쓰는 회수율(부도 나도 돌려받는 비율). 업계 관행 40%
 CDS_RECOVERY = 0.40

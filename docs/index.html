@@ -614,6 +614,7 @@ function applyHidden() {
     while (el && el.tagName !== 'H2') { el.style.display = 'none'; el = el.nextElementSibling; } };
   if (isHidden('arr')) { hideFrom('sec-ai'); document.querySelectorAll('a[href="#sec-ai"]').forEach(a => a.style.display = 'none'); }
   if (isHidden('opinions')) { const c = document.getElementById('opcard'); if (c) c.style.display = 'none'; }
+  if (isHidden('phase')) document.getElementById('phase-card').style.display = 'none';
 }
 
 function insiderHtml(t) {
@@ -1613,7 +1614,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
