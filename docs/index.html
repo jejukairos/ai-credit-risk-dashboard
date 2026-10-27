@@ -142,7 +142,7 @@ footer a{color:var(--ink2)}
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -235,6 +235,17 @@ footer a{color:var(--ink2)}
     <div id="hylong" class="plot" style="height:260px"></div>
     <div class="tablebox" style="border:0"><table id="hyevents"><thead><tr><th style="text-align:left">사건</th><th>Baa<br>최고</th><th>하이일드<br>최고</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
+  </div>
+
+  <h2 id="sec-wti">WTI 유가 (미국 원유 가격)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>WTI</b> 미국에서 거래되는 <b>원유 1배럴(약 159리터) 가격</b>(달러)이에요. 세계 기름값의 기준이에요.</div>
+      <div><b>왜 봐요?</b> 기름값이 오르면 물가가 오르고 → 금리를 내리기 어려워지고 → 빚 많은 회사들의 이자 부담이 커져요. 그래서 CDS·하이일드와 함께 보면 좋아요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="wtiscore">–</div><div><div class="fgrating" id="wtirating"></div><div class="small" id="wtiprev"></div></div></div>
+    <div id="wtiplot" class="plot" style="height:240px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(WTI 원유 근월물 선물, CL=F), 매일 갱신. 2020년 4월엔 코로나로 기름이 남아돌아 하루 동안 마이너스(−37.63달러)가 된 적도 있어요. 위 기간 버튼으로 길게(전체) 볼 수 있어요.</p>
   </div>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
@@ -371,8 +382,10 @@ footer a{color:var(--ink2)}
     <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
     <p class="note" style="margin:4px 4px 6px">하루 동안 주식이 사고팔린 <b>금액</b>을 최근 5거래일로 평균 낸 거예요. 늘면 시장에 돈이 <b>몰리는</b> 중(유동성 풍부), 줄면 돈이 <b>마르는</b> 중이에요.
     점선 = 최근 1년 최고점 이후 가장 낮았던 값(<b>거래대금 바닥</b>). 이 아래로 깨면 돈이 더 빠지는 중이고, 바닥을 높여 가면 돈이 다시 들어오는 중이에요.</p>
+    <div class="nowline" id="tvkospiday"></div>
     <div id="tvkospi" class="plot" style="height:300px"></div>
     <div class="small" id="tvkospinow" style="margin:2px 4px 10px"></div>
+    <div class="nowline" id="tvkosdaqday"></div>
     <div id="tvkosdaq" class="plot" style="height:300px"></div>
     <div class="small" id="tvkosdaqnow" style="margin:2px 4px 4px"></div>
     <p class="note" style="margin:4px">위 기간 버튼으로 기간을 바꿀 수 있어요. 매일 갱신. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(한국거래소 숫자와 같음, 2020년부터)</p>
@@ -574,7 +587,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
 function setupTabs() {
   let cur = null;
@@ -849,6 +862,12 @@ function renderKofia() {
           {xref: 'paper', yref: 'y', x: 1, y: d.low.value, xanchor: 'right', yanchor: 'top', showarrow: false,
            text: `바닥 ${d.low.value.toFixed(2)}조 (${md(d.low.date)})`, font: {size: 10, color: css('--ink2')}}],
       }), CFG);
+      const dchg = (d.day / d.day_prev - 1) * 100;
+      document.getElementById(id + 'day').innerHTML =
+        `<span><i style="color:${css('--bad')}">●</i>오늘 거래대금 <b>${d.day.toFixed(2)}조</b> <span class="small">(전일 ${d.day_prev.toFixed(2)}조, ${fmtPct(dchg)})</span></span>` +
+        `<span><i style="color:${css('--bad')}">●</i>5일 평균 <b>${d.last.toFixed(2)}조</b></span>` +
+        `<span><i style="color:${css('--price')}">●</i>${nm} <b>${fmtNum(d.idx[d.idx.length - 1], 2)}</b> <span class="small">(${fmtPct(d.idx_chg)})</span></span>` +
+        `<span class="nowdt">${md(tl)} 기준</span>`;
       const vs = (d.last / d.low.value - 1) * 100;
       document.getElementById(nowId).innerHTML = `<b>지금 ${d.last.toFixed(2)}조</b> (${md(tl)}) · ` +
         (d.new_low ? `<b style="color:var(--bad)">바닥을 새로 깨는 중</b> — 돈이 계속 빠지고 있어요` : `바닥보다 ${fmtPct(vs)} 위`) +
@@ -1147,6 +1166,23 @@ function renderMove() {
       annotations: [{xref: 'paper', x: 0.99, y: v.median_all, yanchor: 'bottom', xanchor: 'right', showarrow: false, text: `${v.since.slice(0, 4)}년 이후 중앙값 ${v.median_all}`, font: {size: 10, color: css('--ink2')}}],
     }), CFG);
   document.getElementById('movereal').innerHTML = `<b>실제 기록</b> ${v.since.slice(0, 4)}년 이후 날짜들 중 지금보다 낮았던 날이 <b>${v.pct_rank}%</b>예요(점선 = 그 기간 중앙값 ${v.median_all}). 숫자가 높을수록 채권 시장이 불안하다는 뜻이에요.`;
+}
+
+function renderWti() {
+  const w = DATA.wti;
+  if (!w) return;
+  const last = w.x[w.x.length - 1], md = s => s.slice(2).replace(/-/g, '.');
+  document.getElementById('wtiscore').textContent = '$' + w.last.toFixed(2);
+  const rt = document.getElementById('wtirating');
+  if (w.m1 != null) { rt.innerHTML = `한 달 전보다 ${fmtPct(w.m1)}`; rt.style.color = w.m1 > 0 ? css('--bad') : css('--ink2'); }
+  document.getElementById('wtiprev').innerHTML = `${w.last_date} 기준 · 전일 $${w.prev.toFixed(2)}<br>최근 1년 최고 $${w.max_1y.value.toFixed(2)} (${md(w.max_1y.date)}) · 최저 $${w.min_1y.value.toFixed(2)} (${md(w.min_1y.date)})`;
+  const xs = xStartFor(last, w.x[0]);
+  Plotly.react('wtiplot', [{x: w.x, y: w.y, type: 'scatter', mode: 'lines', name: 'WTI', line: {color: css('--price'), width: 2}, hovertemplate: '$%{y:.2f}<extra></extra>'}],
+    Object.assign(baseLayout(), {
+      showlegend: false,
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
+      yaxis: axis({range: padRange(w.y.filter((_, i) => w.x[i] >= xs), false), tickprefix: '$'}),
+    }), CFG);
 }
 
 function renderHy() {
@@ -1577,13 +1613,13 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 

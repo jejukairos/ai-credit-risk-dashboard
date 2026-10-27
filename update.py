@@ -457,6 +457,15 @@ def fetch_trading_value():
     new.sort_index().to_csv(path)
 
 
+def fetch_wti():
+    import yfinance as yf
+    v = yf.download("CL=F", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    if v.empty:
+        raise RuntimeError("WTI 데이터가 비어 있음")
+    v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
+    v.rename("wti").rename_axis("date").round(2).to_csv(os.path.join(DATA, "wti.csv"))
+
+
 def fetch_move():
     import yfinance as yf
     v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
@@ -1126,10 +1135,27 @@ def build_tv():
         after = yr[c][pk:]  # 최근 1년 최고점 이후 가장 낮았던 5일 평균 = '거래대금 바닥'
         low = after.idxmin()
         out[c] = {"avg5": r2(a[c]), "idx": r2(t[c + "_idx"]), "last": round(float(a[c].iloc[-1]), 2),
+                  "day": round(float(t[c].iloc[-1]) / 1e6, 2), "day_prev": round(float(t[c].iloc[-2]) / 1e6, 2),
+                  "idx_chg": round(float(t[c + "_idx"].iloc[-1] / t[c + "_idx"].iloc[-2] - 1) * 100, 2),
                   "peak": {"date": pk, "value": round(float(yr[c].max()), 2)},
                   "low": {"date": low, "value": round(float(after.min()), 2)},
                   "new_low": bool(low in a.index[-5:])}  # 바닥이 최근 5거래일 안에 생겼으면 '바닥을 새로 깨는 중'
     return out
+
+
+def build_wti():
+    path = os.path.join(DATA, "wti.csv")
+    if not os.path.exists(path):
+        return None
+    s = pd.read_csv(path, dtype={"date": str}).sort_values("date").set_index("date")["wti"]
+    di = pd.to_datetime(s.index)
+    yr = s[di >= di[-1] - pd.Timedelta(days=365)]
+    m1 = s[di <= di[-1] - pd.Timedelta(days=30)]
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],
+            "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
+            "m1": round(float(s.iloc[-1] / m1.iloc[-1] - 1) * 100, 1) if len(m1) else None,
+            "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 2)},
+            "min_1y": {"date": yr.idxmin(), "value": round(float(yr.min()), 2)}}
 
 
 def build_move():
@@ -1487,6 +1513,7 @@ def build():
     out["vkospi"] = build_vkospi()
     out["mdd"] = build_mdd()
     out["tv"] = build_tv()
+    out["wti"] = build_wti()
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
@@ -1512,7 +1539,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
