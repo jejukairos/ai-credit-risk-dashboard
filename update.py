@@ -1049,8 +1049,20 @@ def build_mdd():
     x = [d.strftime("%Y-%m-%d") for d in wk.index[:-1]] + [dd.index[-1]]
     # 하락기 = 최고점을 새로 찍은 날부터 다음 최고점 전까지. 그 안의 가장 깊은 바닥이 '큰 폭락'이면 기록
     grp = (s >= peak).cumsum()
-    big = []
+    big, recent = [], []
+    di_s = pd.Series(s.values, index=pd.to_datetime(s.index))
+    since20 = (pd.Timestamp(s.index[-1]) - pd.DateOffset(years=20)).strftime("%Y-%m-%d")
+
+    def after(b, months):  # 바닥 날짜에서 n달 뒤(그날 또는 다음 거래일) 종가까지 변화율(%)
+        later = di_s[pd.Timestamp(b) + pd.DateOffset(months=months):]
+        return round(float(later.iloc[0] / s[b] - 1) * 100, 1) if len(later) else None
     for g, part in dd.groupby(grp):
+        if part.min() <= -10 and part.index[0] >= since20:  # 최근 20년, 10% 넘게 빠진 하락기
+            b = part.idxmin()
+            nxt = grp[grp == g + 1]
+            recent.append({"peak_date": part.index[0], "peak": float(s[part.index[0]]), "date": b, "low": float(s[b]),
+                           "mdd": round(float(part.min()), 1), "recovered": nxt.index[0] if len(nxt) else None,
+                           "after": {k: after(b, n) for k, n in (("1m", 1), ("3m", 3), ("6m", 6), ("1y", 12))}})
         if part.min() <= -config.KOSPI_MDD_BIG and g < grp.iloc[-1]:  # 지금 진행 중인 하락기는 cur_low로 따로
             b = part.idxmin()
             nxt = grp[grp == g + 1]
@@ -1065,7 +1077,7 @@ def build_mdd():
             "last": round(now, 1), "last_date": dd.index[-1], "close": float(s.iloc[-1]),
             "peak": float(peak.iloc[-1]), "peak_date": s[s == peak.iloc[-1]].index[0],
             "cur_low": {"date": cur.idxmin(), "mdd": round(float(cur.min()), 1), "low": float(s[cur.idxmin()])},
-            "zone": zone, "zones": config.KOSPI_MDD_ZONES, "big": big, "big_cut": config.KOSPI_MDD_BIG,
+            "zone": zone, "zones": config.KOSPI_MDD_ZONES, "big": big, "recent": recent, "big_cut": config.KOSPI_MDD_BIG,
             "deeper_pct": round(float((dd < now).mean() * 100), 1), "since": dd.index[0]}
 
 

@@ -398,6 +398,7 @@ footer a{color:var(--ink2)}
     <div class="fgtop"><div class="fgscore" id="mddscore">–</div><div><div class="fgrating" id="mddzone"></div><div class="small" id="mddprev"></div></div></div>
     <div id="mddplot" class="plot" style="height:260px"></div>
     <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div>
+    <div id="mddwhy"></div>
     <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
   </div>
 
@@ -872,6 +873,18 @@ function renderLiq() {
   </div>`;
 }
 
+// 하락기(최고점 날짜)별 하락·반등 이유 — 사용자 정리(2026-10-27). 숫자는 data.json에서 자동
+const MDD_WHY = {
+  '2007-07-25': ['2007년 여름', '서브프라임 부실 우려 → 글로벌 위험회피·외국인 매도', '연준 재할인율 인하·유동성 지원으로 금융시장 불안 완화'],
+  '2007-10-31': ['2007~2008년', '글로벌 금융위기에 한국의 달러 유동성 불안이 겹침', '한·미 통화스왑으로 외화 조달 불안 완화. 2008-10-30 하루 +11.95%'],
+  '2011-05-02': ['2011년', '유럽 재정위기·미국 신용등급 강등 → 글로벌 위험회피', '유럽 위기 대응·유동성 공급으로 급락 공포 완화. 다만 고점 회복은 2017년까지 지연'],
+  '2018-01-29': ['2018~2020년', '무역분쟁·반도체 경기 둔화에 코로나 충격까지 누적', '대규모 통화·재정 지원으로 현금 확보 매도와 경기 급락 공포 완화'],
+  '2021-07-06': ['2021~2022년', '미국 긴축·달러 강세와 반도체 경기 둔화가 동시에', '긴축 정점·금리 부담 완화 기대. 6개월 반등은 미국 기술주보다 약했음'],
+  '2026-02-26': ['2026년 2~3월', '중동 전쟁·에너지 가격 상승과 성장 둔화 우려', '휴전·협상 기대와 기술주 투자심리 회복'],
+  '2026-06-02': ['2026년 6월 초', '미국 반도체주 급락·금리 인상 우려가 국내 대형 반도체주로 번짐', '저가 매수·반도체 실적 기대·중동 긴장 완화. 그러나 곧 새 하락이 시작돼 한 달 수익률은 마이너스'],
+  '2026-06-22': ['2026년 6월 말~', '반도체·AI 투자 수익성 우려, 높은 금리, 외국인 매도 부담', '진행 중'],
+};
+
 function renderMdd() {
   const m = DATA.mdd;
   if (!m) return;
@@ -898,6 +911,17 @@ function renderMdd() {
     m.big.slice().reverse().map(b =>
     `<tr><td style="text-align:left">${ym(b.date)}<br><span class="small">${b.name || ''}</span></td><td>${fmtNum(b.peak, 0)}<br>→${fmtNum(b.low, 0)}</td>` +
     `<td style="color:var(--bad)">${b.mdd.toFixed(1)}%</td><td>${b.recovered ? yrs(b.peak_date, b.recovered) + '<br><span class="small">' + ym(b.recovered) + '</span>' : '아직'}</td></tr>`).join('');
+  const pc = v => v == null ? '–' : fmtPct(v);
+  document.getElementById('mddwhy').innerHTML = `<details class="srcs" style="margin:6px 4px 0"><summary><b>최근 20년, 10% 넘게 빠졌던 ${m.recent.length}번 — 왜 빠지고 왜 올랐나</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+    <div class="small" style="line-height:1.55">${m.recent.map((r, i) => {
+      const w = MDD_WHY[r.peak_date] || [ym(r.peak_date), '', ''];
+      const a = r.after;
+      return `<div style="margin:8px 0 0"><b>${i + 1}. ${w[0]}</b> <span style="color:var(--bad)">${r.mdd.toFixed(1)}%</span> (${md(r.peak_date)} → 바닥 ${md(r.date)})` +
+        `<br>바닥 뒤 1개월 ${pc(a['1m'])} · 3개월 ${pc(a['3m'])} · 6개월 ${pc(a['6m'])} · 1년 ${pc(a['1y'])} · 고점 회복 ${r.recovered ? md(r.recovered) : '아직'}` +
+        (w[1] ? `<br>⬇ ${w[1]}<br>⬆ ${w[2]}` : '') + `</div>`;
+    }).join('')}
+    <div style="margin:8px 0 2px"><b>정리</b> 반등할 때마다 대부분 <b>유동성 공급</b>(금리 인하·돈 풀기·통화스왑)이 있었어요.</div>
+    <div style="color:var(--muted)">하락·반등 이유는 사용자 정리. 수익률은 바닥 날 종가 → n달 뒤 종가(네이버 금융 코스피)로 자동 계산.</div></div></details>`;
   document.getElementById('mddnote').innerHTML = `빨간 숫자 = 하락기마다 가장 깊었던 바닥(%). 점선 = −10·−20·−40%. ${m.since.slice(0, 4)}년 이후 날짜 중 지금보다 더 깊이 빠져 있던 날은 <b>${m.deeper_pct}%</b>예요. ` +
     `'최고점 회복' = 직전 최고점에서 다시 그 높이로 돌아오기까지 걸린 시간. 매일 갱신(그래프는 주 단위). 자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융 코스피</a>`;
 }
