@@ -142,7 +142,7 @@ footer a{color:var(--ink2)}
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -189,17 +189,6 @@ footer a{color:var(--ink2)}
       <div class="real" id="vixreal"></div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
-  </div>
-
-  <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>VKOSPI</b> <b>한국판 VIX</b>예요. 코스피200 옵션 가격으로 계산한, 앞으로 한 달 동안 코스피가 얼마나 <b>출렁일지</b>에 대한 예상이에요. 숫자가 클수록 한국 시장이 불안하다는 뜻이에요.</div>
-      <div><b>같이 보기</b> 회색 선은 미국 VIX예요. 두 숫자는 같은 방식으로 계산해서 같은 눈금으로 비교할 수 있어요. VKOSPI만 높으면 한국 시장만 유독 불안한 거예요.</div>
-    </div>
-    <div class="fgtop"><div class="fgscore" id="vkscore">–</div><div><div class="fgrating" id="vkrating"></div><div class="small" id="vkprev"></div></div></div>
-    <div id="vkplot" class="plot" style="height:240px"></div>
-    <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
   <h2 id="sec-move">MOVE 지수 (채권 시장 변동성)</h2>
@@ -333,6 +322,17 @@ footer a{color:var(--ink2)}
     </div>
     <div class="srcs" id="arrsrcs"></div>
     <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
+  </div>
+
+  <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>VKOSPI</b> <b>한국판 VIX</b>예요. 코스피200 옵션 가격으로 계산한, 앞으로 한 달 동안 코스피가 얼마나 <b>출렁일지</b>에 대한 예상이에요. 숫자가 클수록 한국 시장이 불안하다는 뜻이에요.</div>
+      <div><b>같이 보기</b> 회색 선은 미국 VIX예요. 두 숫자는 같은 방식으로 계산해서 같은 눈금으로 비교할 수 있어요. VKOSPI만 높으면 한국 시장만 유독 불안한 거예요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="vkscore">–</div><div><div class="fgrating" id="vkrating"></div><div class="small" id="vkprev"></div></div></div>
+    <div id="vkplot" class="plot" style="height:240px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
   <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
@@ -574,7 +574,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'us','sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
 function setupTabs() {
   let cur = null;
