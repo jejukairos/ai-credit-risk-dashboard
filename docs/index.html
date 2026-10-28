@@ -180,7 +180,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-fx">환율</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -383,6 +383,15 @@ footer a{color:var(--ink2)}
     </div>
     <div class="srcs" id="arrsrcs"></div>
     <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
+  </div>
+
+  <h2 id="sec-fx">원/달러 환율</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>원/달러 환율</b> 1달러를 사려면 원화가 <b>얼마</b> 필요한지예요. 오르면 원화 값이 떨어진 거예요(원화 약세). 외국인이 한국 주식을 팔고 달러로 바꿔 나갈 때 자주 올라요.</div>
+    </div>
+    <div id="fx"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
@@ -665,7 +674,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-fx': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -1279,24 +1288,28 @@ function renderMove() {
 }
 
 function renderUsmkt() {
-  const U = DATA.usmkt, box = document.getElementById('usmkt');
+  mktBlock('usmkt', [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]]);
+  mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
+}
+function mktBlock(boxId, list) {
+  const U = DATA.usmkt, box = document.getElementById(boxId);
   if (!U) return;
   const md = s => s.slice(2).replace(/-/g, '.');
-  const items = [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].filter(a => U[a[0]]);
+  const items = list.filter(a => U[a[0]]);
   // 금리는 %p 차이, 나머지는 % 변화율
   const ch = (k, v) => v == null ? '–' : k === 'us10y' ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%p</span>` : fmtPct(v);
   box.innerHTML = items.map(([k, name, unit, d]) => {
     const o = U[k];
     return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore" style="font-size:26px">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
-      <div><div class="fgrating" style="font-size:15px">${name}</div><div class="small">${o.last_date} 미국 장 마감 기준</div></div></div>
+      <div><div class="fgrating" style="font-size:15px">${name}</div><div class="small">${o.last_date} ${k === 'usdkrw' ? '' : '미국 장 마감 '}기준</div></div></div>
       <div class="fgchips"><span class="chip">전일 ${ch(k, o.d1)}</span><span class="chip">1주 전 ${ch(k, o.w1)}</span><span class="chip">1달 전 ${ch(k, o.m1)}</span></div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
       <div id="usmkt-${k}" class="plot" style="height:170px"></div></div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
     const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]);
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
-      hovertemplate: `%{y:.2f}${unit === '%' ? '%' : ''}<extra></extra>`}],
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : k === 'usdkrw' ? '--g1' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
+      hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
       Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26},
         xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: padRange(o.y.filter((_, i) => o.x[i] >= xs), false), ticksuffix: unit === '%' ? '%' : ''})}), CFG);

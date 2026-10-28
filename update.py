@@ -467,9 +467,9 @@ def fetch_wti():
 
 
 def fetch_usmkt():
-    # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB). S&P500은 fetch_prices가 sp500.csv로 받음
+    # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB)·원/달러 환율(KRW=X). S&P500은 fetch_prices가 sp500.csv로 받음
     import yfinance as yf
-    for sym, name in [("^TNX", "us10y"), ("DX-Y.NYB", "dxy")]:
+    for sym, name in [("^TNX", "us10y"), ("DX-Y.NYB", "dxy"), ("KRW=X", "usdkrw")]:
         v = yf.download(sym, start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if v.empty:
             raise RuntimeError(f"{sym} 데이터가 비어 있음")
@@ -1295,7 +1295,7 @@ def build_wti():
 def build_usmkt():
     # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), S&P500은 최고점 대비 하락률
     out = {}
-    for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy")]:
+    for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw")]:
         path = os.path.join(DATA, fname)
         if not os.path.exists(path):
             continue
@@ -1310,7 +1310,7 @@ def build_usmkt():
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
         o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
-        if col == "sp500":
+        if col in ("sp500", "usdkrw"):
             o["peak"] = {"date": s.idxmax(), "value": round(float(s.max()), 2)}
             o["mdd"] = round((last / float(s.max()) - 1) * 100, 2)
         out[col] = o
@@ -1700,7 +1700,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스(Yahoo)", fetch_usmkt), ("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
