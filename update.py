@@ -477,6 +477,99 @@ def fetch_usmkt():
         v.rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"{name}.csv"))
 
 
+WISE = "https://navercomp.wisereport.co.kr/v2/company"
+
+
+def fetch_kospi_bps():
+    # 코스피 선행 BPS를 키움·FnGuide처럼 넓은 범위(시총 상위 약 350개 중 컨센서스 있는 종목)로 직접 계산, 하루 한 번.
+    # 밸류 신호등은 상위 150개만 써서 대형주(PBR 높음) 쏠림으로 BPS가 약 3% 낮게 나옴 (2026-10-28: 4,907 vs 넓게 5,055, 키움 1배≈5,060~5,100)
+    path = os.path.join(DATA, "kospi_fwd_bps.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
+    now = datetime.now(KST)
+    today = now.strftime("%Y-%m-%d")
+    if old is not None and today in set(old["date"]):
+        return
+    s = requests.Session()
+    s.headers.update(BROWSER_UA)
+    stocks = []
+    for page in range(1, 11):
+        j = s.get(f"https://m.stock.naver.com/api/stocks/marketValue/KOSPI?page={page}&pageSize=60", timeout=30).json()
+        for x in j.get("stocks", []):  # 우선주·ETF 빼고 보통주만 (밸류 신호등과 같은 기준)
+            if x.get("stockEndType") == "stock" and not re.search(r"우[A-Z]?$|우\(", x.get("stockName", "")) and x["itemCode"].endswith("0"):
+                stocks.append((x["itemCode"], float(str(x["marketValue"]).replace(",", ""))))
+    y0 = now.year
+    ys = [y0, y0 + 1, y0 + 2]
+    w0 = max(0.0, (12 - (now.month - 1) - now.day / 31) / 12)  # 올해 남은 비중 (12개월 선행 = 올해·내년 가중 평균)
+    cap, eq, ni, used, t0 = 0.0, {y: 0.0 for y in ys}, {y: 0.0 for y in ys}, 0, time.time()
+    for code, mcap in stocks:
+        if time.time() - t0 > 1500:
+            break
+        try:
+            page = f"{WISE}/c1010001.aspx?cmp_cd={code}"
+            enc = re.search(r"encparam\s*:\s*'([^']+)'", s.get(page, timeout=30).text).group(1)
+            r = s.get(f"{WISE}/ajax/cF1001.aspx", headers={"Referer": page}, timeout=30,
+                      params={"cmp_cd": code, "fin_typ": "0", "freq_typ": "Y", "extY": "0", "extQ": "0", "encparam": enc})
+            r.encoding = "utf-8"
+            tb = pd.read_html(io.StringIO(r.text))[-1]
+            cols = [c[1] if isinstance(c, tuple) else c for c in tb.columns]
+            names = tb.iloc[:, 0].astype(str).str.replace(r"\s+", "", regex=True)
+            line = lambda label: tb.iloc[names[names == label].index[0]]  # noqa: E731
+            e_row, n_row = line("자본총계(지배)"), line("당기순이익(지배)")
+            yc = {int(str(c)[:4]): (i, "(E)" in str(c)) for i, c in enumerate(cols) if re.match(r"\d{4}/\d\d", str(c))}
+            if any(y not in yc for y in ys) or not yc[y0 + 1][1]:
+                continue
+            e = [float(str(e_row.iloc[yc[y][0]]).replace(",", "")) for y in ys]
+            n = [float(str(n_row.iloc[yc[y][0]]).replace(",", "")) for y in ys]
+            if any(v != v for v in e + n):  # NaN
+                continue
+        except Exception:  # noqa: BLE001
+            continue
+        finally:
+            time.sleep(0.3)
+        cap += mcap
+        used += 1
+        for y, a, b in zip(ys, e, n):
+            eq[y] += a
+            ni[y] += b
+    if used < 200:
+        raise RuntimeError(f"컨센서스 있는 종목이 너무 적음 ({used}/{len(stocks)})")
+    kospi = float(pd.read_csv(os.path.join(DATA, "kospi.csv"))["kospi"].iloc[-1])
+    fwd_eq = w0 * eq[y0] + (1 - w0) * eq[y0 + 1]
+    row = {"date": today, "used": used, "total": len(stocks), "kospi": kospi, "y0": y0,
+           **{f"bps_y{i}": round(kospi * eq[y] / cap, 1) for i, y in enumerate(ys)},
+           "bps_fwd": round(kospi * fwd_eq / cap, 1),
+           "fwd_roe": round((w0 * ni[y0] + (1 - w0) * ni[y0 + 1]) / fwd_eq * 100, 1)}
+    pd.concat([old, pd.DataFrame([row])]).to_csv(path, index=False)
+
+
+def _kospi_bps_override(m):
+    # 시장 탭의 코스피 PBR·BPS만 넓은 범위 계산값(fetch_kospi_bps)으로 바꿈. PER은 150개로도 1% 안쪽이라 밸류 신호등 값 그대로
+    path = os.path.join(DATA, "kospi_fwd_bps.csv")
+    k = m["kospi_forward"]
+    if not os.path.exists(path) or not k.get("level"):
+        return
+    b = pd.read_csv(path, dtype={"date": str}).iloc[-1]
+    if int(b["y0"]) != int(k["date"][:4]) or (pd.Timestamp(k["date"]) - pd.Timestamp(b["date"])).days > 5:
+        return
+    lvl, old_fb = k["level"], k["level"] / k["fwd_pbr"]
+    labs = [f"{str(int(b['y0']) + i)[2:]}E" for i in range(3)]
+    k["years"]["bps"] = {lab: round(float(b[f"bps_y{i}"]), 1) for i, lab in enumerate(labs)}
+    k["years"]["pbr"] = {lab: round(lvl / float(b[f"bps_y{i}"]), 3) for i, lab in enumerate(labs)}
+    # 소수 4자리: 화면은 2자리로 보이지만 '내 기준선'(지수 ÷ PBR)이 밴드 숫자와 반올림 차이 없이 맞게
+    k["fwd_pbr"], k["fwd_roe"] = round(lvl / float(b["bps_fwd"]), 4), float(b["fwd_roe"])
+    k["pbr_src"] = f"시총 상위 {int(b['total'])}개 중 {int(b['used'])}개 · {b['date']}"
+    # 선행 PBR 밴드: 최근 1년은 '1년 전 값 → 지금 선행값'을 시간 비율로 이어 붙인 근사라, 끝점이 바뀐 만큼 같은 비율로 다시 이어 붙임
+    B = m.get("kospi_fwd_bands")
+    if B and B["f_bps"] and B["f_bps"][-1]:
+        end = pd.Timestamp(B["dates"][-1])
+        shift = float(b["bps_fwd"]) - old_fb
+        for i, d in enumerate(B["dates"]):
+            w = ((pd.Timestamp(d) - end).days + 364) / 364
+            if w > 0 and B["f_bps"][i] is not None:
+                B["f_bps"][i] = round(B["f_bps"][i] + shift * w, 2)
+        B["note"] += " · PBR은 키움·FnGuide처럼 시총 상위 약 350개로 넓혀 계산"
+
+
 VAL_REPO = "https://github.com/jejukairos/valuation-dashboard.git"
 
 
@@ -502,6 +595,7 @@ def fetch_valmarket():
            "mag7_fwd_per": {c["code"]: c.get("fwd_per") for c in d["stocks"] if c.get("code") in ("GOOG", "NVDA", "MSFT", "META", "TSLA")}}
     if not out["market"].get("kospi_forward"):
         raise RuntimeError("밸류 신호등 시장 데이터가 비어 있음")
+    _kospi_bps_override(out["market"])
     with open(os.path.join(DOCS, "market.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
 
@@ -1607,7 +1701,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스(Yahoo)", fetch_usmkt), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스(Yahoo)", fetch_usmkt), ("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
