@@ -628,13 +628,50 @@ VKOSPI_URL = "https://www.investing.com/indices/kospi-volatility-historical-data
 BROWSER_UA ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
 
 
-RATE_SERIES = {"us10y": "DGS10", "fedfunds": "DFF", "kr10y": "IRLTLT01KRM156N"}  # 미국 10년물·기준금리(일별), 한국 10년물(월별)
+RATE_SERIES = {"us10y": "DGS10", "fedfunds": "DFF", "kr10y": "IRLTLT01KRM156N",  # 미국 10년물·실효 기준금리(일별), 한국 10년물(월별)
+               "fedupper": "DFEDTARU", "fedlower": "DFEDTARL"}  # 미국 기준금리 목표 범위 위·아래(일별)
 
 
 def fetch_rates():
     # 시장 국면 판단용 금리 (FRED, 단위 %)
     for name, sid in RATE_SERIES.items():
         (fred_series(sid, start="2020-01-01") / 100).rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"rate_{name}.csv"))
+
+
+KR_BASE_URL = "https://www.bok.or.kr/portal/singl/baseRate/list.do?dataSeCd=01&menuNo=200643"
+
+
+def fetch_kr_base():
+    # 한국은행 기준금리 변경 이력 (한국은행 공식 페이지의 표: '2026 08월 27일 3.00' 꼴)
+    t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", get(KR_BASE_URL).text))
+    rows = re.findall(r"(\d{4}) (\d{2})월 (\d{2})일 (\d+\.\d+)", t)
+    if len(rows) < 10:
+        raise RuntimeError("한국은행 기준금리 표를 읽지 못함")
+    df = pd.DataFrame([(f"{y}-{m}-{d}", float(v)) for y, m, d, v in rows], columns=["date", "rate"])
+    df.drop_duplicates("date").sort_values("date").to_csv(os.path.join(DATA, "kr_base_rate.csv"), index=False)
+
+
+FF_CODES = "FGHJKMNQUVXZ"  # 선물 월물 코드 (1~12월)
+
+
+def fetch_fed_futures():
+    # 30일 연방기금 선물(CBOT ZQ) 월물 종가 → 기준금리 시장 예상(CME FedWatch 방식) 계산용.
+    # 만기 지난 월물은 야후에서 사라지므로 받아 둔 값을 계속 쌓아 둠
+    import yfinance as yf
+    now = datetime.now(KST)
+    syms = {}
+    for i in range(-1, 16):
+        y, m = divmod(now.year * 12 + now.month - 1 + i, 12)
+        syms[f"ZQ{FF_CODES[m]}{y % 100:02d}.CBT"] = f"{y}-{m + 1:02d}"
+    px = yf.download(list(syms), start="2025-01-01", progress=False, auto_adjust=False)["Close"]
+    rows = [(d.strftime("%Y-%m-%d"), syms[c], round(float(p), 4)) for c in px.columns for d, p in px[c].dropna().items()]
+    if len(rows) < 500:
+        raise RuntimeError(f"연방기금 선물 자료가 너무 적음({len(rows)}행)")
+    path = os.path.join(DATA, "fed_futures.csv")
+    df = pd.DataFrame(rows, columns=["date", "month", "price"])
+    if os.path.exists(path):
+        df = pd.concat([pd.read_csv(path, dtype={"date": str, "month": str}), df]).drop_duplicates(["date", "month"], keep="last")
+    df.sort_values(["date", "month"]).to_csv(path, index=False)
 
 
 def fetch_aaii():
@@ -1317,6 +1354,105 @@ def build_usmkt():
     return out or None
 
 
+def _steps(s):
+    # 기준금리처럼 계단 모양인 값 → 바뀐 날만 [날짜, 값] (바뀐 날엔 이전 값·새 값 두 점이라 선이 계단으로 그려짐)
+    out, prev = [], None
+    for d, v in s.items():
+        if prev is None:
+            out.append([d, v])
+        elif v != prev:
+            out += [[d, prev], [d, v]]
+        prev = v
+    return out
+
+
+def build_policy():
+    # 미국 기준금리 목표 범위(FRED) · 한국 기준금리(한국은행) — 시장 탭 '1. 금리'의 국채 금리 아래 칸
+    out = {}
+    up, lo = _csv_series("rate_fedupper.csv", "fedupper"), _csv_series("rate_fedlower.csv", "fedlower")
+    if up is not None and lo is not None:
+        h = _steps(up.round(2))
+        h.append([up.index[-1], round(float(up.iloc[-1]), 2)])
+        out["us"] = {"latest": round(float(up.iloc[-1]), 2), "lower": round(float(lo.iloc[-1]), 2), "date": up.index[-1], "hist": h,
+                     "source": "FRED (DFEDTARU·DFEDTARL)"}
+    kr = _csv_series("kr_base_rate.csv", "rate")
+    if kr is not None:
+        today = datetime.now(KST).strftime("%Y-%m-%d")
+        h = _steps(kr)
+        h.append([today, float(kr.iloc[-1])])
+        out["kr"] = {"latest": float(kr.iloc[-1]), "date": kr.index[-1], "hist": h, "source": "한국은행", "url": KR_BASE_URL}
+    return out or None
+
+
+def _fw_chain(px, t, effr, upper):
+    """CME FedWatch 방식: 회의마다 기준금리(목표 범위 위쪽) 확률 분포.
+    px = {"YYYY-MM": 그 달 평균 예상 금리(100 − 선물가격)}. 회의 다음 달에 회의가 없으면 그 달 값이 곧 회의 뒤 금리,
+    아니면 회의 달 평균 = (회의일까지 일수 × 회의 전 금리 + 나머지 일수 × 회의 뒤 금리) ÷ 그 달 일수 를 풀어서 구함.
+    회의 뒤 − 회의 전 변화를 25bp 단위 둘로 나눠(예: +0.82번 → 0번 18%·1번 82%) 앞 회의 분포에 곱해 나감"""
+    mmonths = {d[:7] for d in config.FOMC_DATES}
+    dist, rb, out = {round(upper, 2): 1.0}, effr, []
+    for ds in [d for d in config.FOMC_DATES if d > t]:
+        D = pd.Timestamp(ds)
+        ym, nxt = ds[:7], (D + pd.offsets.MonthBegin(1)).strftime("%Y-%m")
+        if nxt not in mmonths and nxt in px:
+            ra = px[nxt]
+        elif ym in px:
+            N = D.days_in_month
+            ra = (px[ym] - D.day / N * rb) / ((N - D.day) / N)
+        else:
+            break
+        step = (ra - rb) / 0.25
+        k = int(step // 1)
+        p = step - k
+        nd = {}
+        for lv, q in dist.items():
+            for lv2, w in ((lv + k * 0.25, 1 - p), (lv + (k + 1) * 0.25, p)):
+                if w > 1e-9:
+                    nd[round(lv2, 2)] = nd.get(round(lv2, 2), 0) + q * w
+        dist, rb = nd, ra
+        out.append((ds, dist))
+    return out
+
+
+def build_fedwatch():
+    path = os.path.join(DATA, "fed_futures.csv")
+    effr, up = _csv_series("rate_fedfunds.csv", "fedfunds"), _csv_series("rate_fedupper.csv", "fedupper")
+    if not os.path.exists(path) or effr is None or up is None:
+        return None
+    f = pd.read_csv(path, dtype={"date": str, "month": str})
+    by = {d: dict(zip(g["month"], (100 - g["price"]).round(4))) for d, g in f.groupby("date")}
+    dates = sorted(by)
+
+    def at(t):
+        return _fw_chain(by[t], t, float(effr[effr.index <= t].iloc[-1]), float(up[up.index <= t].iloc[-1]))
+
+    def mean(dist):
+        return round(sum(l * q for l, q in dist.items()), 3)
+    t = dates[-1]
+    now = at(t)[:8]
+    if not now:
+        return None
+    levels = sorted({l for _, dist in now for l, q in dist.items() if q >= 0.01})  # 어느 회의든 1% 넘는 금리만 칸으로
+    paths = {"now": {"date": t, "x": [d for d, _ in now], "y": [mean(x) for _, x in now]}}
+    for key, days in (("w1", 7), ("m1", 30)):
+        c = [d for d in dates if d <= (pd.Timestamp(t) - pd.Timedelta(days=days)).strftime("%Y-%m-%d")]
+        r = at(c[-1])[:8] if c else []
+        if r:
+            paths[key] = {"date": c[-1], "x": [d for d, _ in r], "y": [mean(x) for _, x in r]}
+    # 여태까지: 약 3·6·12개월 뒤 월물의 예상 평균 금리(100 − 가격) 흐름과 실제 실효 기준금리(EFFR)
+    T = pd.Timestamp(t)
+    lines = []
+    for mo in (3, 6, 12):
+        ym = (T + pd.DateOffset(months=mo)).strftime("%Y-%m")
+        g = f[f["month"] == ym]
+        if len(g):
+            lines.append({"month": ym, "x": list(g["date"]), "y": [round(100 - p, 3) for p in g["price"]]})
+    e = effr[effr.index >= dates[0]]
+    return {"date": t, "upper": round(float(up[up.index <= t].iloc[-1]), 2), "effr": round(float(effr[effr.index <= t].iloc[-1]), 2),
+            "levels": levels, "table": [{"date": d, "p": [round(dist.get(l, 0) * 100, 1) for l in levels], "exp": mean(dist)} for d, dist in now],
+            "paths": paths, "lines": lines, "effr_hist": {"x": list(e.index), "y": [round(float(v), 2) for v in e.values]}}
+
+
 def build_move():
     path = os.path.join(DATA, "move.csv")
     if not os.path.exists(path):
@@ -1675,6 +1811,8 @@ def build():
     out["tv"] = build_tv()
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
+    out["policy"] = build_policy()
+    out["fedwatch"] = build_fedwatch()
     out["move"] = build_move()
     out["hy"] = build_hy()
     out["readers"] = build_readers()
@@ -1700,7 +1838,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

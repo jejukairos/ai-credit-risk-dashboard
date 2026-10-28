@@ -162,6 +162,8 @@ footer a{color:var(--ink2)}
 #mktv .legend{margin:6px 0 0} #mktv .legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px} #mktv .legend i.dash{border-top-style:dashed}
 #mktv .empty{color:var(--muted);font-size:13px;padding:8px 0}
 #mktv .grid{display:grid;gap:12px;grid-template-columns:1fr} #mktv .grid .card{margin:0}
+#mktv table.fw{font-size:11px} #mktv table.fw th,#mktv table.fw td{padding:5px 2px;text-align:center} #mktv table.fw td:first-child{min-width:0}
+#mktv td.fw-top{background:rgba(245,166,35,.5);font-weight:700} #mktv td.fw-mid{background:rgba(245,166,35,.16)}
 .horizon{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .horizon div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;color:var(--ink2);text-align:center}
 .horizon b{display:block;font-size:14px;color:var(--ink)}
@@ -543,8 +545,10 @@ footer a{color:var(--ink2)}
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
     <div class="vm-sec">1. 금리</div>
-    <div class="glossary"><div>나라가 돈을 빌릴 때 주는 <b>이자</b>예요. 금리가 오르면 회사들이 돈 빌리는 비용도 오르고, 주식이 상대적으로 덜 매력적으로 보여요.</div></div>
+    <div class="glossary"><div>나라가 돈을 빌릴 때 주는 <b>이자</b>예요. 금리가 오르면 회사들이 돈 빌리는 비용도 오르고, 주식이 상대적으로 덜 매력적으로 보여요.</div>
+      <div><b>기준금리</b> 중앙은행(미국 연준·한국은행)이 정하는 <b>금리의 기준</b>이에요. 이게 오르면 은행 이자·국채 금리도 따라 오르는 경우가 많아요.</div></div>
     <div class="grid" id="vm-signals"></div>
+    <div class="card" id="vm-fedwatch" style="margin-top:12px"></div>
     <div class="vm-sec">2. 지수 밸류에이션</div>
     <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>
     <h3 style="margin:14px 4px 0">🇰🇷 코스피</h3><div class="card" id="vm-kospiBand"></div>

@@ -61,15 +61,64 @@ function rateCard(r, label, key, extra) {
     <div class="chart-box" id="vm-rate-${key}"></div>
   </div>`;
 }
+// 기준금리(미국 FRED · 한국은행)는 이 대시보드 data.json 의 policy 에서 (밸류 신호등엔 없음)
+const POL = () => (typeof DATA !== "undefined" && DATA && DATA.policy) || {};
 function drawMarketCharts() {
-  const C = themeColors();
-  for (const [key, rk] of [["us", "us10y"], ["kr", "kr3y"]]) {
-    const r = M.rates[rk];
+  const C = themeColors(), P = POL();
+  for (const [key, r] of [["us", M.rates.us10y], ["usp", P.us], ["kr", M.rates.kr3y], ["krp", P.kr]]) {
     if (r && document.getElementById(`vm-rate-${key}`)) {
       const h = r.hist.slice(sliceP(r.hist.map((x) => x[0])));
       makeChart(`vm-rate-${key}`, h.map((x) => x[0]), [{ label: "금리", data: h.map((x) => x[1]), borderColor: C.s1 }], { ysuf: "%", fmt: (v) => v.toFixed(2) + "%" });
     }
   }
+}
+
+/* 미국 기준금리 시장 예상 — 연방기금 선물 가격으로 CME FedWatch 와 같은 방식 계산(update.py build_fedwatch) */
+function fedwatchCard() {
+  const F = typeof DATA !== "undefined" && DATA && DATA.fedwatch, el = $("#vm-fedwatch");
+  if (!el) return;
+  if (!F) { el.innerHTML = `<div class="empty">기준금리 시장 예상을 계산하지 못했어요.</div>`; return; }
+  const md = (s) => s.slice(2).replace(/-/g, ".");
+  const last = F.table[F.table.length - 1], hikes = (last.exp - F.upper) / 0.25;
+  const W = F.paths.m1, cd = W && [...F.paths.now.x].reverse().find((d) => W.x.includes(d));
+  const vs = cd ? `<br>1달 전(${md(W.date)})엔 ${md(cd)} 회의 뒤를 ${pct(W.y[W.x.indexOf(cd)], 2)}로 봤는데, 지금은 ${pct(F.paths.now.y[F.paths.now.x.indexOf(cd)], 2)}예요.` : "";
+  el.innerHTML = `<div class="chart-title" style="margin-top:0">🇺🇸 앞으로 미국 기준금리, 시장은 어떻게 보나 (FedWatch 방식)</div>
+    <div class="note" style="margin:2px 0 6px">금리 선물 가격에 담긴 <b>시장의 내기</b>예요. FOMC 회의마다 기준금리(목표 범위 위쪽)가 몇 %가 될 확률인지 보여 줘요. 진한 칸 = 가장 가능성 높은 금리.</div>
+    <div class="src" style="font-size:12px">지금 ${POL().us ? pct(POL().us.lower, 2) + "~" : ""}${pct(F.upper, 2)} → ${md(last.date)} 회의 뒤 평균 예상 <b>${pct(last.exp, 2)}</b> (0.25%p ${hikes >= 0 ? "인상" : "인하"} 약 ${n(Math.abs(hikes), 1)}번만큼)${vs}</div>
+    <div class="tbl-wrap"><table class="fw"><thead><tr><th>FOMC</th>${F.levels.map((l) => `<th>${l.toFixed(2)}</th>`).join("")}</tr></thead><tbody>
+    ${F.table.map((r) => { const mx = Math.max(...r.p);
+      return `<tr><td>${md(r.date)}</td>${r.p.map((p) => `<td class="${p === mx ? "fw-top" : p >= 10 ? "fw-mid" : ""}">${p ? p.toFixed(1) : "–"}</td>`).join("")}</tr>`; }).join("")}
+    </tbody></table></div>
+    <div class="note">칸 = 확률(%), 맨 윗줄 = 기준금리(%). ${md(F.date)} 미국 장 마감 가격 기준.</div>
+    <h3>회의별 평균 예상 기준금리 — 지금 · 1주 전 · 1달 전</h3>
+    <div class="chart-box" id="vm-fw-path"></div><div id="vm-fw-path-legend"></div>
+    <h3>여태까지 — 시장 예상 금리 흐름</h3>
+    <div class="note">그 달 평균 금리를 시장이 몇 %로 보는지(선물 가격으로 계산)와 실제 금리(실효 기준금리)예요. 선이 오르면 "금리가 더 오를 것"이라는 쪽으로 바뀐 거예요.</div>
+    <div class="chart-box tall" id="vm-fw-hist"></div><div id="vm-fw-hist-legend"></div>
+    <div class="memo">🐒 <b>메모</b><br>· 시장은 12월·3월·6월에 한 번씩 올리는 <b>추세적 금리 인상 사이클</b>에 들어섰다고 보고 있어요.<br>· 인상 사이클 중후반엔 돈이 빨려 나가면서(유동성 흡수) <b>무언가 부러지는 신호</b>가 나오는 경우가 많아 시장 난이도가 올라갈 수 있어요.
+      <div class="src">메모 출처: user: 사용자가 보내 준 글(26.10.28)</div></div>
+    <div class="note">자료: Yahoo Finance(CBOT 30일 연방기금 선물 ZQ 월물 종가) · FRED(실효 기준금리 EFFR·목표 범위) · <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener">연준 FOMC 일정</a>. 계산법은 <a href="https://www.cmegroup.com/ko/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener">CME FedWatch</a>와 같은 방식(README)이에요. 26.10.28 CME 화면(사용자 제공)과 회의별 확률이 몇 %p 안에서 같았어요. 매일 갱신.</div>`;
+  const C = themeColors(), cols = [C.s1, C.s3, C.s7, C.muted];
+  const ps = [["now", "지금"], ["w1", "1주 전"], ["m1", "1달 전"]].filter(([k]) => F.paths[k]);
+  const px = [...new Set(ps.flatMap(([k]) => F.paths[k].x))].sort();
+  const pds = ps.map(([k, lb], i) => { const p = F.paths[k];
+    return { label: `${lb} (${md(p.date)})`, data: px.map((d) => (p.x.includes(d) ? p.y[p.x.indexOf(d)] : null)), borderColor: cols[i], borderDash: i ? [6, 3] : [] }; });
+  makeChart("vm-fw-path", px, pds, { ysuf: "%", fmt: (v) => v.toFixed(2) + "%" });
+  $("#vm-fw-path-legend").innerHTML = legend(pds.map((d) => [d.label, d.borderColor, !!d.borderDash.length]));
+  const draw = () => {
+    const L = F.lines, x0 = L.length ? L[0].x : [];
+    const ex = Object.fromEntries(F.effr_hist.x.map((d, i) => [d, F.effr_hist.y[i]]));
+    let carry = null;  // 실효 기준금리는 발표 안 된 날 직전 값 유지
+    const effr = x0.map((d) => (carry = ex[d] ?? carry));
+    const i0 = sliceP(x0), xs = x0.slice(i0);
+    const ds = L.map((l, i) => { const m = Object.fromEntries(l.x.map((d, j) => [d, l.y[j]]));
+      return { label: `${l.month.slice(2, 4)}년 ${+l.month.slice(5)}월 평균 예상`, data: xs.map((d) => m[d] ?? null), borderColor: cols[i] }; });
+    ds.push({ label: "실제 실효 기준금리", data: effr.slice(i0), borderColor: C.muted, borderDash: [2, 2] });
+    makeChart("vm-fw-hist", xs, ds, { ysuf: "%", fmt: (v) => v.toFixed(2) + "%" });
+    $("#vm-fw-hist-legend").innerHTML = legend(ds.map((d) => [d.label, d.borderColor, !!d.borderDash?.length]));
+  };
+  DRAWS.push(draw);
+  draw();
 }
 
 /* ---------- 2. 지수 밸류에이션 ---------- */
@@ -278,11 +327,14 @@ function render() {
     drawMarketCharts();
     DRAWS.forEach((d) => d());
   };
-  const k10 = M.rates.kr10y;
+  const k10 = M.rates.kr10y, P = POL();
   $("#vm-signals").innerHTML = rateCard(M.rates.us10y, "미국채 10년", "us") +
-    rateCard(M.rates.kr3y, "국고채 3년", "kr", k10 ? `<div class="src">국고채 10년(참고) ${pct(k10.latest, 2)} · ${esc(k10.date)}</div>` : "");
+    rateCard(P.us, "미국 기준금리 (목표 범위 위쪽)", "usp", P.us ? `<div class="src">목표 범위 ${pct(P.us.lower, 2)}~${pct(P.us.latest, 2)}</div>` : "") +
+    rateCard(M.rates.kr3y, "국고채 3년", "kr", k10 ? `<div class="src">국고채 10년(참고) ${pct(k10.latest, 2)} · ${esc(k10.date)}</div>` : "") +
+    rateCard(P.kr, "한국 기준금리", "krp", P.kr ? `<div class="src">날짜 = 마지막으로 바뀐 날 · <a href="${esc(P.kr.url)}" target="_blank" rel="noopener">한국은행 기준금리 표 ↗</a></div>` : "");
   DRAWS = [];
   drawMarketCharts();
+  fedwatchCard();
   kospiCard();
   spBand();
   crossCheck();
