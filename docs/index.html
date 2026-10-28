@@ -134,11 +134,9 @@ footer a{color:var(--ink2)}
 #mktv .card{padding:14px;min-width:0}
 #mktv .card h3{display:block;font-size:15px;margin:18px 0 8px}
 #mktv .sub{color:var(--ink2);font-size:13px} #mktv .src{color:var(--muted);font-size:11px} #mktv .nowrap{white-space:nowrap}
-#mktv .light{display:flex;align-items:center;gap:12px}
-#mktv .lamp{width:64px;height:64px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:34px}
-#mktv .lamp.green{background:var(--good-bg)} #mktv .lamp.yellow{background:var(--warn-bg)} #mktv .lamp.red{background:var(--bad-bg)} #mktv .lamp.na{background:var(--na-bg)}
-#mktv .verdict{font-size:22px;font-weight:700}
-#mktv .verdict.green{color:var(--good-ink)} #mktv .verdict.yellow{color:var(--warn-ink)} #mktv .verdict.red{color:var(--bad-ink)} #mktv .verdict.na{color:var(--muted)}
+#mktv .vm-bar{position:sticky;top:0;z-index:5;background:var(--page);display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:6px 0;margin:4px 0 0}
+#mktv .vm-bar button{font-size:12px;font-weight:600;padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);white-space:nowrap}
+#mktv .vm-bar button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 #mktv .big{font-size:28px;font-weight:700;line-height:1.2}
 #mktv .kv{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:4px 12px;margin-top:10px;font-size:14px}
 #mktv .kv>*{min-width:0} #mktv .kv .k{color:var(--ink2)} #mktv .kv .k.kgrp{color:var(--muted);font-size:12px;font-weight:700;margin-top:6px}
@@ -152,9 +150,6 @@ footer a{color:var(--ink2)}
 #mktv .tile .tl{font-size:12px;color:var(--ink2)} #mktv .tile .tv{font-size:24px;font-weight:700;line-height:1.25}
 #mktv .chart-box{height:170px;margin-top:10px} #mktv .chart-box.tall{height:290px}
 #mktv .chart-title{font-size:13px;color:var(--ink2);margin-top:12px}
-#mktv .seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px}
-#mktv .seg button{border:0;background:transparent;color:var(--ink2);font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;cursor:pointer;min-height:34px}
-#mktv .seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
 #mktv .tbl-wrap{overflow-x:auto;margin-top:8px}
 #mktv table{font-size:13px}
 #mktv th,#mktv td{padding:6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -180,7 +175,7 @@ footer a{color:var(--ink2)}
   <div class="tabs" role="tablist" aria-label="미국·한국">
     <button data-tab="us" class="on">🇺🇸 미국</button><button data-tab="kr">🇰🇷 한국</button>
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
-    <button data-tab="mkt">🚦 시장 (금리 vs 주식 · 지수 밸류에이션)</button>
+    <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
     <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
@@ -529,12 +524,12 @@ footer a{color:var(--ink2)}
   <div id="chart-cards"></div>
   <p class="note">점수표는 사용자 엑셀(2025-12-14 '차트 판독기', 2025-04-20 'P/E 밴드')을 따랐어요. 엑셀처럼 종합 점수는 4개 지표(200일선·50일선 위 비율, 200일 이격도, RSI) 평균이고, 50일 이격도와 P/E는 따로 봐요.</p>
 
-  <h2 id="sec-valmkt">🚦 시장 — 주식이 채권보다 싼가? · 지수는 비싼가?</h2>
+  <h2 id="sec-valmkt">🚦 시장 — 금리 · 지수는 비싼가?</h2>
   <div id="mktv">
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
-    <div class="vm-sec">1. 금리 vs 주식 신호등</div>
-    <div class="glossary"><div>주식이 1년에 버는 이익률(1 ÷ PER)과 <b>국채 이자</b>를 비교해요. 같은 돈으로 주식이 채권보다 <b>싸 보이면 🟢</b>, <b>비싸 보이면 🔴</b>예요.</div></div>
-    <p class="sub" id="vm-ruleLine" style="margin:4px"></p>
+    <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
+    <div class="vm-sec">1. 금리</div>
+    <div class="glossary"><div>나라가 돈을 빌릴 때 주는 <b>이자</b>예요. 금리가 오르면 회사들이 돈 빌리는 비용도 오르고, 주식이 상대적으로 덜 매력적으로 보여요.</div></div>
     <div class="grid" id="vm-signals"></div>
     <div class="vm-sec">2. 지수 밸류에이션</div>
     <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>

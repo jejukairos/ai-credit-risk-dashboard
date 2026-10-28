@@ -5,13 +5,10 @@
 "use strict";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const LIGHT = {
-  green: { emoji: "🟢", market: "매력 구간" },
-  yellow: { emoji: "🟡", market: "중립" },
-  red: { emoji: "🔴", market: "위험 구간" },
-  na: { emoji: "⚪", market: "N/A" },
-};
-let M = null, loading = null;
+// 탭 전체 기간 버튼 (모든 차트가 같이 바뀜). [키, 이름, 일수(0 = 전부)]
+const PERIODS = [["1w", "1주", 7], ["3m", "3개월", 91], ["6m", "6개월", 183], ["1y", "1년", 365], ["3y", "3년", 1096], ["5y", "5년", 1826], ["all", "역사적", 0]];
+let M = null, loading = null, VP = "5y", DRAWS = [];
+try { VP = localStorage.getItem("vmPeriod") || VP; } catch (e) {}
 
 function n(v, d = 0) {
   if (v === null || v === undefined || Number.isNaN(v)) return "N/A";
@@ -23,7 +20,6 @@ function pct(v, d = 1, sign = false) {
   return (sign && r > 0 ? "+" : "") + n(r, d) + "%";
 }
 function times(v, d = 1) { return v == null ? "N/A" : n(v, d) + "배"; }
-function lamp(sig) { const L = LIGHT[sig] || LIGHT.na; return `<div class="lamp ${sig}" aria-hidden="true">${L.emoji}</div>`; }
 
 /* ---------- 차트 ---------- */
 function themeColors() {
@@ -33,60 +29,35 @@ function themeColors() {
 function makeChart(id, labels, datasets, opt = {}) {
   const fmt = opt.fmt || ((v) => n(v, 2));
   const dash = (d) => !d.borderDash || !d.borderDash.length ? "solid" : d.borderDash[0] <= 2 ? "dot" : "dash";
-  Plotly.react(id, datasets.map((d) => ({
-    x: labels, y: d.data, type: "scatter", mode: "lines", name: d.label,
-    line: { color: d.borderColor, width: d.borderWidth || 2, dash: dash(d) },
+  const span = (new Date(labels[labels.length - 1]) - new Date(labels[0])) / 864e5;
+  Plotly.react(id, datasets.map((d, i) => ({
+    x: labels, y: d.data, type: "scatter", mode: i === 0 && labels.length < 30 ? "lines+markers" : "lines", name: d.label,
+    line: { color: d.borderColor, width: d.borderWidth || 2, dash: dash(d) }, marker: { size: 5 },
     text: d.data.map((v) => (v == null ? "" : fmt(v))), hovertemplate: "%{text}",
   })), Object.assign(baseLayout(), {
     margin: { l: 48, r: 8, t: 8, b: 28 },
-    xaxis: axis({ type: "date", tickformat: "%Y", nticks: 6, showgrid: false }),
+    xaxis: axis({ type: "date", tickformat: span <= 100 ? "%m.%d" : span <= 400 ? "%y.%m" : "%Y", nticks: 6, showgrid: false }),
     yaxis: axis({ nticks: 6, tickformat: opt.ytick || "", ticksuffix: opt.ysuf || "", rangemode: opt.zero ? "tozero" : "normal" }),
   }), CFG);
 }
 function legend(items) {
   return `<div class="legend">${items.map(([label, color, dash]) => `<span><i class="${dash ? "dash" : ""}" style="border-color:${color}"></i>${esc(label)}</span>`).join("")}</div>`;
 }
-function sliceYears(dates, years) {
-  if (!years) return 0;
-  const end = new Date(dates[dates.length - 1]);
-  const cut = new Date(end); cut.setFullYear(end.getFullYear() - years);
-  const c = cut.toISOString().slice(0, 10);
+// 지금 고른 기간의 시작 위치. 자료가 달마다 1개뿐이어도 점이 2개 이상 남게
+function sliceP(dates) {
+  const days = PERIODS.find((p) => p[0] === VP)[2];
+  if (!days) return 0;
+  const c = new Date(new Date(dates[dates.length - 1]) - days * 864e5).toISOString().slice(0, 10);
   const i = dates.findIndex((d) => d >= c);
-  return i < 0 ? 0 : i;
+  return Math.min(i < 0 ? 0 : i, Math.max(0, dates.length - 2));
 }
-// 기간 버튼(5년·10년·전체)
-function wireSeg(id, draw) {
-  const seg = document.getElementById(`${id}-seg`);
-  seg.addEventListener("click", (e) => {
-    const b = e.target.closest("button"); if (!b) return;
-    seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
-    draw(Number(b.dataset.y));
-  });
-}
-
-/* ---------- 1. 금리 vs 주식 신호등 ---------- */
-function marketCard(sig, rateObj, extraRate, key) {
-  const L = LIGHT[sig.signal] || LIGHT.na;
-  if (sig.signal === "na") {
-    return `<div class="card"><div class="light">${lamp("na")}<div><div class="verdict na">${esc(sig.name)} · N/A</div>
-      <div class="sub">${esc(sig.reason || "")}</div></div></div></div>`;
-  }
-  const stale = sig.stale || rateObj?.stale ? `<div class="stale">⚠ ${esc(sig.rate_label)} 금리는 이번에 못 받아서 직전 값(${esc(rateObj?.date || "")})이에요</div>` : "";
+/* ---------- 1. 금리 ---------- */
+function rateCard(r, label, key, extra) {
+  if (!r) return `<div class="card"><div class="empty">${esc(label)} 금리를 받지 못했어요.</div></div>`;
   return `<div class="card">
-    <div class="light">${lamp(sig.signal)}<div>
-      <div class="verdict ${sig.signal}">${esc(sig.name)} · ${L.market}</div>
-      <div class="sub">비율 <span class="big">${n(sig.ratio, 2)}</span></div>
-    </div></div>
-    <div class="kv">
-      <div class="k kgrp">배수 비교</div><div class="v"></div>
-      <div class="k">${esc(sig.per_label)}</div><div class="v">${times(sig.per)}<span class="src">${esc(sig.per_source)}</span></div>
-      <div class="k">채권 환산 PER <span class="src nowrap">1 ÷ 금리</span></div><div class="v">${times(sig.bond_per)}</div>
-      <div class="k kgrp">수익률 비교</div><div class="v"></div>
-      <div class="k">주식 이익수익률 <span class="src nowrap">1 ÷ PER</span></div><div class="v">${pct(sig.earnings_yield, 2)}</div>
-      <div class="k">${esc(sig.rate_label)}</div><div class="v">${pct(sig.rate, 2)}<span class="src">${esc(rateObj?.source || "")} · ${esc(rateObj?.date || "")}</span></div>
-      ${extraRate ? `<div class="k" style="font-size:12px">${esc(extraRate.label)} (참고)</div><div class="v" style="font-size:12px;font-weight:400">${pct(extraRate.latest, 2)}</div>` : ""}
-    </div>${stale}${key === "kr" ? kospiPbrBrief() : ""}
-    <div class="chart-title">${esc(sig.rate_label)} 추이 (5년)</div>
+    <div class="chart-title" style="margin-top:0">${esc(label)}</div>
+    <div><span class="big">${pct(r.latest, 2)}</span> <span class="src">${esc(r.date)} · ${esc(r.source)}</span></div>
+    ${r.stale ? `<div class="stale">⚠ 이번에 못 받아서 직전 값(${esc(r.date)})이에요</div>` : ""}${extra || ""}
     <div class="chart-box" id="vm-rate-${key}"></div>
   </div>`;
 }
@@ -95,7 +66,7 @@ function drawMarketCharts() {
   for (const [key, rk] of [["us", "us10y"], ["kr", "kr3y"]]) {
     const r = M.rates[rk];
     if (r && document.getElementById(`vm-rate-${key}`)) {
-      const h = r.hist.slice(sliceYears(r.hist.map((x) => x[0]), 5));
+      const h = r.hist.slice(sliceP(r.hist.map((x) => x[0])));
       makeChart(`vm-rate-${key}`, h.map((x) => x[0]), [{ label: "금리", data: h.map((x) => x[1]), borderColor: C.s1 }], { ysuf: "%", fmt: (v) => v.toFixed(2) + "%" });
     }
   }
@@ -125,7 +96,7 @@ function spBand() {
       <div class="tile"><div class="tl">후행 PER (차트 기준)</div><div class="tv">${times(tcur[1])}</div><div class="src">multpl · ${esc(tcur[0])}</div></div>
     </div>
     <h3>후행 PER 밴드</h3>
-    ${hBandHTML("vm-sp")}
+    ${bandHTML("vm-sp")}
     <div class="note">차트는 후행 PER(지난 12개월 실적, ${esc(t.source)}) 기준이에요. 선행 PER 과거 이력은 무료 출처가 없어서 FactSet 값을 매번 모으고 있어요.</div>
     <h3>선행 PER 기준값 <span class="src">FactSet</span></h3>
     <div class="kv">
@@ -133,7 +104,7 @@ function spBand() {
       <div class="k">선행 PER 5년 평균</div><div class="v">${f ? times(f.avg5) : "N/A"}</div>
       <div class="k">선행 PER 10년 평균</div><div class="v">${f ? times(f.avg10) : "N/A"}</div></div>
     ${f && f.eps ? indexEPS(f) : `<div class="note">연도별 EPS: N/A (FactSet 보고서를 읽지 못했어요)</div>`}`;
-  wireHBand("vm-sp", t.hist, "S&P500 PER", "배", 1, 10);
+  wireHBand("vm-sp", t.hist, "S&P500 PER", "배", 1);
 }
 
 /* 지수 연도별 EPS 표 + 'EPS × PER = 지수' 시나리오 */
@@ -153,15 +124,15 @@ function indexEPS(f) {
     <h3>지수 시나리오 (EPS × PER)</h3>${matrixTable(rows, ys, lvl, "PER ↓ · EPS →", "지수")}`;
 }
 
-/* 가로선 밴드 차트 (S&P500 PER, 코스피 PBR 등 지수 배수) */
-function hBandHTML(id) {
-  return `<div class="seg" id="${id}-seg"><button data-y="0">역사적</button><button data-y="10" class="on">10년</button><button data-y="5">5년</button></div>
-    <div class="chart-box tall" id="${id}-chart"></div><div id="${id}-legend"></div><div class="note" id="${id}-stats"></div>`;
+/* 차트 칸 (기간은 탭 맨 위 버튼) */
+function bandHTML(id) {
+  return `<div class="chart-box tall" id="${id}-chart"></div><div id="${id}-legend"></div><div class="note" id="${id}-stats"></div>`;
 }
-function wireHBand(id, hist, name, unit, dg, startYears, marks = []) {
-  const draw = (years) => {
+/* 가로선 밴드 차트 (S&P500 PER, 코스피 PBR 등 지수 배수) — 상단·평균·하단은 고른 기간 안에서 계산 */
+function wireHBand(id, hist, name, unit, dg, marks = []) {
+  const draw = () => {
     const C = themeColors();
-    const h = hist.slice(sliceYears(hist.map((x) => x[0]), years));
+    const h = hist.slice(sliceP(hist.map((x) => x[0])));
     const v = h.map((x) => x[1]).sort((a, b) => a - b);
     const q = (p) => v[Math.min(v.length - 1, Math.floor(p * (v.length - 1)))];
     const avg = v.reduce((a, b) => a + b, 0) / v.length;
@@ -180,8 +151,8 @@ function wireHBand(id, hist, name, unit, dg, startYears, marks = []) {
     $(`#${id}-legend`).innerHTML = legend(ds.map((d) => [d.label, d.borderColor, !!d.borderDash]));
     $(`#${id}-stats`).innerHTML = `현재 <b>${cur.toFixed(dg + 1)}${unit}</b> · 밴드 위치 <b>${posv.toFixed(0)}%</b> <span class="src">(하단 0% · 상단 100%) ${h[0][0]} ~ ${h[h.length - 1][0]}</span>`;
   };
-  draw(startYears);
-  wireSeg(id, draw);
+  DRAWS.push(draw);
+  draw();
 }
 
 /* 코스피 밸류에이션 */
@@ -204,10 +175,10 @@ function kospiCard() {
       <div class="tile"><div class="tl">PBR (지난 실적)</div><div class="tv">${times(hasBand ? t.pbr : k.pbr_now, 2)}</div><div class="src">${hasBand ? "KRX · " + esc(t.date) : "직접 계산"}</div></div>
     </div>
     ${(M.settings.kospi_notes || []).length ? `<div class="memo">📝 <b>증권사 코멘트 메모</b>${M.settings.kospi_notes.map((x) => `<br>· ${esc(x.text)} <span class="src">(${esc(x.source)}, ${esc(x.date)})</span>`).join("")}</div>` : ""}
-    ${M.market.kospi_fwd_bands ? fwdBandHTML("vm-kfpbr", "12개월 선행 PBR 밴드") + fwdBandHTML("vm-kfper", "12개월 선행 PER 밴드") : ""}
+    ${M.market.kospi_fwd_bands ? `<h3>12개월 선행 PBR 밴드</h3>${bandHTML("vm-kfpbr")}<h3>12개월 선행 PER 밴드</h3>${bandHTML("vm-kfper")}` : ""}
     ${hasBand ? kospiMarksTable() : ""}
     <h3>PBR 밴드 (지난 실적 기준, KRX)</h3>
-    ${hasBand ? hBandHTML("vm-kp") : `<div class="warnbox">코스피 PBR 10년 이력은 한국거래소(KRX) 자료에만 있어요.</div>`}
+    ${hasBand ? bandHTML("vm-kp") : `<div class="warnbox">코스피 PBR 10년 이력은 한국거래소(KRX) 자료에만 있어요.</div>`}
     <h3>연도별 EPS·BPS·PER·PBR <span class="src">코스피 ${n(lvl, 2)} 기준</span></h3>
     <div class="tbl-wrap"><table><thead><tr><th></th>${ys.map((y) => `<th>${y}</th>`).join("")}</tr></thead><tbody>
       <tr><td>EPS (지수 포인트)</td>${ys.map((y) => `<td>${n(Y.eps[y], 0)}</td>`).join("")}</tr>
@@ -219,7 +190,7 @@ function kospiCard() {
     <div class="note">${esc(k.method)} · ${esc(k.source)}</div>
     <h3>코스피 시나리오: EPS × PER</h3>${matrixTable(perRows, ys, lvl, "PER ↓ · EPS →", "지수")}
     <h3>코스피 시나리오: BPS × PBR</h3>${matrixTable(pbrRows, ys, lvl, "PBR ↓ · BPS →", "지수")}`;
-  if (hasBand) wireHBand("vm-kp", t.pbr_hist, "코스피 PBR", "배", 2, 10, M.settings.kospi_pbr_marks || []);
+  if (hasBand) wireHBand("vm-kp", t.pbr_hist, "코스피 PBR", "배", 2, M.settings.kospi_pbr_marks || []);
   if (M.market.kospi_fwd_bands) {
     const kb = M.settings.kospi_bands || {};
     wireFwdBand("vm-kfpbr", "f_bps", kb.pbr || [0.7, 0.8, 0.9, 1.0, 1.1], "PBR");
@@ -228,15 +199,11 @@ function kospiCard() {
 }
 
 /* 코스피 12개월 선행 PER·PBR 밴드 (지수 선 + '선행 EPS·BPS × 배수' 선) */
-function fwdBandHTML(id, title) {
-  return `<h3>${title}</h3><div class="seg" id="${id}-seg"><button data-y="0">전체</button><button data-y="10">10년</button><button data-y="5" class="on">5년</button></div>
-    <div class="chart-box tall" id="${id}-chart"></div><div id="${id}-legend"></div><div class="note" id="${id}-stats"></div>`;
-}
 function wireFwdBand(id, key, mults, unitName) {
   const B = M.market.kospi_fwd_bands;
-  const draw = (years) => {
+  const draw = () => {
     const C = themeColors();
-    const i0 = sliceYears(B.dates, years);
+    const i0 = sliceP(B.dates);
     const dates = B.dates.slice(i0), lv = B.level.slice(i0), f = B[key].slice(i0);
     const cols = [C.s3, C.muted, C.s7, "#d03b3b", C.s4, C.s2];
     const ds = [{ label: "코스피", data: lv, borderColor: C.s1, borderWidth: 2 },
@@ -248,22 +215,8 @@ function wireFwdBand(id, key, mults, unitName) {
     $(`#${id}-stats`).innerHTML = `지금 코스피 ${n(cur, 0)} = 선행 ${unitName} <b>${n(cur / fc, 2)}배</b> · ` +
       mults.map((m) => `${m}배 = <b>${n(fc * m, 0)}</b>`).join(" · ") + `<br><span class="src">${esc(B.note)}</span>`;
   };
-  draw(5);
-  wireSeg(id, draw);
-}
-
-/* 금리 신호등 한국 카드 안에 넣는 코스피 PBR 요약 */
-function kospiPbrBrief() {
-  const t = M.market.kospi_trailing || {};
-  const h = t.pbr_hist || [];
-  if (!t.pbr || h.length < 20) return "";
-  const v = h.slice(sliceYears(h.map((x) => x[0]), 10)).map((x) => x[1]);
-  const pos = (v.filter((x) => x < t.pbr).length / v.length) * 100;
-  return `<div class="memo" style="margin-top:12px">
-    <b>코스피 PBR ${n(t.pbr, 2)}배</b> · 10년 밴드 ${n(pos, 0)}% 위치
-    · 선행 PBR ${n(M.market.kospi_forward?.fwd_pbr, 2)}배
-    ${kospiMarks().map((m) => `<br>· PBR ${m.value}배${m.label.startsWith("PBR") ? "" : ` (${esc(m.label.split(" (")[0])})`} = 코스피 선행 기준 <b>${m.level_f ? n(m.level_f, 0) : "N/A"}</b> <span class="nowrap">(${pct(m.chg_f, 0, true)})</span> · 지난 실적 기준 ${n(m.level, 0)}`).join("")}
-    <br><a href="#vm-kospiBand" onclick="document.getElementById('vm-kospiBand').scrollIntoView({behavior:'smooth'});return false;">PBR 밴드 차트 보기 ↓</a></div>`;
+  DRAWS.push(draw);
+  draw();
 }
 
 /* 코스피 PBR 내 기준선: 그 PBR 이 되는 코스피 지수와 지금 대비 % */
@@ -317,12 +270,21 @@ function crossCheck() {
 }
 
 function render() {
-  const b = M.settings.bond_signal;
   $("#vm-updated").textContent = `밸류 신호등 ${M.updated_at} (KST) 갱신분`;
-  $("#vm-ruleLine").textContent = `비율 = 주식 선행 PER ÷ 채권 환산 PER(1 ÷ 금리). ${b.green_max} 이하 🟢 매력 · ${b.yellow_max} 이하 🟡 중립 · 그 위 🔴 위험`;
-  $("#vm-signals").innerHTML =
-    marketCard(M.signals.us, M.rates.us10y, null, "us") +
-    marketCard(M.signals.kr, M.rates.kr3y, M.rates.kr10y ? { label: "국고채 10년", latest: M.rates.kr10y.latest } : null, "kr");
+  const bar = $("#vm-bar");
+  bar.innerHTML = PERIODS.map(([k, label]) => `<button data-p="${k}" class="${k === VP ? "on" : ""}">${label}</button>`).join("");
+  bar.onclick = (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    VP = b.dataset.p;
+    try { localStorage.setItem("vmPeriod", VP); } catch (_) {}
+    bar.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+    drawMarketCharts();
+    DRAWS.forEach((d) => d());
+  };
+  const k10 = M.rates.kr10y;
+  $("#vm-signals").innerHTML = rateCard(M.rates.us10y, "미국채 10년", "us") +
+    rateCard(M.rates.kr3y, "국고채 3년", "kr", k10 ? `<div class="src">국고채 10년(참고) ${pct(k10.latest, 2)} · ${esc(k10.date)}</div>` : "");
+  DRAWS = [];
   drawMarketCharts();
   kospiCard();
   spBand();

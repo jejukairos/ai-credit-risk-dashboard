@@ -495,9 +495,9 @@ def fetch_valmarket():
     git("fetch", "-q", "--depth", "1", "--filter=blob:none", "origin", "main")
     d = json.loads(git("show", "FETCH_HEAD:site/data/dashboard.json").decode("utf-8"))
     s = d["settings"]
-    out = {"updated_at": d["updated_at"], "rates": d["rates"], "signals": d["signals"],
+    out = {"updated_at": d["updated_at"], "rates": d["rates"],
            "market": {k: v for k, v in d["market"].items() if k != "manheim"},
-           "settings": {k: s.get(k) for k in ("bond_signal", "band", "index_scenarios", "kospi_pbr_marks", "kospi_bands", "kospi_notes")},
+           "settings": {k: s.get(k) for k in ("band", "index_scenarios", "kospi_pbr_marks", "kospi_bands", "kospi_notes")},
            # 크로스체크 표의 매그7 '이 사이트' 값
            "mag7_fwd_per": {c["code"]: c.get("fwd_per") for c in d["stocks"] if c.get("code") in ("GOOG", "NVDA", "MSFT", "META", "TSLA")}}
     if not out["market"].get("kospi_forward"):
