@@ -1293,7 +1293,7 @@ def build_wti():
 
 
 def build_usmkt():
-    # 최근 3개월 차트 + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), S&P500은 최고점 대비 하락률
+    # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), S&P500은 최고점 대비 하락률
     out = {}
     for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy")]:
         path = os.path.join(DATA, fname)
@@ -1308,8 +1308,7 @@ def build_usmkt():
             if not len(b):
                 return None
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
-        r = s[di >= end - pd.DateOffset(months=3)]
-        o = {"x": list(r.index), "y": [round(float(a), 2) for a in r.values], "last": round(last, 3), "last_date": s.index[-1],
+        o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
         if col == "sp500":
             o["peak"] = {"date": s.idxmax(), "value": round(float(s.max()), 2)}

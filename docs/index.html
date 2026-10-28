@@ -84,6 +84,8 @@ details a{color:var(--ink2);word-break:break-all}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
 .chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
 .srcs summary{cursor:pointer;padding:4px 0}
+details.fold{margin:0}
+details.fold>summary{cursor:pointer;padding:4px;font-size:15px;color:var(--ink);line-height:1.4}
 .opbar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:0 4px;gap:2px}
 .opbar span{display:block;height:100%}
 .st{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;color:#fff;margin-right:4px}
@@ -265,15 +267,15 @@ footer a{color:var(--ink2)}
     </div>
     <p class="note" style="margin:6px 4px 2px">블룸버그 값은 유료라, 같은 ICE BofA 하이일드 지수를 무료로 공개하는 <a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2" target="_blank" rel="noopener">FRED</a> 데이터를 씁니다. 블룸버그 화면보다 하루 늦고 0.1%p 안팎 다를 수 있어요. 점선(3.2%)은 메모 차트의 박스권 위쪽 기준선입니다.</p>
   </div>
-  <div class="card">
-    <h3><span>더 길게 보기 — 신용 스프레드가 치솟았을 때 무슨 일이 있었나 (1986~)</span></h3>
+  <div class="card"><details class="fold" ontoggle="if (this.open) Plotly.Plots.resize('hylong')">
+    <summary><b>더 길게 보기 — 신용 스프레드가 치솟았을 때 무슨 일이 있었나 (1986~)</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
     <div class="small" style="margin:2px 4px 6px">하이일드 스프레드 무료 자료는 최근 3년만 공개돼서, 같은 위기 때 함께 치솟는 <b>Moody's Baa 회사채 스프레드</b>(투자등급 하단 회사채 − 10년 국채, 1986년부터)로 길게 봐요. 하이일드보다 숫자는 작지만 오르내리는 시기가 같아요. 빨간 번호 = 아래 표의 사건.</div>
     <div id="hylong" class="plot" style="height:260px"></div>
     <div class="tablebox" style="border:0"><table id="hyevents"><thead><tr><th style="text-align:left">사건</th><th>Baa<br>최고</th><th>하이일드<br>최고</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
-  </div>
+  </details></div>
 
-  <h2 id="sec-usmkt">S&amp;P500 · 미국채 10년물 · 달러인덱스 (최근 3개월)</h2>
+  <h2 id="sec-usmkt">S&amp;P500 · 미국채 10년물 · 달러인덱스</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
@@ -281,7 +283,7 @@ footer a{color:var(--ink2)}
       <div><b>달러인덱스</b> 유로·엔 등 6개 주요 통화와 비교한 달러 가치예요. 오르면 달러가 강해졌다는 뜻이에요.</div>
     </div>
     <div id="usmkt"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC · 미국채 10년물 ^TNX · 달러인덱스 DX-Y.NYB), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC · 미국채 10년물 ^TNX · 달러인덱스 DX-Y.NYB), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
   <h2 id="sec-wti">WTI 유가 (미국 원유 가격)</h2>
@@ -421,10 +423,10 @@ footer a{color:var(--ink2)}
   </div>
   <div class="tiles" id="kofiatiles"></div>
   <div class="card">
-    <h3><span>고객예탁금 · 코스피 (2020년 1월~)</span></h3>
+    <h3><span>고객예탁금 · 코스피</span></h3>
     <div id="fundplot" class="plot" style="height:420px"></div>
     <p class="note" style="margin:4px">대기 현금(예탁금)이 늘면 주식을 살 돈이 많아져 호황, 줄면 불황 쪽으로 가는 흐름을 코스피와 함께 볼 수 있어요.
-    이 차트는 위 기간 버튼과 상관없이 항상 2020년 1월부터 보여줘요. 점선 = 최근 1년 최고점. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: Yahoo Finance</p>
+    위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년 1월~). 점선 = 최근 1년 최고점. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: Yahoo Finance</p>
   </div>
   <div class="card">
     <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
@@ -440,8 +442,9 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card">
     <h3><span>신용융자 잔고 — 코스피 · 코스닥 (조원)</span></h3>
-    <div id="creditmkt" class="plot" style="height:420px"></div>
-    <p class="note" style="margin:4px">위 = 코스피(유가증권), 아래 = 코스닥 시장에서 <b>빚내서 산 주식</b> 금액이에요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
+    <div id="creditkospi" class="plot" style="height:340px"></div>
+    <div id="creditkosdaq" class="plot" style="height:340px"></div>
+    <p class="note" style="margin:4px">시장마다 위 = <b>빚내서 산 주식</b> 금액(신용융자), 아래 = 그 시장 지수예요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
     <div id="cleanbox"></div>
@@ -722,7 +725,11 @@ function insiderHtml(t) {
 const CFG = {displayModeBar: false, responsive: true};
 
 // 위에 큰 숫자가 따로 없는 차트만: 가장 최근 값을 차트 바로 위 한 줄로 표시 (그래프는 가리지 않음)
-const NOW_ONLY = ['fundplot', 'creditmkt', 'kofiaplot'];
+const NOW_ONLY = ['fundplot', 'creditkospi', 'creditkosdaq', 'kofiaplot'];
+// 차트 밖을 누르면 숫자 상자(툴팁) 닫기 — 차트 안에서는 그대로 날짜별 숫자 표시
+document.addEventListener('pointerdown', e => {
+  if (!e.target.closest('.js-plotly-plot')) document.querySelectorAll('.js-plotly-plot').forEach(p => Plotly.Fx.unhover(p));
+});
 function addNowBoxes(el, data, layout) {
   const id = typeof el === 'string' ? el : el.id;
   if (!NOW_ONLY.includes(id) || !Array.isArray(data)) return;
@@ -900,8 +907,8 @@ function renderKofia() {
   const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
   const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
   const peakLine = (yref, v) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color: css('--ink2'), width: 1, dash: 'dot'}});
-  // 주변자금(2020년~ 고정): 예탁금 · 신용융자 · 코스피를 날짜축 맞춰 3칸으로
-  const fs = '2020-01-01', inF = (xx, arr) => arr.filter((v, i) => v != null && xx[i] >= fs);
+  // 주변자금: 예탁금 · 코스피를 날짜축 맞춰 2칸으로 (코스피 자료가 2020년부터라 '전체'도 2020년~)
+  const fs = xStartFor(last, '2020-01-01'), inF = (xx, arr) => arr.filter((v, i) => v != null && xx[i] >= fs);
   const kp = k.kospi || {x: [], y: []};
   // 눌러 보지 않아도 가장 최근 숫자가 그래프 끝에 항상 보이게
   const lastLbl = (xs_, ys_, yaxis, fmt, color) => { let i = ys_.length - 1; while (i > 0 && ys_[i] == null) i--;
@@ -954,16 +961,20 @@ function renderKofia() {
   if (k.credit_kospi) {
     const y1 = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);  // 최근 1년 최고점
     const pk = arr => Math.max(...arr.filter((a, i) => a != null && k.x[i] >= y1));
-    const ck = k.credit_kospi, cq = k.credit_kosdaq;
-    Plotly.react('creditmkt', [
-      {x: k.x, y: ck, type: 'scatter', mode: 'lines', name: '코스피 신용', line: {color: css('--g1'), width: 2}, hovertemplate: '코스피 신용 %{y:.2f}조'},
-      {x: k.x, y: cq, type: 'scatter', mode: 'lines', name: '코스닥 신용', yaxis: 'y2', line: {color: css('--bad'), width: 2}, hovertemplate: '코스닥 신용 %{y:.2f}조'},
-    ], Object.assign(baseLayout(), {
-      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
-      yaxis: axis({domain: [0.54, 1], range: padRange(inR(ck), false), title: {text: '코스피 조', standoff: 2}}),
-      yaxis2: axis({domain: [0, 0.46], range: padRange(inR(cq), false), title: {text: '코스닥 조', standoff: 2}}),
-      shapes: [peakLine('y', pk(ck)), peakLine('y2', pk(cq))],
-    }), CFG);
+    // 시장마다 위 = 신용융자, 아래 = 지수 (지수는 다음 금융 2020년~)
+    [['creditkospi', '코스피', k.credit_kospi, '--g1', 'kospi'], ['creditkosdaq', '코스닥', k.credit_kosdaq, '--bad', 'kosdaq']].forEach(([id, nm, cr, col, c]) => {
+      const ix = tv && tv[c] ? {x: tv.x, y: tv[c].idx} : {x: [], y: []};
+      Plotly.react(id, [
+        {x: k.x, y: cr, type: 'scatter', mode: 'lines', name: nm + ' 신용', line: {color: css(col), width: 2}, hovertemplate: nm + ' 신용 %{y:.2f}조<extra></extra>'},
+        {x: ix.x, y: ix.y, type: 'scatter', mode: 'lines', name: nm, yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'},
+      ], Object.assign(baseLayout(), {
+        xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+        yaxis: axis({domain: [0.5, 0.93], range: padRange(inR(cr), false)}),
+        yaxis2: axis({domain: [0, 0.38], range: padRange(ix.y.filter((v, i) => v != null && ix.x[i] >= xs), false)}),
+        shapes: [peakLine('y', pk(cr))],
+        annotations: [panelLbl(0.94, `${nm} 신용융자 (조원)`), panelLbl(0.39, `${nm} 지수`)],
+      }), CFG);
+    });
   }
   if (k.monthly) {
     const m = k.monthly, mx = Math.max(...m.y);
@@ -1283,12 +1294,12 @@ function renderUsmkt() {
       <div id="usmkt-${k}" class="plot" style="height:170px"></div></div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
-    const o = U[k];
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : '--ink2'), width: 2},
+    const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]);
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
       hovertemplate: `%{y:.2f}${unit === '%' ? '%' : ''}<extra></extra>`}],
       Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26},
-        xaxis: axis({type: 'date', tickformat: '%m.%d', hoverformat: '%Y-%m-%d'}),
-        yaxis: axis({range: padRange(o.y, false), ticksuffix: unit === '%' ? '%' : ''})}), CFG);
+        xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
+        yaxis: axis({range: padRange(o.y.filter((_, i) => o.x[i] >= xs), false), ticksuffix: unit === '%' ? '%' : ''})}), CFG);
   });
 }
 

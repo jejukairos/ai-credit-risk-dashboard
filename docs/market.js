@@ -177,8 +177,6 @@ function kospiCard() {
     ${(M.settings.kospi_notes || []).length ? `<div class="memo">📝 <b>증권사 코멘트 메모</b>${M.settings.kospi_notes.map((x) => `<br>· ${esc(x.text)} <span class="src">(${esc(x.source)}, ${esc(x.date)})</span>`).join("")}</div>` : ""}
     ${M.market.kospi_fwd_bands ? `<h3>12개월 선행 PBR 밴드</h3>${bandHTML("vm-kfpbr")}<h3>12개월 선행 PER 밴드</h3>${bandHTML("vm-kfper")}` : ""}
     ${hasBand ? kospiMarksTable() : ""}
-    <h3>PBR 밴드 (지난 실적 기준, KRX)</h3>
-    ${hasBand ? bandHTML("vm-kp") : `<div class="warnbox">코스피 PBR 10년 이력은 한국거래소(KRX) 자료에만 있어요.</div>`}
     <h3>연도별 EPS·BPS·PER·PBR <span class="src">코스피 ${n(lvl, 2)} 기준</span></h3>
     <div class="tbl-wrap"><table><thead><tr><th></th>${ys.map((y) => `<th>${y}</th>`).join("")}</tr></thead><tbody>
       <tr><td>EPS (지수 포인트)</td>${ys.map((y) => `<td>${n(Y.eps[y], 0)}</td>`).join("")}</tr>
@@ -190,7 +188,6 @@ function kospiCard() {
     <div class="note">${esc(k.method)} · ${esc(k.source)}</div>
     <h3>코스피 시나리오: EPS × PER</h3>${matrixTable(perRows, ys, lvl, "PER ↓ · EPS →", "지수")}
     <h3>코스피 시나리오: BPS × PBR</h3>${matrixTable(pbrRows, ys, lvl, "PBR ↓ · BPS →", "지수")}`;
-  if (hasBand) wireHBand("vm-kp", t.pbr_hist, "코스피 PBR", "배", 2, M.settings.kospi_pbr_marks || []);
   if (M.market.kospi_fwd_bands) {
     const kb = M.settings.kospi_bands || {};
     wireFwdBand("vm-kfpbr", "f_bps", kb.pbr || [0.7, 0.8, 0.9, 1.0, 1.1], "PBR");
