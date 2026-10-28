@@ -342,6 +342,7 @@ footer a{color:var(--ink2)}
       <b>🐒 투자 메모</b>
       <div>· B300이 약간 주춤하긴 하지만 H100·H200은 전반적으로 다 좋아요. <b>D램 현물가격과 GPU 임대가격</b>, 제일 중요하고 객관적인 두 지표가 좋아요.</div>
       <div>· 다만 <b>LLM Token Index는 하락 중</b>이에요. 비싼 모델보다 <b>저가 모델이 더 많이 쓰인다</b>는 얘기예요.</div>
+      <div>· <b>JP모건 데이터센터 보고서(10/26)</b>: 10월 AI 토큰 <b>지출</b> 전월 대비 <b>+40%</b>(8월 +7% → 9월 +28% → 가속). 사용량 +25%에 비싼 모델 사용이 늘어 단가도 올랐어요. GPU 임대료는 구형 <b>A100 −3.5%</b>, <b>H100 +6.5%</b>, <b>B200 +4.7%</b> — 고성능 칩 위주로 반등. <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
       <div class="real" id="sdreal"></div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
@@ -477,7 +478,8 @@ footer a{color:var(--ink2)}
   <div class="memo" style="margin:0 0 10px">
     <b>🐒 투자 메모</b>
     <div>· DDR4가 살짝 아쉽지만, <b>메인은 DDR5</b>라는 걸 감안해야 해요. <b>DDR5 현물가격 분위기는 너무 좋아요.</b></div>
-    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약</div>
+    <div>· <b>JP모건(10/26)</b>: 10월 <b>DDR5 16Gb 51.80달러, 전월 대비 +4.4%</b> — 9월 하락 뒤 반등(AI 서버·HBM 생산 때문에 공급 빠듯). 반면 <b>NAND 1Tb 29.40달러, −2.6%</b>로 2달 연속 하락(소비자 수요 약함·재고 부담). 4분기 계약가 전망은 <b>DRAM +13%, NAND +18%</b> — 3분기보다 덜 오르지만 오름세는 이어진다는 예상. <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
+    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약 · JP모건 보고서 요약(KuCoin 뉴스)</div>
   </div>
   <div id="dramcards"></div>
   <div class="card" id="opcard">
@@ -1443,10 +1445,11 @@ function renderSilicon() {
   const unit = n => /LLM/.test(n) ? '$/백만 토큰' : '$/GPU·시간';
   const kr = {'LLM Token': 'LLM Token Index', 'Open LLM': '└ 오픈웨이트 모델', 'Proprietary LLM': '└ 독점(유료) 모델'};
   const since = s => (s.y[s.y.length - 1] / s.y[0] - 1) * 100;
-  document.querySelector('#sdtable tbody').innerHTML = ['H100', 'H200', 'B200', 'B300', 'LLM Token', 'Open LLM', 'Proprietary LLM']
+  document.querySelector('#sdtable tbody').innerHTML = ['A100', 'H100', 'H200', 'B200', 'B300', 'LLM Token', 'Open LLM', 'Proprietary LLM']
     .filter(n => by[n]).map(n => { const s = by[n]; return `<tr><td>${kr[n] || n}<br><span class="small">${unit(n)}</span></td>
       <td>$${s.last.toFixed(s.last < 1 ? 3 : 2)}<br><span class="small">${s.last_date.slice(5).replace('-', '.')}</span></td><td>${fmtPct(s.w1)}</td><td>${fmtPct(since(s))}<br><span class="small">${s.x[0].slice(5).replace('-', '.')}~</span></td></tr>`; }).join('');
   // 첫 공통 기록일 = 100 으로 맞춘 비교 (한 축으로 단위가 다른 GPU·토큰 지수를 같이 봄)
+  // A100은 2026-09-28부터 기록이라 차트에 넣으면 공통 기준일이 늦어져 다른 지수 앞부분이 잘림 → 표에만
   const plotN = [['LLM Token', '--price'], ['H100', '--g1'], ['H200', '--g7'], ['B200', '--g2'], ['B300', '--g3']].filter(([n]) => by[n]);
   const base = plotN.map(([n]) => by[n].x[0]).sort().pop();
   const traces = plotN.map(([n, c]) => {
@@ -1463,8 +1466,8 @@ function renderSilicon() {
     shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 100, y1: 100, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
     showlegend: true, legend: {orientation: 'h', y: -0.18, font: {size: 11}}, margin: {l: 44, r: 8, t: 8, b: 56},
   }), CFG);
-  const f = n => by[n] ? `${n === 'LLM Token' ? 'LLM Token Index' : n} ${since(by[n]) >= 0 ? '+' : ''}${since(by[n]).toFixed(1)}%` : '';
-  document.getElementById('sdreal').innerHTML = `<b>실제 기록</b> 기록 시작(9월 중순) 이후 ${['H100', 'H200', 'B200', 'B300'].map(f).filter(Boolean).join(', ')} · ${f('LLM Token')}. ` +
+  const f = n => by[n] ? `${n === 'LLM Token' ? 'LLM Token Index' : n}${by[n].x[0] > base ? `(${by[n].x[0].slice(5).replace('-', '.')}~)` : ''} ${since(by[n]) >= 0 ? '+' : ''}${since(by[n]).toFixed(1)}%` : '';
+  document.getElementById('sdreal').innerHTML = `<b>실제 기록</b> 기록 시작(9월 중순) 이후 ${['A100', 'H100', 'H200', 'B200', 'B300'].map(f).filter(Boolean).join(', ')} · ${f('LLM Token')}. ` +
     (by['Open LLM'] && by['Proprietary LLM'] ? `지금 오픈웨이트 모델은 독점 모델의 약 ${(by['Open LLM'].last / by['Proprietary LLM'].last * 100).toFixed(0)}% 가격이에요.` : '');
 }
 

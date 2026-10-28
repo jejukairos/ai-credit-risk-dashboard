@@ -273,7 +273,7 @@ def fetch_fear_greed():
 
 # ---------- Silicon Data 지수 (GPU 임대·LLM 토큰 가격, 공개 페이지에 실린 최근 30일치를 매일 저장) ----------
 SILICON_SERIES = {  # 페이지 표기 -> 저장 이름
-    "H100(SDH100RT)": "H100", "H200": "H200", "B200(SDB200RT)": "B200", "B300": "B300",
+    "A100(SDA100RT)": "A100", "H100(SDH100RT)": "H100", "H200": "H200", "B200(SDB200RT)": "B200", "B300": "B300",
     "LLM Token(SDLLMTK)": "LLM Token", "Open LLM": "Open LLM", "Proprietary LLM": "Proprietary LLM",
 }
 
