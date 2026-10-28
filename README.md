@@ -34,6 +34,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 | 미수금·반대매매·신용융자 | 금융투자협회 FreeSIS | 2015년부터 일별. 신용융자는 코스피·코스닥 따로도 표시 |
 | 거래대금(코스피·코스닥) | [다음 금융](https://finance.daum.net/domestic/kospi) 지수 일별 시세(공개 데이터 주소, 비공식) | 2020년부터 일별 거래대금(백만원 → 조원)·지수 종가. 매일 최근 100일을 받아 합침. 화면은 5거래일 평균(위)·지수(아래). '거래대금 바닥' = 최근 1년 5일 평균 최고점 이후 가장 낮은 5일 평균, 그 바닥이 최근 5거래일 안이면 '바닥을 새로 깨는 중'. '한국' 탭 고객예탁금 바로 아래 |
 | 코스피 장기(MDD용) | [네이버 금융](https://finance.naver.com/sise/sise_index.naver?code=KOSPI) 차트 데이터 | 1990년부터 일별 종가 |
+| S&P500·미국채 10년물·달러인덱스 | Yahoo Finance (^GSPC · ^TNX · DX-Y.NYB) | 최근 3개월 차트 + 지금 값, 전일·1주 전·1달 전 대비(금리는 %p 차이, 나머지는 %). 1주·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가. S&P500은 2020년 이후 최고 종가 대비 하락률도. '미국' 탭 WTI 바로 위 |
 | WTI 유가 | Yahoo Finance (CL=F, 근월물 선물) | 2020년부터 일별. '미국' 탭 위험 기업 요약(CDS) 바로 위 |
 | MOVE 지수(채권 변동성) | Yahoo Finance (^MOVE) | 2002-11부터 일별. 점선 = 2002년 이후 중앙값 |
 | CNN 공포·탐욕 지수 | CNN 사이트가 쓰는 공개 데이터 주소(비공식) | 2021년부터 일별. 10 이하 구간과 이후 S&P500 수익률 자동 계산 |
@@ -45,7 +46,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 
 | 투자자 심리 설문(Bull/Bear) | [AAII Sentiment Survey](https://www.aaii.com/sentimentsurvey) 엑셀 파일 | 매주 목요일. 강세 − 약세 응답(%p), 2015년부터 표시 |
 | 풋/콜 비율 | [CBOE 일별 옵션 통계](https://www.cboe.com/us/options/market_statistics/daily/) | 주식(EQUITY) 풋/콜 비율. 하루치씩만 주므로 처음 1년치를 받고 이후 매일 쌓음 |
-| 신용잔고(Margin Debt) | [FINRA Margin Statistics](https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics) | 매월(약 3주 뒤 발표). 고객 신용 잔고(Debit Balances) |
+| 신용잔고(Margin Debt) | [FINRA Margin Statistics](https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics) | 매월(약 3주 뒤 발표). 고객 신용 잔고(Debit Balances). 카드 안에 '빚투 증가세 피크아웃' 메모(텔레그램 소수의견 6/30·10/28, 사용자 제공) + 1998년~ 1년 변화율 장기 차트 + 50% 넘었던 때의 피크와 4달 뒤 값(우리 데이터로 계산) + 최근 24개월 표(접어 둠) |
 | S&P500 이평선 위 종목 비율 | [위키백과 S&P500 종목 목록](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) + Yahoo Finance 종목별 주가 | 직접 계산(아래 공식). 지금 종목 기준이라 바차트 등과 조금 다를 수 있음 |
 | S&P500 12개월 예상 P/E | [FactSet Earnings Insight](https://insight.factset.com/) 주간 보고서(PDF) 첫 장 | 매주 금요일. 보고서마다 출처 URL을 `data/sp500_pe.csv` 에 함께 저장, 5년·10년 평균도 보고서 문장 그대로 |
 

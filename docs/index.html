@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -142,7 +142,7 @@ footer a{color:var(--ink2)}
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -235,6 +235,17 @@ footer a{color:var(--ink2)}
     <div id="hylong" class="plot" style="height:260px"></div>
     <div class="tablebox" style="border:0"><table id="hyevents"><thead><tr><th style="text-align:left">사건</th><th>Baa<br>최고</th><th>하이일드<br>최고</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
+  </div>
+
+  <h2 id="sec-usmkt">S&amp;P500 · 미국채 10년물 · 달러인덱스 (최근 3개월)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
+      <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
+      <div><b>달러인덱스</b> 유로·엔 등 6개 주요 통화와 비교한 달러 가치예요. 오르면 달러가 강해졌다는 뜻이에요.</div>
+    </div>
+    <div id="usmkt"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC · 미국채 10년물 ^TNX · 달러인덱스 DX-Y.NYB), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준.</p>
   </div>
 
   <h2 id="sec-wti">WTI 유가 (미국 원유 가격)</h2>
@@ -588,7 +599,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
 function setupTabs() {
   let cur = null;
@@ -1192,6 +1203,31 @@ function renderMove() {
   document.getElementById('movereal').innerHTML = `<b>실제 기록</b> ${v.since.slice(0, 4)}년 이후 날짜들 중 지금보다 낮았던 날이 <b>${v.pct_rank}%</b>예요(점선 = 그 기간 중앙값 ${v.median_all}). 숫자가 높을수록 채권 시장이 불안하다는 뜻이에요.`;
 }
 
+function renderUsmkt() {
+  const U = DATA.usmkt, box = document.getElementById('usmkt');
+  if (!U) return;
+  const md = s => s.slice(2).replace(/-/g, '.');
+  const items = [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].filter(a => U[a[0]]);
+  // 금리는 %p 차이, 나머지는 % 변화율
+  const ch = (k, v) => v == null ? '–' : k === 'us10y' ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%p</span>` : fmtPct(v);
+  box.innerHTML = items.map(([k, name, unit, d]) => {
+    const o = U[k];
+    return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore" style="font-size:26px">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
+      <div><div class="fgrating" style="font-size:15px">${name}</div><div class="small">${o.last_date} 미국 장 마감 기준</div></div></div>
+      <div class="fgchips"><span class="chip">전일 ${ch(k, o.d1)}</span><span class="chip">1주 전 ${ch(k, o.w1)}</span><span class="chip">1달 전 ${ch(k, o.m1)}</span></div>
+      ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
+      <div id="usmkt-${k}" class="plot" style="height:170px"></div></div>`;
+  }).join('');
+  items.forEach(([k, , unit]) => {
+    const o = U[k];
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : '--ink2'), width: 2},
+      hovertemplate: `%{y:.2f}${unit === '%' ? '%' : ''}<extra></extra>`}],
+      Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26},
+        xaxis: axis({type: 'date', tickformat: '%m.%d', hoverformat: '%Y-%m-%d'}),
+        yaxis: axis({range: padRange(o.y, false), ticksuffix: unit === '%' ? '%' : ''})}), CFG);
+  });
+}
+
 function renderWti() {
   const w = DATA.wti;
   if (!w) return;
@@ -1542,6 +1578,48 @@ function readerPlot(it) {
     }), CFG);
 }
 
+// 빚투 증가세 피크아웃: 1998~ 장기 차트 + 50% 넘었던 때의 피크와 그 4달 뒤 + 숨긴 월별 표
+function renderMarginPeak(it) {
+  const plot = it && it.value != null && document.getElementById('rd-margin');
+  if (!plot) return;
+  const x = it.x, y = it.y, n = y.length, ym = s => `${s.slice(2, 4)}.${s.slice(5, 7)}`;
+  const pk = x.slice(-12).reduce((b, _, k) => y[n - 12 + k] > y[b] ? n - 12 + k : b, n - 12);  // 최근 12달 중 최고
+  let down = 0;
+  while (down < n - 1 && y[n - 1 - down] < y[n - 2 - down]) down++;
+  const eps = [];  // 50%를 넘은 구간(3달 안에 다시 넘으면 같은 구간)마다 최고점
+  y.forEach((v, i) => {
+    if (v <= 50) return;
+    const e = eps[eps.length - 1];
+    if (e && i - e.end <= 3) { e.end = i; if (v > y[e.pk]) e.pk = i; } else eps.push({pk: i, end: i});
+  });
+  const after = i => i + 4 < n ? `${fmtPct(y[i + 4])} <span class="small">(${ym(x[i + 4])})</span>` : '<span class="small">아직</span>';
+  plot.insertAdjacentHTML('afterend', `<div class="memo">
+    <b>⚠️ 빚투 증가세 피크아웃 가능성</b> <span class="small">(${ym(x[n - 1])} 기준)</span>
+    <div class="fgchips" style="margin:6px 0"><span class="chip warm">${fmtNum(y[pk], 0)}% (${ym(x[pk])}) → ${fmtNum(y[n - 1], 0)}% (${ym(x[n - 1])})</span>${down ? `<span class="chip">${down}개월 연속 증가세 둔화</span>` : ''}</div>
+    <div>· <b>왜 빚투를 봐요?</b> 메모 작성자가 증시 과열 신호 중 <b>가장 많이 참고</b>하는 지표예요. 시장의 겉모습은 매번 달라도 사람의 탐욕은 반복되니까요.</div>
+    <div style="margin:2px 0 2px 10px">현금으로 주식을 사다가 → 더 욕심이 나면 <b>빚을 내서</b> 사고 → 빚을 내서라도 <b>더 비싸게 사 줄 사람이 없어지면</b> → 증시가 <b>정점</b>에 닿는 경우가 많았대요.</div>
+    <div>· <b>6/30 메모</b> "빚투 증가세, 역대급 위험 구간 진입(54%)". 닷컴버블·금융위기·코로나 이후 <b>역대 4번째</b>로 50%를 넘은 증가세이고, 이 추세면 <b>올해 3~4분기에 정점 신호</b>가 나올 수도 있다고 했어요.</div>
+    <div>· <b>10/28 메모</b> 그 뒤 <b>4개월 연속</b> 증가세가 줄었어요(54% → 31%). <b>증가세가 피크를 찍고 내려갈 때</b>가 고점 신호였던 경우가 많아서, <b>빚투 기준으로는 정점(피크아웃)이 확인된 것 같다(주의)</b>고 봐요. 중요한 경고 신호가 하나 더 늘었다는 뜻이에요.</div>
+    <div class="small" style="margin-top:2px">※ 메모의 '6월 고점 54%'는 6월에 발표된 <b>5월 말</b> 숫자예요(FINRA는 한 달쯤 늦게 발표). 아래 표·차트는 '몇 월 말' 기준이에요.</div>
+    <div id="rd-margin-long" class="plot" style="height:230px"></div>
+    <div class="small" style="margin:0 4px">1998년~ 전체 · 빨강일수록 빚투가 뜨거웠던 때, 초록일수록 식었던 때 · 점선 = 50%</div>
+    <div class="tablebox" style="border:0;margin:6px 0"><table><thead><tr><th>50% 넘었던 때<br>피크</th><th>그때<br>증가율</th><th>4달 뒤</th></tr></thead><tbody>${eps.map(e =>
+      `<tr><td>${ym(x[e.pk])}</td><td>${fmtPct(y[e.pk])}</td><td>${after(e.pk)}</td></tr>`).join('')}</tbody></table></div>
+    <details class="srcs"><summary><b>월별 숫자 보기</b> <span class="small">(최근 24개월, 누르면 펼쳐져요)</span></summary>
+      <div class="tablebox" style="border:0"><table><thead><tr><th>월</th><th>빚투 잔고<br>(십억 달러)</th><th>1년 전 대비</th></tr></thead><tbody>${x.slice(-24).reverse().map((d, k) =>
+        `<tr><td>${d.slice(0, 7)}</td><td>${fmtNum(it.debits[n - 1 - k], 1)}</td><td>${fmtPct(y[n - 1 - k])}</td></tr>`).join('')}</tbody></table></div></details>
+    <div class="small" style="margin-top:4px;color:var(--muted)">글쓴이 의견 — 텔레그램 '소수의견' 메모·그림 '빚투 증가세, 역대급 위험 구간 진입'(26.6.30)·'빚투 증가세, 피크 아웃 가능성 확대'(26.10.28) (사용자 제공, 소몽 『미국주식 마스터클래스』 챕터 4 참고) · 숫자·차트 — FINRA Margin Statistics(아래 링크)</div>
+  </div>`);
+  Plotly.react('rd-margin-long', [{x, y, type: 'scatter', mode: 'lines+markers', line: {color: css('--muted'), width: 1.2},
+    marker: {size: 5, color: y, cmin: -40, cmax: 80, colorscale: [[0, '#2e9d4a'], [0.33, '#2e9d4a'], [0.6, '#c0392b'], [1, '#e8141b']]}, hovertemplate: '%{y:.1f}%<extra></extra>'}],
+    Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', tickformat: '%Y', hoverformat: '%Y-%m'}),
+      yaxis: axis({ticksuffix: '%'}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 0, line: {color: css('--ink2'), width: 1.2}},
+               {type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 50, y1: 50, line: {color: css('--bad'), width: 1, dash: 'dot'}}],
+    }), CFG);
+}
+
 // ---------- 시장 4국면 (우라가미 구니오) ----------
 const PH = ['금융장세', '실적장세', '역금융장세', '역실적장세'];
 const PH_TABLE = {금리: ['↓', '↗', '↑', '↘'], 실적: ['↘', '↑', '↗', '↓'], 주가: ['↑', '↗', '↓', '↘']};
@@ -1605,6 +1683,7 @@ function renderReaders() {
   document.getElementById('contra-cards').innerHTML = R.contra.items.map(it =>
     readerCard(it, it.key === 'margin' && it.debit_b ? ` · 잔고 ${fmtNum(it.debit_b, 1)}십억 달러` : '')).join('');
   R.contra.items.forEach(readerPlot);
+  renderMarginPeak(R.contra.items.find(it => it.key === 'margin'));
   renderCurve(R.contra.summary);
 
   const C = R.chart, d = C.direction;
@@ -1637,13 +1716,13 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderWti(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
