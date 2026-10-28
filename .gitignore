@@ -3,3 +3,4 @@ logs/
 __pycache__/
 .claude/
 user_sources/
+.valuation_cache/

@@ -11,6 +11,7 @@
 - `config.py` — 종목(TICKERS), 등급 스프레드, GPU, 사건 목록, 위험 기준, `HIDDEN_SECTIONS`(화면에서 숨긴 섹션)
 - `update.py` — 모든 데이터를 받아 `data/` 에 저장하고 `docs/data.json`, `docs/status.json` 생성. 단계별로 실패해도 이전 데이터 유지, 실패는 status.json에 기록 → 화면 상단에 표시
 - `docs/index.html` — 화면 전체(Plotly.js 2.35.2, 섹션마다 render* 함수)
+- `docs/market.js` + `docs/market.json` — 🚦 시장 탭. 사용자의 다른 대시보드(밸류 신호등, `C:\Users\hyunm\valuation-dashboard`)에서 데이터를 복사해 옴(README 참고). 그쪽 폴더는 다른 세션이 작업 중이니 건드리지 않음
 - `cds_log.csv`, `dram_log.csv`, `arr_log.csv`, `opinion_log.csv` — 사람/AI가 뉴스에서 찾아 직접 추가하는 기록
 - `run_update.bat` — 갱신 + git commit/push. 로그는 `logs\update.log`
 - `fg_update.py/.bat` — CNN 공포·탐욕 지수가 바뀌면 그때만 push

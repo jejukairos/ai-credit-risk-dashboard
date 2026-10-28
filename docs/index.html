@@ -125,6 +125,46 @@ footer a{color:var(--ink2)}
 .bands div{border:1px solid var(--line);border-radius:6px;padding:3px 1px;color:var(--ink2);line-height:1.3;overflow-wrap:anywhere}
 .bands div.on{border:2px solid var(--ink);color:var(--ink);font-weight:700}
 .bands b{display:block;font-size:11px}
+/* 🚦 시장 탭 (밸류 신호등에서 옮김, market.js) — 그쪽 style.css 를 #mktv 안에서만 쓰도록 */
+.tabs button[data-tab=mkt]{grid-column:span 2}
+#mktv{--surface-2:#f0efec;--good-bg:#e6f6e6;--warn-bg:#fff4dc;--bad-bg:#fbe7e7;--na-bg:#f0efec;--good-ink:#006300;--warn-ink:#8a5a00;--bad-ink:#a32020;word-break:keep-all;overflow-wrap:break-word}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #mktv{--surface-2:#262624;--good-bg:#12301a;--warn-bg:#3a2c08;--bad-bg:#3d1515;--na-bg:#262624;--good-ink:#5fd65f;--warn-ink:#ffc94d;--bad-ink:#ff8a8a}}
+:root[data-theme="dark"] #mktv{--surface-2:#262624;--good-bg:#12301a;--warn-bg:#3a2c08;--bad-bg:#3d1515;--na-bg:#262624;--good-ink:#5fd65f;--warn-ink:#ffc94d;--bad-ink:#ff8a8a}
+#mktv .vm-sec{font-size:16px;margin:22px 0 6px}
+#mktv .card{padding:14px;min-width:0}
+#mktv .card h3{display:block;font-size:15px;margin:18px 0 8px}
+#mktv .sub{color:var(--ink2);font-size:13px} #mktv .src{color:var(--muted);font-size:11px} #mktv .nowrap{white-space:nowrap}
+#mktv .light{display:flex;align-items:center;gap:12px}
+#mktv .lamp{width:64px;height:64px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:34px}
+#mktv .lamp.green{background:var(--good-bg)} #mktv .lamp.yellow{background:var(--warn-bg)} #mktv .lamp.red{background:var(--bad-bg)} #mktv .lamp.na{background:var(--na-bg)}
+#mktv .verdict{font-size:22px;font-weight:700}
+#mktv .verdict.green{color:var(--good-ink)} #mktv .verdict.yellow{color:var(--warn-ink)} #mktv .verdict.red{color:var(--bad-ink)} #mktv .verdict.na{color:var(--muted)}
+#mktv .big{font-size:28px;font-weight:700;line-height:1.2}
+#mktv .kv{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:4px 12px;margin-top:10px;font-size:14px}
+#mktv .kv>*{min-width:0} #mktv .kv .k{color:var(--ink2)} #mktv .kv .k.kgrp{color:var(--muted);font-size:12px;font-weight:700;margin-top:6px}
+#mktv .kv .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600} #mktv .kv .v .src{display:block;font-weight:400}
+#mktv .memo{background:var(--surface-2);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:10px}
+#mktv .note{font-size:12px;color:var(--ink2);margin-top:8px}
+#mktv .stale{font-size:11px;color:var(--warn-ink)}
+#mktv .warnbox{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:8px}
+#mktv .tiles{grid-template-columns:1fr 1fr;margin:0 0 12px}
+#mktv .tile{background:var(--surface-2);border:0;border-radius:12px;padding:10px 12px;min-width:0}
+#mktv .tile .tl{font-size:12px;color:var(--ink2)} #mktv .tile .tv{font-size:24px;font-weight:700;line-height:1.25}
+#mktv .chart-box{height:170px;margin-top:10px} #mktv .chart-box.tall{height:290px}
+#mktv .chart-title{font-size:13px;color:var(--ink2);margin-top:12px}
+#mktv .seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px}
+#mktv .seg button{border:0;background:transparent;color:var(--ink2);font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;cursor:pointer;min-height:34px}
+#mktv .seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+#mktv .tbl-wrap{overflow-x:auto;margin-top:8px}
+#mktv table{font-size:13px}
+#mktv th,#mktv td{padding:6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+#mktv th:first-child,#mktv td:first-child{text-align:left} #mktv th{color:var(--ink2);font-weight:600}
+#mktv td.cheap{color:var(--good-ink)} #mktv td.dear{color:var(--bad-ink)}
+#mktv td.near{font-weight:700;outline:2px solid var(--g1);outline-offset:-2px;border-radius:4px}
+#mktv table.compact{font-size:12px} #mktv table.compact th,#mktv table.compact td{padding:5px 3px} #mktv table.compact td:first-child{white-space:normal;min-width:5.5em}
+#mktv .legend{margin:6px 0 0} #mktv .legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px} #mktv .legend i.dash{border-top-style:dashed}
+#mktv .empty{color:var(--muted);font-size:13px;padding:8px 0}
+#mktv .grid{display:grid;gap:12px;grid-template-columns:1fr} #mktv .grid .card{margin:0}
 .horizon{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .horizon div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;color:var(--ink2);text-align:center}
 .horizon b{display:block;font-size:14px;color:var(--ink)}
@@ -140,6 +180,7 @@ footer a{color:var(--ink2)}
   <div class="tabs" role="tablist" aria-label="미국·한국">
     <button data-tab="us" class="on">🇺🇸 미국</button><button data-tab="kr">🇰🇷 한국</button>
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
+    <button data-tab="mkt">🚦 시장 (금리 vs 주식 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
     <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
@@ -488,18 +529,36 @@ footer a{color:var(--ink2)}
   <div id="chart-cards"></div>
   <p class="note">점수표는 사용자 엑셀(2025-12-14 '차트 판독기', 2025-04-20 'P/E 밴드')을 따랐어요. 엑셀처럼 종합 점수는 4개 지표(200일선·50일선 위 비율, 200일 이격도, RSI) 평균이고, 50일 이격도와 P/E는 따로 봐요.</p>
 
+  <h2 id="sec-valmkt">🚦 시장 — 주식이 채권보다 싼가? · 지수는 비싼가?</h2>
+  <div id="mktv">
+    <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
+    <div class="vm-sec">1. 금리 vs 주식 신호등</div>
+    <div class="glossary"><div>주식이 1년에 버는 이익률(1 ÷ PER)과 <b>국채 이자</b>를 비교해요. 같은 돈으로 주식이 채권보다 <b>싸 보이면 🟢</b>, <b>비싸 보이면 🔴</b>예요.</div></div>
+    <p class="sub" id="vm-ruleLine" style="margin:4px"></p>
+    <div class="grid" id="vm-signals"></div>
+    <div class="vm-sec">2. 지수 밸류에이션</div>
+    <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>
+    <h3 style="margin:14px 4px 0">🇰🇷 코스피</h3><div class="card" id="vm-kospiBand"></div>
+    <h3 style="margin:14px 4px 0">🇺🇸 S&amp;P500</h3><div class="card" id="vm-spBand"></div>
+    <div class="vm-sec">3. 크로스체크 <span class="sub">우산(NNN) 텔레그램 채널 숫자와 비교</span></div>
+    <div class="glossary"><div>위 숫자를 다른 곳에서 낸 숫자와 맞춰 봐요. <b>5% 넘게 다르면 ⚠</b> 표시가 붙어요.</div></div>
+    <div class="card" id="vm-crossCheck"></div>
+    <p class="note" style="margin:8px 4px">이 탭은 사용자의 다른 대시보드 <b>밸류 신호등</b>의 시장 탭을 옮겨 온 거예요. 밸류 신호등이 평일 07:30·18:30에 모은 숫자를 이 대시보드가 16:00·20:00 갱신 때 가져와요. 투자 판단 참고용이며 매수·매도 추천이 아니에요.<br>데이터 출처: <span id="vm-srcs"></span></p>
+  </div>
+
   <footer>
     데이터: 주가 — Yahoo Finance(yfinance) · 스프레드 — ICE BofA 옵션조정 스프레드(FRED, 세인트루이스 연준) · CDS — 각 뉴스 기사(카드의 ‘CDS 출처’에 링크) ·
     GPU — <a href="https://priceofcompute.com" target="_blank" rel="noopener">Price of Compute</a> ·
     D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
     VIX — Yahoo Finance(CBOE) · 하이일드 스프레드 — FRED(ICE BofA US High Yield OAS) ·
     미수금·반대매매 — 금융투자협회 · 코스피 MDD — <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> · 거래대금 — <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a> · 국민연금 —<a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a> ·
-    판독기 — AAII · CBOE · FINRA · FactSet · 위키백과(S&amp;P500 종목 목록) · Yahoo Finance.
+    판독기 — AAII · CBOE · FINRA · FactSet · 위키백과(S&amp;P500 종목 목록) · Yahoo Finance · 시장 탭 — 밸류 신호등(사용자의 다른 대시보드)이 모은 숫자(출처는 탭 아래).
     투자 권유가 아닌 참고용 정보입니다. 신용등급은 S&amp;P 기준 참고용(2026-10)이며, 스프레드는 그 회사 채권이 아니라 같은 등급 회사들의 평균입니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
 </div>
 
 <button id="totop" type="button" aria-label="맨 위로">↑</button>
+<script src="market.js"></script>
 <script>
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 let DATA = null, STATUS = null, PERIOD = '1y';
@@ -600,7 +659,7 @@ const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
 const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us',
-                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart'};
+                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
   for (const el of document.querySelector('.wrap').children) {
@@ -617,6 +676,7 @@ function setupTabs() {
 function showTab(t) {
   try { localStorage.setItem('tab', t); } catch (e) {}
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  document.querySelector('.bar:not(#adrbar)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
   document.querySelectorAll('[data-tab]').forEach(el => { if (el.parentElement.className !== 'tabs') el.classList.toggle('offtab', el.dataset.tab !== t); });
   document.querySelectorAll('.js-plotly-plot').forEach(p => { if (p.offsetParent) Plotly.Plots.resize(p); });
 }
@@ -1716,7 +1776,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

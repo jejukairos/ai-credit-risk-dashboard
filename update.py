@@ -477,6 +477,35 @@ def fetch_usmkt():
         v.rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"{name}.csv"))
 
 
+VAL_REPO = "https://github.com/jejukairos/valuation-dashboard.git"
+
+
+def fetch_valmarket():
+    # '🚦 시장' 탭: 사용자의 다른 대시보드(밸류 신호등, 비공개 저장소)가 매일 07:30·18:30에 모은 시장 탭 숫자만 복사 → docs/market.json
+    # 이 컴퓨터의 GitHub 로그인으로 받음. 보유종목 정보는 빼고 시장 탭에 쓰는 것만 옮김
+    import subprocess
+    repo = os.path.join(BASE, ".valuation_cache")
+
+    def git(*a):
+        return subprocess.run(["git", "-C", repo, *a], capture_output=True, check=True, timeout=300).stdout
+    if not os.path.isdir(os.path.join(repo, ".git")):
+        os.makedirs(repo, exist_ok=True)
+        git("init", "-q")
+        git("remote", "add", "origin", VAL_REPO)
+    git("fetch", "-q", "--depth", "1", "--filter=blob:none", "origin", "main")
+    d = json.loads(git("show", "FETCH_HEAD:site/data/dashboard.json").decode("utf-8"))
+    s = d["settings"]
+    out = {"updated_at": d["updated_at"], "rates": d["rates"], "signals": d["signals"],
+           "market": {k: v for k, v in d["market"].items() if k != "manheim"},
+           "settings": {k: s.get(k) for k in ("bond_signal", "band", "index_scenarios", "kospi_pbr_marks", "kospi_bands", "kospi_notes")},
+           # 크로스체크 표의 매그7 '이 사이트' 값
+           "mag7_fwd_per": {c["code"]: c.get("fwd_per") for c in d["stocks"] if c.get("code") in ("GOOG", "NVDA", "MSFT", "META", "TSLA")}}
+    if not out["market"].get("kospi_forward"):
+        raise RuntimeError("밸류 신호등 시장 데이터가 비어 있음")
+    with open(os.path.join(DOCS, "market.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+
+
 def fetch_move():
     import yfinance as yf
     v = yf.download("^MOVE", start="2002-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
@@ -1578,7 +1607,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스(Yahoo)", fetch_usmkt),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스(Yahoo)", fetch_usmkt), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

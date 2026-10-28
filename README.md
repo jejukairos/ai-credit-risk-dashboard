@@ -110,6 +110,13 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 - 그래프는 주 단위(그 주 가장 깊은 값)로 줄여 그림, 마지막 점은 그날 값
 - 접는 칸 '최근 20년, 10% 넘게 빠졌던 하락기': 하락기 목록·바닥 뒤 1·3·6개월·1년 수익률(바닥 날 종가 → 그 날짜로부터 n달 뒤 첫 거래일 종가)은 자동, 하락·반등 이유는 사용자 정리(2026-10-27, `index.html` 의 `MDD_WHY`)
 
+## 🚦 시장 탭 (밸류 신호등에서 옮겨 옴)
+
+- 사용자의 다른 대시보드 **밸류 신호등**(비공개 저장소 `jejukairos/valuation-dashboard`, 평일 07:30·18:30 GitHub Actions 갱신)의 '시장' 탭을 그대로 옮긴 화면: 금리 vs 주식 신호등 · 코스피/S&P500 밸류에이션(PER·PBR 밴드, 시나리오 표, 내 기준선) · 우산 채널 크로스체크
+- 숫자는 계산하지 않고 복사만 함: `update.py` 의 `fetch_valmarket` 이 이 컴퓨터의 GitHub 로그인으로 그쪽 `site/data/dashboard.json` 을 받아(`.valuation_cache/`, 커밋 안 함) 시장 탭에 쓰는 부분만 `docs/market.json` 으로 저장. 보유종목 목록은 옮기지 않음(크로스체크 표의 매그7 P/E 5개만)
+- 화면: `docs/market.js` (그쪽 `site/app.js` 의 시장 탭 코드 + 차트만 Plotly로). 그쪽 화면 모양이 바뀌면 이 파일도 따로 고쳐야 함
+- 원 출처(FactSet · multpl · KRX · 한국은행 ECOS · Yahoo · 네이버 증권 · 와이즈리포트 · OpenDART)는 탭 아래와 각 칸에 표시. 기준값(신호등 0.5·0.75, 시나리오 배수, PBR 기준선, 증권사 메모)은 그쪽 `config/settings.yaml` 에서 바꿈
+
 ## 위험 색깔 기준
 
 - 빨강: 최근 CDS ≥ 400bp, 또는 스프레드 ≥ 500bp, 또는 1개월 주가 ≤ −25%
@@ -134,6 +141,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 - `update.py` — 데이터 받아서 `docs/data.json`, `docs/status.json` 생성
 - `config.py` — 종목·등급·기준값 설정
 - `docs/index.html` — 화면 (GitHub Pages가 `docs` 폴더를 웹사이트로 보여줌)
+- `docs/market.js`, `docs/market.json` — 🚦 시장 탭 화면·데이터 (밸류 신호등에서 복사)
 - `data/` — 받아둔 데이터 (갱신 실패 시 이 데이터로 화면 유지)
 - `run_update.bat` — 자동 실행 파일 (갱신 + GitHub 업로드)
 
