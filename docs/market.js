@@ -170,7 +170,7 @@ function kospiCard() {
   const hasBand = t.pbr_hist && t.pbr_hist.length > 20;
   el.innerHTML = `<div class="tiles">
       <div class="tile"><div class="tl">선행 12개월 PER</div><div class="tv">${times(k.value)}</div><div class="src">직접 계산 · ${esc(k.date)}</div></div>
-      <div class="tile"><div class="tl">선행 12개월 PBR</div><div class="tv">${times(k.fwd_pbr, 2)}</div><div class="src">직접 계산 · ROE ${pct(k.fwd_roe)}</div></div>
+      <div class="tile"><div class="tl">선행 12개월 PBR</div><div class="tv">${times(k.fwd_pbr, 2)}</div><div class="src">${k.pbr_src ? "키움·FnGuide 방식 · " + esc(k.pbr_src) : "직접 계산"} · ROE ${pct(k.fwd_roe)}</div></div>
       <div class="tile"><div class="tl">12개월 선행 순이익</div><div class="tv">${k.fwd_ni_jo == null ? "N/A" : n(k.fwd_ni_jo, 1) + "조"}</div><div class="src">26E ${n(k.ni_jo?.[ys[0]], 0)}조 · 27E ${n(k.ni_jo?.[ys[1]], 0)}조</div></div>
       <div class="tile"><div class="tl">PBR (지난 실적)</div><div class="tv">${times(hasBand ? t.pbr : k.pbr_now, 2)}</div><div class="src">${hasBand ? "KRX · " + esc(t.date) : "직접 계산"}</div></div>
     </div>
@@ -242,7 +242,7 @@ function kospiMarksTable() {
       <td>${m.level_f ? n(m.level_f, 0) : "N/A"}<br><span class="src">${pct(m.chg_f, 1, true)}</span></td>
       <td>${n(m.level, 0)}<br><span class="src">${pct(m.chg, 1, true)}</span></td></tr>`).join("")}
     </tbody></table></div>
-    <div class="note">선행 기준 = 12개월 선행 BPS(직접 계산, 증권사 차트와 같은 방식) · 지난 실적 기준 = KRX PBR. 자본(BPS)이 그대로라고 보고 계산했어요.</div>`;
+    <div class="note">선행 기준 = 12개월 선행 BPS(올해·내년 예상 자본을 남은 달 수로 섞은 값. 키움·FnGuide처럼 시총 상위 약 350개로 직접 계산) · 지난 실적 기준 = KRX PBR. 자본(BPS)이 그대로라고 보고 계산했어요.</div>`;
 }
 
 /* ---------- 3. 크로스체크 ---------- */
