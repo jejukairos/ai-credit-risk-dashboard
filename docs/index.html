@@ -496,6 +496,7 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약 · JP모건 보고서 요약(KuCoin 뉴스)</div>
   </div>
   <div id="dramcards"></div>
+  <div class="card" id="hynixinv"></div>
   <div class="card" id="opcard">
     <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
     <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
@@ -854,6 +855,32 @@ function renderGpu() {
 function xStartFor(lastDate, firstDate) {
   const s = periodStart(lastDate);
   return s && s > firstDate ? s : firstDate;
+}
+
+// SK하이닉스 분기 재고일수 (OpenDART, 2019년~ 고정 — 분기 자료라 위 기간 버튼과 무관)
+function renderHynixInv() {
+  const H = DATA.hynix_inv, el = document.getElementById('hynixinv');
+  if (!H) { el.style.display = 'none'; return; }
+  const n = H.q.length, wl = H.weeks[n - 1], mx = Math.max(...H.weeks), mn = Math.min(...H.weeks);
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  el.innerHTML = `<h3><span>SK하이닉스 재고일수 — 만든 메모리가 창고에 얼마나 쌓였나</span></h3>
+    <div class="small" style="margin:2px 4px 6px"><b>재고일수</b> = 지금 창고에 쌓인 물건을 다 팔려면 몇 주 걸리는지예요. 짧을수록 만드는 대로 팔릴 만큼 잘 팔린다는 뜻이고, 길면 안 팔려서 쌓였다는 뜻이에요.</div>
+    <div class="nowline"><span><i style="color:${css('--bad')}">●</i>지금(${H.q[n - 1]}) <b>${wl.toFixed(1)}주</b></span><span>가장 길었던 때 ${H.q[H.weeks.indexOf(mx)]} ${mx.toFixed(1)}주</span>${wl === mn ? '<span><b>2019년 이후 가장 짧아요</b></span>' : ''}</div>
+    <div id="hynixplot" class="plot" style="height:380px"></div>
+    <p class="note" style="margin:6px 4px 2px">계산: 분기 말 재고자산 ÷ 그 분기 매출 × 13주(한 분기). 하나증권 '재고일수 추이'(사용자 제공 그림)와 같은 방식이라 모양이 같고, 숫자는 조금 다를 수 있어요. 자료: OpenDART(금융감독원 전자공시) SK하이닉스 연결재무제표 — 4분기 매출은 1년치 − 1~3분기. 새 분기 보고서가 나오면 자동으로 추가돼요. 분기 자료라 위 기간 버튼과 상관없이 2019년부터 보여요.</p>
+    <details class="srcs"><summary><b>분기별 출처 ${n}건</b> <span class="small">(▶ 누르면 펼쳐져요 · DART 보고서로 이동)</span></summary><ul>${H.q.map((q, i) =>
+      `<li><span class="sd">${q}</span>매출 ${H.revenue[i].toFixed(1)}조 · 재고 ${H.inventory[i].toFixed(1)}조 · <a href="${H.url[i]}" target="_blank" rel="noopener">DART ↗</a></li>`).reverse().join('')}</ul></details>`;
+  Plotly.react('hynixplot', [
+    {x: H.q, y: H.revenue, type: 'bar', name: '매출', marker: {color: css('--muted')}, hovertemplate: '매출 %{y:.1f}조<extra></extra>'},
+    {x: H.q, y: H.inventory, type: 'bar', name: '재고자산', marker: {color: css('--g2')}, hovertemplate: '재고자산 %{y:.1f}조<extra></extra>'},
+    {x: H.q, y: H.weeks, type: 'scatter', mode: 'lines+markers', name: '재고일수', yaxis: 'y2', line: {color: css('--bad'), width: 2}, marker: {size: 5}, hovertemplate: '재고일수 %{y:.1f}주<extra></extra>'},
+  ], Object.assign(baseLayout(), {
+    barmode: 'group', bargap: 0.2,
+    xaxis: axis({type: 'category', anchor: 'y2', tickvals: H.q.filter(q => q.endsWith('1Q')), ticktext: H.q.filter(q => q.endsWith('1Q')).map(q => q.slice(0, 2) + '년'), tickfont: {size: 10}}),
+    yaxis: axis({domain: [0.56, 0.93], rangemode: 'tozero'}),
+    yaxis2: axis({domain: [0, 0.44], rangemode: 'tozero'}),
+    annotations: [lbl(0.94, '<span style="color:' + css('--muted') + '">■</span> 매출 · <span style="color:' + css('--g2') + '">■</span> 재고자산 (조원)'), lbl(0.45, '재고일수 (주)')],
+  }), CFG);
 }
 
 function renderDram() {
@@ -1809,7 +1836,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

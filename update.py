@@ -651,6 +651,53 @@ def fetch_kr_base():
     df.drop_duplicates("date").sort_values("date").to_csv(os.path.join(DATA, "kr_base_rate.csv"), index=False)
 
 
+HYNIX_CORP = "00164779"  # 에스케이하이닉스(주) DART 고유번호
+DART_REPRT = [("Q1", "11013"), ("Q2", "11012"), ("Q3", "11014"), ("Q4", "11011")]  # 1분기·반기·3분기·사업보고서
+
+
+def fetch_hynix_inventory():
+    # SK하이닉스 분기 매출·매출원가·재고자산(OpenDART 연결재무제표) → D램 칸 재고일수. 이미 받은 분기는 건너뜀
+    key = os.environ.get("DART_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError("DART_API_KEY 가 .env 에 없음")
+    path = os.path.join(DATA, "hynix_quarterly.csv")
+    old = pd.read_csv(path, dtype={"quarter": str, "rcept_no": str}) if os.path.exists(path) else None
+    have = {} if old is None else {r["quarter"]: r for r in old.to_dict("records")}
+    rows = []
+    for y in range(2019, datetime.now(KST).year + 1):
+        for q, code in DART_REPRT:
+            qk = f"{y}{q}"
+            if qk in have:
+                continue
+            r = get("https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json", params={
+                "crtfc_key": key, "corp_code": HYNIX_CORP, "bsns_year": y, "reprt_code": code, "fs_div": "CFS"}).json()
+            if r.get("status") == "013":  # 아직 안 나온 보고서
+                break
+            if r.get("status") != "000":
+                raise RuntimeError(f"DART {qk}: {r.get('status')} {r.get('message')}")
+            acc = {}
+            for it in r["list"]:
+                aid = it["account_id"].replace("ifrs_", "ifrs-full_")  # 2019년 보고서는 옛 이름(ifrs_)
+                ok = it["sj_div"] == "BS" if aid == "ifrs-full_Inventories" else it["sj_div"] in ("IS", "CIS")
+                if ok and aid not in acc:
+                    acc[aid] = float(it["thstrm_amount"].replace(",", ""))
+            o = {"quarter": qk, "revenue": acc["ifrs-full_Revenue"], "cogs": acc["ifrs-full_CostOfSales"],
+                 "inventory": acc["ifrs-full_Inventories"], "rcept_no": r["list"][0]["rcept_no"]}
+            if q == "Q4":  # 사업보고서는 1년치 → 4분기 = 1년 − 1~3분기
+                for k in ("revenue", "cogs"):
+                    o[k] -= sum(float(have[f"{y}Q{i}"][k]) for i in (1, 2, 3))
+            have[qk] = o
+            rows.append(o)
+        else:
+            continue
+        break
+    if rows:
+        df = pd.DataFrame(rows)
+        if old is not None:
+            df = pd.concat([old, df])
+        df.sort_values("quarter").to_csv(path, index=False)
+
+
 FF_CODES = "FGHJKMNQUVXZ"  # 선물 월물 코드 (1~12월)
 
 
@@ -1354,6 +1401,18 @@ def build_usmkt():
     return out or None
 
 
+def build_hynix_inv():
+    # 재고일수(주) = 분기 말 재고자산 ÷ 그 분기 매출 × 13주 (하나증권 'SK하이닉스 재고일수 추이'와 같은 방식, README)
+    path = os.path.join(DATA, "hynix_quarterly.csv")
+    if not os.path.exists(path):
+        return None
+    d = pd.read_csv(path, dtype={"quarter": str, "rcept_no": str}).sort_values("quarter")
+    jo = lambda c: [round(v / 1e12, 2) for v in d[c]]
+    return {"q": [f"{s[2:4]}.{s[5]}Q" for s in d["quarter"]], "revenue": jo("revenue"), "inventory": jo("inventory"),
+            "weeks": [round(i / r * 13, 1) for i, r in zip(d["inventory"], d["revenue"])],
+            "url": [f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={n}" for n in d["rcept_no"]]}
+
+
 def _steps(s):
     # 기준금리처럼 계단 모양인 값 → 바뀐 날만 [날짜, 값] (바뀐 날엔 이전 값·새 값 두 점이라 선이 계단으로 그려짐)
     out, prev = [], None
@@ -1812,6 +1871,7 @@ def build():
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
     out["policy"] = build_policy()
+    out["hynix_inv"] = build_hynix_inv()
     out["fedwatch"] = build_fedwatch()
     out["move"] = build_move()
     out["hy"] = build_hy()
@@ -1838,7 +1898,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
