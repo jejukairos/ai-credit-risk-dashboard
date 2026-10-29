@@ -477,6 +477,90 @@ def fetch_usmkt():
         v.rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"{name}.csv"))
 
 
+def fetch_kr_breadth():
+    # 시장 온도계의 '폭' 지표: 코스피·코스닥 보통주(우선주·ETF·스팩 제외, 네이버 시총 목록) 중
+    # 20일선(종가 20일 평균) 아래 종목 비율, 60일 신고가 − 신저가 종목 수(그날 고가 ≥ 60일 최고 고가 / 저가 ≤ 60일 최저 저가).
+    # 네이버 일별 시세를 종목마다 1번(최근 130거래일, 약 2,600번 · 10~20초) 받아 최근 70거래일치를 다시 계산해 합침.
+    # shortcut: 지금 상장된 종목으로 과거도 계산(그사이 상장폐지된 종목 빠짐), 과거를 길게 볼 땐 날마다 쌓인 값을 씀
+    from concurrent.futures import ThreadPoolExecutor
+    now = datetime.now(KST)
+    s = requests.Session()
+    s.headers.update(BROWSER_UA)
+
+    def one(code):
+        for _ in range(3):
+            try:
+                r = s.get(f"https://fchart.stock.naver.com/sise.nhn?symbol={code}&timeframe=day&count=130&requestType=0", timeout=20)
+                return [x.split("|") for x in re.findall(r'data="([^"]+)"', r.text)]
+            except Exception:  # noqa: BLE001
+                time.sleep(1)
+        return []
+    out = []
+    for mk in ("KOSPI", "KOSDAQ"):
+        codes = []
+        for page in range(1, 60):
+            st = s.get(f"https://m.stock.naver.com/api/stocks/marketValue/{mk}?page={page}&pageSize=60", timeout=30).json().get("stocks", [])
+            if not st:
+                break
+            codes += [x["itemCode"] for x in st if x.get("stockEndType") == "stock" and x["itemCode"].endswith("0")
+                      and not re.search(r"우[A-Z]?$|우\(|스팩", x.get("stockName", ""))]
+        with ThreadPoolExecutor(6) as ex:
+            rows = [r for r in ex.map(one, codes) if r]
+        if len(rows) < len(codes) * 0.9:
+            raise RuntimeError(f"{mk} 일별 시세를 너무 적게 받음 ({len(rows)}/{len(codes)})")
+        days = sorted({r[0] for rs in rows for r in rs})[-70:]
+        if now.strftime("%H%M") < "1540":  # 장 마감 전엔 오늘 값이 아직 움직이는 중
+            days = [d for d in days if d < now.strftime("%Y%m%d")]
+        acc = {d: [0, 0, 0, 0, 0] for d in days}  # 20일 대상, 20일선 아래, 60일 대상, 신고가, 신저가
+        for rs in rows:
+            pos = {r[0]: i for i, r in enumerate(rs)}
+            cl, hi, lo = [float(r[4]) for r in rs], [float(r[2]) for r in rs], [float(r[3]) for r in rs]
+            for d in days:
+                i = pos.get(d)
+                if i is None or i < 19:
+                    continue
+                a = acc[d]
+                a[0] += 1
+                a[1] += cl[i] < sum(cl[i - 19:i + 1]) / 20
+                if i >= 59:
+                    a[2] += 1
+                    a[3] += hi[i] >= max(hi[i - 59:i + 1])
+                    a[4] += lo[i] <= min(lo[i - 59:i + 1])
+        out += [{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "market": mk.lower(), "n20": a[0], "below20": a[1], "n60": a[2], "highs": a[3], "lows": a[4]}
+                for d, a in acc.items() if a[0]]
+    path = os.path.join(DATA, "kr_breadth.csv")
+    df = pd.DataFrame(out)
+    if os.path.exists(path):
+        old = pd.read_csv(path, dtype={"date": str})
+        df = pd.concat([old, df]).drop_duplicates(["date", "market"], keep="last")
+    df.sort_values(["date", "market"]).to_csv(path, index=False)
+
+
+def build_kr_thermo():
+    # 시장 온도계: 온도 = (지수 ÷ 50일 평균 × 100 − 90) × 4 를 0~100도로 자름 → 50일 이격 110 = 80도(과열 경고선), 90 이하 = 0도.
+    # 사용자가 보내 준 다른 채널 '시장 온도계'(10/28·10/29 값)와 같은 식임을 확인(README)
+    tvp, bp = os.path.join(DATA, "trading_value.csv"), os.path.join(DATA, "kr_breadth.csv")
+    if not os.path.exists(tvp):
+        return None
+    t = pd.read_csv(tvp, dtype={"date": str}).set_index("date").sort_index()
+    b = pd.read_csv(bp, dtype={"date": str}) if os.path.exists(bp) else None
+    out = {}
+    for c in ("kospi", "kosdaq"):
+        idx = t[c + "_idx"].dropna()
+        ma = idx.rolling(50).mean()
+        disp = (idx / ma * 100).dropna()
+        temp = ((disp - 90) * 4).clip(0, 100)
+        o = {"x": list(disp.index), "temp": [round(float(v), 1) for v in temp], "disp": [round(float(v), 2) for v in disp],
+             "last": round(float(idx.iloc[-1]), 2), "chg": round(float(idx.iloc[-1] / idx.iloc[-2] - 1) * 100, 2), "ma50": round(float(ma.iloc[-1]), 1)}
+        if b is not None:
+            m = b[b["market"] == c].sort_values("date")
+            o["breadth"] = {"x": list(m["date"]), "below_pct": [round(v, 1) for v in m["below20"] / m["n20"] * 100],
+                            "below": m["below20"].astype(int).tolist(), "n20": m["n20"].astype(int).tolist(),
+                            "net": (m["highs"] - m["lows"]).astype(int).tolist(), "n60": m["n60"].astype(int).tolist()}
+        out[c] = o
+    return out
+
+
 WISE = "https://navercomp.wisereport.co.kr/v2/company"
 
 
@@ -1872,6 +1956,7 @@ def build():
     out["usmkt"] = build_usmkt()
     out["policy"] = build_policy()
     out["hynix_inv"] = build_hynix_inv()
+    out["kr_thermo"] = build_kr_thermo()
     out["fedwatch"] = build_fedwatch()
     out["move"] = build_move()
     out["hy"] = build_hy()
@@ -1898,7 +1983,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

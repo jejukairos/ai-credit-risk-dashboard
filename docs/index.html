@@ -182,7 +182,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-fx">환율</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -396,6 +396,15 @@ footer a{color:var(--ink2)}
     <div id="fx"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
+
+  <h2 id="sec-thermo">🌡 시장 온도계 — 코스피 · 코스닥</h2>
+  <div class="glossary">
+    <div><b>온도</b> 지수가 최근 50거래일 평균보다 얼마나 높은지(<b>50일 이격</b>)를 0~100도로 바꾼 거예요. 평균의 90% 이하면 0도, <b>110%면 80도(과열 경고선)</b>예요.</div>
+    <div><b>20일선 아래</b> 종목 중 몇 %가 자기 20일 평균 가격보다 싸게 거래되는지예요. <b>90% 넘으면 투매권</b>(다들 던지는 구간). <b>신고−신저</b> 최근 60거래일 최고가를 새로 쓴 종목 수 − 최저가를 새로 쓴 종목 수예요. 마이너스가 클수록 약한 시장이에요.</div>
+  </div>
+  <div class="fgchips" id="thermochips"></div>
+  <div id="thermo"></div>
+  <p class="note" style="margin:6px 4px 2px">계산: 온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 차가움·서늘함·보통·따뜻함·뜨거움(20도 간격)과 약세·매우약세(신고−신저가 종목 수의 10% 넘게 마이너스면 매우약세)는 이 대시보드가 정한 구간이에요. 종목은 우선주·ETF·스팩을 뺀 보통주. 장 마감 종가 기준이라 장중(15:20) 값과 조금 달라요. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수) · <a href="https://finance.naver.com/sise/" target="_blank" rel="noopener">네이버 금융</a>(전 종목 일별 시세). 폭 지표(20일선 아래·신고−신저)는 2026년 7월부터 있어요.</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
@@ -680,7 +689,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-fx': 'kr',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -856,6 +865,51 @@ function renderGpu() {
 function xStartFor(lastDate, firstDate) {
   const s = periodStart(lastDate);
   return s && s > firstDate ? s : firstDate;
+}
+
+// 시장 온도계: 온도·50일 이격(다음 지수) + 폭(20일선 아래 %, 60일 신고−신저) — update.py build_kr_thermo
+function renderThermo() {
+  const T = DATA.kr_thermo, box = document.getElementById('thermo');
+  if (!T) return;
+  const word = t => t < 20 ? '차가움' : t < 40 ? '서늘함' : t < 60 ? '보통' : t < 80 ? '따뜻함' : '뜨거움';
+  const netWord = (v, n) => v / n <= -0.1 ? '매우약세' : v < 0 ? '약세' : v / n >= 0.1 ? '매우강세' : v > 0 ? '강세' : '보합';
+  const md = s => s.slice(5).replace('-', '/');
+  const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
+  const warn = [];
+  box.innerHTML = mk.map(([c, nm]) => {
+    const o = T[c], n = o.x.length, t = o.temp[n - 1], B = o.breadth, bi = B ? B.x.length - 1 : -1;
+    if (t >= 80) warn.push(`<span class="chip hot">${nm} 과열 경고 (80도 이상)</span>`);
+    if (B && B.below_pct[bi] >= 90) warn.push(`<span class="chip warm">${nm} 투매권 (20일선 아래 90% 이상)</span>`);
+    const col = t >= 80 ? css('--bad') : t >= 60 ? css('--spread') : css('--g1');
+    return `<div class="card"><h3><span>${nm} · ${word(t)}</span><span class="small">${md(o.x[n - 1])} 마감</span></h3>
+      <div class="fgtop"><div class="fgscore">${Math.round(t)}<span class="small">도</span></div><div style="flex:1">
+        <div style="position:relative;height:12px;border-radius:6px;background:var(--line);overflow:hidden"><div style="width:${t}%;height:100%;background:${col}"></div></div>
+        <div style="position:relative;height:14px"><span class="small" style="position:absolute;left:80%;transform:translateX(-50%)">▲80</span></div>
+        <div class="small">지수 <b>${fmtNum(o.last, 2)}</b> (${fmtPct(o.chg)}) · 50일선 ${fmtNum(o.ma50, 0)} · 50일 이격 <b>${o.disp[n - 1].toFixed(1)}</b></div>
+        ${B ? `<div class="small">20일선 아래 <b>${Math.round(B.below_pct[bi])}%</b> (${fmtNum(B.below[bi])}/${fmtNum(B.n20[bi])}) · 신고−신저 <b>${B.net[bi] > 0 ? '+' : ''}${B.net[bi]}</b> · ${netWord(B.net[bi], B.n60[bi])}</div>` : ''}
+      </div></div>
+      <div id="thermo-${c}" class="plot" style="height:400px"></div></div>`;
+  }).join('');
+  document.getElementById('thermochips').innerHTML = warn.length ? warn.join('') : '<span class="chip">✅ 과열 경고 없음</span>';
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  const hl = (yref, v, color) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color, width: 1.2, dash: 'dash'}});
+  mk.forEach(([c]) => {
+    const o = T[c], B = o.breadth || {x: [], below_pct: [], net: []}, last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]);
+    const vis = B.net.filter((_, i) => B.x[i] >= xs);
+    Plotly.react('thermo-' + c, [
+      {x: o.x, y: o.temp, type: 'scatter', mode: 'lines', name: '온도', line: {color: css('--bad'), width: 1.8}, hovertemplate: '온도 %{y:.0f}도<extra></extra>'},
+      {x: B.x, y: B.below_pct, type: 'scatter', mode: 'lines', name: '20일선 아래', yaxis: 'y2', line: {color: css('--g1'), width: 1.8}, hovertemplate: '20일선 아래 %{y:.0f}%<extra></extra>'},
+      {x: B.x, y: B.net, type: 'bar', name: '신고−신저', yaxis: 'y3', marker: {color: B.net.map(v => v >= 0 ? css('--good') : css('--bad'))}, hovertemplate: '신고−신저 %{y:+d}<extra></extra>'},
+    ], Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({domain: [0.7, 0.94], range: [0, 100], tickvals: [0, 40, 80, 100]}),
+      yaxis2: axis({domain: [0.37, 0.61], range: [0, 100], tickvals: [0, 50, 90]}),
+      yaxis3: axis({domain: [0, 0.28], range: padRange(vis.concat([0]), false), zeroline: true, zerolinecolor: css('--ink2')}),
+      shapes: [hl('y', 80, css('--bad')), hl('y2', 90, css('--bad'))],
+      annotations: [lbl(0.95, '온도 (도) · 점선 80 = 과열 경고'), lbl(0.62, '20일선 아래 종목 (%) · 점선 90 = 투매권'), lbl(0.29, '60일 신고가 − 신저가 (종목 수)')],
+      bargap: 0.15,
+    }), CFG);
+  });
 }
 
 // SK하이닉스 분기 재고일수 (OpenDART, 2019년~ 고정 — 분기 자료라 위 기간 버튼과 무관)
@@ -1837,13 +1891,13 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderThermo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
