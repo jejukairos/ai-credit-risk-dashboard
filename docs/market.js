@@ -135,7 +135,17 @@ function seasonsNow() {
   el.innerHTML = `<b>우리 데이터로 대 보기</b><br>· 금리 <b>${r}</b> — 시장은 1년 안에 미국 기준금리 0.25%p ${hikes >= 0 ? "인상" : "인하"} 약 ${n(Math.abs(hikes), 1)}번 예상(아래 FedWatch 방식 칸)
     <br>· 실적 <b>${e}</b> — 코스피 ${esc(gy)} 이익 증가율 ${pct(gr, 1, true)}(아래 연도별 표)
     <br>· 주가 <b>${p}</b> — 코스피 최고점(${md(Md.peak_date)} ${n(Md.peak, 0)}) 대비 ${pct(Md.last, 1)}(한국 탭 MDD)
-    <br>→ ${row ? `표의 <b>${row}</b> 줄과 같은 모양이에요.${row.startsWith("④") ? " 글쓴이 판단과 같아요." : ""}` : "표의 어느 줄과도 딱 맞지 않아요."} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요.</span>`;
+    <br>→ ${row ? `표의 <b>${row}</b> 줄과 같은 모양이에요.${row.startsWith("④") ? " 글쓴이 판단과 같아요." : ""}` : "표의 어느 줄과도 딱 맞지 않아요."} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요.</span>${spreadLine(D)}`;
+}
+// DB증권이 말한 '임계 수준' 신호: 장단기 금리차(긴 금리 − 짧은 금리)가 마이너스로 들어갔나
+function spreadLine(D) {
+  const us = D.policy?.t10y2y, k10 = M.rates.kr10y, k3 = M.rates.kr3y;
+  const kr = k10 && k3 ? k10.latest - k3.latest : null;
+  const sp = (v) => `<b>${v >= 0 ? "+" : ""}${n(v, 2)}%p</b>`;
+  const parts = [us ? `미국 10년−2년 ${sp(us.latest)} (${esc(us.date)})` : "", kr != null ? `한국 10년−3년 ${sp(kr)} (${esc(k10.date)})` : ""].filter(Boolean);
+  if (!parts.length) return "";
+  const neg = (us && us.latest < 0) || (kr != null && kr < 0);
+  return `<br>· 장단기 금리차: ${parts.join(" · ")} → ${neg ? "<b>마이너스권에 들어갔어요</b> — DB증권이 본 '임계 수준' 신호예요." : "아직 플러스라 DB증권이 본 '임계 수준'(마이너스권 진입) 전이에요."}`;
 }
 
 /* ---------- 2. 지수 밸류에이션 ---------- */

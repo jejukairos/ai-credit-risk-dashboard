@@ -443,15 +443,22 @@ footer a{color:var(--ink2)}
   <h2 id="sec-kofia">국내 증시 주변자금 · 반대매매</h2>
   <div class="glossary">
     <div><b>고객예탁금</b> 사람들이 주식 사려고 증권사 계좌에 넣어 둔 <b>대기 현금</b>이에요. 줄면 시장에서 주식을 받아줄 돈이 줄어든 거예요.</div>
-    <div><b>신용융자</b> 증권사에서 <b>돈을 빌려</b> 산 주식 금액이에요. 많을수록 주가가 떨어질 때 강제로 팔리는 물량이 커질 수 있어요.</div>
+    <div><b>신용융자(신용잔고)</b> 증권사에서 <b>돈을 빌려</b> 산 주식 금액이에요. 많을수록 주가가 떨어질 때 강제로 팔리는 물량이 커질 수 있어요.</div>
+    <div><b>신용비율</b> = 신용잔고(코스피+코스닥) ÷ 고객예탁금. 신용잔고가 빚의 <b>크기(조원)</b>라면, 신용비율은 그 빚이 대기 현금의 <b>몇 %</b>인지예요. 잔고가 줄어도 예탁금이 더 빨리 줄면 비율은 올라가요. 빚에 비해 받쳐 줄 현금이 얇아졌다는 뜻이라, 높을수록 조심해서 봐요.</div>
     <div><b>반대매매</b> 빌린 돈(미수금)을 못 갚아서 증권사가 <b>강제로 판</b> 금액이에요.</div>
   </div>
   <div class="tiles" id="kofiatiles"></div>
+  <div class="memo" style="margin:0 0 10px">🐒 <b>한걸음 블로그 생각</b> — 코스피·코스닥 신용잔고가 <b>7월 말~8월 초 급락 때(위 '1년 최저')만큼은 아직 안 빠졌다</b> → 빚이 덜 정리돼서 시장 참여자의 불안 심리를 계속 자극하는 중이라고 봐요. <span class="small">(출처: user: 사용자가 보내 준 '한걸음 블로그' 글 캡처 26.10)</span></div>
   <div class="card">
     <h3><span>고객예탁금 · 코스피</span></h3>
     <div id="fundplot" class="plot" style="height:420px"></div>
     <p class="note" style="margin:4px">대기 현금(예탁금)이 늘면 주식을 살 돈이 많아져 호황, 줄면 불황 쪽으로 가는 흐름을 코스피와 함께 볼 수 있어요.
     위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년 1월~). 점선 = 최근 1년 최고점. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: Yahoo Finance</p>
+  </div>
+  <div class="card">
+    <h3><span>신용비율 — 빚(신용잔고)이 대기 현금(예탁금)의 몇 %인가</span></h3>
+    <div id="crratio" class="plot" style="height:220px"></div>
+    <p class="note" style="margin:4px">신용비율 = (코스피 + 코스닥 신용융자) ÷ 고객예탁금 × 100. 점선 = 최근 1년 최고. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS로 계산</p>
   </div>
   <div class="card">
     <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
@@ -567,6 +574,19 @@ footer a{color:var(--ink2)}
         <div class="s-autumn"><b>🍂 가을 · 역금융장세</b><br>금리 ↗ · 주가 ↘<br><span class="src">경기가 과열되자 금리를 올리기 시작해 주가가 하락으로 돌아섬</span></div>
       </div>
       <div class="note" style="text-align:center">시계 방향으로 돌아요: 🌸 봄 → ☀️ 여름 → 🍂 가을 → ❄️ 겨울 → 다시 봄</div>
+      <h3>주가로 그리면 — 산 모양 한 바퀴</h3>
+      <svg viewBox="0 0 340 170" style="width:100%;height:auto;display:block" role="img" aria-label="금융장세에서 역실적장세까지 주가가 산 모양으로 오르내리는 그림">
+        <rect x="10" y="10" width="85" height="140" style="fill:rgba(120,190,90,.16)"/><rect x="95" y="10" width="85" height="140" style="fill:rgba(40,150,170,.16)"/>
+        <rect x="180" y="10" width="80" height="140" style="fill:rgba(230,130,40,.18)"/><rect x="260" y="10" width="70" height="140" style="fill:rgba(120,140,190,.16)"/>
+        <g style="font-size:10px;fill:var(--ink2)"><text x="14" y="22">🌸 봄</text><text x="99" y="22">☀️ 여름</text><text x="184" y="22">🍂 가을</text><text x="264" y="22">❄️ 겨울</text></g>
+        <polyline points="12,140 70,92 92,110 180,32 238,94 258,80 328,142" style="fill:none;stroke:var(--g1);stroke-width:3;stroke-linejoin:round"/>
+        <g style="font-size:10px;fill:var(--ink);font-weight:700">
+          <text x="22" y="112">① 금융</text><text x="72" y="126">② 반락</text><text x="112" y="70">③ 실적</text>
+          <text x="214" y="58">④ 역금융</text><text x="244" y="112">⑤ 반등</text><text x="290" y="96">⑥ 역실적</text></g>
+        <circle cx="192" cy="44" r="6" style="fill:var(--bad)"/>
+        <text x="200" y="40" style="font-size:10px;fill:var(--bad);font-weight:700">지금 여기?</text>
+        <text x="170" y="164" style="font-size:9px;fill:var(--ink2)" text-anchor="middle">선 = 주가 · 빨간 점 = DB증권·블로그 글쓴이가 본 지금 위치(③→④ 넘어가는 중)</text>
+      </svg>
       <h3>6단계로 더 자세히 — 금리 · 실적 · 주가 화살표</h3>
       <div class="note">↑↓ = 빠르게 크게 · ↗↘ = 천천히 · → = 멈춤(옆으로). 위에서부터 차례로 돌고, 맨 아래 다음엔 다시 맨 위로 가요.</div>
       <div class="tbl-wrap"><table class="compact seasons-t"><thead><tr><th>구간 · 쉬운 설명</th><th>금리</th><th>실적</th><th>주가</th></tr></thead><tbody>
@@ -578,6 +598,11 @@ footer a{color:var(--ink2)}
         <tr><td><b>⑥ 역실적장세</b> ❄️겨울<br><span class="src">높은 금리 여파로 실적이 <b>크게</b> 나빠져요. 금리를 내리기 시작해도 주가는 계속 내려 바닥을 다져요. → 다시 ① 봄으로</span></td><td>↘</td><td>↓</td><td>↘</td></tr>
       </tbody></table></div>
       <div class="note">👉 <b>핵심</b>: 주가는 실적보다 <b>한발 먼저</b> 움직여요. 실적이 나쁜 ①에서 크게 오르고, 실적이 좋은 ④에서 크게 떨어지는 건 <b>금리</b> 때문이에요.</div>
+      <div class="memo" style="margin-top:8px">📌 <b>DB증권 강현기 — "실적장세에서 역금융장세로 넘어가는 단계"</b>
+        <br>· 큰 틀에서 <b>2026년 4분기부터 2027년 어느 시점까지</b> 금리 때문에 주식시장이 바뀔 수 있다는 걸 염두에 두자.
+        <br>· ③ 실적장세와 ④ 역금융장세는 둘 다 금리·실적이 오르지만, 가르는 건 <b>금리가 올라서 견디기 힘든 수준(임계 수준)에 닿았나</b>예요.
+        <br>· 그 신호는 <b>장단기 금리차가 마이너스</b>(10년 금리 &lt; 짧은 금리)로 들어가는지로 판단할 수 있다고 봤어요.
+        <div class="src">출처: user: 사용자가 보내 준 DB증권 전망 자료 캡처(전망과 전략 22쪽)</div></div>
       <div class="real" id="vm-seasons-now" style="margin:8px 0"></div>
       <div class="memo">🐒 <b>글쓴이 생각</b> (블로그 「포기하지 않는 이상 한계는 없다.」)
         <br>· 작년부터 이어진 실적장세(여름)를 지나, <b>지금은 가을(역금융장세)</b>로 봐요.
@@ -586,6 +611,11 @@ footer a{color:var(--ink2)}
         <br>· 하락장엔 뭘 해도 안 되고, 상승장엔 대충 골라도 잘 올랐다는 경험도 적었어요.
         <br>· 다시 비중을 늘릴 때: <b>물가(인플레이션)가 추세적으로 잡힐 만한 사건</b>이 생길 때.
         <div class="src">출처: user: 사용자가 보내 준 블로그 글 캡처(26.10) · 틀: 우라가미 구니오 『주식시장 흐름 읽는 법』 · 그림은 같은 내용으로 이 대시보드가 다시 그림</div></div>
+      <div class="memo" style="margin-top:8px">🐒 <b>한걸음 블로그 생각</b>
+        <br>· <b>호재가 나와도 안 오르면 꼭지, 악재가 나와도 안 빠지면 바닥</b>이라는 관점을 좋아해요.
+        <br>· 지금은 그냥 흐름이 쉽지 않은 시점, <b>시간을 보내야 하는 구간</b>이라고 생각하는 게 마음 편하다고 해요.
+        <br>· 경기엔 원래 <b>사이클</b>이 있어요. 벌어야 하는 구간이 있듯이 <b>지켜야 하는 구간</b>도 있다는 걸 잊으면 안 된다고 봐요.
+        <div class="src">출처: user: 사용자가 보내 준 '한걸음 블로그' 글 캡처(26.10)</div></div>
     </div>
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
@@ -1027,13 +1057,30 @@ function renderKofia() {
   if (!k) return;
   const L = k.last;
   const tile = (key, val, sub) => `<div class="tile"><div class="k">${key}</div><div class="v">${val}</div><div class="s">${sub}</div></div>`;
-  const dp = L.deposit_peak, cp = L.credit_peak, md = s => s.slice(2).replace(/-/g, '.');
-  document.getElementById('kofiatiles').innerHTML =
-    tile('고객예탁금', fmtNum(L.deposit, 1) + '조', `1주 전 ${fmtNum(k.w1_val.deposit, 1)}조 → ${fmtPct(L.deposit_w1)}<br>고점(${md(dp.date)} ${dp.value}조) 대비 ${fmtPct(dp.chg)}`) +
-    tile('신용융자 잔고', fmtNum(L.credit, 1) + '조', `1주 전 ${fmtNum(k.w1_val.credit, 1)}조 → ${fmtPct(L.credit_w1)}<br>고점(${md(cp.date)} ${cp.value}조) 대비 ${fmtPct(cp.chg)}`) +
-    tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${md(L.date)} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
-    tile('미수금 대비 반대매매', L.ratio.toFixed(1) + '%', `미수금 ${fmtNum(L.misu)}억`);
+  const dp = L.deposit_peak, md = s => s.slice(2).replace(/-/g, '.');
   const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
+  // 오늘 대시보드: 최근 값 · 전일 대비 · 최근 1년 최고/최저(날짜)
+  const crr = k.credit.map((c, i) => c != null && k.deposit[i] ? c / k.deposit[i] * 100 : null);
+  const yA = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);
+  const stat = arr => { let i = arr.length - 1; while (i > 0 && arr[i] == null) i--; let p = i - 1; while (p > 0 && arr[p] == null) p--;
+    let hi = null, lo = null; arr.forEach((v, j) => { if (v == null || k.x[j] < yA) return; if (hi == null || v > arr[hi]) hi = j; if (lo == null || v < arr[lo]) lo = j; });
+    return {v: arr[i], d: arr[i] - arr[p], prev: arr[p], date: k.x[i], hi: [arr[hi], k.x[hi]], lo: [arr[lo], k.x[lo]]}; };
+  const jo = (nm, arr) => { const s = stat(arr), pc = s.d / s.prev * 100;
+    return tile(nm, s.v.toFixed(2) + '조', `전일 <span class="${s.d >= 0 ? 'up' : 'down'}">${s.d >= 0 ? '+' : '−'}${fmtNum(Math.abs(s.d) * 1e4)}억 (${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%)</span>` +
+      `<br>1년 최고 ${s.hi[0].toFixed(2)}조 (${md(s.hi[1])})<br>1년 최저 ${s.lo[0].toFixed(2)}조 (${md(s.lo[1])})`); };
+  const rs = stat(crr);
+  document.getElementById('kofiatiles').innerHTML =
+    jo('고객예탁금', k.deposit) +
+    tile('신용비율 (신용 ÷ 예탁)', rs.v.toFixed(2) + '%', `전일 <span class="${rs.d >= 0 ? 'up' : 'down'}">${rs.d >= 0 ? '+' : ''}${rs.d.toFixed(2)}%p</span>` +
+      `<br>1년 최고 ${rs.hi[0].toFixed(2)}% (${md(rs.hi[1])})<br>1년 최저 ${rs.lo[0].toFixed(2)}% (${md(rs.lo[1])})`) +
+    jo('코스피 신용잔고', k.credit_kospi) + jo('코스닥 신용잔고', k.credit_kosdaq) +
+    tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${md(L.date)} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억`) +
+    tile('미수금 대비 반대매매', L.ratio.toFixed(1) + '%', `미수금 ${fmtNum(L.misu)}억`) +
+    `<div class="small" style="grid-column:1/-1;margin:0 4px">${md(rs.date)} 기준 (금융투자협회, 하루 늦게 나와요)</div>`;
+  Plotly.react('crratio', [{x: k.x, y: crr, type: 'scatter', mode: 'lines', name: '신용비율', line: {color: css('--spread'), width: 2}, hovertemplate: '신용비율 %{y:.2f}%<extra></extra>'}],
+    Object.assign(baseLayout(), {xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({range: padRange(crr.filter((v, i) => v != null && k.x[i] >= xs), false), ticksuffix: '%'}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: rs.hi[0], y1: rs.hi[0], line: {color: css('--ink2'), width: 1, dash: 'dot'}}]}), CFG);
   const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
   const peakLine = (yref, v) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color: css('--ink2'), width: 1, dash: 'dot'}});
   // 주변자금: 예탁금 · 코스피를 날짜축 맞춰 2칸으로 (코스피 자료가 2020년부터라 '전체'도 2020년~)

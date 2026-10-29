@@ -713,7 +713,8 @@ BROWSER_UA ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 
 
 RATE_SERIES = {"us10y": "DGS10", "fedfunds": "DFF", "kr10y": "IRLTLT01KRM156N",  # 미국 10년물·실효 기준금리(일별), 한국 10년물(월별)
-               "fedupper": "DFEDTARU", "fedlower": "DFEDTARL"}  # 미국 기준금리 목표 범위 위·아래(일별)
+               "fedupper": "DFEDTARU", "fedlower": "DFEDTARL",  # 미국 기준금리 목표 범위 위·아래(일별)
+               "t10y2y": "T10Y2Y"}  # 미국 장단기 금리차(10년 − 2년, %p) — 주식 4계 카드의 '임계 수준' 확인용
 
 
 def fetch_rates():
@@ -1524,6 +1525,9 @@ def build_policy():
         h = _steps(kr)
         h.append([today, float(kr.iloc[-1])])
         out["kr"] = {"latest": float(kr.iloc[-1]), "date": kr.index[-1], "hist": h, "source": "한국은행", "url": KR_BASE_URL}
+    ts = _csv_series("rate_t10y2y.csv", "t10y2y")
+    if ts is not None:
+        out["t10y2y"] = {"latest": round(float(ts.iloc[-1]), 2), "date": ts.index[-1]}
     return out or None
 
 
