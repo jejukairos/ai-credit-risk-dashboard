@@ -62,8 +62,8 @@ AVGO,2025-07-14,PAGE JUSTINE F.,Director,800,219440.0,Sale at price 274.30 per s
 AVGO,2025-07-09,SAMUELI HENRY,Director,49670,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-06-26,TAN HOCK E,Chief Executive Officer,40000,10731720.0,Sale at price 268.29 per share.,D,sale
 AVGO,2025-06-26,DELLY GAYLA J,Director,3000,795390.0,Sale at price 265.13 per share.,D,sale
-AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
+AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,473898,125737538.0,Sale at price 264.16 - 269.62 per share.,I,sale
 AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
 AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
@@ -144,9 +144,9 @@ CRWV,2026-08-20,BAKER JEFFREY R,Officer,2426,,,D,other
 CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,19451,,,D,other
 CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,7697,,,D,other
 CRWV,2026-08-20,MCBEE BRANNIN,Officer,8038,,,D,other
+CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
 CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
 CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,15646,,,D,other
-CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
 CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,6339,582427.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,13129,1206293.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,GOLDBERG CHEN,Officer,8628,792741.0,Sale at price 91.88 per share.,D,sale
@@ -165,8 +165,8 @@ CRWV,2026-08-17,MCBEE BRANNIN,Officer,55500,5887624.0,Sale at price 101.90 - 109
 CRWV,2026-08-17,MCBEE BRANNIN,Officer,500,53048.0,Sale at price 101.93 - 109.61 per share.,I,sale
 CRWV,2026-08-14,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,307131,33401610.0,Sale at price 108.48 - 110.00 per share.,I,sale
 CRWV,2026-08-13,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,1921259,213781347.0,Sale at price 107.75 - 115.61 per share.,I,sale
-CRWV,2026-08-12,JAIN SACHIN,Chief Operating Officer,1,110.0,Sale at price 110.00 per share.,D,sale
 CRWV,2026-08-12,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,2147871,231601955.0,Sale at price 107.64 - 108.16 per share.,I,sale
+CRWV,2026-08-12,JAIN SACHIN,Chief Operating Officer,1,110.0,Sale at price 110.00 per share.,D,sale
 CRWV,2026-08-11,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-08-11,INTRATOR MICHAEL N,Chief Executive Officer,307692,27440423.0,Sale at price 87.97 - 93.20 per share.,D/I,sale
 CRWV,2026-08-10,HUTCHINS GLENN H,Director,1440,,,D,other
@@ -225,9 +225,9 @@ CRWV,2026-06-30,BAKER JEFFREY R,Officer,7,,,D,other
 CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,7,,,D,other
 CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,7,,,D,other
 CRWV,2026-06-30,MCBEE BRANNIN,Officer,121118,,,D,other
+CRWV,2026-06-30,GOLDBERG CHEN,Officer,7,,,D,other
 CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,248049,,,D/I,other
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,7,,,D,other
-CRWV,2026-06-30,GOLDBERG CHEN,Officer,7,,,D,other
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,3,287.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,386252,37706822.0,Sale at price 94.66 - 99.54 per share.,D/I,sale
 CRWV,2026-06-30,GOLDBERG CHEN,Officer,4,383.0,Sale at price 95.69 per share.,D,sale
@@ -243,9 +243,9 @@ CRWV,2026-06-24,VENTURO BRIAN M,Officer and Director,76924,,,I,other
 CRWV,2026-06-24,VENTURO BRIAN M,Officer and Director,76924,7793608.0,Sale at price 98.83 - 104.44 per share.,I,sale
 CRWV,2026-06-23,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-06-23,INTRATOR MICHAEL N,Chief Executive Officer,307692,32865848.0,Sale at price 102.72 - 111.80 per share.,D/I,sale
+CRWV,2026-06-22,MCBEE BRANNIN,Officer,52500,,,I,other
 CRWV,2026-06-22,MCBEE BRANNIN,Officer,144000,,,D/I,other
 CRWV,2026-06-22,MCBEE BRANNIN,Officer,28000,,,I,other
-CRWV,2026-06-22,MCBEE BRANNIN,Officer,52500,,,I,other
 CRWV,2026-06-22,MCBEE BRANNIN,Officer,151691,16885586.0,Sale at price 107.05 - 119.00 per share.,D/I,sale
 CRWV,2026-06-22,MCBEE BRANNIN,Officer,28000,3115713.0,Sale at price 107.05 - 119.00 per share.,I,sale
 CRWV,2026-06-22,MCBEE BRANNIN,Officer,52500,5841961.0,Sale at price 107.05 - 119.00 per share.,I,sale
