@@ -162,6 +162,10 @@ footer a{color:var(--ink2)}
 #mktv .legend{margin:6px 0 0} #mktv .legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px} #mktv .legend i.dash{border-top-style:dashed}
 #mktv .empty{color:var(--muted);font-size:13px;padding:8px 0}
 #mktv .grid{display:grid;gap:12px;grid-template-columns:1fr} #mktv .grid .card{margin:0}
+#mktv .seasons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;position:relative}
+#mktv .seasons>div{border-radius:12px;padding:10px;font-size:13px;line-height:1.45;color:var(--ink)}
+#mktv .s-spring{background:rgba(120,190,90,.2)} #mktv .s-summer{background:rgba(40,150,170,.2)} #mktv .s-autumn{background:rgba(230,130,40,.22)} #mktv .s-winter{background:rgba(120,140,190,.2)}
+#mktv table.seasons-t td:first-child{white-space:normal;min-width:0} #mktv table.seasons-t td{font-size:18px;text-align:center;vertical-align:middle} #mktv table.seasons-t td:first-child{font-size:13px;text-align:left}
 #mktv table.fw{font-size:11px} #mktv table.fw th,#mktv table.fw td{padding:5px 2px;text-align:center} #mktv table.fw td:first-child{min-width:0}
 #mktv td.fw-top{background:rgba(245,166,35,.5);font-weight:700} #mktv td.fw-mid{background:rgba(245,166,35,.16)}
 .horizon{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
@@ -553,6 +557,36 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-valmkt">🚦 시장 — 금리 · 지수는 비싼가?</h2>
   <div id="mktv">
+    <div class="card" id="vm-seasons">
+      <h3 style="margin-top:0">🔄 우라가미 구니오의 주식 4계 — 지금은 어느 계절?</h3>
+      <div class="note" style="margin:2px 0 6px">주식시장은 <b>금리·실적·주가</b>가 엇갈리며 봄 → 여름 → 가을 → 겨울을 돌아요. 일본 증권사 출신 우라가미 구니오가 『주식시장 흐름 읽는 법』에서 정리한 틀이에요.</div>
+      <div class="seasons">
+        <div class="s-spring"><b>🌸 봄 · 금융장세</b><br>금리 ↓ · 주가 ↗<br><span class="src">경기는 아직 나쁘지만 금리가 내려가 돈이 풀리면서 주가가 오르기 시작</span></div>
+        <div class="s-summer"><b>☀️ 여름 · 실적장세</b><br>실적 ↗ · 주가 최고<br><span class="src">경기가 본격적으로 좋아지고 회사 실적이 늘어 주가가 최고조 (금리는 서서히 ↗)</span></div>
+        <div class="s-winter"><b>❄️ 겨울 · 역실적장세</b><br>실적 ↘ · 주가 바닥<br><span class="src">금리 인상 여파로 경기가 식고 실적이 나빠져 주가가 바닥을 침</span></div>
+        <div class="s-autumn"><b>🍂 가을 · 역금융장세</b><br>금리 ↗ · 주가 ↘<br><span class="src">경기가 과열되자 금리를 올리기 시작해 주가가 하락으로 돌아섬</span></div>
+      </div>
+      <div class="note" style="text-align:center">시계 방향으로 돌아요: 🌸 봄 → ☀️ 여름 → 🍂 가을 → ❄️ 겨울 → 다시 봄</div>
+      <h3>6단계로 더 자세히 — 금리 · 실적 · 주가 화살표</h3>
+      <div class="note">↑↓ = 빠르게 크게 · ↗↘ = 천천히 · → = 멈춤(옆으로). 위에서부터 차례로 돌고, 맨 아래 다음엔 다시 맨 위로 가요.</div>
+      <div class="tbl-wrap"><table class="compact seasons-t"><thead><tr><th>구간 · 쉬운 설명</th><th>금리</th><th>실적</th><th>주가</th></tr></thead><tbody>
+        <tr><td><b>① 금융장세</b> 🌸봄<br><span class="src">경기는 나쁜데 금리를 크게 내려 돈이 풀려요. 실적은 아직 나빠지는데도 주가가 먼저 <b>크게 뛰어요</b>.</span></td><td>↓</td><td>↘</td><td>↑</td></tr>
+        <tr><td><b>② 중간반락</b><br><span class="src">금리 인하가 멈추고 실적은 아직 바닥이라, 많이 오른 주가가 잠시 쉬거나 살짝 내려요.</span></td><td>→</td><td>→</td><td>→</td></tr>
+        <tr><td><b>③ 실적장세</b> ☀️여름<br><span class="src">경기가 살아나 회사들이 돈을 <b>크게</b> 잘 벌어요. 금리가 조금씩 올라도 실적 힘으로 주가가 꾸준히 올라요.</span></td><td>↗</td><td>↑</td><td>↗</td></tr>
+        <tr><td><b>④ 역금융장세</b> 🍂가을<br><span class="src">물가를 잡으려고 금리를 <b>빠르게</b> 올려요. 실적은 아직 좋아지는 중인데도 돈이 빠져나가 주가가 먼저 <b>크게 떨어져요</b>.</span></td><td>↑</td><td>↗</td><td>↓</td></tr>
+        <tr><td><b>⑤ 중간반등</b><br><span class="src">금리 인상이 멈추고 실적도 아직 버텨서, 떨어진 주가가 잠시 반등하거나 쉬어요.</span></td><td>→</td><td>→</td><td>→</td></tr>
+        <tr><td><b>⑥ 역실적장세</b> ❄️겨울<br><span class="src">높은 금리 여파로 실적이 <b>크게</b> 나빠져요. 금리를 내리기 시작해도 주가는 계속 내려 바닥을 다져요. → 다시 ① 봄으로</span></td><td>↘</td><td>↓</td><td>↘</td></tr>
+      </tbody></table></div>
+      <div class="note">👉 <b>핵심</b>: 주가는 실적보다 <b>한발 먼저</b> 움직여요. 실적이 나쁜 ①에서 크게 오르고, 실적이 좋은 ④에서 크게 떨어지는 건 <b>금리</b> 때문이에요.</div>
+      <div class="real" id="vm-seasons-now" style="margin:8px 0"></div>
+      <div class="memo">🐒 <b>글쓴이 생각</b> (블로그 「포기하지 않는 이상 한계는 없다.」)
+        <br>· 작년부터 이어진 실적장세(여름)를 지나, <b>지금은 가을(역금융장세)</b>로 봐요.
+        <br>· 가을~겨울은 높은 금리 때문에 주식시장에 들어오는 돈(유동성)이 줄어드는 때예요. 상승장인지 하락장인지는 몰라도, <b>유동성이 줄어드는 시기인 건 분명</b>하다고 해요.
+        <br>· 그래서 최소한 <b>빚투(레버리지)는 피하고</b>, 주식 비중을 줄이고 힘을 빼는 게 계좌를 지키는 지름길이라고 봐요. 폭발적으로 크는 소수 기업을 골라낼 수 있는 고수라면 예외고요.
+        <br>· 하락장엔 뭘 해도 안 되고, 상승장엔 대충 골라도 잘 올랐다는 경험도 적었어요.
+        <br>· 다시 비중을 늘릴 때: <b>물가(인플레이션)가 추세적으로 잡힐 만한 사건</b>이 생길 때.
+        <div class="src">출처: user: 사용자가 보내 준 블로그 글 캡처(26.10) · 틀: 우라가미 구니오 『주식시장 흐름 읽는 법』 · 그림은 같은 내용으로 이 대시보드가 다시 그림</div></div>
+    </div>
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
     <div class="vm-sec">1. 금리</div>

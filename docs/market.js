@@ -121,6 +121,23 @@ function fedwatchCard() {
   draw();
 }
 
+/* 주식 4계 카드의 '우리 데이터로 대 보기': 금리(FedWatch 방식 1년 예상)·실적(코스피 내년 이익 증가율)·주가(코스피 MDD) 방향만 표와 맞춰 봄 */
+function seasonsNow() {
+  const el = $("#vm-seasons-now"), D = typeof DATA !== "undefined" ? DATA : null;
+  if (!el || !D) return;
+  const F = D.fedwatch, Md = D.mdd, g = M.market.kospi_forward?.years?.growth || {};
+  const gy = Object.keys(g).find((y) => g[y] != null);
+  if (!F || !Md || !gy) { el.innerHTML = ""; return; }
+  const last = F.table[F.table.length - 1], hikes = (last.exp - F.upper) / 0.25, gr = g[gy];
+  const r = hikes >= 0.5 ? "↑" : hikes <= -0.5 ? "↓" : "→", e = gr > 5 ? "↗" : gr < -5 ? "↘" : "→", p = Md.last <= -10 ? "↓" : "↗";
+  const row = { "↓↘↗": "① 금융장세(봄)", "↑↗↗": "③ 실적장세(여름)", "↑↗↓": "④ 역금융장세(가을)", "↓↘↓": "⑥ 역실적장세(겨울)" }[r + e + p];
+  const md = (s) => s.slice(2).replace(/-/g, ".");
+  el.innerHTML = `<b>우리 데이터로 대 보기</b><br>· 금리 <b>${r}</b> — 시장은 1년 안에 미국 기준금리 0.25%p ${hikes >= 0 ? "인상" : "인하"} 약 ${n(Math.abs(hikes), 1)}번 예상(아래 FedWatch 방식 칸)
+    <br>· 실적 <b>${e}</b> — 코스피 ${esc(gy)} 이익 증가율 ${pct(gr, 1, true)}(아래 연도별 표)
+    <br>· 주가 <b>${p}</b> — 코스피 최고점(${md(Md.peak_date)} ${n(Md.peak, 0)}) 대비 ${pct(Md.last, 1)}(한국 탭 MDD)
+    <br>→ ${row ? `표의 <b>${row}</b> 줄과 같은 모양이에요.${row.startsWith("④") ? " 글쓴이 판단과 같아요." : ""}` : "표의 어느 줄과도 딱 맞지 않아요."} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요.</span>`;
+}
+
 /* ---------- 2. 지수 밸류에이션 ---------- */
 function matrixTable(rows, cols, price, rowHead, what) {
   const near = (v) => v && Math.abs(v / price - 1) < 0.05;
@@ -335,6 +352,7 @@ function render() {
   DRAWS = [];
   drawMarketCharts();
   fedwatchCard();
+  seasonsNow();
   kospiCard();
   spBand();
   crossCheck();
