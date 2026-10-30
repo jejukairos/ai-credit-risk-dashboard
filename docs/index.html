@@ -81,6 +81,7 @@ details a{color:var(--ink2);word-break:break-all}
 .memo .quote{border-left:3px solid var(--spread);padding:2px 0 2px 10px;margin:8px 0;color:var(--ink2);font-style:italic}
 .memo .real{font-size:12px;color:var(--ink2);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
 .fgchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 12px}
+.era{padding:8px 4px;border-top:1px solid var(--line);line-height:1.55}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
 .chip.warm{background:var(--spread);border-color:var(--spread);color:#111}
@@ -490,10 +491,19 @@ footer a{color:var(--ink2)}
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>VKOSPI</b> <b>한국판 VIX</b>예요. 코스피200 옵션 가격으로 계산한, 앞으로 한 달 동안 코스피가 얼마나 <b>출렁일지</b>에 대한 예상이에요. 숫자가 클수록 한국 시장이 불안하다는 뜻이에요.</div>
-      <div><b>같이 보기</b> 회색 선은 미국 VIX예요. 두 숫자는 같은 방식으로 계산해서 같은 눈금으로 비교할 수 있어요. VKOSPI만 높으면 한국 시장만 유독 불안한 거예요.</div>
     </div>
     <div class="fgtop"><div class="fgscore" id="vkscore">–</div><div><div class="fgrating" id="vkrating"></div><div class="small" id="vkprev"></div></div></div>
     <div id="vkplot" class="plot" style="height:240px"></div>
+    <div class="memo">
+      <b>📈 VKOSPI가 가장 크게 치솟았던 때 — 주가는 언제 반응했나</b>
+      <div>· <b>08.10.29 89.30</b> 글로벌 금융위기 때 종가 최고(공식 발표는 2009년 4월부터라 그 전 자료 기준)</div>
+      <div>· <b>26.03.05 83.58</b> 이란 전쟁이 터졌을 때. 바로 전날(3/4) 코스피가 하루 <b>−12.06%</b>로 2019년 이후 가장 크게 빠졌어요.</div>
+      <div>· <b>26.06.09 91.23</b>(하루 +19%) 2009년 이후 처음 종가 90을 넘었어요. 6/5·6/8 이틀 새 크게 빠졌다가 이날 코스피 <b>+8.2%</b>로 튀는 등 위아래로 마구 흔들리던 때예요. 그런데 코스피는 그 뒤로도 <b>2주(9거래일) 더 올라 6/22 최고점 9,115</b>을 찍었어요.</div>
+      <div>· <b>26.06.23</b> 바로 다음 날 코스피 하루 <b>910포인트 넘게 폭락</b>(역대 최대 폭, −10.0%) · 매도 사이드카·서킷브레이커 → 6/24 장중 95.48, <b>6/29 종가 96.94 역대 최고</b></div>
+      <div class="real" id="vkauto"></div>
+      <div style="margin-top:4px">👉 <b>보는 법</b>: 6월엔 <b>공포지수가 먼저</b> 90을 넘고(6/9), 주가 꼭대기(6/22)와 역대 최대 폭락(6/23)이 2주 뒤에 왔어요. 주가가 오르는데도 VKOSPI가 같이 치솟으면 "곧 크게 흔들릴 수 있다"는 경고로 봐요.</div>
+      <div class="src">출처: <a href="https://www.newsis.com/view/NISX20260610_0003663138" target="_blank" rel="noopener">뉴시스 26.06.10</a> · <a href="https://fnnews.com/news/202606241032410330" target="_blank" rel="noopener">파이낸셜뉴스 26.06.24</a> · <a href="https://www.segye.com/newsView/20260629513243" target="_blank" rel="noopener">세계일보 26.06.29</a> · 코스피 하루 변화 = 네이버 금융</div>
+    </div>
     <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
@@ -523,18 +533,21 @@ footer a{color:var(--ink2)}
     <div><b>신용비율</b> = 신용잔고(코스피+코스닥) ÷ 고객예탁금. 신용잔고가 빚의 <b>크기(조원)</b>라면, 신용비율은 그 빚이 대기 현금의 <b>몇 %</b>인지예요. 잔고가 줄어도 예탁금이 더 빨리 줄면 비율은 올라가요. 빚에 비해 받쳐 줄 현금이 얇아졌다는 뜻이라, 높을수록 조심해서 봐요.</div>
     <div><b>반대매매</b> 빌린 돈(미수금)을 못 갚아서 증권사가 <b>강제로 판</b> 금액이에요.</div>
   </div>
+  <div class="bar" role="group" aria-label="주변자금 기간" id="kofiabar" style="position:static">
+    <button data-k="3m">3개월</button><button data-k="6m">6개월</button><button data-k="1y" class="on">1년</button><button data-k="3y">3년</button><button data-k="all">전체</button>
+  </div>
   <div class="tiles" id="kofiatiles"></div>
-  <div class="memo" style="margin:0 0 10px">🐒 <b>한걸음 블로그 생각</b> — 코스피·코스닥 신용잔고가 <b>7월 말~8월 초 급락 때(위 '1년 최저')만큼은 아직 안 빠졌다</b> → 빚이 덜 정리돼서 시장 참여자의 불안 심리를 계속 자극하는 중이라고 봐요. <span class="small">(출처: user: 사용자가 보내 준 '한걸음 블로그' 글 캡처 26.10)</span></div>
+  <div class="memo" style="margin:0 0 10px">🐒 <b>한걸음 블로그 생각</b> — 코스피·코스닥 신용잔고가 <b>7월 말~8월 초 급락 때(1년 버튼의 '최저')만큼은 아직 안 빠졌다</b> → 빚이 덜 정리돼서 시장 참여자의 불안 심리를 계속 자극하는 중이라고 봐요. <span class="small">(출처: user: 사용자가 보내 준 '한걸음 블로그' 글 캡처 26.10)</span></div>
   <div class="card">
     <h3><span>고객예탁금 · 코스피</span></h3>
     <div id="fundplot" class="plot" style="height:420px"></div>
     <p class="note" style="margin:4px">대기 현금(예탁금)이 늘면 주식을 살 돈이 많아져 호황, 줄면 불황 쪽으로 가는 흐름을 코스피와 함께 볼 수 있어요.
-    위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년 1월~). 점선 = 최근 1년 최고점. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: Yahoo Finance</p>
+    이 섹션 기간 버튼(3개월~전체, 전체 = 2019년~)으로 바꿀 수 있고, 3년·전체에선 배경 번호 ①~⑩ = 아래 '시기별로 보기'예요. 점선 = 고른 기간의 최고점. 오른쪽 끝 숫자 = 가장 최신 값. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: 네이버 금융</p>
   </div>
   <div class="card">
     <h3><span>신용비율 — 빚(신용잔고)이 대기 현금(예탁금)의 몇 %인가</span></h3>
     <div id="crratio" class="plot" style="height:220px"></div>
-    <p class="note" style="margin:4px">신용비율 = (코스피 + 코스닥 신용융자) ÷ 고객예탁금 × 100. 점선 = 최근 1년 최고. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS로 계산</p>
+    <p class="note" style="margin:4px">신용비율 = (코스피 + 코스닥 신용융자) ÷ 고객예탁금 × 100. 점선 = 고른 기간의 최고. 이 섹션 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS로 계산</p>
   </div>
   <div class="card">
     <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
@@ -546,14 +559,14 @@ footer a{color:var(--ink2)}
     <div class="nowline" id="tvkosdaqday"></div>
     <div id="tvkosdaq" class="plot" style="height:300px"></div>
     <div class="small" id="tvkosdaqnow" style="margin:2px 4px 4px"></div>
-    <p class="note" style="margin:4px">위 기간 버튼으로 기간을 바꿀 수 있어요. 매일 갱신. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(한국거래소 숫자와 같음, 2020년부터)</p>
+    <p class="note" style="margin:4px">이 섹션 기간 버튼으로 기간을 바꿀 수 있어요(거래대금 자료는 2020년부터라 전체 = 2020년~). 매일 갱신. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(한국거래소 숫자와 같음)</p>
   </div>
   <div class="card">
     <h3><span>신용융자 잔고 — 코스피 · 코스닥 (조원)</span></h3>
     <div id="creditkospi" class="plot" style="height:340px"></div>
     <div id="creditkosdaq" class="plot" style="height:340px"></div>
     <p class="note" style="margin:4px">시장마다 위 = <b>빚내서 산 주식</b> 금액(신용융자), 아래 = 그 시장 지수예요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
-    점선 = 최근 1년 최고점. 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS</p>
+    점선 = 고른 기간의 최고점. 이 섹션 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS · 지수 네이버 금융(2019년~)</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
     <div id="cleanbox"></div>
     <div id="liqbox"></div>
@@ -570,6 +583,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">점선 = 최근 1년 하루 평균 반대매매. 신용융자 쪽 반대매매는 공식 통계가 없어요.
     자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> (2015년부터 매일)</p>
   </div>
+  <div class="card" id="erabox"></div>
 
   <h2 id="sec-mdd">코스피 MDD — 최고점에서 얼마나 빠졌나?</h2>
   <div class="card">
@@ -816,6 +830,20 @@ const axis = extra => {
   }
   return o;
 };
+// 가장 최신 값 꼬리표: 그래프 오른쪽 바깥 여백(선이 끝나는 높이)에 붙여 선을 가리지 않음. tags = [[y배열, 'y'|'y2'…, 글자 함수, 색], …]
+function tagLast(layout, tags) {
+  const ts = tags.map(([y, yref, fmt, color]) => { let i = y.length - 1; while (i >= 0 && y[i] == null) i--;
+    return i < 0 ? null : {yref, y: y[i], text: fmt(y[i]), color}; }).filter(Boolean);
+  ts.forEach((t, j) => ts.slice(0, j).forEach(u => {  // 같은 칸에서 숫자가 가까우면 위아래로 벌림
+    const r = (layout[u.yref.replace('y', 'yaxis')] || {}).range;
+    if (u.yref === t.yref && r && Math.abs(u.y - t.y) < (r[1] - r[0]) * 0.12) { u.ys = u.y >= t.y ? 7 : -7; t.ys = -u.ys; }
+  }));
+  layout.margin = Object.assign({}, layout.margin, {r: 52});
+  layout.annotations = (layout.annotations || []).concat(ts.map(t => ({xref: 'paper', x: 1, xanchor: 'left', xshift: 2, yref: t.yref, y: t.y, yshift: t.ys || 0,
+    yanchor: 'middle', showarrow: false, text: `<b>${t.text}</b>`, font: {size: 10, color: t.color}, bgcolor: css('--surface'), borderpad: 1})));
+  return layout;
+}
+const n0 = v => fmtNum(v, 0);
 // CDS(bp) → 5년 내 부도확률(%). 1년 부도율 ≈ CDS ÷ (1 − 회수율), 5년 누적 = 1 − e^(−5 × 1년 부도율)
 const pd5 = bp => (1 - Math.exp(-5 * (bp / 10000) / (1 - ((DATA && DATA.cds_recovery) || 0.4)))) * 100;
 const fmtUsd = v => v == null ? '–' : v >= 1e9 ? '$' + (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'K' : '$' + v;
@@ -850,7 +878,7 @@ function setupTabs() {
 function showTab(t) {
   try { localStorage.setItem('tab', t); } catch (e) {}
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  document.querySelector('.bar:not(#adrbar)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
+  document.querySelector('.bar:not(#adrbar):not(#kofiabar)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
   document.querySelectorAll('[data-tab]').forEach(el => { if (el.parentElement.className !== 'tabs') el.classList.toggle('offtab', el.dataset.tab !== t); });
   document.querySelectorAll('.js-plotly-plot').forEach(p => { if (p.offsetParent) Plotly.Plots.resize(p); });
 }
@@ -1045,7 +1073,7 @@ function renderThermo() {
       {x: o.x, y: o.temp, type: 'scatter', mode: 'lines', name: '온도', line: {color: css('--bad'), width: 1.8}, hovertemplate: '온도 %{y:.0f}도<extra></extra>'},
       {x: B.x, y: B.below_pct, type: 'scatter', mode: 'lines', name: '20일선 아래', yaxis: 'y2', line: {color: css('--g1'), width: 1.8}, hovertemplate: '20일선 아래 %{y:.0f}%<extra></extra>'},
       {x: B.x, y: B.net, type: 'bar', name: '신고−신저', yaxis: 'y3', marker: {color: B.net.map(v => v >= 0 ? css('--good') : css('--bad'))}, hovertemplate: '신고−신저 %{y:+d}<extra></extra>'},
-    ], Object.assign(baseLayout(), {
+    ], tagLast(Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
       yaxis: axis({domain: [0.7, 0.94], range: [0, 100], tickvals: [0, 40, 80, 100]}),
       yaxis2: axis({domain: [0.37, 0.61], range: [0, 100], tickvals: [0, 50, 90]}),
@@ -1053,7 +1081,8 @@ function renderThermo() {
       shapes: [hl('y', 80, css('--bad')), hl('y2', 90, css('--bad'))],
       annotations: [lbl(0.95, '온도 (도) · 점선 80 = 과열 경고'), lbl(0.62, '20일선 아래 종목 (%) · 점선 90 = 투매권'), lbl(0.29, '60일 신고가 − 신저가 (종목 수)')],
       bargap: 0.15,
-    }), CFG);
+    }), [[o.temp, 'y', v => Math.round(v) + '도', css('--bad')], [B.below_pct, 'y2', v => Math.round(v) + '%', css('--g1')],
+         [B.net, 'y3', v => (v > 0 ? '+' : '') + v, css(B.net[B.net.length - 1] >= 0 ? '--good' : '--bad')]]), CFG);
   });
 }
 
@@ -1077,13 +1106,13 @@ function renderHynixInv() {
     {x: H.q, y: H.revenue, type: 'bar', name: '매출', marker: {color: css('--muted')}, hovertemplate: '매출 %{y:.1f}조<extra></extra>'},
     {x: H.q, y: H.inventory, type: 'bar', name: '재고자산', marker: {color: css('--g2')}, hovertemplate: '재고자산 %{y:.1f}조<extra></extra>'},
     {x: H.q, y: H.weeks, type: 'scatter', mode: 'lines+markers', name: '재고일수', yaxis: 'y2', line: {color: css('--bad'), width: 2}, marker: {size: 5}, hovertemplate: '재고일수 %{y:.1f}주<extra></extra>'},
-  ], Object.assign(baseLayout(), {
+  ], tagLast(Object.assign(baseLayout(), {
     barmode: 'group', bargap: 0.2,
     xaxis: axis({type: 'category', anchor: 'y2', tickvals: H.q.filter(q => q.endsWith('1Q')), ticktext: H.q.filter(q => q.endsWith('1Q')).map(q => q.slice(0, 2) + '년'), tickfont: {size: 10}}),
     yaxis: axis({domain: [0.56, 0.93], rangemode: 'tozero'}),
     yaxis2: axis({domain: [0, 0.44], rangemode: 'tozero'}),
     annotations: [lbl(0.94, '<span style="color:' + css('--muted') + '">■</span> 매출 · <span style="color:' + css('--g2') + '">■</span> 재고자산 (조원)'), lbl(0.45, '재고일수 (주)')],
-  }), CFG);
+  }), [[H.revenue, 'y', v => v.toFixed(1) + '조', css('--ink2')], [H.inventory, 'y', v => v.toFixed(1) + '조', css('--g2')], [H.weeks, 'y2', v => v.toFixed(1) + '주', css('--bad')]]), CFG);
 }
 
 function renderSupply() {
@@ -1145,7 +1174,9 @@ function renderDram() {
     });
     if (hasSlope) layout.yaxis2 = axis({domain: [0, 0.34], range: padRange(visC.concat([0]), false), title: {text: '4주%', standoff: 2},
       zeroline: true, zerolinecolor: css('--ink2')});
-    Plotly.react('drplot-' + i, traces, layout, CFG);
+    const pf = v => d.item === 'DXI' ? (v / 1e6).toFixed(3) + 'M' : '$' + v.toFixed(2), sg = v => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+    Plotly.react('drplot-' + i, traces, tagLast(layout, [[d.y, 'y', pf, css('--g7')]].concat(d.contract ? [[d.contract.y, 'y', pf, css('--good')]] : [],
+      hasSlope ? [[d.chg4w, 'y2', sg, css('--ink2')]] : [])), CFG);
     if (document.getElementById('drgrow-' + i)) {
       const keep = arr => arr.map((v, j) => d.x[j] >= xs ? v : null);
       const vis = arr => (arr || []).filter((v, j) => v != null && d.x[j] >= xs);
@@ -1155,14 +1186,36 @@ function renderDram() {
         {x: d.x, y: keep(d.yoy), type: 'scatter', mode: 'lines', name: 'YoY', line: {color: css('--bad'), width: 2}, connectgaps: false, hovertemplate: 'YoY %{y:+.0f}%<extra></extra>'},
         {x: d.x, y: keep(d.qoq), type: 'scatter', mode: 'lines', name: 'QoQ', yaxis: 'y2', line: {color: css('--g1'), width: 2}, connectgaps: false, hovertemplate: 'QoQ %{y:+.1f}%<extra></extra>'},
         {x: d.x, y: keep(d.mom || []), type: 'scatter', mode: 'lines', name: 'MoM', yaxis: 'y3', line: {color: css('--g3'), width: 2}, connectgaps: false, hovertemplate: 'MoM %{y:+.1f}%<extra></extra>'},
-      ], Object.assign(baseLayout(), {
+      ], tagLast(Object.assign(baseLayout(), {
         xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m'}),
         yaxis: axis(Object.assign({domain: [0.70, 1], range: padRange(yv.concat([0]), false), ticksuffix: '%', title: {text: 'YoY', standoff: 2}}, zl)),
         yaxis2: axis(Object.assign({domain: [0.36, 0.64], range: padRange(qv.concat([0]), false), ticksuffix: '%', title: {text: 'QoQ', standoff: 2}}, zl)),
         yaxis3: axis(Object.assign({domain: [0, 0.30], range: padRange(mv.concat([0]), false), ticksuffix: '%', title: {text: 'MoM', standoff: 2}}, zl)),
-      }), CFG);
+      }), [[d.yoy, 'y', sg, css('--bad')], [d.qoq, 'y2', sg, css('--g1')], [d.mom || [], 'y3', sg, css('--g3')]]), CFG);
     }
   });
+}
+
+// 주변자금 섹션 기간 버튼: 3개월·6개월·1년·3년·전체(2019년~)
+let KOFIA_PERIOD = '1y';
+const KOFIA_PL = {'3m': '3개월', '6m': '6개월', '1y': '1년', '3y': '3년', 'all': '2019년 이후'};
+function kofiaStart(last, first) {
+  let s = '2019-01-01';
+  if (KOFIA_PERIOD !== 'all') { const d = new Date(last); d.setMonth(d.getMonth() - {'3m': 3, '6m': 6, '1y': 12, '3y': 36}[KOFIA_PERIOD]); s = d.toISOString().slice(0, 10); }
+  return s > first ? s : first;
+}
+// 3년·전체로 볼 때 시기(①~⑩) 구간을 옅은 배경과 위쪽 번호로 표시 — 아래 '시기별 흐름'과 같은 번호
+const ERA_NUM = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫';
+function withEras(layout, xs) {
+  const E = (DATA.kofia && DATA.kofia.eras) || [];
+  if (!['3y', 'all'].includes(KOFIA_PERIOD)) return layout;
+  const vis = E.map((e, i) => Object.assign({i, a: e.start > xs ? e.start : xs}, e)).filter(e => e.end >= xs);
+  layout.shapes = (layout.shapes || []).concat(vis.filter(e => e.i % 2 === 0).map(e => ({type: 'rect', xref: 'x', yref: 'paper', x0: e.a, x1: e.end, y0: 0, y1: 1,
+    fillcolor: css('--ink'), opacity: 0.06, line: {width: 0}, layer: 'below'})));
+  layout.annotations = (layout.annotations || []).concat(vis.map(e => ({xref: 'x', yref: 'paper', y: 1, yanchor: 'bottom', showarrow: false,
+    x: new Date((new Date(e.a).getTime() + new Date(e.end).getTime()) / 2).toISOString().slice(0, 10), text: ERA_NUM[e.i], font: {size: 10, color: css('--ink2')}})));
+  layout.margin = Object.assign({}, layout.margin, {t: 18});
+  return layout;
 }
 
 function renderKofia() {
@@ -1170,55 +1223,49 @@ function renderKofia() {
   if (!k) return;
   const L = k.last;
   const tile = (key, val, sub) => `<div class="tile"><div class="k">${key}</div><div class="v">${val}</div><div class="s">${sub}</div></div>`;
-  const dp = L.deposit_peak, md = s => s.slice(2).replace(/-/g, '.');
-  const last = k.x[k.x.length - 1], xs = xStartFor(last, k.x[0]);
-  // 오늘 대시보드: 최근 값 · 전일 대비 · 최근 1년 최고/최저(날짜)
+  const md = s => s.slice(2).replace(/-/g, '.');
+  const last = k.x[k.x.length - 1], xs = kofiaStart(last, k.x[0]), PL = KOFIA_PL[KOFIA_PERIOD];
+  // 오늘 대시보드: 최근 값 · 전일 대비 · 고른 기간의 최고/최저(날짜)
   const crr = k.credit.map((c, i) => c != null && k.deposit[i] ? c / k.deposit[i] * 100 : null);
-  const yA = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);
   const stat = arr => { let i = arr.length - 1; while (i > 0 && arr[i] == null) i--; let p = i - 1; while (p > 0 && arr[p] == null) p--;
-    let hi = null, lo = null; arr.forEach((v, j) => { if (v == null || k.x[j] < yA) return; if (hi == null || v > arr[hi]) hi = j; if (lo == null || v < arr[lo]) lo = j; });
+    let hi = null, lo = null; arr.forEach((v, j) => { if (v == null || k.x[j] < xs) return; if (hi == null || v > arr[hi]) hi = j; if (lo == null || v < arr[lo]) lo = j; });
     return {v: arr[i], d: arr[i] - arr[p], prev: arr[p], date: k.x[i], hi: [arr[hi], k.x[hi]], lo: [arr[lo], k.x[lo]]}; };
   const jo = (nm, arr) => { const s = stat(arr), pc = s.d / s.prev * 100;
     return tile(nm, s.v.toFixed(2) + '조', `전일 <span class="${s.d >= 0 ? 'up' : 'down'}">${s.d >= 0 ? '+' : '−'}${fmtNum(Math.abs(s.d) * 1e4)}억 (${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%)</span>` +
-      `<br>1년 최고 ${s.hi[0].toFixed(2)}조 (${md(s.hi[1])})<br>1년 최저 ${s.lo[0].toFixed(2)}조 (${md(s.lo[1])})`); };
+      `<br>${PL} 최고 ${s.hi[0].toFixed(2)}조 (${md(s.hi[1])})<br>${PL} 최저 ${s.lo[0].toFixed(2)}조 (${md(s.lo[1])})`); };
   const rs = stat(crr);
   document.getElementById('kofiatiles').innerHTML =
     jo('고객예탁금', k.deposit) +
     tile('신용비율 (신용 ÷ 예탁)', rs.v.toFixed(2) + '%', `전일 <span class="${rs.d >= 0 ? 'up' : 'down'}">${rs.d >= 0 ? '+' : ''}${rs.d.toFixed(2)}%p</span>` +
-      `<br>1년 최고 ${rs.hi[0].toFixed(2)}% (${md(rs.hi[1])})<br>1년 최저 ${rs.lo[0].toFixed(2)}% (${md(rs.lo[1])})`) +
+      `<br>${PL} 최고 ${rs.hi[0].toFixed(2)}% (${md(rs.hi[1])})<br>${PL} 최저 ${rs.lo[0].toFixed(2)}% (${md(rs.lo[1])})`) +
     jo('코스피 신용잔고', k.credit_kospi) + jo('코스닥 신용잔고', k.credit_kosdaq) +
     tile('반대매매 (하루)', fmtNum(L.forced) + '억', `${md(L.date)} · 1년 평균 ${fmtNum(L.forced_avg_1y)}억` +
       (L.forced_ytd ? `<br>올해 누적 <b>${L.forced_ytd.toFixed(2)}조</b> (작년 1년 ${L.forced_prev_year.toFixed(2)}조의 ${(L.forced_ytd / L.forced_prev_year).toFixed(1)}배)` : '')) +
     tile('미수금 대비 반대매매', L.ratio.toFixed(1) + '%', `미수금 ${fmtNum(L.misu)}억`) +
-    `<div class="small" style="grid-column:1/-1;margin:0 4px">${md(rs.date)} 기준 (금융투자협회, 하루 늦게 나와요)</div>`;
-  Plotly.react('crratio', [{x: k.x, y: crr, type: 'scatter', mode: 'lines', name: '신용비율', line: {color: css('--spread'), width: 2}, hovertemplate: '신용비율 %{y:.2f}%<extra></extra>'}],
-    Object.assign(baseLayout(), {xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
-      yaxis: axis({range: padRange(crr.filter((v, i) => v != null && k.x[i] >= xs), false), ticksuffix: '%'}),
-      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: rs.hi[0], y1: rs.hi[0], line: {color: css('--ink2'), width: 1, dash: 'dot'}}]}), CFG);
+    `<div class="small" style="grid-column:1/-1;margin:0 4px">${md(rs.date)} 기준 (금융투자협회, 하루 늦게 나와요) · 최고/최저 = 위 버튼으로 고른 기간(${PL})</div>`;
   const inR = arr => arr.filter((v, i) => v != null && k.x[i] >= xs);
   const peakLine = (yref, v) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color: css('--ink2'), width: 1, dash: 'dot'}});
-  // 주변자금: 예탁금 · 코스피를 날짜축 맞춰 2칸으로 (코스피 자료가 2020년부터라 '전체'도 2020년~)
-  const fs = xStartFor(last, '2020-01-01'), inF = (xx, arr) => arr.filter((v, i) => v != null && xx[i] >= fs);
-  const kp = k.kospi || {x: [], y: []};
-  // 눌러 보지 않아도 가장 최근 숫자가 그래프 끝에 항상 보이게
-  const lastLbl = (xs_, ys_, yaxis, fmt, color) => { let i = ys_.length - 1; while (i > 0 && ys_[i] == null) i--;
-    return {x: [xs_[i]], y: [ys_[i]], type: 'scatter', mode: 'markers+text', yaxis, showlegend: false, hoverinfo: 'skip', cliponaxis: false,
-      marker: {color, size: 7}, text: [`<b>${fmt(ys_[i])}</b>`], textposition: 'top left', textfont: {size: 13, color}}; };
+  Plotly.react('crratio', [{x: k.x, y: crr, type: 'scatter', mode: 'lines', name: '신용비율', line: {color: css('--spread'), width: 2}, hovertemplate: '신용비율 %{y:.2f}%<extra></extra>'}],
+    tagLast(withEras(Object.assign(baseLayout(), {xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({range: padRange(inR(crr), false), ticksuffix: '%'}),
+      shapes: [peakLine('y', rs.hi[0])]}), xs), [[crr, 'y', v => v.toFixed(1) + '%', css('--spread')]]), CFG);
+  // 주변자금: 예탁금 · 코스피를 날짜축 맞춰 2칸으로 (코스피 = 네이버 금융 2019년~)
+  const kp = k.kospi || {x: [], y: []}, inX = (o) => o.y.filter((v, i) => v != null && o.x[i] >= xs);
   // 칸 이름은 세로로 돌리지 않고 칸 왼쪽 위에 가로로
   const panelLbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
   Plotly.react('fundplot', [
     {x: k.x, y: k.deposit, type: 'scatter', mode: 'lines', name: '고객예탁금', line: {color: css('--g2'), width: 2}, hovertemplate: '예탁금 %{y:.1f}조'},
     {x: kp.x, y: kp.y, type: 'scatter', mode: 'lines', name: '코스피', yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: '코스피 %{y:,.0f}'},
-  ], Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: 'y2', range: [fs, last], tickformat: '%y.%m'}),
-    yaxis: axis({domain: [0.56, 0.95], range: padRange(inF(k.x, k.deposit), false)}),
-    yaxis2: axis({domain: [0, 0.40], range: padRange(inF(kp.x, kp.y), false)}),
-    shapes: [peakLine('y', dp.value)],
+  ], tagLast(withEras(Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.56, 0.95], range: padRange(inR(k.deposit), false)}),
+    yaxis2: axis({domain: [0, 0.40], range: padRange(inX(kp), false)}),
+    shapes: [peakLine('y', Math.max(...inR(k.deposit)))],
     annotations: [panelLbl(0.96, '고객예탁금 (조원)'), panelLbl(0.41, '코스피')],
-  }), CFG);
+  }), xs), [[k.deposit, 'y', v => v.toFixed(1) + '조', css('--g2')], [kp.y, 'y2', n0, css('--price')]]), CFG);
   const tv = DATA.tv;
   if (tv) {
-    const tl = tv.x[tv.x.length - 1], tx = xStartFor(tl, tv.x[0]);
+    const tl = tv.x[tv.x.length - 1], tx = kofiaStart(tl, tv.x[0]);
     const tvR = arr => arr.filter((v, i) => v != null && tv.x[i] >= tx);
     // 시장마다 위 = 거래대금 5일 평균, 아래 = 지수 (날짜축 공유). 점선 = 최근 1년 최고 이후 '거래대금 바닥'
     [['kospi', '코스피', 'tvkospi', 'tvkospinow'], ['kosdaq', '코스닥', 'tvkosdaq', 'tvkosdaqnow']].forEach(([c, nm, id, nowId]) => {
@@ -1226,7 +1273,7 @@ function renderKofia() {
       Plotly.react(id, [
         {x: tv.x, y: d.avg5, type: 'scatter', mode: 'lines', name: '거래대금 5일 평균', line: {color: css('--bad'), width: 2}, hovertemplate: '5일 평균 %{y:.2f}조<extra></extra>'},
         {x: tv.x, y: d.idx, type: 'scatter', mode: 'lines', name: nm, yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'},
-      ], Object.assign(baseLayout(), {
+      ], tagLast(withEras(Object.assign(baseLayout(), {
         showlegend: false,
         xaxis: axis({type: 'date', anchor: 'y2', range: [tx, tl], tickformat: '%y.%m'}),
         yaxis: axis({domain: [0.5, 0.93], range: [0, Math.max(...tvR(d.avg5)) * 1.08]}),
@@ -1235,7 +1282,7 @@ function renderKofia() {
         annotations: [panelLbl(0.94, `${nm} 거래대금 5일 평균 (조원)`), panelLbl(0.39, `${nm} 지수`),
           {xref: 'paper', yref: 'y', x: 1, y: d.low.value, xanchor: 'right', yanchor: 'top', showarrow: false,
            text: `바닥 ${d.low.value.toFixed(2)}조 (${md(d.low.date)})`, font: {size: 10, color: css('--ink2')}}],
-      }), CFG);
+      }), tx), [[d.avg5, 'y', v => v.toFixed(1) + '조', css('--bad')], [d.idx, 'y2', n0, css('--price')]]), CFG);
       const dchg = (d.day / d.day_prev - 1) * 100;
       document.getElementById(id + 'day').innerHTML =
         `<span><i style="color:${css('--bad')}">●</i>오늘 거래대금 <b>${d.day.toFixed(2)}조</b> <span class="small">(전일 ${d.day_prev.toFixed(2)}조, ${fmtPct(dchg)})</span></span>` +
@@ -1249,21 +1296,19 @@ function renderKofia() {
     });
   }
   if (k.credit_kospi) {
-    const y1 = new Date(new Date(last) - 365 * 864e5).toISOString().slice(0, 10);  // 최근 1년 최고점
-    const pk = arr => Math.max(...arr.filter((a, i) => a != null && k.x[i] >= y1));
-    // 시장마다 위 = 신용융자, 아래 = 지수 (지수는 다음 금융 2020년~)
-    [['creditkospi', '코스피', k.credit_kospi, '--g1', 'kospi'], ['creditkosdaq', '코스닥', k.credit_kosdaq, '--bad', 'kosdaq']].forEach(([id, nm, cr, col, c]) => {
-      const ix = tv && tv[c] ? {x: tv.x, y: tv[c].idx} : {x: [], y: []};
+    // 시장마다 위 = 신용융자, 아래 = 지수 (네이버 금융 2019년~). 점선 = 고른 기간의 최고점
+    [['creditkospi', '코스피', k.credit_kospi, '--g1', k.kospi], ['creditkosdaq', '코스닥', k.credit_kosdaq, '--bad', k.kosdaq]].forEach(([id, nm, cr, col, ix]) => {
+      ix = ix || {x: [], y: []};
       Plotly.react(id, [
         {x: k.x, y: cr, type: 'scatter', mode: 'lines', name: nm + ' 신용', line: {color: css(col), width: 2}, hovertemplate: nm + ' 신용 %{y:.2f}조<extra></extra>'},
         {x: ix.x, y: ix.y, type: 'scatter', mode: 'lines', name: nm, yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'},
-      ], Object.assign(baseLayout(), {
+      ], tagLast(withEras(Object.assign(baseLayout(), {
         xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
         yaxis: axis({domain: [0.5, 0.93], range: padRange(inR(cr), false)}),
-        yaxis2: axis({domain: [0, 0.38], range: padRange(ix.y.filter((v, i) => v != null && ix.x[i] >= xs), false)}),
-        shapes: [peakLine('y', pk(cr))],
+        yaxis2: axis({domain: [0, 0.38], range: padRange(inX(ix), false)}),
+        shapes: [peakLine('y', Math.max(...inR(cr)))],
         annotations: [panelLbl(0.94, `${nm} 신용융자 (조원)`), panelLbl(0.39, `${nm} 지수`)],
-      }), CFG);
+      }), xs), [[cr, 'y', v => v.toFixed(2) + '조', css(col)], [ix.y, 'y2', n0, css('--price')]]), CFG);
     });
   }
   if (k.monthly) {
@@ -1278,13 +1323,80 @@ function renderKofia() {
   Plotly.react('kofiaplot', [
     {x: k.x, y: k.forced, type: 'bar', name: '반대매매', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
     {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '미수금 대비 비중', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
-  ], Object.assign(baseLayout(), {
+  ], tagLast(withEras(Object.assign(baseLayout(), {
     xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
     yaxis: axis({domain: [0.52, 1], range: padRange(inR(k.forced), true), title: {text: '반대매매 억', standoff: 2}}),
     yaxis2: axis({domain: [0, 0.44], range: padRange(inR(k.ratio), true), title: {text: '비중 %', standoff: 2}}),
     shapes: [peakLine('y', L.forced_avg_1y)],
     bargap: 0.1,
-  }), CFG);
+  }), xs), [[k.forced, 'y', v => fmtNum(v) + '억', css('--bad')], [k.ratio, 'y2', v => v.toFixed(1) + '%', css('--g5')]]), CFG);
+  renderEras();
+}
+document.querySelectorAll('#kofiabar button').forEach(b => b.onclick = () => {
+  KOFIA_PERIOD = b.dataset.k;
+  document.querySelectorAll('#kofiabar button').forEach(x => x.classList.toggle('on', x === b));
+  renderKofia();
+});
+
+// 시기별 설명 — 사용자 메모(26.10.30)와 출처 있는 사건. 숫자 줄은 data.json(금융투자협회·네이버 금융·한국은행·FRED)에서 자동
+const ERA_NOTE = {
+  '2019-01-01': '비교용 기준선이에요. 개인 돈(예탁금)과 빚(신용)이 지금보다 훨씬 작고, 크게 움직이지 않던 때예요.',
+  '2020-02-01': '주가가 무너지는 동안 <b>예탁금은 오히려 늘었어요</b>(싸게 사려는 개인 돈). 반대로 빚(신용)은 반대매매·상환으로 줄고, 신용비율도 크게 떨어졌어요.',
+  '2020-03-20': '사용자 메모: 코로나 회복 뒤 비대면(언택트)·미국 빅테크(FAANG) 붐으로 <b>광기장</b>. 예탁금·신용이 함께 불어나 그때까지의 최고를 찍었고, 코스피는 바닥의 두 배 넘게 올랐어요.',
+  '2021-07-07': '사용자 메모: 금리를 한 번에 크게 올리는 빅스텝(0.5%p)·자이언트스텝(0.75%p) 시기. 예탁금·신용이 <b>1년 반 동안 천천히 녹아내렸어요</b>. 반대매매는 하루 수백억 수준이라 한 번에 터지기보다 조금씩 계속 나왔어요.',
+  '2023-01-01': '사용자 메모: 숨통이 트이고 ChatGPT(22.11.30 공개)·HBM 붐. 지수는 조금 올랐는데 <b>반대매매가 2019년보다 훨씬 커졌어요</b>(빚투가 녹은 해). 23.10.20 하루 5,497억은 2006년 집계 이후 최대로 나왔지만, 영풍제지 거래정지로 <b>예정액이 겹쳐 잡힌 숫자</b>라 실제는 10/24 기준 약 544억으로 추정돼요.',
+  '2024-01-01': '사용자 메모: 방산·전력기기·화장품 같은 <b>수출주 붐</b>. 그래도 지수 전체는 제자리걸음이었고, 8월 초 하루 급락 때 반대매매가 잠깐 튀었어요.',
+  '2024-12-03': '24.12.03 비상계엄 선포 뒤 약세가 25년 봄까지 이어졌어요(사용자 메모: 25년 초 주식이 안 좋았음). 25년 4월 관세 충격 때(하이일드 섹션 메모와 같은 때) 바닥을 찍었어요.',
+  '2025-06-01': '계엄·관세 충격에서 벗어나 지수가 다시 오르기 시작한 때예요. 예탁금·신용도 같이 늘기 시작했어요.',
+  '2025-09-01': '사용자 메모: 삼성전자·SK하이닉스 <b>독주</b>로 몇 배 오른 광기장. 레버리지 ETF로 돈이 몰리고, 패시브 ETF 힘으로 예탁금도 늘었다고 봐요. 레버리지 ETF 순자산은 26년 5월 말 <b>35조원</b>을 넘었고(작년 말보다 22조원 넘게 늘어남), 한국은행은 "급락하면 레버리지 ETF 환매와 반대매매가 하락을 키울 수 있다"고 경고했어요.',
+  '2026-06-23': '6/23 하루 910포인트 넘게 폭락(역대 최대 폭)·사이드카·서킷브레이커로 시작했어요. 7/31부터 단일종목 레버리지 ETF 기본예탁금이 1천만 → 3천만원으로 오르자 그 ETF 거래가 하루 약 10조원 → 1조원 아래로 줄고, 개인 돈은 미국 지수·커버드콜 ETF로 옮겨 갔어요.',
+};
+const ERA_SRC = {
+  '2023-01-01': '<a href="https://openai.com/index/chatgpt/" target="_blank" rel="noopener">OpenAI</a> · <a href="https://www.metroseoul.co.kr/article/20231026500001" target="_blank" rel="noopener">메트로신문 23.10.26</a>',
+  '2024-12-03': '<a href="https://ko.wikipedia.org/wiki/2024%EB%85%84_%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EB%B9%84%EC%83%81%EA%B3%84%EC%97%84" target="_blank" rel="noopener">위키백과</a>',
+  '2025-09-01': '<a href="https://news.mtn.co.kr/news-detail/2026062416271115961" target="_blank" rel="noopener">머니투데이방송 26.06.24</a>',
+  '2026-06-23': '<a href="https://fnnews.com/news/202606241032410330" target="_blank" rel="noopener">파이낸셜뉴스 26.06.24</a> · <a href="https://news.bizwatch.co.kr/article/market/2026/08/14/0030" target="_blank" rel="noopener">비즈워치 26.08.14</a>',
+};
+function renderEras() {
+  const E = DATA.kofia && DATA.kofia.eras, box = document.getElementById('erabox');
+  if (!E || !E.length) { box.style.display = 'none'; return; }
+  const md = s => s.slice(2).replace(/-/g, '.'), P = DATA.policy || {};
+  const mon = (a, b) => ((new Date(b) - new Date(a)) / 2.63e9).toFixed(1);  // 개월
+  // 기준금리 계단 기록(바뀐 날은 [날짜, 이전 값], [날짜, 새 값] 두 점)에서 시기 안 변화
+  const rate = (h, s, e, nm) => {
+    if (!h || !h.length || h[0][0] > s) return '';
+    const at = d => { let v = null; for (const [x, y] of h) { if (x <= d) v = y; else break; } return v; };
+    const a = at(s), b = at(e), ch = [];
+    for (let i = 1; i < h.length; i++) if (h[i][0] === h[i - 1][0] && h[i][0] >= s && h[i][0] <= e && h[i][1] !== h[i - 1][1]) ch.push(h[i][1] - h[i - 1][1]);
+    if (a == null || b == null || !ch.length) return '';
+    const big = ch.filter(c => Math.abs(c) >= 0.49 && Math.abs(c) < 0.74).length, giant = ch.filter(c => Math.abs(c) >= 0.74).length;
+    const tag = ch.every(c => c > 0) ? [big && `빅스텝 ${big}번`, giant && `자이언트스텝 ${giant}번`].filter(Boolean).join('·') : (big + giant ? `한 번에 0.5%p 이상 ${big + giant}번` : '');
+    return `${nm} ${a.toFixed(2)}% → ${b.toFixed(2)}%${tag ? ` (${tag})` : ''}`;
+  };
+  const blocks = E.map((e, i) => {
+    const K = e.kospi, D = e.deposit, C = e.credit, R = e.ratio, F = e.forced;
+    const rl = [rate(P.kr && P.kr.hist, e.start, e.end, '한국'), rate(P.us && P.us.hist, e.start, e.end, '미국')].filter(Boolean).join(' · ');
+    return `<div class="era"><div><b>${ERA_NUM[i]} ${e.name}</b> <span class="small">${md(e.start)} ~ ${e.ongoing ? '지금' : md(e.end)}</span></div>
+      <div class="small">· 코스피 ${n0(K.start)} → ${n0(K.end)} <b>${fmtPct(K.chg)}</b> · 가장 깊은 하락 ${K.dd.toFixed(1)}% · 하루 최대 하락 ${K.worst[0].toFixed(1)}%(${md(K.worst[1])})
+      <br>· 예탁금 ${D.start.toFixed(1)} → <b>${D.end.toFixed(1)}조</b> (최고 ${D.max[0].toFixed(1)}조 ${md(D.max[1])}) · 신용 ${C.start.toFixed(1)} → <b>${C.end.toFixed(1)}조</b> (최고 ${C.max[0].toFixed(1)}조)
+      <br>· 신용비율 ${R.min[0].toFixed(1)}~${R.max[0].toFixed(1)}% · 반대매매 하루 평균 <b>${fmtNum(F.avg)}억</b> · 하루 최대 ${fmtNum(F.max[0])}억(${md(F.max[1])}) · 합계 ${F.sum.toFixed(1)}조${rl ? `<br>· 기준금리 ${rl}` : ''}</div>
+      ${ERA_NOTE[e.start] ? `<div class="small" style="color:var(--ink);margin-top:3px">💬 ${ERA_NOTE[e.start]}${ERA_SRC[e.start] ? ` <span class="src">출처: ${ERA_SRC[e.start]}</span>` : ''}</div>` : ''}</div>`;
+  }).join('');
+  // 오를 때 vs 무너질 때: 직전 오름 시기의 시작 → 최고점, 그 최고점 → 지금 시기 최저점
+  const cur = E[E.length - 1], prev = E[E.length - 2];
+  const drops = (DATA.kofia.drops || []).map(d => `${md(d.date)} <b>${d.chg.toFixed(1)}%</b>`).join(' · ');
+  const kdrop = prev ? (cur.kospi.min[0] / prev.kospi.max[0] - 1) * 100 : 0, cdrop = prev ? (cur.credit.end / prev.credit.max[0] - 1) * 100 : 0;
+  const cmp = cur.ongoing && prev && cur.kospi.chg < 0 && prev.kospi.chg > 0 ? `<div class="memo" style="margin:0 0 8px">
+      <b>⚠️ 오를 땐 천천히, 무너질 땐 빠르게</b> <span class="small">(매일 자동)</span>
+      <div>· 코스피: ${ERA_NUM[E.length - 2]} 시작부터 <b>${mon(prev.start, prev.kospi.max[1])}개월</b> 동안 ${fmtPct((prev.kospi.max[0] / prev.kospi.start - 1) * 100)} → 꼭대기(${md(prev.kospi.max[1])} ${n0(prev.kospi.max[0])})에서 <b>${mon(prev.kospi.max[1], cur.kospi.min[1])}개월</b> 만에 ${fmtPct((cur.kospi.min[0] / prev.kospi.max[0] - 1) * 100)}</div>
+      <div>· 예탁금: <b>${mon(prev.start, prev.deposit.max[1])}개월</b> 동안 ${fmtPct((prev.deposit.max[0] / prev.deposit.start - 1) * 100)} → 최고(${md(prev.deposit.max[1])} ${prev.deposit.max[0].toFixed(1)}조)에서 <b>${mon(prev.deposit.max[1], cur.deposit.min[1])}개월</b> 만에 ${fmtPct((cur.deposit.min[0] / prev.deposit.max[0] - 1) * 100)}</div>
+      <div>· 신용(빚): 최고(${md(prev.credit.max[1])} ${prev.credit.max[0].toFixed(1)}조) → 지금 ${cur.credit.end.toFixed(1)}조 ${fmtPct(cdrop)} — ${Math.abs(cdrop) < Math.abs(kdrop) ? '지수가 빠진 것보다 <b>덜 줄었어요</b>(빚 정리가 덜 됨)' : '지수가 빠진 만큼 줄었어요'}</div>
+      ${drops ? `<div>· 2019년 이후 코스피가 하루에 가장 크게 빠진 날: ${drops}</div>` : ''}</div>` : '';
+  box.innerHTML = `<h3><span>📜 2019년부터 돈의 흐름 — 시기별로 보기</span></h3>
+    <div class="small" style="margin:2px 4px 8px">개인 돈(예탁금)·빚(신용)·강제로 팔린 돈(반대매매)이 시기마다 어떻게 바뀌었는지예요. 위 기간 버튼에서 <b>3년·전체</b>를 누르면 그래프 배경에 같은 번호가 보여요.</div>
+    ${cmp}${blocks}
+    <p class="note" style="margin:6px 4px 2px">숫자는 매일 자동 계산: 시작 = 그 시기 직전 거래일 값, 끝·최고·최저 = 그 기간 일별 값, 신용비율 = 신용 ÷ 예탁금, 반대매매 = 하루 평균·최대·합계.
+    자료: 금융투자협회 FreeSIS(예탁금·신용·반대매매) · 네이버 금융(코스피) · 한국은행·FRED(기준금리). 시기 이름과 💬 메모는 사용자 메모(26.10.30)와 출처 있는 기사예요. 투자 권유가 아닌 참고용이에요.</p>`;
 }
 
 // 코스피 빚(신용융자) 정리 진행도 = 신용 1년 고점 대비 감소율 ÷ 코스피 고점 대비 하락률 (생각의 출처: 사용자 제공 방송 요약 2026-10-28)
@@ -1352,7 +1464,7 @@ function renderMdd() {
   const marks = m.big.map(b => ({x: b.date, y: b.mdd})).concat(m.cur_low.mdd <= -10 ? [{x: m.cur_low.date, y: m.cur_low.mdd, right: true}] : []);
   Plotly.react('mddplot', [{x: m.x, y: m.y, type: 'scatter', mode: 'lines', name: 'MDD', fill: 'tozeroy',
       line: {color: css('--ink'), width: 1.2}, fillcolor: 'rgba(128,128,128,0.15)', hovertemplate: '%{y:.1f}%'}],
-    Object.assign(baseLayout(), {
+    tagLast(Object.assign(baseLayout(), {
       showlegend: false,
       xaxis: axis({type: 'date', range: [m.since, m.last_date], tickformat: "'%y", dtick: 'M48'}),
       yaxis: axis({range: [-82, 3], dtick: 10, ticksuffix: '%'}),
@@ -1360,7 +1472,7 @@ function renderMdd() {
         line: {color: lim >= 40 ? css('--bad') : css('--g4'), width: 1, dash: 'dot'}})),
       annotations: marks.map(p => ({x: p.x, y: p.y, text: `(${Math.abs(p.y).toFixed(1)})`, showarrow: false, yanchor: 'top', yshift: -2, xanchor: p.right ? 'right' : 'center',
         font: {size: 10, color: css('--bad')}})),
-    }), CFG);
+    }), [[m.y, 'y', v => v.toFixed(1) + '%', css('--ink')]]), CFG);
   document.querySelector('#mddtable tbody').innerHTML =
     `<tr><td style="text-align:left">${ym(m.cur_low.date)}<br><span class="small">지금 하락기</span></td><td>${fmtNum(m.peak, 0)}<br>→${fmtNum(m.cur_low.low, 0)}</td><td style="color:var(--bad)">${m.cur_low.mdd.toFixed(1)}%</td><td>아직</td></tr>` +
     m.big.slice().reverse().map(b =>
@@ -1532,20 +1644,26 @@ function renderVix() {
 function renderVkospi() {
   const k = DATA.vkospi;
   if (!k) return;
-  const last = k.x[k.x.length - 1], v = DATA.vix;
+  const last = k.x[k.x.length - 1], md = s => s.slice(2).replace(/-/g, '.'), REC = 96.94;  // 역대 종가 최고 26.06.29 (세계일보)
   document.getElementById('vkscore').textContent = k.last.toFixed(2);
-  const vi = v ? v.x.filter(d => d <= last).length - 1 : -1;  // 같은 날(또는 그 전) 미국 VIX
-  if (vi >= 0) document.getElementById('vkrating').textContent = `같은 날 미국 VIX ${v.y[vi].toFixed(2)}의 ${(k.last / v.y[vi]).toFixed(1)}배`;
-  document.getElementById('vkprev').innerHTML = `${k.last_date} 한국 장 마감 기준<br>전일 ${k.prev.toFixed(2)} · 기록 중 최고 ${k.max_1y.value.toFixed(2)} (${k.max_1y.date.slice(2).replace(/-/g, '.')})`;
+  const rt = document.getElementById('vkrating');
+  rt.textContent = `역대 최고(26.06.29 96.94)의 ${Math.round(k.last / REC * 100)}%`; rt.style.color = css('--ink2');
+  document.getElementById('vkprev').innerHTML = `${k.last_date} 한국 장 마감 기준<br>전일 ${k.prev.toFixed(2)} · ${md(k.since)} 이후 우리 기록 중 최고 ${k.max_1y.value.toFixed(2)} (${md(k.max_1y.date)})`;
   const xs = xStartFor(last, k.x[0]);
   const traces = [{x: k.x, y: k.y, type: 'scatter', mode: k.x.length < 40 ? 'lines+markers' : 'lines', name: 'VKOSPI', line: {color: css('--cds'), width: 2.2}, marker: {size: 4}, hovertemplate: '%{y:.2f}'}];
-  if (v) traces.push({x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: '미국 VIX', line: {color: css('--muted'), width: 1.4}, hovertemplate: '%{y:.2f}'});
-  const vis = k.y.filter((_, i) => k.x[i] >= xs).concat(v ? v.y.filter((_, i) => v.x[i] >= xs) : []);
-  Plotly.react('vkplot', traces, Object.assign(baseLayout(), {
+  Plotly.react('vkplot', traces, tagLast(Object.assign(baseLayout(), {
     xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
-    yaxis: axis({range: padRange(vis)}),
-  }), CFG);
-  document.getElementById('vknote').innerHTML = `빨간 선 = VKOSPI, 회색 선 = 미국 VIX. 자료: <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a> (최근 약 20거래일만 공개돼서 ${k.since}부터 매일 쌓는 중)`;
+    yaxis: axis({range: padRange(k.y.filter((_, i) => k.x[i] >= xs))}),
+  }), [[k.y, 'y', v => v.toFixed(2), css('--cds')]]), CFG);
+  // 우리 기록에서 하루에 가장 크게 뛴 날 + 그 앞뒤 5거래일 코스피 (코스피 = 네이버 금융 일별 종가)
+  const P = DATA.kofia && DATA.kofia.kospi;
+  let j = 1; for (let i = 2; i < k.y.length; i++) if (k.y[i] - k.y[i - 1] > k.y[j] - k.y[j - 1]) j = i;
+  if (P && P.x.length && k.y.length > 2) {
+    const pi = P.x.indexOf(k.x[j]), ch = (a, b) => a >= 0 && b >= 0 && b < P.y.length ? fmtPct((P.y[b] / P.y[a] - 1) * 100) : '<span class="small">아직</span>';
+    document.getElementById('vkauto').innerHTML = pi < 0 ? '' : `<b>우리 기록(${md(k.since)}~, 매일 자동)</b> 하루에 가장 크게 뛴 날은 <b>${md(k.x[j])}</b> ${k.y[j - 1].toFixed(2)} → ${k.y[j].toFixed(2)} (+${(k.y[j] - k.y[j - 1]).toFixed(2)})예요.
+      그날 코스피 ${ch(pi - 1, pi)} · 그 전 5거래일 ${ch(pi - 6, pi - 1)} · 그 뒤 5거래일 ${ch(pi, pi + 5)}`;
+  }
+  document.getElementById('vknote').innerHTML = `자료: <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a> (최근 약 20거래일만 공개돼서 ${k.since}부터 매일 쌓는 중). 그 전 기록은 위 기사 숫자예요.`;
 }
 
 function renderMove() {
@@ -1615,9 +1733,10 @@ function mktBlock(boxId, list) {
     }
     Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : k === 'usdkrw' ? '--g1' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
-      Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
+      tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
-        yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}), CFG);
+        yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
+        [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : 0), css('--ink')]]), CFG);
   });
 }
 
@@ -1731,7 +1850,7 @@ function renderAdr() {
       {x: m.index.x, y: m.index.y, type: 'scatter', mode: 'lines', name: name, yaxis: 'y2', line: {color: css('--muted'), width: 1.4}, hovertemplate: name + ' %{y:,.0f}<extra></extra>'},
     ];
     const hl = (y, c) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: y, y1: y, line: {color: c, width: 1.4, dash: 'dash'}});
-    Plotly.react(el, traces, Object.assign(baseLayout(), {
+    Plotly.react(el, traces, tagLast(Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: ADR_PERIOD === '6m' ? '%y.%m' : '%y.%m'}),
       yaxis: axis({domain: [0.34, 1], range: [lo, hi], ticksuffix: '%', tickvals: [50, 80, 100, 120, 160]}),
       yaxis2: axis({domain: [0, 0.26], range: padRange(iv, false), title: {text: name, standoff: 2}}),
@@ -1741,7 +1860,7 @@ function renderAdr() {
                     {xref: 'paper', x: 0.99, yref: 'paper', y: 0.36, yanchor: 'bottom', xanchor: 'right', showarrow: false, align: 'right',
                      text: `ADR: <b>${m.y[m.y.length - 1].toFixed(1)}%</b><br>(${last})`, font: {size: 12, color: css('--ink')},
                      bgcolor: css('--page') + 'd9', bordercolor: css('--muted'), borderwidth: 1, borderpad: 4}],
-    }), CFG);
+    }), [[m.index.y, 'y2', n0, css('--ink2')]]), CFG);
     return status(m.y[m.y.length - 1]);
   };
   const sk = draw('adrkospi', A.kospi, css('--g1'), 'KOSPI'), sq = draw('adrkosdaq', A.kosdaq, css('--bad'), 'KOSDAQ');
@@ -2115,13 +2234,13 @@ function renderReaders() {
 
 function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
-document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
+document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
-  document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderKofia(); renderReaders();
 });
-try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
+try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
 (async () => {
   const bust = '?t=' + Date.now();

@@ -414,16 +414,18 @@ def fetch_vkospi():
 
 
 def fetch_kospi_long():
-    # 코스피 1990년~ 일별 종가 (네이버 금융 차트 데이터, 야후는 1996년 12월부터라 MDD 계산엔 부족)
-    r = requests.get("https://api.finance.naver.com/siseJson.naver", headers=BROWSER_UA, timeout=60,
-                     params={"symbol": "KOSPI", "requestType": 1, "startTime": "19900101",
-                             "endTime": datetime.now().strftime("%Y%m%d"), "timeframe": "day"})
-    # 행 모양: ["19900104", 시가, 고가, 저가, 종가, ...]
-    rows = re.findall(r'\["(\d{8})",\s*[\d.]+,\s*[\d.]+,\s*[\d.]+,\s*([\d.]+)', r.text)
-    if len(rows) < 8000 or rows[0][0] > "19900110":
-        raise RuntimeError(f"네이버 코스피 장기 데이터가 이상함 ({len(rows)}행)")
-    pd.DataFrame([{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "kospi": float(v)} for d, v in rows]) \
-        .to_csv(os.path.join(DATA, "kospi_long.csv"), index=False)
+    # 코스피 1990년~ 일별 종가 (네이버 금융 차트 데이터, 야후는 1996년 12월부터라 MDD 계산엔 부족).
+    # 코스닥은 2019년~ (주변자금 섹션 '전체' 기간용, 야후 코스닥은 2020년부터)
+    for sym, start, min_rows in (("KOSPI", "19900101", 8000), ("KOSDAQ", "20190101", 1000)):
+        r = requests.get("https://api.finance.naver.com/siseJson.naver", headers=BROWSER_UA, timeout=60,
+                         params={"symbol": sym, "requestType": 1, "startTime": start,
+                                 "endTime": datetime.now().strftime("%Y%m%d"), "timeframe": "day"})
+        # 행 모양: ["19900104", 시가, 고가, 저가, 종가, ...]
+        rows = re.findall(r'\["(\d{8})",\s*[\d.]+,\s*[\d.]+,\s*[\d.]+,\s*([\d.]+)', r.text)
+        if len(rows) < min_rows or rows[0][0] > start[:6] + "10":
+            raise RuntimeError(f"네이버 {sym} 장기 데이터가 이상함 ({len(rows)}행)")
+        pd.DataFrame([{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", sym.lower(): float(v)} for d, v in rows]) \
+            .to_csv(os.path.join(DATA, f"{sym.lower()}_long.csv"), index=False)
 
 
 TV_URL = "https://finance.daum.net/api/market_index/days"
@@ -1127,6 +1129,39 @@ def build_dram():
     return out
 
 
+def _money_eras(ks, kp):
+    # 시기별 숫자(README): 시작 = 그 시기 직전 거래일 값(시기끼리 이어지게), 끝·최고·최저 = 그 기간 일별 값 그대로.
+    # 반대매매는 하루 최대·하루 평균(억원)·합계(조원), 코스피는 기간 안 가장 깊은 하락폭·하루 최대 하락
+    last_day = ks.index[-1]
+    out = []
+    for s, e, name in config.MONEY_ERAS:
+        e = e or last_day
+        pe = kp.index[-1] if e == last_day else e  # 지금 시기의 코스피는 금투협(하루 늦음)보다 하루 더 최신
+        w, p = ks.loc[s:e], kp.loc[s:pe]
+        if w.empty or p.empty:
+            continue
+
+        def span(ser, div, nd, end=e):
+            ser = ser.dropna()
+            c, before = ser.loc[s:end], ser[ser.index < s]
+            st = before.iloc[-1] if len(before) else c.iloc[0]
+            return {"start": round(st / div, nd), "end": round(c.iloc[-1] / div, nd),
+                    "max": [round(c.max() / div, nd), c.idxmax()], "min": [round(c.min() / div, nd), c.idxmin()]}
+        ratio = (ks["credit"] / ks["deposit"] * 100).dropna()
+        r = ratio.loc[s:e]
+        f = w["forced"].dropna() / 100
+        day = (kp.pct_change() * 100).loc[s:pe]
+        k = span(kp, 1, 0, pe)
+        out.append({"start": s, "end": e, "name": name, "ongoing": e == last_day,
+                    "kospi": {**k, "chg": round((k["end"] / k["start"] - 1) * 100, 1),
+                              "dd": round(float((p / p.cummax() - 1).min() * 100), 1),
+                              "worst": [round(float(day.min()), 2), day.idxmin()]},
+                    "deposit": span(ks["deposit"], 1e6, 1), "credit": span(ks["credit"], 1e6, 1),
+                    "ratio": {"max": [round(r.max(), 1), r.idxmax()], "min": [round(r.min(), 1), r.idxmin()], "end": round(r.iloc[-1], 1)},
+                    "forced": {"max": [int(round(f.max())), f.idxmax()], "avg": int(round(f.mean())), "sum": round(f.sum() / 1e4, 2)}})
+    return out
+
+
 def build_kofia():
     path = os.path.join(DATA, "kofia.csv")
     if not os.path.exists(path):
@@ -1145,11 +1180,14 @@ def build_kofia():
         now = k.dropna(subset=[col]).iloc[-1]
         return {"date": row["date"], "value": round(row[col] / 1e6, 1),
                 "chg": round((now[col] / row[col] - 1) * 100, 1)}
-    kp_path = os.path.join(DATA, "kospi.csv")
-    kospi = {"x": [], "y": []}
-    if os.path.exists(kp_path):
-        kp = pd.read_csv(kp_path, dtype={"date": str})
-        kospi = {"x": list(kp["date"]), "y": [round(float(v), 2) for v in kp["kospi"]]}
+    # 지수는 2019년~ (네이버 금융 장기 일별 종가) — 기간 버튼 '전체'와 시기별 흐름에 씀
+    idx = {}
+    for c in ("kospi", "kosdaq"):
+        p = os.path.join(DATA, f"{c}_long.csv")
+        if os.path.exists(p):
+            s = pd.read_csv(p, dtype={"date": str}).set_index("date")[c]
+            idx[c] = s[s.index >= "2019-01-01"]
+    kospi = {"x": list(idx["kospi"].index), "y": [round(float(v), 2) for v in idx["kospi"]]} if "kospi" in idx else {"x": [], "y": []}
     # 월별 일평균 반대매매(억원): 그 달 거래일 반대매매금액의 평균. 2023-11부터
     km = k.dropna(subset=["forced"]).copy()
     km = km[km["date"] >= "2023-11-01"]
@@ -1176,6 +1214,10 @@ def build_kofia():
                 "max_1y": {"date": yr_q.idxmax(), "value": round(float(yr_q.max()) / 1e6, 2)}},
         "w1_val": {c: wk(c) for c in ("deposit", "credit", "credit_kospi", "credit_kosdaq")},
         "kospi": kospi,
+        "kosdaq": {"x": list(idx["kosdaq"].index), "y": [round(float(v), 2) for v in idx["kosdaq"]]} if "kosdaq" in idx else None,
+        "eras": _money_eras(ks, idx["kospi"]) if "kospi" in idx else [],
+        # 2019년 이후 코스피가 하루에 가장 크게 빠진 날 5번
+        "drops": [{"date": d, "chg": round(v, 2)} for d, v in (idx["kospi"].pct_change() * 100).nsmallest(5).items()] if "kospi" in idx else [],
         "x": list(k["date"]),
         "misu": num("misu", 100, 0),          # 억원
         "forced": num("forced", 100, 0),      # 억원
