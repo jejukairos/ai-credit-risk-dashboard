@@ -63,6 +63,19 @@ function rateCard(r, label, key, extra) {
 }
 // 기준금리(미국 FRED · 한국은행)는 이 대시보드 data.json 의 policy 에서 (밸류 신호등엔 없음)
 const POL = () => (typeof DATA !== "undefined" && DATA && DATA.policy) || {};
+// 미국채 10년 칸 아래 작은 코멘트: 최근 3개월 최고 → 지금(이 대시보드 Yahoo 일별 자료로 자동 계산) + 하락 이유(사용자 메모)
+function us10yNote() {
+  const U = typeof DATA !== "undefined" && DATA?.usmkt?.us10y;
+  if (!U) return "";
+  const i = U.x.length - 1, c = new Date(new Date(U.x[i]) - 91 * 864e5).toISOString().slice(0, 10);
+  let hi = -1;
+  U.x.forEach((d, j) => { if (d >= c && (hi < 0 || U.y[j] > U.y[hi])) hi = j; });
+  const dd = U.y[i] - U.y[hi], md = (s) => s.slice(5).replace("-", "/");
+  return `<div class="memo" style="margin:8px 0 0;font-size:12px">📉 3개월 최고 ${pct(U.y[hi], 2)}(${md(U.x[hi])}) → 지금 ${pct(U.y[i], 2)}(${md(U.x[i])}), <b>${dd >= 0 ? "+" : ""}${n(dd, 2)}%p</b>
+    <br><b>10월 들어 금리가 내려온 이유</b> ① AI 인프라에 앞다퉈 돈 쏟던 투자 경쟁 심리가 식음 ② 불안해서 안전자산(국채)을 찾는 사람이 늘어 국채 값↑ = 금리↓
+    <br>→ 금리가 내려가면 <b>배당주·방어주(경기 덜 타는 주식)·가치주(싼 주식)</b>가 상대적으로 매력적이라 오르는 이유가 돼요.
+    <span class="src">이유: user: 사용자 메모(26.10.30)</span></div>`;
+}
 function drawMarketCharts() {
   const C = themeColors(), P = POL();
   for (const [key, r] of [["us", M.rates.us10y], ["usp", P.us], ["kr", M.rates.kr3y], ["krp", P.kr]]) {
@@ -355,7 +368,7 @@ function render() {
     DRAWS.forEach((d) => d());
   };
   const k10 = M.rates.kr10y, P = POL();
-  $("#vm-signals").innerHTML = rateCard(M.rates.us10y, "미국채 10년", "us") +
+  $("#vm-signals").innerHTML = rateCard(M.rates.us10y, "미국채 10년", "us", us10yNote()) +
     rateCard(P.us, "미국 기준금리 (목표 범위 위쪽)", "usp", P.us ? `<div class="src">목표 범위 ${pct(P.us.lower, 2)}~${pct(P.us.latest, 2)}</div>` : "") +
     rateCard(M.rates.kr3y, "국고채 3년", "kr", k10 ? `<div class="src">국고채 10년(참고) ${pct(k10.latest, 2)} · ${esc(k10.date)}</div>` : "") +
     rateCard(P.kr, "한국 기준금리", "krp", P.kr ? `<div class="src">날짜 = 마지막으로 바뀐 날 · <a href="${esc(P.kr.url)}" target="_blank" rel="noopener">한국은행 기준금리 표 ↗</a></div>` : "");
