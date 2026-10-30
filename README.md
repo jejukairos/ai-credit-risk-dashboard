@@ -28,7 +28,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 | GPU 현물(스팟) 가격 | [네비우스(NBIS)](https://nebius.com/spot-prices) 공개 API(인증 없음) | B300·B200·H200·H100 지역별 현물가격, 최근 30일 시간별을 매일 받아 쌓음 |
 | GPU 임대가격(참고) | [Price of Compute](https://priceofcompute.com) 무료 API | 여러 클라우드의 온디맨드 가격 일별 중앙값 |
 | AI 매출(ARR) | 회사 발표·언론 보도·TickerTrends 추정 보도 | `arr_log.csv` 에 날짜·회사·금액($B)·종류(발표/추정/총액식)·출처URL. 매주 월요일 자동 검색으로 추가 |
-| D램 가격 | TrendForce/DRAMeXchange 공개 시세 + 주간 'Memory Spot Price Update' 기사 | DDR4 8Gb 계약가격(반월 갱신)도 함께. 대표 3개만: DXI 지수, DDR5 16Gb 현물, DDR4 8Gb 현물(2023-07부터). DXI·DDR5는 과거치가 유료라 2026-10-16부터 매일 쌓임. 뉴스 수치는 `dram_log.csv` 에 출처와 함께 추가 가능 |
+| D램 가격 | TrendForce/DRAMeXchange 공개 시세 + 주간 'Memory Spot Price Update' 기사 | DDR4 8Gb 계약가격(반월 갱신)도 함께. 대표 3개만: DXI 지수, DDR5 16Gb 현물, DDR4 8Gb 현물(2023-07부터). DXI·DDR5는 과거치가 유료라 2026-10-16부터 매일 쌓임. 뉴스 수치는 `dram_log.csv` 에 출처와 함께 추가 가능 — 품목 이름 끝에 ' 계약'을 붙이면(예: `DDR5 16Gb 계약`) 그 칩 차트의 계약가격(초록 점선)에 들어감. 9·10월 계약가는 SK증권 리서치 IT팀이 요약한 TrendForce 10월 고정가(사용자 제공) |
 | SK하이닉스 재고일수 | [OpenDART](https://opendart.fss.or.kr) (금융감독원 전자공시 API, 무료 키 `DART_API_KEY` 는 `.env` 에만) | 분기·반기·3분기·사업보고서 연결재무제표의 매출·매출원가·재고자산(`fetch_hynix_inventory` → `data/hynix_quarterly.csv`, 받은 분기는 다시 안 받음). 4분기 매출 = 1년치 − 1~3분기. 재고일수(주) = 분기 말 재고자산 ÷ 그 분기 매출 × 13. 하나증권 '재고일수 추이'와 같은 방식(2Q23 29.2주 ≈ 그림 약 30주). 2019년~, 'D램' 칸 가격 카드 아래 |
 | ADR(등락비율) | [adrinfo.kr](http://adrinfo.kr/chart) 차트 페이지 | 코스피·코스닥 20일 ADR, 2019-10부터 일별. 120% 이상 과열, 80% 이하 과매도 |
 | 메모리 전망 의견 | 증권사·리서치·업계 발언 기사 | ``opinion_log.csv`` 에 날짜·누구·강세/중립/약세·요약·출처URL. 매주 월요일 자동 검색으로 추가 |

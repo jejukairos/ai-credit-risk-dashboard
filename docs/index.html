@@ -521,7 +521,10 @@ footer a{color:var(--ink2)}
     <b>🐒 투자 메모</b>
     <div>· DDR4가 살짝 아쉽지만, <b>메인은 DDR5</b>라는 걸 감안해야 해요. <b>DDR5 현물가격 분위기는 너무 좋아요.</b></div>
     <div>· <b>JP모건(10/26)</b>: 10월 <b>DDR5 16Gb 51.80달러, 전월 대비 +4.4%</b> — 9월 하락 뒤 반등(AI 서버·HBM 생산 때문에 공급 빠듯). 반면 <b>NAND 1Tb 29.40달러, −2.6%</b>로 2달 연속 하락(소비자 수요 약함·재고 부담). 4분기 계약가 전망은 <b>DRAM +13%, NAND +18%</b> — 3분기보다 덜 오르지만 오름세는 이어진다는 예상. <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
-    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약 · JP모건 보고서 요약(KuCoin 뉴스)</div>
+    <div>· <b>TrendForce 10월 고정가(SK증권 요약, 10/30)</b>: 큰 회사끼리 한 달 단위로 정하는 <b>고정가</b>도 계속 올라요. 10월 <b>DDR5 16Gb 칩 $48 → $50(+4.2%)</b>, <b>DDR4 8Gb 칩 $26 → $27.5(+5.8%)</b> — 아래 차트 초록 점선. 다만 4분기 PC D램 고정가 인상폭은 <b>+13~18%</b>로 3분기(+18~23%)보다 <b>작아졌어요</b>(오르긴 하는데 속도가 줄어듦).
+      <br>→ 왜 계속 오르나: 한국 회사들이 <b>PC용 D램을 줄이고(2027년 −20% 이상) 서버(AI)용으로 돌리는 중</b>이라 PC용 물량이 귀해져요.
+      <br>→ 조심할 점: 노트북 판매가 줄어(3분기 −14%, 4분기 −9% 전망) <b>PC 회사 창고에 D램 재고가 쌓이는 중</b>이에요(아래 재고일수 카드).</div>
+    <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약 · JP모건 보고서 요약(KuCoin 뉴스) · user: 사용자 제공 <a href="https://t.me/skitteam" target="_blank" rel="noopener">SK증권 리서치 IT팀</a> 글(TrendForce 10월 D램 고정가)</div>
   </div>
   <div id="dramcards"></div>
   <div class="card" id="hynixinv"></div>
@@ -994,6 +997,9 @@ function renderHynixInv() {
   el.innerHTML = `<h3><span>SK하이닉스 재고일수 — 만든 메모리가 창고에 얼마나 쌓였나</span></h3>
     <div class="small" style="margin:2px 4px 6px"><b>재고일수</b> = 지금 창고에 쌓인 물건을 다 팔려면 몇 주 걸리는지예요. 짧을수록 만드는 대로 팔릴 만큼 잘 팔린다는 뜻이고, 길면 안 팔려서 쌓였다는 뜻이에요.</div>
     <div class="nowline"><span><i style="color:${css('--bad')}">●</i>지금(${H.q[n - 1]}) <b>${wl.toFixed(1)}주</b></span><span>가장 길었던 때 ${H.q[H.weeks.indexOf(mx)]} ${mx.toFixed(1)}주</span>${wl === mn ? '<span><b>2019년 이후 가장 짧아요</b></span>' : ''}</div>
+    <div class="memo" style="margin:0 0 8px;font-size:12px">🔁 <b>사는 쪽 창고도 같이 보기</b> — PC 회사(OEM)가 쌓아 둔 D램 재고: <b>3분기 말 6~9주 → 4분기 초 7~10주</b>로 늘었고, 4분기에 더 쌓일 전망이에요.
+      <br>파는 쪽(하이닉스) 창고는 텅 비었는데 사는 쪽 창고는 차오르는 중 → PC 쪽 수요가 약해지고 있다는 신호예요. 사는 쪽 재고가 계속 늘면 나중에 주문을 줄일 수 있어요.
+      <br><span class="src">출처: user: 사용자 제공 <a href="https://t.me/skitteam" target="_blank" rel="noopener">SK증권 리서치 IT팀</a> 글(TrendForce, 26.10.30)</span></div>
     <div id="hynixplot" class="plot" style="height:380px"></div>
     <p class="note" style="margin:6px 4px 2px">계산: 분기 말 재고자산 ÷ 그 분기 매출 × 13주(한 분기). 하나증권 '재고일수 추이'(사용자 제공 그림)와 같은 방식이라 모양이 같고, 숫자는 조금 다를 수 있어요. 자료: OpenDART(금융감독원 전자공시) SK하이닉스 연결재무제표 — 4분기 매출은 1년치 − 1~3분기. 새 분기 보고서가 나오면 자동으로 추가돼요. 분기 자료라 위 기간 버튼과 상관없이 2019년부터 보여요.</p>
     <details class="srcs"><summary><b>분기별 출처 ${n}건</b> <span class="small">(▶ 누르면 펼쳐져요 · DART 보고서로 이동)</span></summary><ul>${H.q.map((q, i) =>

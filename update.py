@@ -1118,8 +1118,10 @@ def build_dram():
                  "last": ser["y"][-1], "last_date": ser["x"][-1],
                  "m1": pct_change(s, 30), "m3": pct_change(s, 91),
                  "yoy": yoy, "qoq": qoq, "mom": mom, "yoy_last": yoy[-1], "qoq_last": qoq[-1], "mom_last": mom[-1]}
-        c = dl[dl["item"] == item + " 계약"].sort_values("date")
-        if len(c):  # 같은 칩의 계약(고정거래)가격을 함께 표시
+        # 같은 칩의 계약(고정거래)가격을 함께 표시: 시세표 자동 기록 + dram_log.csv(증권사 글 등) 기록
+        c = pd.concat([dl[dl["item"] == item + " 계약"][["date", "usd"]], news[news["item"] == item + " 계약"][["date", "usd"]]])
+        c = c.drop_duplicates("date", keep="last").sort_values("date")
+        if len(c):
             entry["contract"] = {"x": list(c["date"]), "y": [float(v) for v in c["usd"]]}
         out.append(entry)
     return out
