@@ -398,6 +398,12 @@ footer a{color:var(--ink2)}
       <div><b>원/달러 환율</b> 1달러를 사려면 원화가 <b>얼마</b> 필요한지예요. 오르면 원화 값이 떨어진 거예요(원화 약세). 외국인이 한국 주식을 팔고 달러로 바꿔 나갈 때 자주 올라요.</div>
     </div>
     <div id="fx"></div>
+    <div class="memo">💡 <b>환율이 수출주에 주는 영향</b>
+      <br>환율이 <b>내려가면</b>(원화 강세) 수출 회사는 물건을 똑같이 1달러에 팔아도 원화로 바꾸면 받는 돈이 줄어요 → 이익이 줄 거란 걱정에 <b>수출주 주가가 약해지기 쉬워요.</b> 환율이 <b>오르면</b> 반대로 수출주엔 도움이 돼요.
+      <br><b>이번에 생긴 일</b> 환율이 1,500원대에서 1,300원대로 내려오면서 <b>화장품·자동차·반도체</b> 같은 수출주가 크게 타격을 받았어요.
+      <br><b>다음엔 미리 알아채려면</b> ① 위 차트 배경이 주황 → 파랑으로 바뀌는 날(추세가 꺾인 날) ② 최고점 대비 하락 폭이 계속 커질 때 → 갖고 있는 수출주가 있다면 환율 영향을 한 번 더 확인해 볼 신호예요.
+      <br>⚠️ 평균선은 늦게 반응해서, 색이 바뀔 땐 이미 꼭짓점에서 꽤 내려온 뒤일 수 있어요.
+      <br><span class="src">출처: 이번에 생긴 일 = user: 사용자 메모(26.10.30) · 환율 숫자 = Yahoo Finance</span></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
@@ -1458,6 +1464,15 @@ function renderUsmkt() {
   mktBlock('usmkt', [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
 }
+// 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
+function fxTrend(o) {
+  const ma = (n, i) => o.y.slice(i - n + 1, i + 1).reduce((a, b) => a + b, 0) / n, segs = [];
+  for (let i = 59; i < o.y.length; i++) {
+    const up = ma(20, i) > ma(60, i), s = segs[segs.length - 1];
+    if (!s || s.up !== up) segs.push({x0: o.x[i], up, v: o.y[i]});
+  }
+  return segs;
+}
 function mktBlock(boxId, list) {
   const U = DATA.usmkt, box = document.getElementById(boxId);
   if (!U) return;
@@ -1466,20 +1481,35 @@ function mktBlock(boxId, list) {
   // 금리는 %p 차이, 나머지는 % 변화율
   const ch = (k, v) => v == null ? '–' : k === 'us10y' ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%p</span>` : fmtPct(v);
   box.innerHTML = items.map(([k, name, unit, d]) => {
-    const o = U[k];
+    const o = U[k], T = k === 'usdkrw' ? fxTrend(o) : null, s = T && T[T.length - 1];
+    const sq = v => `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${css(v)};opacity:.35;vertical-align:-1px"></span>`;
     return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore" style="font-size:26px">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
       <div><div class="fgrating" style="font-size:15px">${name}</div><div class="small">${o.last_date} ${k === 'usdkrw' ? '' : '미국 장 마감 '}기준</div></div></div>
       <div class="fgchips"><span class="chip">전일 ${ch(k, o.d1)}</span><span class="chip">1주 전 ${ch(k, o.w1)}</span><span class="chip">1달 전 ${ch(k, o.m1)}</span></div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
-      <div id="usmkt-${k}" class="plot" style="height:170px"></div></div>`;
+      ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
+      <div id="usmkt-${k}" class="plot" style="height:170px"></div>
+      ${T ? `<div class="small" style="margin:2px 4px 0;font-size:11px">배경 ${sq('--g2')} 올라가는 추세 ${sq('--g1')} 내려가는 추세 · 색이 바뀌는 날 = 추세가 꺾인 날(20일 평균과 60일 평균이 엇갈린 날)</div>` : ''}</div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
-    const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]);
+    const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]), T = k === 'usdkrw' ? fxTrend(o) : null;
+    const vis = o.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), yr = padRange(vis.map(i => o.y[i]), false);
+    let shapes = [], annotations = [];
+    if (T) {
+      shapes = T.map((g, j) => ({type: 'rect', xref: 'x', yref: 'paper', x0: g.x0, x1: T[j + 1] ? T[j + 1].x0 : last, y0: 0, y1: 1,
+        fillcolor: css(g.up ? '--g2' : '--g1'), opacity: 0.13, line: {width: 0}, layer: 'below'}));
+      const hi = vis.reduce((a, i) => o.y[i] > o.y[a] ? i : a), lo = vis.reduce((a, i) => o.y[i] < o.y[a] ? i : a), pad = (yr[1] - yr[0]) * 0.15;
+      // 양 끝에 가까우면 글자가 잘리지 않게 안쪽으로 붙임
+      const side = i => { const f = (i - vis[0]) / vis.length; return f > 0.85 ? 'right' : f < 0.15 ? 'left' : 'center'; };
+      annotations = [[hi, '최고', -16], [lo, '최저', 16]].map(([i, t, ay]) => ({x: o.x[i], y: o.y[i], text: `${t} ${fmtNum(o.y[i], 0)}`, ax: 0, ay, xanchor: side(i),
+        showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--muted'), font: {size: 10, color: css('--ink2')}}));
+      yr[0] -= pad; yr[1] += pad;
+    }
     Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : k === 'usdkrw' ? '--g1' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
-      Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26},
+      Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
-        yaxis: axis({range: padRange(o.y.filter((_, i) => o.x[i] >= xs), false), ticksuffix: unit === '%' ? '%' : ''})}), CFG);
+        yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}), CFG);
   });
 }
 
