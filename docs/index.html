@@ -411,10 +411,11 @@ footer a{color:var(--ink2)}
   <div class="glossary">
     <div><b>온도</b> 지수가 최근 50거래일 평균보다 얼마나 높은지(<b>50일 이격</b>)를 0~100도로 바꾼 거예요. 평균의 90% 이하면 0도, <b>110%면 80도(과열 경고선)</b>예요.</div>
     <div><b>20일선 아래</b> 종목 중 몇 %가 자기 20일 평균 가격보다 싸게 거래되는지예요. <b>90% 넘으면 투매권</b>(다들 던지는 구간). <b>신고−신저</b> 최근 60거래일 최고가를 새로 쓴 종목 수 − 최저가를 새로 쓴 종목 수예요. 마이너스가 클수록 약한 시장이에요.</div>
+    <div><b>🧊 급락</b> 지수가 50일 평균의 90% 아래로 떨어져 온도가 0도에 닿은 상태예요. <b>수급</b> 그날 외국인·기관·개인이 판 돈보다 산 돈이 얼마나 많은지예요(▲ 더 많이 삼, ▼ 더 많이 팖).</div>
   </div>
   <div class="fgchips" id="thermochips"></div>
   <div id="thermo"></div>
-  <p class="note" style="margin:6px 4px 2px">계산: 온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 차가움·서늘함·보통·따뜻함·뜨거움(20도 간격)과 약세·매우약세(신고−신저가 종목 수의 10% 넘게 마이너스면 매우약세)는 이 대시보드가 정한 구간이에요. 종목은 우선주·ETF·스팩을 뺀 보통주. 장 마감 종가 기준이라 장중(15:20) 값과 조금 달라요. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수) · <a href="https://finance.naver.com/sise/" target="_blank" rel="noopener">네이버 금융</a>(전 종목 일별 시세). 폭 지표(20일선 아래·신고−신저)는 2026년 7월부터 있어요.</p>
+  <p class="note" style="margin:6px 4px 2px">계산: 온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 0도 = 급락, ■□ 10칸 = 10도마다 한 칸(그쪽과 같아요). 차가움·서늘함·보통·따뜻함·뜨거움(20도 간격)과 약세·매우약세(신고−신저가 종목 수의 10% 넘게 마이너스면 매우약세)는 이 대시보드가 정한 구간이에요. 종목은 우선주·ETF·스팩을 뺀 보통주. 장 마감 종가 기준이라 장중(15:20) 값과 조금 달라요. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수) · <a href="https://finance.naver.com/sise/" target="_blank" rel="noopener">네이버 금융</a>(전 종목 일별 시세) · <a href="https://m.stock.naver.com/domestic/index/KOSPI/total" target="_blank" rel="noopener">네이버 증권</a>(수급, 억원 · 장 마감 뒤 값이라 그쪽 장중 15:20 값과 달라요, 2026-10-30부터 쌓여요). 폭 지표(20일선 아래·신고−신저)는 2026년 7월부터 있어요.</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
@@ -941,26 +942,28 @@ function xStartFor(lastDate, firstDate) {
 function renderThermo() {
   const T = DATA.kr_thermo, box = document.getElementById('thermo');
   if (!T) return;
-  const word = t => t < 20 ? '차가움' : t < 40 ? '서늘함' : t < 60 ? '보통' : t < 80 ? '따뜻함' : '뜨거움';
+  const word = t => t <= 0 ? '🧊 급락' : t < 20 ? '🔵 차가움' : t < 40 ? '🔵 서늘함' : t < 60 ? '🟢 보통' : t < 80 ? '🟠 따뜻함' : '🔴 뜨거움';
+  const flow = v => `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '▲' : '▼'}${fmtNum(Math.abs(v))}억</span>`;
   const netWord = (v, n) => v / n <= -0.1 ? '매우약세' : v < 0 ? '약세' : v / n >= 0.1 ? '매우강세' : v > 0 ? '강세' : '보합';
   const md = s => s.slice(5).replace('-', '/');
   const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
-  const warn = [];
+  const warn = [], cold = mk.filter(([c]) => T[c].temp[T[c].temp.length - 1] <= 0).map(a => a[1]);
   box.innerHTML = mk.map(([c, nm]) => {
-    const o = T[c], n = o.x.length, t = o.temp[n - 1], B = o.breadth, bi = B ? B.x.length - 1 : -1;
+    const o = T[c], n = o.x.length, t = o.temp[n - 1], B = o.breadth, bi = B ? B.x.length - 1 : -1, F = o.flow;
     if (t >= 80) warn.push(`<span class="chip hot">${nm} 과열 경고 (80도 이상)</span>`);
     if (B && B.below_pct[bi] >= 90) warn.push(`<span class="chip warm">${nm} 투매권 (20일선 아래 90% 이상)</span>`);
     const col = t >= 80 ? css('--bad') : t >= 60 ? css('--spread') : css('--g1');
     return `<div class="card"><h3><span>${nm} · ${word(t)}</span><span class="small">${md(o.x[n - 1])} 마감</span></h3>
       <div class="fgtop"><div class="fgscore">${Math.round(t)}<span class="small">도</span></div><div style="flex:1">
-        <div style="position:relative;height:12px;border-radius:6px;background:var(--line);overflow:hidden"><div style="width:${t}%;height:100%;background:${col}"></div></div>
+        <div style="display:flex;gap:3px;height:14px">${Array.from({length: 10}, (_, i) => `<span style="flex:1;border-radius:3px;${i < Math.round(t / 10) ? `background:${col}` : 'border:1.5px solid var(--line)'}"></span>`).join('')}</div>
         <div style="position:relative;height:14px"><span class="small" style="position:absolute;left:80%;transform:translateX(-50%)">▲80</span></div>
         <div class="small">지수 <b>${fmtNum(o.last, 2)}</b> (${fmtPct(o.chg)}) · 50일선 ${fmtNum(o.ma50, 0)} · 50일 이격 <b>${o.disp[n - 1].toFixed(1)}</b></div>
         ${B ? `<div class="small">20일선 아래 <b>${Math.round(B.below_pct[bi])}%</b> (${fmtNum(B.below[bi])}/${fmtNum(B.n20[bi])}) · 신고−신저 <b>${B.net[bi] > 0 ? '+' : ''}${B.net[bi]}</b> · ${netWord(B.net[bi], B.n60[bi])}</div>` : ''}
+        ${F ? `<div class="small">수급(${md(F.date)}) 외국인 ${flow(F.foreign)} · 기관 ${flow(F.inst)} · 개인 ${flow(F.indiv)}</div>` : ''}
       </div></div>
       <div id="thermo-${c}" class="plot" style="height:400px"></div></div>`;
   }).join('');
-  document.getElementById('thermochips').innerHTML = warn.length ? warn.join('') : '<span class="chip">✅ 과열 경고 없음</span>';
+  document.getElementById('thermochips').innerHTML = (cold.length ? `<span class="chip">🧊 ${cold.join('·')} 급락권</span>` : '') + (warn.length ? warn.join('') : '<span class="chip">✅ 과열 경고 없음</span>');
   const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
   const hl = (yref, v, color) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color, width: 1.2, dash: 'dash'}});
   mk.forEach(([c]) => {

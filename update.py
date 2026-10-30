@@ -536,6 +536,25 @@ def fetch_kr_breadth():
     df.sort_values(["date", "market"]).to_csv(path, index=False)
 
 
+def fetch_kr_flows():
+    # 시장 온도계 '수급': 네이버 증권이 보여 주는 그날 코스피·코스닥 외국인·기관·개인 순매수(억원, 마감 직후엔 잠정치).
+    # 그날 값만 주므로 날마다 쌓고, 같은 날은 나중에 받은 값(20시)으로 덮음. 장 마감 전엔 움직이는 중이라 저장 안 함
+    now = datetime.now(KST)
+    rows = []
+    for mk in ("KOSPI", "KOSDAQ"):
+        j = requests.get(f"https://m.stock.naver.com/api/index/{mk}/trend", headers=BROWSER_UA, timeout=20).json()
+        d, num = j["bizdate"], (lambda k: int(j[k].replace(",", "")))
+        if d == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
+            return
+        rows.append({"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "market": mk.lower(),
+                     "foreign": num("foreignValue"), "inst": num("institutionalValue"), "indiv": num("personalValue")})
+    path = os.path.join(DATA, "kr_flows.csv")
+    df = pd.DataFrame(rows)
+    if os.path.exists(path):
+        df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates(["date", "market"], keep="last")
+    df.sort_values(["date", "market"]).to_csv(path, index=False)
+
+
 def build_kr_thermo():
     # 시장 온도계: 온도 = (지수 ÷ 50일 평균 × 100 − 90) × 4 를 0~100도로 자름 → 50일 이격 110 = 80도(과열 경고선), 90 이하 = 0도.
     # 사용자가 보내 준 다른 채널 '시장 온도계'(10/28·10/29 값)와 같은 식임을 확인(README)
@@ -544,6 +563,8 @@ def build_kr_thermo():
         return None
     t = pd.read_csv(tvp, dtype={"date": str}).set_index("date").sort_index()
     b = pd.read_csv(bp, dtype={"date": str}) if os.path.exists(bp) else None
+    fp = os.path.join(DATA, "kr_flows.csv")
+    f = pd.read_csv(fp, dtype={"date": str}) if os.path.exists(fp) else None
     out = {}
     for c in ("kospi", "kosdaq"):
         idx = t[c + "_idx"].dropna()
@@ -557,6 +578,9 @@ def build_kr_thermo():
             o["breadth"] = {"x": list(m["date"]), "below_pct": [round(v, 1) for v in m["below20"] / m["n20"] * 100],
                             "below": m["below20"].astype(int).tolist(), "n20": m["n20"].astype(int).tolist(),
                             "net": (m["highs"] - m["lows"]).astype(int).tolist(), "n60": m["n60"].astype(int).tolist()}
+        if f is not None and (f["market"] == c).any():
+            r = f[f["market"] == c].sort_values("date").iloc[-1]
+            o["flow"] = {"date": r["date"], **{k: int(r[k]) for k in ("foreign", "inst", "indiv")}}
         out[c] = o
     return out
 
@@ -1987,7 +2011,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
