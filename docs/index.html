@@ -186,7 +186,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmkt">S&amp;P·금리·달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -281,15 +281,31 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </details></div>
 
-  <h2 id="sec-usmkt">S&amp;P500 · 미국채 10년물 · 달러인덱스</h2>
+  <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
+    </div>
+    <div id="mkt-sp500"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+  </div>
+
+  <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
       <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
+    </div>
+    <div id="mkt-us10y"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+  </div>
+
+  <h2 id="sec-dxy">달러인덱스 (달러 가치)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
       <div><b>달러인덱스</b> 유로·엔 등 6개 주요 통화와 비교한 달러 가치예요. 오르면 달러가 강해졌다는 뜻이에요.</div>
     </div>
-    <div id="usmkt"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC · 미국채 10년물 ^TNX · 달러인덱스 DX-Y.NYB), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+    <div id="mkt-dxy"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(DX-Y.NYB), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
   <h2 id="sec-wti">WTI 유가 (미국 원유 가격)</h2>
@@ -424,6 +440,25 @@ footer a{color:var(--ink2)}
       · 2027년 오픈AI 상장 전까지 AI 주식을 들고 간다는 계획은 그대로지만, 분명 사이클 후반부. 전고점을 뚫고 계속 오르긴 어려울 듯<br>
       · 투자자의 가장 큰 약점은 "이미 정한 포지션에 맞춰 이야기를 덧붙이는 것" → 그래서 꾸준히 기록하고 점검</div></details>
     <p class="note" style="margin:8px 4px 2px">출처: user: 사용자 제공 '테크 실발 후기 (AI 주식 언제 팔까?)' 글(26.10.30). 쉬운 말로 바꿨고 내용은 그대로예요.</p>
+  </div>
+
+  <h2 id="sec-supply">📦 주식 공급 — 새 주식이 얼마나 풀리나</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>주식 공급</b> 포켓몬 카드처럼 주식도 시장에 많이 풀리면 값이 눌려요. <b>새로 찍는 주식</b>(IPO = 처음 상장, 유상증자 = 상장한 회사가 더 찍음)은 공급을 늘리고, <b>사라지는 주식</b>(자사주 매입·소각, 현금 인수합병)은 줄여요.</div>
+      <div><b>순발행</b> = 새로 찍은 주식 − 사라진 주식. <b>마이너스면 주식이 줄어드는 중</b>(주가에 순풍), <b>플러스면 늘어나는 중</b>(역풍)이에요.</div>
+      <div><b>보호예수 해제</b> 직원·초기 투자자가 상장 뒤 일정 기간 못 팔던 주식이 팔 수 있게 풀리는 것. 주식 수는 그대로지만 시장에 나올 수 있는 물량이 늘어요.</div>
+    </div>
+    <div id="supplybox"></div>
+    <div class="memo">
+      <b>🐒 왜 보나</b>
+      <div>· 폴 튜더 존스(26년 10월): 지난 4년 강세장은 <b>자사주 매입·인수합병으로 주식이 줄어든 덕</b>이 컸는데, 2027년엔 앤트로픽·오픈AI 상장 가능성, AI 투자 자금용 증자, 스페이스X 등의 <b>보호예수 해제</b>가 겹쳐 <b>"2002년 이후 가장 나쁜 수급"</b>이 될 수 있다고 경고했어요.</div>
+      <div>· 우리 데이터로 보면 이미 시작됐어요: 순발행이 <b>26년 1분기부터 플러스</b>로 바뀌었고, 26년 6월 <b>스페이스X IPO 750억 달러</b>는 2019년 이후 한 건으로 가장 커요(그래프 26년 6월 막대, 나스닥 IPO 달력).</div>
+      <div>· 그래서 순발행 막대가 <b>플러스로 더 커지는지</b>, IPO 막대가 <b>계속 치솟는지</b> 봐요.</div>
+      <div>· 좋은 회사 주가가 빠질 때 <b>회사 문제인지, 물량(공급) 문제인지</b> 가르는 데 써요. 물량 문제라면 회사 가치는 그대로일 수 있어요.</div>
+      <div class="src">출처: <a href="https://qz.com/paul-tudor-jones-2027-stock-market-warning-101326" target="_blank" rel="noopener">Quartz</a> · <a href="https://m.news.nate.com/view/20261013n36939" target="_blank" rel="noopener">뉴스핌(네이트)</a> (사용자 제공 요약에 달린 출처)</div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 분기·월 자료라 위 기간 버튼과 상관없이 2019년부터 보여요.</p>
   </div>
 
   <h2 id="sec-fx">원/달러 환율</h2>
@@ -621,7 +656,7 @@ footer a{color:var(--ink2)}
       </div>
       <div class="note" style="text-align:center">시계 방향으로 돌아요: 🌸 봄 → ☀️ 여름 → 🍂 가을 → ❄️ 겨울 → 다시 봄</div>
       <h3>주가로 그리면 — 산 모양 한 바퀴</h3>
-      <svg viewBox="0 0 340 170" style="width:100%;height:auto;display:block" role="img" aria-label="금융장세에서 역실적장세까지 주가가 산 모양으로 오르내리는 그림">
+      <svg id="vm-seasons-svg" viewBox="0 0 340 170" style="width:100%;height:auto;display:block" role="img" aria-label="금융장세에서 역실적장세까지 주가가 산 모양으로 오르내리는 그림">
         <rect x="10" y="10" width="85" height="140" style="fill:rgba(120,190,90,.16)"/><rect x="95" y="10" width="85" height="140" style="fill:rgba(40,150,170,.16)"/>
         <rect x="180" y="10" width="80" height="140" style="fill:rgba(230,130,40,.18)"/><rect x="260" y="10" width="70" height="140" style="fill:rgba(120,140,190,.16)"/>
         <g style="font-size:10px;fill:var(--ink2)"><text x="14" y="22">🌸 봄</text><text x="99" y="22">☀️ 여름</text><text x="184" y="22">🍂 가을</text><text x="264" y="22">❄️ 겨울</text></g>
@@ -629,9 +664,7 @@ footer a{color:var(--ink2)}
         <g style="font-size:10px;fill:var(--ink);font-weight:700">
           <text x="22" y="112">① 금융</text><text x="72" y="126">② 반락</text><text x="112" y="70">③ 실적</text>
           <text x="214" y="58">④ 역금융</text><text x="244" y="112">⑤ 반등</text><text x="290" y="96">⑥ 역실적</text></g>
-        <circle cx="192" cy="44" r="6" style="fill:var(--bad)"/>
-        <text x="200" y="40" style="font-size:10px;fill:var(--bad);font-weight:700">지금 여기?</text>
-        <text x="170" y="164" style="font-size:9px;fill:var(--ink2)" text-anchor="middle">선 = 주가 · 빨간 점 = DB증권·블로그 글쓴이가 본 지금 위치(③→④ 넘어가는 중)</text>
+        <text x="170" y="164" style="font-size:9px;fill:var(--ink2)" text-anchor="middle">선 = 주가 · 점 = 아래 '우리 데이터로 대 보기' 미국·한국 자동 판단(매일)</text>
       </svg>
       <h3>6단계로 더 자세히 — 금리 · 실적 · 주가 화살표</h3>
       <div class="note">↑↓ = 빠르게 크게 · ↗↘ = 천천히 · → = 멈춤(옆으로). 위에서부터 차례로 돌고, 맨 아래 다음엔 다시 맨 위로 가요.</div>
@@ -799,7 +832,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-usmkt': 'us', 'sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -1050,6 +1083,35 @@ function renderHynixInv() {
     yaxis: axis({domain: [0.56, 0.93], rangemode: 'tozero'}),
     yaxis2: axis({domain: [0, 0.44], rangemode: 'tozero'}),
     annotations: [lbl(0.94, '<span style="color:' + css('--muted') + '">■</span> 매출 · <span style="color:' + css('--g2') + '">■</span> 재고자산 (조원)'), lbl(0.45, '재고일수 (주)')],
+  }), CFG);
+}
+
+function renderSupply() {
+  const S = DATA.supply, box = document.getElementById('supplybox');
+  if (!S) { box.innerHTML = '<p class="note">주식 공급 데이터 없음</p>'; return; }
+  const N = S.net, I = S.ipo, k = N.y.length, v = N.y[k - 1], md = s => s.slice(2).replace(/-/g, '.');
+  const ql = d => `${d.slice(2, 4)}년 ${(+d.slice(5, 7) + 2) / 3}분기`, h = s => String(s).replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
+  let run = 1;
+  while (run < k && (N.y[k - 1 - run] >= 0) === (v >= 0)) run++;
+  const sq = c => `<span style="color:${css(c)}">■</span>`;
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  box.innerHTML = `<div class="nowline"><span>순발행 ${ql(N.x[k - 1])} <b style="color:${css(v >= 0 ? '--bad' : '--good')}">${v >= 0 ? '+' : ''}${fmtNum(v)}억 달러</b></span>
+      <span>${v >= 0 ? '📈 주식이 <b>늘어나는 중</b>' : '📉 주식이 <b>줄어드는 중</b>'} (${run}분기 연속${v === Math.max(...N.y) ? ' · 2019년 이후 가장 많이 늘어남' : ''})</span></div>
+    <div class="small" style="margin:2px 4px 6px">미국 IPO 올해(${S.year}) 누적 <b>${fmtNum(S.ytd[0])}억 달러</b> (${S.ytd[1]}건) · 작년 1년 ${fmtNum(S.prev[0])}억 달러 (${S.prev[1]}건)</div>
+    <div id="supplyplot" class="plot" style="height:380px"></div>
+    ${S.upcoming.length ? `<div class="small" style="margin:6px 4px 2px"><b>곧 상장 예정</b> (나스닥 IPO 달력)</div><ul class="small" style="margin:0 4px 6px;padding-left:18px">${S.upcoming.map(u =>
+      `<li>${md(u.date)} ${h(u.name)}${u.ticker ? ` (${h(u.ticker)})` : ''} · 공모가 $${h(u.price || '–')} · 약 ${u.usd ? fmtNum(u.usd / 1e8, 1) + '억 달러' : '–'}</li>`).join('')}</ul>` : ''}`;
+  const end = new Date(new Date(I.x[I.x.length - 1]).getTime() + 40 * 864e5).toISOString().slice(0, 10);
+  Plotly.react('supplyplot', [
+    {x: N.x, y: N.y, customdata: N.x.map(ql), type: 'bar', name: '순발행', xperiod: 'M3', xperiodalignment: 'middle',
+      marker: {color: N.y.map(y => css(y >= 0 ? '--bad' : '--good'))}, hovertemplate: '%{customdata} 순발행 %{y:+,.0f}억 달러<extra></extra>'},
+    {x: I.x, y: I.y, customdata: I.n, type: 'bar', name: 'IPO', yaxis: 'y2', xperiod: 'M1', xperiodalignment: 'middle',
+      marker: {color: css('--g1')}, hovertemplate: 'IPO %{y:,.1f}억 달러 (%{customdata}건)<extra></extra>'},
+  ], Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', range: [N.x[0] < I.x[0] ? N.x[0] : I.x[0], end], tickformat: '%y년', dtick: 'M12'}),
+    yaxis: axis({domain: [0.56, 0.93], zeroline: true, zerolinecolor: css('--ink2')}),
+    yaxis2: axis({domain: [0, 0.44], rangemode: 'tozero'}),
+    annotations: [lbl(0.94, `순발행 (분기, 억 달러) ${sq('--bad')} 늘어남 ${sq('--good')} 줄어듦`), lbl(0.45, '미국 IPO 공모 금액 (월, 억 달러)')],
   }), CFG);
 }
 
@@ -1507,7 +1569,7 @@ function renderMove() {
 }
 
 function renderUsmkt() {
-  mktBlock('usmkt', [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]]);
+  [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
 }
 // 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
@@ -2051,7 +2113,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderThermo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(#adrbar) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

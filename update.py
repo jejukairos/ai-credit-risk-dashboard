@@ -1527,6 +1527,56 @@ def build_hynix_inv():
             "url": [f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={n}" for n in d["rcept_no"]]}
 
 
+# ---------- 주식 공급: 미국 기업 주식 순발행(연준) · 미국 IPO(나스닥 IPO 달력) ----------
+def fetch_equity_supply():
+    # 순발행 = 새로 찍은 주식(IPO·증자) − 사라진 주식(자사주 매입·현금 인수합병). 연준 자금순환표(Z.1) 미국 비금융 기업, 분기 합계(백만 달러)
+    net = fred_series("BOGZ1FU103164103Q", "2019-01-01") / 100  # fred_series는 %→bp(×100)로 돌려주므로 되돌림
+    net.rename("usd_mil").rename_axis("date").to_csv(os.path.join(DATA, "us_equity_net.csv"))
+    # IPO: 나스닥 IPO 달력에서 공모가가 정해진(priced) 건. 처음엔 2019년부터 채우고, 이후엔 지난달~다음 달만 다시 받음
+    path, upath = os.path.join(DATA, "us_ipo.csv"), os.path.join(DATA, "us_ipo_upcoming.csv")
+    old = pd.read_csv(path, dtype={"deal": str, "date": str}) if os.path.exists(path) else None
+    this = pd.Period(datetime.now(KST).strftime("%Y-%m"), "M")
+    usd = lambda s: float(s.replace("$", "").replace(",", "")) if s else None
+    day = lambda s: pd.to_datetime(s, format="%m/%d/%Y").strftime("%Y-%m-%d")
+    rows, up = [], []
+    for m in pd.period_range("2019-01" if old is None else this - 1, this + 1, freq="M"):
+        d = requests.get(f"https://api.nasdaq.com/api/ipo/calendar?date={m}", headers={**BROWSER_UA, "Accept": "application/json"},
+                         timeout=30).json()["data"]
+        for r in (d.get("priced") or {}).get("rows") or []:
+            rows.append({"deal": r["dealID"], "date": day(r["pricedDate"]), "name": r["companyName"],
+                         "ticker": r["proposedTickerSymbol"], "usd": usd(r["dollarValueOfSharesOffered"])})
+        for r in ((d.get("upcoming") or {}).get("upcomingTable") or {}).get("rows") or []:
+            up.append({"date": day(r["expectedPriceDate"]), "name": r["companyName"], "ticker": r["proposedTickerSymbol"],
+                       "price": r["proposedSharePrice"], "usd": usd(r["dollarValueOfSharesOffered"])})
+        time.sleep(0.5)
+    df = pd.DataFrame(rows)
+    if old is not None:
+        df = pd.concat([old, df]).drop_duplicates("deal", keep="last")
+    df.sort_values(["date", "deal"]).to_csv(path, index=False)
+    pd.DataFrame(up, columns=["date", "name", "ticker", "price", "usd"]).drop_duplicates().to_csv(upath, index=False)  # 예정 목록은 매번 새로
+
+
+def build_equity_supply():
+    # 순발행은 분기 그대로(억 달러). IPO는 달마다 공모 금액 합계(억 달러)·건수, 올해 누적 = 1월~지금 합계 (README)
+    np_, ip, upath = (os.path.join(DATA, f) for f in ("us_equity_net.csv", "us_ipo.csv", "us_ipo_upcoming.csv"))
+    if not os.path.exists(np_) or not os.path.exists(ip):
+        return None
+    n = pd.read_csv(np_, dtype={"date": str})
+    i = pd.read_csv(ip, dtype={"date": str})
+    i["m"] = i["date"].str[:7]
+    months = [str(p) for p in pd.period_range(i["m"].min(), datetime.now(KST).strftime("%Y-%m"), freq="M")]
+    g = i.groupby("m")["usd"].agg(["sum", "count"]).reindex(months, fill_value=0)
+    yr = datetime.now(KST).year
+    ysum = lambda y: (round(i.loc[i["date"].str[:4] == str(y), "usd"].sum() / 1e8), int((i["date"].str[:4] == str(y)).sum()))
+    u = pd.read_csv(upath, dtype=str).fillna("") if os.path.exists(upath) else pd.DataFrame()
+    if len(u):  # 예정일이 며칠 지난 건 빼기(가격이 정해지면 위 priced 쪽으로 옮겨 감)
+        u = u[u["date"] >= (datetime.now(KST) - timedelta(days=3)).strftime("%Y-%m-%d")]
+    return {"net": {"x": list(n["date"]), "y": [round(v / 100) for v in n["usd_mil"]]},
+            "ipo": {"x": [m + "-01" for m in months], "y": [round(v / 1e8, 1) for v in g["sum"]], "n": [int(c) for c in g["count"]]},
+            "ytd": ysum(yr), "prev": ysum(yr - 1), "year": yr,
+            "upcoming": u.sort_values("date").to_dict("records") if len(u) else []}
+
+
 def _steps(s):
     # 기준금리처럼 계단 모양인 값 → 바뀐 날만 [날짜, 값] (바뀐 날엔 이전 값·새 값 두 점이라 선이 계단으로 그려짐)
     out, prev = [], None
@@ -1883,6 +1933,8 @@ def build_phase():
             ar, ae, ap = _arrow(r, config.PHASE_RATE_CUTS), _arrow(e, config.PHASE_PCT_CUTS), _arrow(p, config.PHASE_PCT_CUTS)
             m[lbl] = {"rate": r, "eps": e, "price": p, "arrows": [ar[0], ae[0], ap[0]],
                       "phase": _match_phase((ar[1], ae[1], ap[1])) if None not in (ar[1], ap[1]) else []}
+        if px is not None:  # 최고점 대비 하락률(%) — 주식 4계 카드에서 주가 방향(−10% 이하면 ↓)
+            m["dd"] = {"pct": round((float(px.iloc[-1]) / float(px.max()) - 1) * 100, 1), "peak": round(float(px.max()), 1), "peak_date": px.idxmax()}
         out[mkt] = m
     if ff is not None:
         out["us"]["fedfunds"] = round(float(ff.iloc[-1]), 2)
@@ -1989,6 +2041,7 @@ def build():
     out["usmkt"] = build_usmkt()
     out["policy"] = build_policy()
     out["hynix_inv"] = build_hynix_inv()
+    out["supply"] = build_equity_supply()
     out["kr_thermo"] = build_kr_thermo()
     out["fedwatch"] = build_fedwatch()
     out["move"] = build_move()
@@ -2016,7 +2069,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

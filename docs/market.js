@@ -134,21 +134,46 @@ function fedwatchCard() {
   draw();
 }
 
-/* 주식 4계 카드의 '우리 데이터로 대 보기': 금리(FedWatch 방식 1년 예상)·실적(코스피 내년 이익 증가율)·주가(코스피 MDD) 방향만 표와 맞춰 봄 */
+/* 주식 4계 카드의 '우리 데이터로 대 보기': 미국·한국을 따로, 각자의 금리·실적·주가 방향만 표의 줄과 맞춰 봄 (README) */
+const SEASON_ROW = { "↓↘↗": "① 금융장세(봄)", "↑↗↗": "③ 실적장세(여름)", "↑↗↓": "④ 역금융장세(가을)", "↓↘↓": "⑥ 역실적장세(겨울)" };
+const SEASON_PT = { "①": [61, 99], "③": [158, 52], "④": [221, 75], "⑥": [307, 123] };  // 산 모양 그림의 선 위 자리
 function seasonsNow() {
   const el = $("#vm-seasons-now"), D = typeof DATA !== "undefined" ? DATA : null;
   if (!el || !D) return;
-  const F = D.fedwatch, Md = D.mdd, g = M.market.kospi_forward?.years?.growth || {};
+  const F = D.fedwatch, P = D.phase, Md = D.mdd, K = D.policy?.kr, k3 = M.rates.kr3y, g = M.market.kospi_forward?.years?.growth || {};
   const gy = Object.keys(g).find((y) => g[y] != null);
-  if (!F || !Md || !gy) { el.innerHTML = ""; return; }
-  const last = F.table[F.table.length - 1], hikes = (last.exp - F.upper) / 0.25, gr = g[gy];
-  const r = hikes >= 0.5 ? "↑" : hikes <= -0.5 ? "↓" : "→", e = gr > 5 ? "↗" : gr < -5 ? "↘" : "→", p = Md.last <= -10 ? "↓" : "↗";
-  const row = { "↓↘↗": "① 금융장세(봄)", "↑↗↗": "③ 실적장세(여름)", "↑↗↓": "④ 역금융장세(가을)", "↓↘↓": "⑥ 역실적장세(겨울)" }[r + e + p];
-  const md = (s) => s.slice(2).replace(/-/g, ".");
-  el.innerHTML = `<b>우리 데이터로 대 보기</b><br>· 금리 <b>${r}</b> — 시장은 1년 안에 미국 기준금리 0.25%p ${hikes >= 0 ? "인상" : "인하"} 약 ${n(Math.abs(hikes), 1)}번 예상(아래 FedWatch 방식 칸)
-    <br>· 실적 <b>${e}</b> — 코스피 ${esc(gy)} 이익 증가율 ${pct(gr, 1, true)}(아래 연도별 표)
-    <br>· 주가 <b>${p}</b> — 코스피 최고점(${md(Md.peak_date)} ${n(Md.peak, 0)}) 대비 ${pct(Md.last, 1)}(한국 탭 MDD)
-    <br>→ ${row ? `표의 <b>${row}</b> 줄과 같은 모양이에요.${row.startsWith("④") ? " 글쓴이 판단과 같아요." : ""}` : "표의 어느 줄과도 딱 맞지 않아요."} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요.</span>${spreadLine(D)}`;
+  if (!F || !P?.us?.dd || !P.us.eps_first || !Md || !K || !k3 || !gy) { el.innerHTML = ""; return; }
+  const rA = (h) => (h >= 0.5 ? "↑" : h <= -0.5 ? "↓" : "→"), eA = (v) => (v > 5 ? "↗" : v < -5 ? "↘" : "→"), pA = (dd) => (dd <= -10 ? "↓" : "↗");
+  const hk = (h) => `0.25%p ${h >= 0 ? "인상" : "인하"} 약 ${n(Math.abs(h), 1)}번만큼`, md = (s) => s.slice(2).replace(/-/g, ".");
+  // 한국은 FedWatch 같은 무료 자료가 없어 국고채 3년 − 기준금리 차이로 시장 예상을 대신 봄
+  const usH = (F.table[F.table.length - 1].exp - F.upper) / 0.25, krH = (k3.latest - K.latest) / 0.25;
+  const usE = (P.us.eps_last / P.us.eps_first.value - 1) * 100, krE = g[gy];
+  const mk = [
+    { name: "🇺🇸 미국", short: "미국", col: "var(--ink)", a: [rA(usH), eA(usE), pA(P.us.dd.pct)], why: [
+      `1년 안에 기준금리 ${hk(usH)} 예상(아래 FedWatch 방식 칸)`,
+      `S&P500 12개월 예상 이익 1년 새 ${pct(usE, 1, true)}(${md(P.us.eps_first.date)} $${n(P.us.eps_first.value, 1)} → $${n(P.us.eps_last, 1)})`,
+      `S&P500 최고점(${md(P.us.dd.peak_date)} ${n(P.us.dd.peak, 0)}) 대비 ${pct(P.us.dd.pct, 1)}`] },
+    { name: "🇰🇷 한국", short: "한국", col: "var(--cds)", a: [rA(krH), eA(krE), pA(Md.last)], why: [
+      `국고채 3년 ${n(k3.latest, 2)}% − 기준금리 ${n(K.latest, 2)}% = ${pct(k3.latest - K.latest, 2, true).replace("%", "%p")} → ${hk(krH)} 예상`,
+      `코스피 ${esc(gy)} 이익 증가율 ${pct(krE, 1, true)}(아래 연도별 표)`,
+      `코스피 최고점(${md(Md.peak_date)} ${n(Md.peak, 0)}) 대비 ${pct(Md.last, 1)}(한국 탭 MDD)`] },
+  ].map((m) => ({ ...m, row: SEASON_ROW[m.a.join("")] || null }));
+  const [us, kr] = mk, say = (m) => (m.row ? `<b>${m.row}</b>` : "표의 어느 줄과도 딱 맞지 않는 모양");
+  const diff = ["금리", "실적", "주가"].filter((_, i) => us.a[i] !== kr.a[i]);
+  const verdict = us.row && us.row === kr.row ? `<b>미국과 한국이 같아요</b> — 둘 다 ${say(us)}이에요.`
+    : `<b>미국과 한국이 달라요</b> — 미국은 ${say(us)}, 한국은 ${say(kr)}이에요.${diff.length ? ` 갈리는 곳: ${diff.map((k) => { const i = ["금리", "실적", "주가"].indexOf(k); return `${k}(미국 ${us.a[i]} · 한국 ${kr.a[i]})`; }).join(", ")}` : ""}`;
+  el.innerHTML = `<b>우리 데이터로 대 보기 — 미국 · 한국 따로</b>
+    ${mk.map((m) => `<div style="margin-top:6px"><b>${m.name}</b> → ${say(m)}${["금리", "실적", "주가"].map((k, i) => `<br>· ${k} <b>${m.a[i]}</b> — ${m.why[i]}`).join("")}</div>`).join("")}
+    <div style="margin-top:6px">→ ${verdict} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요. DB증권·블로그 글쓴이는 ③→④ 넘어가는 중으로 봤어요.</span></div>${spreadLine(D)}`;
+  // 그림 위에 미국·한국 점 (같은 국면이면 점 하나에 '미국·한국')
+  const svg = $("#vm-seasons-svg"), at = {};
+  if (!svg) return;
+  mk.filter((m) => m.row).forEach((m) => (at[m.row[0]] = [...(at[m.row[0]] || []), m]));
+  svg.querySelector(".auto-dots")?.remove();
+  svg.insertAdjacentHTML("beforeend", `<g class="auto-dots">${Object.entries(at).map(([k, ms]) => {
+    const [x, y] = SEASON_PT[k], col = ms.length > 1 ? "var(--bad)" : ms[0].col, left = x > 290;
+    return `<circle cx="${x}" cy="${y}" r="6" style="fill:${col};stroke:var(--surface);stroke-width:2"/><text x="${left ? x - 9 : x + 9}" y="${y + 4}" text-anchor="${left ? "end" : "start"}" style="font-size:10px;font-weight:800;fill:${col}">${ms.map((m) => m.short).join("·")}</text>`;
+  }).join("")}</g>`);
 }
 // DB증권이 말한 '임계 수준' 신호: 장단기 금리차(긴 금리 − 짧은 금리)가 마이너스로 들어갔나
 function spreadLine(D) {
