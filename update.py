@@ -1137,6 +1137,8 @@ def build_kofia():
     last = k.dropna(subset=["forced"]).iloc[-1]
     one_y = k[k["date"] >= (pd.Timestamp(last["date"]) - pd.Timedelta(days=365)).strftime("%Y-%m-%d")]
     forced_avg_1y = one_y["forced"].mean()
+    yr = last["date"][:4]  # 올해 1월 1일~최신일 반대매매 합계, 작년 1년 합계(백만원 → 조원)
+    forced_ytd, forced_prev = (round(k.loc[k["date"].str[:4] == y, "forced"].sum() / 1e6, 2) for y in (yr, str(int(yr) - 1)))
 
     def peak(col):  # 최근 1년 최고점과 지금의 차이
         row = one_y.loc[one_y[col].idxmax()]
@@ -1185,6 +1187,7 @@ def build_kofia():
         "last": {"date": last["date"], "misu": round(last["misu"] / 100), "forced": round(last["forced"] / 100),
                  "ratio": float(last["ratio"]), "credit": round(last["credit"] / 1e6, 2),
                  "deposit": round(last["deposit"] / 1e6, 2), "forced_avg_1y": round(forced_avg_1y / 100),
+                 "forced_ytd": forced_ytd, "forced_prev_year": forced_prev,
                  "deposit_peak": peak("deposit"), "credit_peak": peak("credit"),
                  "deposit_w1": pct_change(k.set_index("date")["deposit"], 7),
                  "credit_w1": pct_change(k.set_index("date")["credit"], 7)},
