@@ -1341,8 +1341,8 @@ document.querySelectorAll('#kofiabar button').forEach(b => b.onclick = () => {
 // 시기별 설명 — 사용자 메모(26.10.30)와 출처 있는 사건. 숫자 줄은 data.json(금융투자협회·네이버 금융·한국은행·FRED)에서 자동
 const ERA_NOTE = {
   '2019-01-01': '비교용 기준선이에요. 개인 돈(예탁금)과 빚(신용)이 지금보다 훨씬 작고, 크게 움직이지 않던 때예요.',
-  '2020-02-01': '주가가 무너지는 동안 <b>예탁금은 오히려 늘었어요</b>(싸게 사려는 개인 돈). 반대로 빚(신용)은 반대매매·상환으로 줄고, 신용비율도 크게 떨어졌어요.',
-  '2020-03-20': '사용자 메모: 코로나 회복 뒤 비대면(언택트)·미국 빅테크(FAANG) 붐으로 <b>광기장</b>. 예탁금·신용이 함께 불어나 그때까지의 최고를 찍었고, 코스피는 바닥의 두 배 넘게 올랐어요.',
+  '2020-01-01': '사용자 메모: 20년 1~4월이 포인트. 넉 달 안에 폭락과 반등이 다 있었어요. 주가가 무너지는 동안 <b>빚(신용)은 한 달 만에 크게 줄었다가</b>(반대매매·상환, 위 줄의 최저) 4월에 거의 돌아왔고, <b>예탁금은 오히려 계속 늘었어요</b>(싸게 사려는 개인 돈 = 동학개미의 시작).',
+  '2020-05-01': '사용자 메모: 코로나 회복 뒤 비대면(언택트)·미국 빅테크(FAANG) 붐으로 <b>광기장</b>. 예탁금·신용이 함께 불어나 그때까지의 최고를 찍었고, 코스피는 바닥의 두 배 넘게 올랐어요.',
   '2021-07-07': '사용자 메모: 금리를 한 번에 크게 올리는 빅스텝(0.5%p)·자이언트스텝(0.75%p) 시기. 예탁금·신용이 <b>1년 반 동안 천천히 녹아내렸어요</b>. 반대매매는 하루 수백억 수준이라 한 번에 터지기보다 조금씩 계속 나왔어요.',
   '2023-01-01': '사용자 메모: 숨통이 트이고 ChatGPT(22.11.30 공개)·HBM 붐. 지수는 조금 올랐는데 <b>반대매매가 2019년보다 훨씬 커졌어요</b>(빚투가 녹은 해). 23.10.20 하루 5,497억은 2006년 집계 이후 최대로 나왔지만, 영풍제지 거래정지로 <b>예정액이 겹쳐 잡힌 숫자</b>라 실제는 10/24 기준 약 544억으로 추정돼요.',
   '2024-01-01': '사용자 메모: 방산·전력기기·화장품 같은 <b>수출주 붐</b>. 그래도 지수 전체는 제자리걸음이었고, 8월 초 하루 급락 때 반대매매가 잠깐 튀었어요.',
@@ -1377,8 +1377,8 @@ function renderEras() {
     const K = e.kospi, D = e.deposit, C = e.credit, R = e.ratio, F = e.forced;
     const rl = [rate(P.kr && P.kr.hist, e.start, e.end, '한국'), rate(P.us && P.us.hist, e.start, e.end, '미국')].filter(Boolean).join(' · ');
     return `<div class="era"><div><b>${ERA_NUM[i]} ${e.name}</b> <span class="small">${md(e.start)} ~ ${e.ongoing ? '지금' : md(e.end)}</span></div>
-      <div class="small">· 코스피 ${n0(K.start)} → ${n0(K.end)} <b>${fmtPct(K.chg)}</b> · 가장 깊은 하락 ${K.dd.toFixed(1)}% · 하루 최대 하락 ${K.worst[0].toFixed(1)}%(${md(K.worst[1])})
-      <br>· 예탁금 ${D.start.toFixed(1)} → <b>${D.end.toFixed(1)}조</b> (최고 ${D.max[0].toFixed(1)}조 ${md(D.max[1])}) · 신용 ${C.start.toFixed(1)} → <b>${C.end.toFixed(1)}조</b> (최고 ${C.max[0].toFixed(1)}조)
+      <div class="small">· 코스피 ${n0(K.start)} → ${n0(K.end)} <b>${fmtPct(K.chg)}</b> · 최저 ${n0(K.min[0])}(${md(K.min[1])}) · 가장 깊은 하락 ${K.dd.toFixed(1)}% · 하루 최대 하락 ${K.worst[0].toFixed(1)}%(${md(K.worst[1])})
+      <br>· 예탁금 ${D.start.toFixed(1)} → <b>${D.end.toFixed(1)}조</b> (최고 ${D.max[0].toFixed(1)}조 ${md(D.max[1])} · 최저 ${D.min[0].toFixed(1)}조 ${md(D.min[1])}) · 신용 ${C.start.toFixed(1)} → <b>${C.end.toFixed(1)}조</b> (최고 ${C.max[0].toFixed(1)}조 ${md(C.max[1])} · 최저 ${C.min[0].toFixed(1)}조 ${md(C.min[1])})
       <br>· 신용비율 ${R.min[0].toFixed(1)}~${R.max[0].toFixed(1)}% · 반대매매 하루 평균 <b>${fmtNum(F.avg)}억</b> · 하루 최대 ${fmtNum(F.max[0])}억(${md(F.max[1])}) · 합계 ${F.sum.toFixed(1)}조${rl ? `<br>· 기준금리 ${rl}` : ''}</div>
       ${ERA_NOTE[e.start] ? `<div class="small" style="color:var(--ink);margin-top:3px">💬 ${ERA_NOTE[e.start]}${ERA_SRC[e.start] ? ` <span class="src">출처: ${ERA_SRC[e.start]}</span>` : ''}</div>` : ''}</div>`;
   }).join('');
