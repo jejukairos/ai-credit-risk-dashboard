@@ -68,7 +68,8 @@ details a{color:var(--ink2);word-break:break-all}
 .vixkey{display:inline-block;width:14px;height:0;border-top:3px dashed;vertical-align:middle;margin-right:2px}
 .vk-warn{border-color:var(--g4)} .vk-bad{border-color:var(--bad)}
 .fgtop{display:flex;align-items:center;gap:14px;margin:2px 4px 8px}
-.fgscore{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+/* 섹션 맨 위 '먼저 볼 숫자'는 어느 섹션이든 같은 크기 · 옆 굵은 글(상태)은 한 가지 색: 빨강 위험 · 주황 주의 · 회색 보통 · 초록 좋음 */
+.fgscore{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
 .fgrating{font-size:17px;font-weight:700}
 .fgbar{position:relative;display:flex;height:14px;border-radius:7px;overflow:visible;margin:0 4px;gap:2px}
 .fgbar span{display:block;height:100%} .fgbar span:first-child{border-radius:7px 0 0 7px} .fgbar span:nth-child(5){border-radius:0 7px 7px 0}
@@ -119,7 +120,6 @@ footer a{color:var(--ink2)}
 #totop.show{opacity:.85;pointer-events:auto}
 .gauge{display:flex;align-items:center;gap:12px;margin:0 4px}
 .gauge svg{width:58%;max-width:240px;flex:none}
-.gauge .fgscore{font-size:40px}
 .lv{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
 .lv1{background:var(--lv1);color:#fff} .lv2{background:var(--lv2);color:#111} .lv3{background:var(--lv3);color:var(--ink)}
 .lv4{background:var(--lv4);color:#111} .lv5{background:var(--lv5);color:#fff}
@@ -139,7 +139,7 @@ footer a{color:var(--ink2)}
 #mktv .vm-bar{position:sticky;top:0;z-index:5;background:var(--page);display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:6px 0;margin:4px 0 0}
 #mktv .vm-bar button{font-size:12px;font-weight:600;padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);white-space:nowrap}
 #mktv .vm-bar button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-#mktv .big{font-size:28px;font-weight:700;line-height:1.2}
+#mktv .big{font-size:36px;font-weight:800;line-height:1.2}
 #mktv .kv{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:4px 12px;margin-top:10px;font-size:14px}
 #mktv .kv>*{min-width:0} #mktv .kv .k{color:var(--ink2)} #mktv .kv .k.kgrp{color:var(--muted);font-size:12px;font-weight:700;margin-top:6px}
 #mktv .kv .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600} #mktv .kv .v .src{display:block;font-weight:400}
@@ -186,11 +186,29 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
     <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
+  </div>
+
+  <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
+    </div>
+    <div id="mkt-sp500"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+  </div>
+
+  <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
+    </div>
+    <div id="mkt-us10y"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
   <h2 id="sec-fg">CNN 공포·탐욕 지수 (미국 증시 분위기)</h2>
@@ -280,24 +298,6 @@ footer a{color:var(--ink2)}
     <div class="tablebox" style="border:0"><table id="hyevents"><thead><tr><th style="text-align:left">사건</th><th>Baa<br>최고</th><th>하이일드<br>최고</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </details></div>
-
-  <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
-    </div>
-    <div id="mkt-sp500"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
-  </div>
-
-  <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
-    </div>
-    <div id="mkt-us10y"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
-  </div>
 
   <h2 id="sec-dxy">달러인덱스 (달러 가치)</h2>
   <div class="card">
@@ -1591,8 +1591,8 @@ function mktBlock(boxId, list) {
   box.innerHTML = items.map(([k, name, unit, d]) => {
     const o = U[k], T = k === 'usdkrw' ? fxTrend(o) : null, s = T && T[T.length - 1];
     const sq = v => `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${css(v)};opacity:.35;vertical-align:-1px"></span>`;
-    return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore" style="font-size:26px">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
-      <div><div class="fgrating" style="font-size:15px">${name}</div><div class="small">${o.last_date} ${k === 'usdkrw' ? '' : '미국 장 마감 '}기준</div></div></div>
+    return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
+      <div><div class="fgrating">${name}</div><div class="small">${o.last_date} ${k === 'usdkrw' ? '' : '미국 장 마감 '}기준</div></div></div>
       <div class="fgchips"><span class="chip">전일 ${ch(k, o.d1)}</span><span class="chip">1주 전 ${ch(k, o.w1)}</span><span class="chip">1달 전 ${ch(k, o.m1)}</span></div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
@@ -1627,7 +1627,7 @@ function renderWti() {
   const last = w.x[w.x.length - 1], md = s => s.slice(2).replace(/-/g, '.');
   document.getElementById('wtiscore').textContent = '$' + w.last.toFixed(2);
   const rt = document.getElementById('wtirating');
-  if (w.m1 != null) { rt.innerHTML = `한 달 전보다 ${fmtPct(w.m1)}`; rt.style.color = w.m1 > 0 ? css('--bad') : css('--ink2'); }
+  if (w.m1 != null) { rt.textContent = `한 달 전보다 ${w.m1 > 0 ? '+' : ''}${w.m1.toFixed(1)}%`; rt.style.color = w.m1 > 0 ? css('--bad') : css('--ink2'); }
   document.getElementById('wtiprev').innerHTML = `${w.last_date} 기준 · 전일 $${w.prev.toFixed(2)}<br>최근 1년 최고 $${w.max_1y.value.toFixed(2)} (${md(w.max_1y.date)}) · 최저 $${w.min_1y.value.toFixed(2)} (${md(w.min_1y.date)})`;
   const xs = xStartFor(last, w.x[0]);
   Plotly.react('wtiplot', [{x: w.x, y: w.y, type: 'scatter', mode: 'lines', name: 'WTI', line: {color: css('--price'), width: 2}, hovertemplate: '$%{y:.2f}<extra></extra>'}],
@@ -2097,7 +2097,7 @@ function renderReaders() {
   if (!pe || pe.value == null) { el.innerHTML = '<h3><span>장기 — S&amp;P500 P/E 밴드</span></h3><div class="meta">자료를 아직 받지 못했어요.</div>'; return; }
   const list = pe.x.map((x, i) => ({x, y: pe.y[i], u: pe.urls[i]})).reverse();
   el.innerHTML = `<h3><span>장기 — S&amp;P500 P/E 밴드</span>${lvChip(pe.score, pe.label)}</h3>
-    <div class="fgtop"><div class="fgscore" style="white-space:nowrap;flex:none">${pe.value.toFixed(1)}<span style="font-size:20px">배</span></div>
+    <div class="fgtop"><div class="fgscore" style="white-space:nowrap;flex:none">${pe.value.toFixed(1)}<span class="small">배</span></div>
       <div class="small">${pe.date.slice(2).replace(/-/g, '.')} FactSet 보고서 기준<br>FactSet 5년 평균 ${pe.avg5}배 · 10년 평균 ${pe.avg10}배</div></div>
     <div class="small" style="margin:0 4px"><b>P/E</b> = 주가 ÷ 앞으로 12개월 동안 벌 것으로 예상되는 이익. "1년 이익의 몇 배 값을 주고 사나"예요. 높을수록 비싸게 사는 거예요.</div>
     <div class="bands">${pe.bands.map((b, i) => `<div class="${5 - i === pe.score ? 'on' : ''}"><b>${5 - i}점</b>${b}</div>`).join('')}</div>
