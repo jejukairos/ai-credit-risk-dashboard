@@ -81,6 +81,9 @@ details a{color:var(--ink2);word-break:break-all}
 .memo .quote{border-left:3px solid var(--spread);padding:2px 0 2px 10px;margin:8px 0;color:var(--ink2);font-style:italic}
 .memo .real{font-size:12px;color:var(--ink2);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
 .fgchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 12px}
+.udbar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:6px 4px 4px}
+.todaygrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;margin:4px 4px 0;font-variant-numeric:tabular-nums}
+.todaygrid div{display:flex;justify-content:space-between}
 .era{padding:8px 4px;border-top:1px solid var(--line);line-height:1.55}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
@@ -187,7 +190,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-adr">ADR</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -462,6 +465,61 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 분기·월 자료라 위 기간 버튼과 상관없이 2019년부터 보여요.</p>
   </div>
 
+  <h2 id="sec-today">📊 오늘의 코스피 · 코스닥</h2>
+  <div class="glossary">
+    <div><b>지수</b>는 삼성전자·SK하이닉스 같은 큰 회사 몇 개만 움직여도 크게 바뀌어요. 그래서 <b>실제로 오른 종목·내린 종목이 몇 개인지</b>를 같이 봐요. 오른 종목이 더 많으면 <b>온기가 퍼진 날</b>, 지수만 오르고 내린 종목이 더 많으면 <b>몇몇 종목 쏠림</b>이에요. 바로 아래 <b>ADR</b>은 이 종목 수를 20일 동안 모아 본 거예요.</div>
+  </div>
+  <div id="today"></div>
+  <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr" target="_blank" rel="noopener">네이버 증권</a> — 지수 종가·등락, 개인·외국인·기관 순매수(억원, 마감 직후엔 잠정치), 상승·보합·하락 종목 수(괄호 = 상한가·하한가), 1분 단위 지수. 매일 16시·20시 자동 갱신(그날 것만 보여요). 점선 = 전날 종가. 🌤·🌧 한 줄 판정 = 지수 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
+
+  <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
+  <div class="glossary">
+    <div><b>ADR</b> 최근 <b>20거래일</b> 동안 <b>오른 종목 수 합 ÷ 내린 종목 수 합 × 100</b>이에요. 100%면 오른 종목과 내린 종목 수가 같고, 지수보다 "시장 전체 종목들의 분위기"를 보여줘요.</div>
+    <div><span class="vixkey vk-bad"></span> <b>120% 이상 = 과열 구간</b> 20일 내내 오르는 종목이 내리는 종목보다 1.2배 넘게 많았다는 뜻. 너도나도 사는 <b>매수 쏠림</b>이라, 살 사람이 거의 다 산 상태가 되기 쉬워 조정이 오기 쉬워요.</div>
+    <div><span class="vixkey" style="border-color:var(--g1)"></span> <b>80% 이하 = 과매도(침체) 구간</b> 내리는 종목이 훨씬 많았다는 뜻. 공포에 너도나도 판 <b>매도 쏠림</b>이라, 팔 사람이 거의 다 판 상태가 되기 쉬워 반등이 나오기 쉬워요. (adrinfo는 75% 이하를 바닥권으로 봐요)</div>
+    <div><b>한계</b> 종목 "개수"만 세서 삼성전자·SK하이닉스 같은 대형주가 지수를 끌어올려도 ADR은 낮을 수 있어요(지수와 체감 장세가 다를 때 확인용). 과열·침체 구간에 며칠씩 머물 수도 있어서, 단독 매매 신호보다는 <b>쏠림 정도를 보는 온도계</b>로 쓰는 게 좋아요.</div>
+  </div>
+  <div class="bar own" role="group" aria-label="ADR 기간" id="adrbar" style="position:static">
+    <button data-a="6m">6개월</button><button data-a="1y">1년</button><button data-a="2y">2년</button><button data-a="5y">5년</button><button data-a="all" class="on">7년</button>
+  </div>
+  <div class="card"><h3><span>KOSPI ADR</span><span class="risk" id="adrk-chip" style="font-size:13px"></span></h3>
+    <div id="adrkospi" class="plot" style="height:340px"></div></div>
+  <div class="card"><h3><span>KOSDAQ ADR</span><span class="risk" id="adrq-chip" style="font-size:13px"></span></h3>
+    <div id="adrkosdaq" class="plot" style="height:340px"></div></div>
+  <div class="card"><h3><span>일간 ADR (최근 10거래일)</span></h3>
+    <div class="tablebox" style="border:0"><table id="adrtable"><thead><tr><th>날짜</th><th>KOSPI</th><th>KOSDAQ</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="http://adrinfo.kr/chart" target="_blank" rel="noopener">adrinfo.kr</a> (2019-10부터, 장 마감 후 갱신). 텔레그램 등 다른 곳 숫자와 몇 %p 다를 수 있어요(집계 기준 차이, 10/30 다른 채널 그림(user: 사용자 제공 캡처) 코스피 71.5%·코스닥 74.4% vs 여기 68.3%·69.6%, 모양과 과열·과매도 구간은 같아요). 아래쪽 회색 = 지수.</p>
+  </div>
+
+  <h2 id="sec-investor">👥 투자자별 매매동향 — 누가 사고 누가 팔았나</h2>
+  <div class="glossary">
+    <div><b>순매수</b> = 산 돈 − 판 돈이에요. <b>+면 더 많이 산 것</b>, −면 더 많이 판 것. 주식은 누가 사면 반드시 누가 팔아서, <b>모두 더하면 0</b>이에요. 그래서 "외국인이 1조 팔았다"는 "다른 누군가가 1조를 받아 샀다"는 말과 같아요. 지수가 오른 날 누가 사서 올렸는지, 빠진 날 누가 받쳐 줬는지를 보는 거예요.</div>
+  </div>
+  <div class="bar own" role="group" aria-label="투자자 시장" id="invmk" style="position:static">
+    <button data-m="kospi" class="on">코스피</button><button data-m="kosdaq">코스닥</button>
+  </div>
+  <div class="bar own" role="group" aria-label="투자자 기간" id="invbar" style="position:static">
+    <button data-i="1d" class="on">1일</button><button data-i="1w">1주</button><button data-i="1m">1개월</button><button data-i="3m">3개월</button>
+  </div>
+  <div class="card"><h3><span id="invtitle"></span></h3>
+    <div class="small" id="invsum" style="margin:0 4px 6px;color:var(--ink)"></div>
+    <div id="invplot" class="plot" style="height:400px"></div>
+    <details class="fold"><summary><b>📋 날짜별 숫자</b> <span class="small">(▶ 누르면 펼쳐져요 · 억원)</span></summary>
+      <div class="tablebox" style="border:0"><table id="invtable"><thead></thead><tbody></tbody></table></div></details>
+    <div class="memo" style="margin:8px 0">
+      <b>👥 누가 누구예요?</b>
+      <div><b>개인</b> 우리 같은 보통 사람들이에요. 주가가 빠지면 싸다고 사서 <b>받쳐 주는</b> 일이 많고, 오르면 차익을 내고 파는 일이 많아요.</div>
+      <div><b>외국인</b> 해외 연기금·펀드·헤지펀드 등 외국 돈이에요. 삼성전자·SK하이닉스 같은 큰 회사 주식을 많이 갖고 있어서 <b>지수를 가장 크게 움직여요</b>. 원화 가치(환율)가 떨어질 것 같으면 팔고 나가기도 해요.</div>
+      <div><b>기관계</b> 아래 6곳(금융투자~연기금등)을 모두 더한 거예요.</div>
+      <div>· <b>금융투자</b> 증권회사예요. 자기 돈으로 짧게 사고팔기도 하고, 사람들이 ETF를 사면 ETF를 새로 만들려고 주식을 사서 여기로 잡히기도 해요. 그래서 <b>개인이 ETF로 산 돈이 금융투자 매수로 보이는 날</b>도 있어요.</div>
+      <div>· <b>투신(사모)</b> 자산운용사가 굴리는 펀드예요(공모펀드 = 투신, 사모펀드 = 사모). 사람들이 펀드에 돈을 넣으면 사고, 빼면 팔아요.</div>
+      <div>· <b>연기금등</b> 국민연금 같은 연금·공제회와 나라 돈이에요. 아주 길게 투자하고, 주가가 많이 빠져 주식 비중이 목표보다 낮아지면 채우려고 사는 일이 많아서 <b>"하락장 버팀목"</b>이라고 불려요(아래 국민연금 섹션의 목표 비중).</div>
+      <div>· <b>보험·은행·기타금융기관</b> 보험회사(보험료를 길게 굴림)·은행·저축은행·캐피털 등이에요. 금액이 작은 편이에요.</div>
+      <div><b>기타법인</b> 금융회사가 아닌 일반 회사예요. 자기 회사 주식을 사들이는 <b>자사주 매입</b>도 여기 잡혀요.</div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a>(KRX, 순매수 억원, 매일 16시·20시 자동 갱신, 2026-06-05부터 쌓여요). 1주·1개월·3개월 = 마지막 날부터 7일·1달·3달 안 거래일 합계. 묶음은 네이버 화면과 같아요: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모, 연기금등 = 연기금+국가·지자체, 기관계 = 금융투자~연기금등 합. 지수 변화 = 네이버 금융 종가(기간 시작 전날 → 마지막 날). 한 줄 요약은 숫자로 자동으로 만든 거예요.</p>
+  </div>
+
   <h2 id="sec-fx">원/달러 환율</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -507,25 +565,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
-  <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
-  <div class="glossary">
-    <div><b>ADR</b> 최근 <b>20거래일</b> 동안 <b>오른 종목 수 합 ÷ 내린 종목 수 합 × 100</b>이에요. 100%면 오른 종목과 내린 종목 수가 같고, 지수보다 "시장 전체 종목들의 분위기"를 보여줘요.</div>
-    <div><span class="vixkey vk-bad"></span> <b>120% 이상 = 과열 구간</b> 20일 내내 오르는 종목이 내리는 종목보다 1.2배 넘게 많았다는 뜻. 너도나도 사는 <b>매수 쏠림</b>이라, 살 사람이 거의 다 산 상태가 되기 쉬워 조정이 오기 쉬워요.</div>
-    <div><span class="vixkey" style="border-color:var(--g1)"></span> <b>80% 이하 = 과매도(침체) 구간</b> 내리는 종목이 훨씬 많았다는 뜻. 공포에 너도나도 판 <b>매도 쏠림</b>이라, 팔 사람이 거의 다 판 상태가 되기 쉬워 반등이 나오기 쉬워요. (adrinfo는 75% 이하를 바닥권으로 봐요)</div>
-    <div><b>한계</b> 종목 "개수"만 세서 삼성전자·SK하이닉스 같은 대형주가 지수를 끌어올려도 ADR은 낮을 수 있어요(지수와 체감 장세가 다를 때 확인용). 과열·침체 구간에 며칠씩 머물 수도 있어서, 단독 매매 신호보다는 <b>쏠림 정도를 보는 온도계</b>로 쓰는 게 좋아요.</div>
-  </div>
-  <div class="bar" role="group" aria-label="ADR 기간" id="adrbar" style="position:static">
-    <button data-a="6m">6개월</button><button data-a="1y">1년</button><button data-a="2y">2년</button><button data-a="5y">5년</button><button data-a="all" class="on">7년</button>
-  </div>
-  <div class="card"><h3><span>KOSPI ADR</span><span class="risk" id="adrk-chip" style="font-size:13px"></span></h3>
-    <div id="adrkospi" class="plot" style="height:340px"></div></div>
-  <div class="card"><h3><span>KOSDAQ ADR</span><span class="risk" id="adrq-chip" style="font-size:13px"></span></h3>
-    <div id="adrkosdaq" class="plot" style="height:340px"></div></div>
-  <div class="card"><h3><span>일간 ADR (최근 10거래일)</span></h3>
-    <div class="tablebox" style="border:0"><table id="adrtable"><thead><tr><th>날짜</th><th>KOSPI</th><th>KOSDAQ</th></tr></thead><tbody></tbody></table></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="http://adrinfo.kr/chart" target="_blank" rel="noopener">adrinfo.kr</a> (2019-10부터, 장 마감 후 갱신). 텔레그램 등 다른 곳 숫자와 몇 %p 다를 수 있어요(집계 기준 차이, 10/30 다른 채널 그림(user: 사용자 제공 캡처) 코스피 71.5%·코스닥 74.4% vs 여기 68.3%·69.6%, 모양과 과열·과매도 구간은 같아요). 아래쪽 회색 = 지수.</p>
-  </div>
-
   <h2 id="sec-kofia">국내 증시 주변자금 · 반대매매</h2>
   <div class="glossary">
     <div><b>고객예탁금</b> 사람들이 주식 사려고 증권사 계좌에 넣어 둔 <b>대기 현금</b>이에요. 줄면 시장에서 주식을 받아줄 돈이 줄어든 거예요.</div>
@@ -533,7 +572,7 @@ footer a{color:var(--ink2)}
     <div><b>신용비율</b> = 신용잔고(코스피+코스닥) ÷ 고객예탁금. 신용잔고가 빚의 <b>크기(조원)</b>라면, 신용비율은 그 빚이 대기 현금의 <b>몇 %</b>인지예요. 잔고가 줄어도 예탁금이 더 빨리 줄면 비율은 올라가요. 빚에 비해 받쳐 줄 현금이 얇아졌다는 뜻이라, 높을수록 조심해서 봐요.</div>
     <div><b>반대매매</b> 빌린 돈(미수금)을 못 갚아서 증권사가 <b>강제로 판</b> 금액이에요.</div>
   </div>
-  <div class="bar" role="group" aria-label="주변자금 기간" id="kofiabar" style="position:static">
+  <div class="bar own" role="group" aria-label="주변자금 기간" id="kofiabar" style="position:static">
     <button data-k="3m">3개월</button><button data-k="6m">6개월</button><button data-k="1y" class="on">1년</button><button data-k="3y">3년</button><button data-k="all">전체</button>
   </div>
   <div class="tiles" id="kofiatiles"></div>
@@ -860,7 +899,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -878,7 +917,7 @@ function setupTabs() {
 function showTab(t) {
   try { localStorage.setItem('tab', t); } catch (e) {}
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  document.querySelector('.bar:not(#adrbar):not(#kofiabar)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
+  document.querySelector('.bar:not(.own)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
   document.querySelectorAll('[data-tab]').forEach(el => { if (el.parentElement.className !== 'tabs') el.classList.toggle('offtab', el.dataset.tab !== t); });
   document.querySelectorAll('.js-plotly-plot').forEach(p => { if (p.offsetParent) Plotly.Plots.resize(p); });
 }
@@ -1039,6 +1078,94 @@ function xStartFor(lastDate, firstDate) {
 }
 
 // 시장 온도계: 온도·50일 이격(다음 지수) + 폭(20일선 아래 %, 60일 신고−신저) — update.py build_kr_thermo
+// 오늘의 지수 — 네이버 증권 시장 화면과 같은 자료(종가·수급·상승/하락 종목 수·1분 지수), 그날 것만
+function renderToday() {
+  const T = DATA.kr_today, box = document.getElementById('today');
+  if (!T) { box.innerHTML = '<p class="small">아직 자료가 없어요.</p>'; return; }
+  const md = s => s.slice(5).replace('-', '/'), cls = v => v >= 0 ? 'up' : 'down', sg = v => (v > 0 ? '+' : '') + fmtNum(v);
+  const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
+  box.innerHTML = mk.map(([c, nm]) => {
+    const o = T[c], U = o.updown, F = o.flow, n = U.rise + U.steady + U.fall, w = v => v / n * 100;
+    const br = U.rise > U.fall ? 1 : U.rise < U.fall ? -1 : 0;
+    const verdict = !br ? '오른 종목과 내린 종목 수가 같아요' : o.chg >= 0
+      ? (br > 0 ? '🌤 지수도 오르고 오른 종목도 더 많아요 → <b>온기가 퍼진 날</b>' : '⚠️ 지수는 올랐지만 내린 종목이 더 많아요 → <b>몇몇 큰 종목 쏠림</b>')
+      : (br > 0 ? '⚠️ 지수는 빠졌지만 오른 종목이 더 많아요 → <b>몇몇 큰 종목만 빠진 날</b>' : '🌧 지수도 빠지고 내린 종목도 더 많아요 → <b>다 같이 빠진 날</b>');
+    return `<div class="card"><h3><span>${nm}</span><span class="small">${md(o.date)} ${o.status === 'CLOSE' ? '장마감' : o.time + ' 기준(장중)'}</span></h3>
+      <div class="fgtop"><div class="fgscore">${fmtNum(o.close, 2)}</div><div class="${cls(o.chg)}" style="font-size:15px"><b>${o.chg >= 0 ? '▲' : '▼'} ${fmtNum(Math.abs(o.chg), 2)}<br>(${o.pct >= 0 ? '+' : ''}${o.pct.toFixed(2)}%)</b></div></div>
+      <div id="today-${c}" class="plot" style="height:150px"></div>
+      <div class="todaygrid small">
+        <div><span>개인</span><b class="${cls(F.indiv)}">${sg(F.indiv)}</b></div><div><span>상승</span><span><b class="up">${fmtNum(U.rise)}</b>(${U.upper})</span></div>
+        <div><span>외국인</span><b class="${cls(F.foreign)}">${sg(F.foreign)}</b></div><div><span>보합</span><b>${fmtNum(U.steady)}</b></div>
+        <div><span>기관</span><b class="${cls(F.inst)}">${sg(F.inst)}</b></div><div><span>하락</span><span><b class="down">${fmtNum(U.fall)}</b>(${U.lower})</span></div>
+        <div><span class="small">(순매수, 억원)</span></div><div></div>
+      </div>
+      <div class="udbar"><span style="width:${w(U.rise)}%;background:var(--good)"></span><span style="width:${w(U.steady)}%;background:var(--line)"></span><span style="width:${w(U.fall)}%;background:var(--bad)"></span></div>
+      <div class="small" style="margin:0 4px">오른 종목 <b class="up">${w(U.rise).toFixed(0)}%</b> · 내린 종목 <b class="down">${w(U.fall).toFixed(0)}%</b> (전체 ${fmtNum(n)}개)</div>
+      <div class="small" style="margin:2px 4px 0;color:var(--ink)">${verdict}</div></div>`;
+  }).join('');
+  mk.forEach(([c]) => {
+    const o = T[c], I = o.intraday, el = document.getElementById('today-' + c);
+    if (!I || !I.t.length) { el.style.display = 'none'; return; }
+    const col = css(o.chg >= 0 ? '--good' : '--bad');
+    Plotly.react(el, [{x: I.t.map(t => o.date + ' ' + t), y: I.y, type: 'scatter', mode: 'lines', line: {color: col, width: 1.6}, hovertemplate: '%{y:,.2f}<extra></extra>'}],
+      tagLast(Object.assign(baseLayout(), {
+        xaxis: axis({type: 'date', tickformat: '%H:%M', hoverformat: '%Y-%m-%d %H:%M', nticks: 5}),
+        yaxis: axis({range: padRange(I.y.concat([o.prev]))}),
+        shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: o.prev, y1: o.prev, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
+        annotations: [{xref: 'paper', x: 0, xanchor: 'left', yref: 'y', y: o.prev, yanchor: o.chg >= 0 ? 'top' : 'bottom', showarrow: false,
+          text: `전일 ${fmtNum(o.prev, 2)}`, font: {size: 10, color: css('--muted')}}],
+      }), [[I.y, 'y', v => fmtNum(v, 2), col]]), CFG);
+  });
+}
+
+// 투자자별 매매동향 — 네이버 증권(KRX) 일별 순매수(억원). 섹션 자체 버튼: 시장·기간
+let INV_MK = 'kospi', INV_P = '1d';
+const INV_COLS = [['indiv', '개인'], ['foreign', '외국인'], ['inst', '기관계'], ['fin', '금융투자'], ['ins', '보험'], ['trust', '투신(사모)'],
+  ['bank', '은행'], ['otherfin', '기타금융'], ['pension', '연기금등'], ['corp', '기타법인']];
+function renderInvestors() {
+  const A = DATA.kr_investors, o = A && A[INV_MK];
+  if (!o || !o.x.length) { document.getElementById('sec-investor').style.display = 'none'; return; }
+  const n = o.x.length, last = o.x[n - 1], md = s => s.slice(5).replace('-', '/');
+  const back = {'1w': 7, '1m': 30.4, '3m': 91.3}[INV_P];
+  const from = back ? new Date(new Date(last) - back * 864e5).toISOString().slice(0, 10) : last;
+  let i0 = o.x.findIndex(d => d > from); if (INV_P === '1d' || i0 < 0) i0 = n - 1;
+  const sum = k => o[k].slice(i0).reduce((a, b) => a + b, 0), S = Object.fromEntries(INV_COLS.map(([k]) => [k, sum(k)]));
+  const nm = Object.fromEntries(INV_COLS), mkn = INV_MK === 'kospi' ? '코스피' : '코스닥';
+  const ip = o.idx[i0 - 1], il = o.idx[n - 1], ich = ip && il ? (il / ip - 1) * 100 : null;
+  document.getElementById('invtitle').textContent = `${mkn} · ${i0 === n - 1 ? md(last) + ' 하루' : md(o.x[i0]) + '~' + md(last) + ` 합계 (${n - i0}거래일)`}`;
+  // 누가 가장 많이 샀고 팔았나: 기관계(합계)는 빼고 세부 주체끼리 비교
+  const who = INV_COLS.filter(([k]) => k !== 'inst').map(([k]) => k).sort((a, b) => S[b] - S[a]), buy = who[0], sell = who[who.length - 1];
+  const won = v => `${v >= 0 ? '+' : ''}${fmtNum(v)}억`;
+  const iga = s => { const c = s.replace(/[()]/g, '').slice(-1).charCodeAt(0) - 0xAC00; return `<b>${s}</b>${c >= 0 && c % 28 ? '이' : '가'}`; };  // 받침 있으면 '이'
+  document.getElementById('invsum').innerHTML = (ich == null ? '' : `${mkn} <b>${fmtPct(ich)}</b> · `) +
+    (ich != null && ich >= 0 ? `📈 ${iga(nm[buy])} 가장 많이 사며(${won(S[buy])}) 지수가 올랐어요. 가장 많이 판 쪽: <b>${nm[sell]}</b>(${won(S[sell])})`
+      : `📉 ${iga(nm[sell])} 가장 많이 팔았고(${won(S[sell])}), 그 물량을 ${iga(nm[buy])} 가장 많이 받았어요(${won(S[buy])}).`);
+  const bars = (keys, axis) => ({type: 'bar', orientation: 'h', x: keys.map(k => S[k]), y: keys.map(k => nm[k]), xaxis: 'x' + axis, yaxis: 'y' + axis,
+    marker: {color: keys.map(k => css(S[k] >= 0 ? '--good' : '--bad'))}, text: keys.map(k => won(S[k])), textposition: 'auto', cliponaxis: false,
+    textfont: {size: 11}, insidetextfont: {color: '#fff'}, outsidetextfont: {color: css('--ink')}, hovertemplate: '%{y} %{x:+,.0f}억<extra></extra>'});
+  const main = ['corp', 'inst', 'foreign', 'indiv'], sub = ['pension', 'otherfin', 'bank', 'trust', 'ins', 'fin'];
+  const rng = keys => { const m = Math.max(...keys.map(k => Math.abs(S[k])), 1) * 1.45; return [-m, m]; };
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  Plotly.react('invplot', [bars(main, ''), bars(sub, '2')], Object.assign(baseLayout(), {
+    hovermode: 'closest', margin: {l: 64, r: 8, t: 8, b: 8}, bargap: 0.3,
+    xaxis: axis({range: rng(main), showticklabels: false, zeroline: true, zerolinecolor: css('--ink2'), showgrid: false, anchor: 'y'}),
+    yaxis: axis({domain: [0.6, 0.94], showgrid: false}),
+    xaxis2: axis({range: rng(sub), showticklabels: false, zeroline: true, zerolinecolor: css('--ink2'), showgrid: false, anchor: 'y2'}),
+    yaxis2: axis({domain: [0, 0.5], showgrid: false}),
+    annotations: [lbl(0.95, '개인 · 외국인 · 기관 · 기타법인'), lbl(0.51, '기관 안에서는 누가? (칸마다 길이 기준이 달라요)')],
+  }), CFG);
+  // 날짜별 표(접힘): 고른 기간의 날짜, 1일이면 최근 10거래일
+  const t0 = Math.min(i0, n - 10 < 0 ? 0 : n - 10), cell = v => `<td class="${v >= 0 ? 'up' : 'down'}">${fmtNum(v)}</td>`;
+  const tb = document.getElementById('invtable');
+  tb.tHead.innerHTML = `<tr><th>날짜</th>${INV_COLS.map(([, l]) => `<th>${l}</th>`).join('')}</tr>`;
+  tb.tBodies[0].innerHTML = o.x.slice(t0).map((d, j) => `<tr><td>${md(d)}</td>${INV_COLS.map(([k]) => cell(o[k][t0 + j])).join('')}</tr>`).reverse().join('');
+}
+document.querySelectorAll('#invmk button, #invbar button').forEach(b => b.onclick = () => {
+  if (b.dataset.m) INV_MK = b.dataset.m; else INV_P = b.dataset.i;
+  b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  renderInvestors();
+});
+
 function renderThermo() {
   const T = DATA.kr_thermo, box = document.getElementById('thermo');
   if (!T) return;
@@ -2232,15 +2359,15 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderValMarket(); }
 
-document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(b => b.onclick = () => {
+document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
-  document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderReaders();
 });
-try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(#adrbar):not(#kofiabar) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
+try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 
 (async () => {
   const bust = '?t=' + Date.now();

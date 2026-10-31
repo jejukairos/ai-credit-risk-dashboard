@@ -557,6 +557,77 @@ def fetch_kr_flows():
     df.sort_values(["date", "market"]).to_csv(path, index=False)
 
 
+def fetch_kr_today():
+    # 한국 탭 맨 위 '오늘의 지수': 네이버 증권 시장 화면(stock.naver.com/market/stock/kr)과 같은 자료 —
+    # 코스피·코스닥 종가·등락, 개인·외국인·기관 순매수(억원), 상승·보합·하락 종목 수(상한가·하한가), 그날 1분 단위 지수.
+    # 그날 것만 주므로 받을 때마다 덮어씀
+    num = lambda v: float(str(v).replace(",", "").replace("+", ""))  # noqa: E731
+    out = {}
+    for mk in ("KOSPI", "KOSDAQ"):
+        b = get(f"https://m.stock.naver.com/api/index/{mk}/basic", timeout=20).json()
+        it = get(f"https://m.stock.naver.com/api/index/{mk}/integration", timeout=20).json()
+        day = b["localTradedAt"][:10].replace("-", "")
+        mins = get(f"https://api.stock.naver.com/chart/domestic/index/{mk}/minute", timeout=20,
+                   params={"startDateTime": day + "0900", "endDateTime": day + "1600"}).json()
+        ud, dt = it["upDownStockInfo"], it["dealTrendInfo"]
+        out[mk.lower()] = {
+            "date": f"{day[:4]}-{day[4:6]}-{day[6:]}", "time": b["localTradedAt"][11:16], "status": b["marketStatus"],
+            "close": num(b["closePrice"]), "chg": num(b["compareToPreviousClosePrice"]), "pct": num(b["fluctuationsRatio"]),
+            "prev": num(next(x["value"] for x in it["totalInfos"] if x["code"] == "lastClosePrice")),
+            "flow": {"indiv": int(num(dt["personalValue"])), "foreign": int(num(dt["foreignValue"])), "inst": int(num(dt["institutionalValue"]))},
+            "updown": {k: int(num(ud[k + "Count"])) for k in ("upper", "rise", "steady", "fall", "lower")},
+            "intraday": {"t": [m["localDateTime"][8:10] + ":" + m["localDateTime"][10:12] for m in mins],
+                         "y": [m["currentPrice"] for m in mins]},
+        }
+    with open(os.path.join(DATA, "kr_today.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
+
+
+# 투자자별 매매동향 열 이름 ← 네이버 투자자 코드(그 화면 묶음과 같게: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모,
+# 연기금등 = 연기금+국가·지자체). 기관계 = 금융투자~연기금등 합
+INVESTORS = {"indiv": ["8000"], "foreign": ["9000", "9001"], "fin": ["1000"], "ins": ["2000"], "trust": ["3000", "3100"],
+             "bank": ["4000"], "otherfin": ["5000"], "pension": ["6000", "7000"], "corp": ["7100"]}
+
+
+def fetch_kr_investors():
+    # 투자자별 매매동향(네이버 증권 stock.naver.com/market/stock/kr/trend/trader, KRX): 일별 순매수(억원).
+    # 한 번에 최근 100거래일을 받아 쌓음(같은 날은 나중 값으로). 장 마감 전 오늘 값은 움직이는 중이라 뺌
+    now = datetime.now(KST)
+    rows = []
+    for mk in ("KOSPI", "KOSDAQ"):
+        j = get("https://stock.naver.com/api/domestic/market/trend/daily", timeout=30,
+                params={"tradeType": "KRX", "marketType": mk, "bizdate": now.strftime("%Y%m%d"), "startIdx": 0, "pageSize": 100}).json()
+        for d in j["content"]:
+            if d["bizdate"] == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
+                continue
+            v = {a["investorGubun"]: int(a["diffValue"]) for a in d["netAmounts"]}
+            r = {k: round(sum(v.get(c, 0) for c in cs) / 1e8, 2) for k, cs in INVESTORS.items()}
+            r["inst"] = round(sum(r[k] for k in ("fin", "ins", "trust", "bank", "otherfin", "pension")), 2)
+            rows.append({"date": f"{d['bizdate'][:4]}-{d['bizdate'][4:6]}-{d['bizdate'][6:]}", "market": mk.lower(), **r})
+    if len(rows) < 100:
+        raise RuntimeError(f"투자자별 매매동향을 너무 적게 받음 ({len(rows)}행)")
+    path = os.path.join(DATA, "kr_investors.csv")
+    df = pd.DataFrame(rows)
+    if os.path.exists(path):
+        df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates(["date", "market"], keep="last")
+    df.sort_values(["date", "market"]).to_csv(path, index=False)
+
+
+def build_kr_investors():
+    path = os.path.join(DATA, "kr_investors.csv")
+    if not os.path.exists(path):
+        return None
+    df = pd.read_csv(path, dtype={"date": str})
+    out = {}
+    for mk in ("kospi", "kosdaq"):
+        m = df[df["market"] == mk].sort_values("date").tail(260)
+        lp = os.path.join(DATA, f"{mk}_long.csv")
+        idx = pd.read_csv(lp, dtype={"date": str}).set_index("date")[mk] if os.path.exists(lp) else pd.Series(dtype=float)
+        out[mk] = {"x": list(m["date"]), **{k: [round(float(v), 1) for v in m[k]] for k in ["inst", *INVESTORS]},
+                   "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]]}
+    return out
+
+
 def build_kr_thermo():
     # 시장 온도계: 온도 = (지수 ÷ 50일 평균 × 100 − 90) × 4 를 0~100도로 자름 → 50일 이격 110 = 80도(과열 경고선), 90 이하 = 0도.
     # 사용자가 보내 준 다른 채널 '시장 온도계'(10/28·10/29 값)와 같은 식임을 확인(README)
@@ -2085,6 +2156,9 @@ def build():
     out["hynix_inv"] = build_hynix_inv()
     out["supply"] = build_equity_supply()
     out["kr_thermo"] = build_kr_thermo()
+    tp = os.path.join(DATA, "kr_today.json")
+    out["kr_today"] = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else None
+    out["kr_investors"] = build_kr_investors()
     out["fedwatch"] = build_fedwatch()
     out["move"] = build_move()
     out["hy"] = build_hy()
@@ -2111,7 +2185,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
