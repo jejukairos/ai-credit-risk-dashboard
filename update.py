@@ -454,8 +454,8 @@ def fetch_vkospi():
 
 def fetch_kospi_long():
     # 코스피 1990년~ 일별 종가 (네이버 금융 차트 데이터, 야후는 1996년 12월부터라 MDD 계산엔 부족).
-    # 코스닥은 2019년~ (주변자금 섹션 '전체' 기간용, 야후 코스닥은 2020년부터)
-    for sym, start, min_rows in (("KOSPI", "19900101", 8000), ("KOSDAQ", "20190101", 1000)):
+    # 코스닥은 출범(1996-07)부터 (주변자금 섹션 '전체' 기간은 2019년~만 씀, 홀짝 효과 메모는 연도별 수익률 계산에 씀)
+    for sym, start, min_rows in (("KOSPI", "19900101", 8000), ("KOSDAQ", "19960701", 7000)):
         r = requests.get("https://api.finance.naver.com/siseJson.naver", headers=BROWSER_UA, timeout=60,
                          params={"symbol": sym, "requestType": 1, "startTime": start,
                                  "endTime": datetime.now().strftime("%Y%m%d"), "timeframe": "day"})
@@ -996,6 +996,65 @@ def build_bubble():
         out.append({"key": key, "name": name, "start": t0.strftime("%Y-%m-%d"), "d": list(w.index.strftime("%Y-%m-%d")),
                     "t": [round((i - t0).days / 365.25, 3) for i in w.index], "y": [round(float(v) / base * 100, 1) for v in w],
                     "peak": round(float(s.max()) / base * 100, 1), "peak_date": pk.strftime("%Y-%m-%d"), "peak_t": round((pk - t0).days / 365.25, 2)})
+    return out
+
+
+def fetch_sp500_1950():
+    # 미국 중간선거 메모용 S&P500 일별 종가 1950~2019 (Yahoo ^GSPC). 지난 자료라 한 번만, 2020년~은 sp500.csv를 이어 씀
+    p = os.path.join(DATA, "sp500_1950.csv")
+    if os.path.exists(p):
+        return
+    import yfinance as yf
+    s = yf.download("^GSPC", start="1950-01-01", end="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    s.index = pd.to_datetime(s.index).strftime("%Y-%m-%d")
+    s.rename("sp500").rename_axis("date").round(2).to_csv(p)
+
+
+def _election_day(y):  # 미국 선거일 = 11월 첫 월요일 다음 화요일(11/2~11/8 사이 화요일)
+    d = datetime(y, 11, 2)
+    return d + timedelta(days=(1 - d.weekday()) % 7)
+
+
+def build_midterm():
+    # 중간선거(1950~2022 19번) 선거일 종가 → 6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 변화율 + 이번(2026) 선거 뒤 추적
+    hp, cp = os.path.join(DATA, "sp500_1950.csv"), os.path.join(DATA, "sp500.csv")
+    if not (os.path.exists(hp) and os.path.exists(cp)):
+        return None
+    s = pd.concat([pd.read_csv(hp, dtype={"date": str}), pd.read_csv(cp, dtype={"date": str})]).drop_duplicates("date", keep="last")
+    s = s.assign(date=pd.to_datetime(s["date"])).set_index("date")["sp500"].sort_index()
+    at = lambda d: float(s[s.index <= d].iloc[-1])  # noqa: E731
+    rows, last = [], s.index[-1]
+    for y in range(1950, datetime.now(KST).year + 1, 4):
+        e = pd.Timestamp(_election_day(y))
+        r = {"year": y, "date": e.strftime("%Y-%m-%d")}
+        if last >= e:
+            b = at(e)
+            for k, m in (("m6", 6), ("m12", 12)):
+                r[k] = round((at(e + pd.DateOffset(months=m)) / b - 1) * 100, 1) if last >= e + pd.DateOffset(months=m) else None
+            r["now"] = round((float(s.iloc[-1]) / b - 1) * 100, 1)
+        rows.append(r)
+    done = [r for r in rows if r.get("m12") is not None]
+    st = lambda k: {"avg": round(sum(r[k] for r in done) / len(done), 1), "pos": sum(r[k] > 0 for r in done), "n": len(done)}  # noqa: E731
+    return {"rows": rows, "m6": st("m6"), "m12": st("m12"), "last": last.strftime("%Y-%m-%d")}
+
+
+def build_kosdaq_oddeven():
+    # 코스닥 연도별 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1 (1996년은 출범 첫 거래일 종가부터, 올해는 지금까지).
+    # 홀수해만·짝수해만·쭉 보유 누적 = 해당 해 (1 + 수익률)을 곱한 값 − 1. 네이버 금융 코스닥 일별
+    p = os.path.join(DATA, "kosdaq_long.csv")
+    if not os.path.exists(p):
+        return None
+    k = pd.read_csv(p, dtype={"date": str}).assign(date=lambda d: pd.to_datetime(d["date"])).set_index("date")["kosdaq"].sort_index()
+    if k.index[0].year > 1996:
+        return None
+    ye = k.groupby(k.index.year).last()
+    ret = (ye / ye.shift(1)).fillna(ye.iloc[0] / k.iloc[0])
+    cum = lambda sel: round((float(ret[sel].prod()) - 1) * 100, 1)  # noqa: E731
+    yrs = ret.index
+    out = {"years": [int(y) for y in yrs], "ret": [round((float(v) - 1) * 100, 1) for v in ret], "last": k.index[-1].strftime("%Y-%m-%d"),
+           "all": cum(yrs == yrs), "odd": cum(yrs % 2 == 1), "even": cum(yrs % 2 == 0)}
+    r10 = yrs >= yrs[-1] - 10  # 최근 10년 + 올해
+    out.update(from10=int(yrs[r10][0]), all10=cum(r10), odd10=cum(r10 & (yrs % 2 == 1)), even10=cum(r10 & (yrs % 2 == 0)))
     return out
 
 
@@ -2465,6 +2524,8 @@ def build():
     out["liquidity"] = build_liquidity()
     out["nps_stakes"] = build_nps_stakes()
     out["bubble"] = build_bubble()
+    out["midterm"] = build_midterm()
+    out["kosdaq_oddeven"] = build_kosdaq_oddeven()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
@@ -2514,7 +2575,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

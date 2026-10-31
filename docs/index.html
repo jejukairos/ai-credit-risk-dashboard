@@ -258,6 +258,7 @@ footer a{color:var(--ink2)}
       <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
     </div>
     <div id="mkt-sp500"></div>
+    <div class="memo" id="midterm" style="margin:8px 0"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
@@ -682,6 +683,7 @@ footer a{color:var(--ink2)}
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
     <div id="cleanbox"></div>
     <div id="liqbox"></div>
+    <div class="memo" id="kqoddeven" style="margin-top:8px"></div>
   </div>
   <div class="card">
     <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
@@ -732,6 +734,12 @@ footer a{color:var(--ink2)}
   </div>
   <div id="dramcards"></div>
   <div class="card" id="hynixinv"></div>
+  <div class="memo" style="margin:0 0 12px">🪨 <b>SK하이닉스 '락바텀'(가장 나쁠 때 바닥) 계산 — 소박사</b>
+    <br>· <b>주장</b>: 2028년 D램 가격이 <b>분기마다 −30%</b>씩 빠져 25년 3분기 수준까지 내려가도, 영업이익 <b>100~130조</b> × PER 10배면 주가 <b>100~120만원</b>이 가장 나쁜 경우의 바닥이에요. 본인 추정 모델이고, 이 최악이 실제로 올 확률은 낮다고 봤어요.
+    <br>· <b>✅ 계산은 맞아요</b>: 주식 수 7억 1,108만 주(DART, 자사주 뺀 유통주식) × 100~120만원 = 시가총액 711~853조 → PER 10배면 순이익 71~85조예요. 영업이익 100~130조에서 법인세 등을 떼면 나올 만한 수준이라, 오히려 조금 보수적이에요.
+    <br>· <b>⚠️ 약한 고리 = 영업이익 가정</b>: 25년 3분기 실제 영업이익은 <b>11.4조</b>(1년으로 치면 45.5조)였어요. 같은 가격에서 100~130조가 나오려면 이익이 그때의 <b>2.2~2.9배</b>여야 해서, 파는 양(비트)이 크게 늘고 원가가 많이 내려간다는 가정이 들어 있어요. 이 가정이 틀리면 바닥도 더 낮아져요. (참고: 26년 2분기 영업이익은 60.5조)
+    <br>· 지금 주가 <b>141.8만원</b>(26.10.30) → 락바텀 100~120만원은 지금보다 <b>15~29% 아래</b>예요.
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(소박사, 26.11) · 주식 수 = DART 2026년 반기보고서 '주식의 총수'(발행 712,702,365주 − 자사주 1,626,865주) · 영업이익 = DART 2025년 3분기·2026년 반기 보고서(연결) · 주가 = Yahoo Finance(000660.KS). 2.2~2.9배 = 100~130조 ÷ 45.5조(= 11.38조 × 4)</div></div>
   <div class="card" id="opcard">
     <h3><span>메모리 전망 의견 트래커 — 강세론 vs 보수론</span></h3>
     <div class="small" style="margin:2px 4px 8px">작년 대비 6배 넘게 오른 지금은 <b>반대 의견(보수론)</b>이 중요해요. 증권사·리서치·업계 의견을 출처와 함께 모아, 어느 쪽에 힘이 실리는지 봐요.</div>
@@ -1969,6 +1977,42 @@ function renderBubble() {
   }), CFG);
 }
 
+// 미국 중간선거 뒤 S&P500 — 방송 인용 주장 vs 우리 계산(1950~2022), 2026년 선거 뒤 자동 추적. 2026년부터 한 번이라도 틀리면 다음 선거부터 이 메모를 숨김
+function renderMidterm() {
+  const M = DATA.midterm, el = document.getElementById('midterm');
+  if (!M) { el.style.display = 'none'; return; }
+  const cur = M.rows[M.rows.length - 1], md = s => s.slice(2).replace(/-/g, '.');
+  const add = (d, m) => { const x = new Date(d); x.setMonth(x.getMonth() + m); return x.toISOString().slice(0, 10); };
+  const bad = r => (r.m6 != null && r.m6 <= 0) || (r.m12 != null && r.m12 <= 0);
+  const failed = M.rows.find(r => r.year >= 2026 && bad(r));
+  if (failed && cur.year > failed.year) { el.style.display = 'none'; return; }
+  const verdict = k => cur[k] == null ? `<span class="small">${md(add(cur.date, k === 'm6' ? 6 : 12))}에 판정</span>` : cur[k] > 0 ? `<b>${fmtPct(cur[k])} ✅ 맞음</b>` : `<b>${fmtPct(cur[k])} ❌ 틀림</b>`;
+  el.innerHTML = `🗳 <b>미국 중간선거가 끝나면 올랐다?</b> ${failed ? '<span class="chip warm">이번엔 틀림 → 다음 선거부턴 빼요</span>' : ''}
+    <br>· <b>주장</b>(방송, 복부장 조사 인용): 1950년 이후 중간선거 19번 모두 그 뒤 지수가 올랐어요. 6개월 뒤 평균 +12.1%(95%), 12개월 뒤 +15.5~16.9%. 11월 3일 선거로 불확실성이 걷히는지가 핵심이에요.
+    <br>· <b>✅ 우리 계산</b>(S&amp;P500, 선거일 종가 기준): 6개월 뒤 <b>${M.m6.n}번 중 ${M.m6.pos}번 올랐고 평균 ${fmtPct(M.m6.avg)}</b> · 12개월 뒤 <b>${M.m12.n}번 중 ${M.m12.pos}번 올랐고 평균 ${fmtPct(M.m12.avg)}</b>. "모두 올랐다"는 맞아요(평균은 계산 방법에 따라 조금 달라요).
+    <br>· <b>이번 ${cur.year}년 선거(${md(cur.date)})</b>: ${cur.now == null ? '선거가 끝나면 자동으로 재요' : `선거일보다 지금 ${fmtPct(cur.now)} (${md(M.last)})`} · 6개월 뒤 ${verdict('m6')} · 12개월 뒤 ${verdict('m12')}
+    <br>· 이런 '과거 통계 법칙'은 장단기 금리차 역전(경기침체 신호)처럼 어느 순간 안 맞을 수 있어요. 이번에 틀리면 표시하고, 다음 선거부턴 이 메모를 빼요.
+    <details class="srcs"><summary><b>${M.m12.n}번 결과 보기</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary><div class="tablebox" style="border:0"><table><thead><tr><th>선거일</th><th>6개월 뒤</th><th>12개월 뒤</th></tr></thead><tbody>${M.rows.filter(r => r.m12 != null).map(r =>
+      `<tr><td>${r.date}</td><td>${fmtPct(r.m6)}</td><td>${fmtPct(r.m12)}</td></tr>`).reverse().join('')}</tbody></table></div></details>
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div>`;
+}
+
+// 코스닥 홀짝 효과 — 방송 주장 vs 우리 계산(네이버 금융 코스닥 1996-07~), 올해가 홀수·짝수해인지와 올해 수익률 자동
+function renderKqOddEven() {
+  const K = DATA.kosdaq_oddeven, el = document.getElementById('kqoddeven');
+  if (!K) { el.style.display = 'none'; return; }
+  const n = K.years.length, y = K.years[n - 1], r99 = K.ret[K.years.indexOf(1999)];
+  el.innerHTML = `🎲 <b>코스닥 홀짝 효과</b>
+    <br>· <b>주장</b>(방송): 한국 시장은 홀짝 효과가 커요. 코스닥을 <b>홀수해에만 투자하면 누적 +39.7%</b>, 짝수해까지 <b>계속 투자하면 −18.1%</b>.
+    <br>· <b>🔍 우리 계산은 그 숫자와 달라요</b>(기간이 안 나와 있어서 똑같이 재현이 안 돼요). 그래도 "홀수해가 강했다"는 방향은 같아요.
+    <br>&nbsp;&nbsp;출범(96.07)부터: 홀수해만 <b>${fmtPct(K.odd)}</b>(1999년 한 해 ${fmtPct(r99)}가 큼) · 짝수해만 ${fmtPct(K.even)} · 쭉 보유 ${fmtPct(K.all)}
+    <br>&nbsp;&nbsp;최근 10년(${K.from10}~): 홀수해만 <b>${fmtPct(K.odd10)}</b> · 짝수해만 ${fmtPct(K.even10)} · 쭉 보유 ${fmtPct(K.all10)}
+    <br>· <b>올해 ${y}년(${y % 2 ? '홀수' : '짝수'}해)</b> 지금까지 ${fmtPct(K.ret[n - 1])} (${K.last.slice(2).replace(/-/g, '.')} 기준)
+    <details class="srcs"><summary><b>해마다 코스닥 수익률</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary><div class="small" style="margin:4px;line-height:1.9">${K.years.map((yy, i) =>
+      `<span style="display:inline-block;min-width:84px">${yy % 2 ? '<b>' : ''}${yy}${yy % 2 ? '</b>' : ''} ${fmtPct(K.ret[i])}</span>`).join('')}</div><div class="small" style="margin:0 4px">굵은 해 = 홀수해</div></details>
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 계산 = 네이버 금융 코스닥 일별 종가. 해마다 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1(1996년은 첫 거래일부터, 올해는 지금까지), 누적 = 그 해들의 (1 + 수익률)을 곱한 값 − 1.</div>`;
+}
+
 // 국민연금 지분율 변동 — OpenDART 대량보유 보고(보고자 국민연금공단), 최근 공시 기준 많이 늘린·줄인 10곳
 function renderNpsStakes() {
   const N = DATA.nps_stakes, el = document.getElementById('npsstakes');
@@ -2710,7 +2754,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
