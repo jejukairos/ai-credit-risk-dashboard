@@ -958,6 +958,47 @@ def fetch_move():
     v.rename("move").rename_axis("date").round(2).to_csv(os.path.join(DATA, "move.csv"))
 
 
+def fetch_bubble():
+    # 버블 후반부 강세장 비교(신한투자증권 원차트 재구성, 사용자 제공 26.10.30 업데이트판과 같은 방식): 나스닥(^IXIC)·필라델피아 반도체(^SOX)
+    # 일별 종가(Yahoo, 1994-12~)는 매일, 1920년대 다우(FRED/NBER M1109BUSM293NNBR, 월별)는 지난 자료라 한 번만
+    import yfinance as yf
+    d = yf.download(["^IXIC", "^SOX"], start="1994-12-01", progress=False, auto_adjust=False, threads=False)["Close"].dropna(how="all")
+    if d["^SOX"].dropna().empty or d["^IXIC"].dropna().empty:
+        raise RuntimeError("나스닥·반도체 지수가 비어 있음")
+    d.index = pd.to_datetime(d.index).strftime("%Y-%m-%d")
+    d.rename(columns={"^IXIC": "ixic", "^SOX": "sox"}).rename_axis("date").round(2).to_csv(os.path.join(DATA, "bubble_idx.csv"))
+    dp = os.path.join(DATA, "dow_1920s.csv")
+    if not os.path.exists(dp):
+        (fred_series("M1109BUSM293NNBR", start="1924-01-01") / 100).loc[:"1932-12-31"].rename("dow").rename_axis("date").round(2).to_csv(dp)
+
+
+# 시작 달(그 달 첫 거래일 종가 = 100), 원차트 이름과 같게
+BUBBLES = [("dow20", "광란의 20년대: 다우", "dow", "1924-07"), ("dot_ixic", "닷컴: 나스닥", "ixic", "1995-01"), ("dot_sox", "닷컴: 반도체(SOX)", "sox", "1995-01"),
+           ("fang", "FANG: 나스닥", "ixic", "2016-07"), ("ai_sox", "AI: 반도체(SOX)", "sox", "2023-01"), ("ai_ixic", "AI: 나스닥", "ixic", "2023-01")]
+
+
+def build_bubble():
+    # x = 시작일부터 지난 햇수, y = 시작일 종가 = 100. 일별 자료는 주 1점(금요일) + 마지막 날. 시작 뒤 7년까지
+    ip, dp = os.path.join(DATA, "bubble_idx.csv"), os.path.join(DATA, "dow_1920s.csv")
+    if not (os.path.exists(ip) and os.path.exists(dp)):
+        return None
+    src = pd.read_csv(ip, dtype={"date": str}).set_index("date")
+    src = {"ixic": src["ixic"].dropna(), "sox": src["sox"].dropna(), "dow": pd.read_csv(dp, dtype={"date": str}).set_index("date")["dow"].dropna()}
+    out = []
+    for key, name, col, start in BUBBLES:
+        s = src[col][src[col].index >= start]
+        s.index = pd.to_datetime(s.index)
+        s = s[s.index < s.index[0] + pd.DateOffset(years=7)]
+        base, t0 = float(s.iloc[0]), s.index[0]
+        w = s if col == "dow" else pd.concat([s.resample("W-FRI").last().dropna().iloc[:-1], s.iloc[[-1]]])
+        w = w[~w.index.duplicated(keep="last")].sort_index()
+        pk = s.idxmax()
+        out.append({"key": key, "name": name, "start": t0.strftime("%Y-%m-%d"), "d": list(w.index.strftime("%Y-%m-%d")),
+                    "t": [round((i - t0).days / 365.25, 3) for i in w.index], "y": [round(float(v) / base * 100, 1) for v in w],
+                    "peak": round(float(s.max()) / base * 100, 1), "peak_date": pk.strftime("%Y-%m-%d"), "peak_t": round((pk - t0).days / 365.25, 2)})
+    return out
+
+
 def fetch_liquidity():
     # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
@@ -1302,6 +1343,59 @@ def fetch_nps():
                 target[a] = float(mm.group(1))
         with open(os.path.join(DATA, "nps_target.json"), "w", encoding="utf-8") as f:
             json.dump(target, f, ensure_ascii=False)
+
+
+def fetch_nps_stakes():
+    # 국민연금 지분율 변동: OpenDART 공시검색(최근 6개월, 주식등의대량보유상황보고서 D001)에서 보고자가 국민연금공단인 공시를 찾고,
+    # 회사별 대량보유 현황 API(majorstock)에서 그 공시의 보유비율(stkrt)·직전 보고 대비 증감(stkrt_irds)을 받음. 이미 받은 공시는 다시 안 받음
+    key = os.environ.get("DART_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError("DART_API_KEY 가 .env 에 없음")
+    path = os.path.join(DATA, "nps_stakes.csv")
+    old = pd.read_csv(path, dtype=str) if os.path.exists(path) else pd.DataFrame(columns=["rcept_no"])
+    now, found = datetime.now(KST), {}
+    # 처음엔 6개월(회사 지정 없이 찾으면 한 번에 3개월까지라 두 번), 그 뒤엔 지난 31일만(전체 공시를 넘겨 봐야 해서 오래 걸림)
+    for a, b in ([(184, 93), (92, 0)] if old.empty else [(31, 0)]):
+        page = 1
+        while True:
+            j = get("https://opendart.fss.or.kr/api/list.json", timeout=30, params={
+                "crtfc_key": key, "bgn_de": (now - timedelta(days=a)).strftime("%Y%m%d"), "end_de": (now - timedelta(days=b)).strftime("%Y%m%d"),
+                "pblntf_ty": "D", "pblntf_detail_ty": "D001", "page_no": page, "page_count": 100}).json()
+            if j.get("status") == "013":  # 조회된 데이터 없음
+                break
+            if j.get("status") != "000":
+                raise RuntimeError(f"DART 공시검색 오류 {j.get('status')} {j.get('message')}")
+            found.update({r["rcept_no"]: r["corp_code"] for r in j["list"] if "국민연금" in r["flr_nm"]})
+            if page >= j["total_page"]:
+                break
+            page += 1
+    rows = []
+    for cc in sorted({c for r, c in found.items() if r not in set(old["rcept_no"])}):
+        j = get("https://opendart.fss.or.kr/api/majorstock.json", timeout=30, params={"crtfc_key": key, "corp_code": cc}).json()
+        rows += [{k: m.get(k, "") for k in ("rcept_no", "rcept_dt", "corp_code", "corp_name", "repror", "stkrt", "stkrt_irds", "report_resn")}
+                 for m in j.get("list", []) if m["rcept_no"] in found and "국민연금" in m.get("repror", "")]
+    if rows or not os.path.exists(path):
+        pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("rcept_no", keep="last").sort_values("rcept_no").to_csv(path, index=False)
+
+
+def build_nps_stakes():
+    # 최근 NPS 공시일로부터 92일 안의 공시 중 회사마다 가장 최근 것. 직전 = 지금 − 증감. 회사분할·합병·신규상장으로 생긴 변화는 뺌(사고판 게 아님).
+    # 많이 늘린 10곳·많이 줄인 10곳(증감 %p 순)
+    path = os.path.join(DATA, "nps_stakes.csv")
+    if not os.path.exists(path):
+        return None
+    d = pd.read_csv(path, dtype=str)
+    d["now"] = pd.to_numeric(d["stkrt"].str.replace(",", ""), errors="coerce")
+    d["chg"] = pd.to_numeric(d["stkrt_irds"].str.replace(",", ""), errors="coerce")
+    d = d.dropna(subset=["now", "chg"])
+    if d.empty:
+        return None
+    last = pd.to_datetime(d["rcept_dt"]).max()
+    d = d[pd.to_datetime(d["rcept_dt"]) >= last - pd.Timedelta(days=92)].sort_values("rcept_no").drop_duplicates("corp_code", keep="last")
+    d = d[~d["report_resn"].fillna("").str.contains("분할|합병|신규")]
+    rec = lambda x: [{"name": r.corp_name, "prev": round(r.now - r.chg, 2), "now": r.now, "chg": r.chg, "date": r.rcept_dt, "rcept_no": r.rcept_no}  # noqa: E731
+                     for r in x.itertuples()]
+    return {"date": last.strftime("%Y-%m-%d"), "n": len(d), "up": rec(d[d["chg"] > 0].nlargest(10, "chg")), "down": rec(d[d["chg"] < 0].nsmallest(10, "chg"))}
 
 
 def change_n(s, days, tol=10):
@@ -2369,6 +2463,8 @@ def build():
     out["cds_board"] = build_cds_board(cds)
     out["credit_growth"] = build_credit_growth()
     out["liquidity"] = build_liquidity()
+    out["nps_stakes"] = build_nps_stakes()
+    out["bubble"] = build_bubble()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
@@ -2418,7 +2514,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
