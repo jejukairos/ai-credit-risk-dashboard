@@ -84,6 +84,8 @@ details a{color:var(--ink2);word-break:break-all}
 .udbar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:6px 4px 4px}
 .todaygrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;margin:4px 4px 0;font-variant-numeric:tabular-nums}
 .todaygrid div{display:flex;justify-content:space-between}
+.usgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:4px}
+.usgrid>div{min-width:0}
 .era{padding:8px 4px;border-top:1px solid var(--line);line-height:1.55}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
@@ -190,11 +192,50 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-sp500">S&amp;P500</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-ytd">올해</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
     <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
+  </div>
+
+  <h2 id="sec-ustoday">📊 오늘의 미국 증시</h2>
+  <div class="glossary">
+    <div><b>지수</b>는 애플·엔비디아 같은 큰 회사 몇 개만 움직여도 크게 바뀌어요. 그래서 미국 전체 주식(뉴욕·나스닥·아멕스 상장) 중 <b>오른 종목·내린 종목이 몇 개인지</b> 같이 봐요. <b>신고가·신저가</b> = 최근 1년(52주) 중 가장 비싼·가장 싼 값을 새로 쓴 종목, <b>50일선·200일선 위</b> = 자기 최근 50일·200일 평균 가격보다 비싸게 거래되는 종목이에요. 초록 쪽이 길수록 시장 전체가 튼튼해요.</div>
+  </div>
+  <div id="ustoday"></div>
+  <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
+
+  <h2 id="sec-ytd">📈 올해 주가 흐름 — S&amp;P500 · 나스닥100 · 반도체</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div>작년 마지막 날 값을 0%로 두고 <b>올해 몇 % 올랐는지</b>를 그린 거예요. 선이 위에 있을수록 올해 많이 오른 거예요.</div></div>
+    <div id="ytdplot" class="plot" style="height:260px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance ETF 종가(S&amp;P500 = SPY, 나스닥100 = QQQ, 반도체 = SOXX, 배당 빼고 가격만). 올해 수익률 = 종가 ÷ 작년 마지막 종가 − 1. 매일 자동 갱신. 올해만 보여서 위 기간 버튼과 상관없어요.</p>
+  </div>
+
+  <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
+  <div class="glossary">
+    <div><b>고점 대비 하락률</b> = 지금 값이 가장 비쌌던 때(장중 최고가)보다 몇 % 아래인지예요. 올해 많이 올랐어도 고점에서 많이 빠졌으면, 그만큼 크게 흔들리고 있다는 뜻이에요.</div>
+  </div>
+  <div class="card"><h3><span>AI 인프라 ETF — 올해 수익률 · 고점 대비</span></h3>
+    <div id="etfai" class="plot" style="height:340px"></div></div>
+  <div class="card"><h3><span>주요 지수 ETF — 고점 대비 하락률</span></h3>
+    <div id="etfidx" class="plot" style="height:200px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="etfnote"></p></div>
+
+  <h2 id="sec-usprice">💵 원유 · 금 · 비트코인</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div>돈이 어디로 몰리는지 보는 대표 가격이에요. 불안할 때는 <b>금</b>, 기대가 클 때는 <b>비트코인</b> 같은 위험한 곳으로 돈이 가는 일이 많아요. <b>원유</b>가 오르면 물가가 오르기 쉬워요.</div></div>
+    <div id="usprice"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance — 원유 = WTI 선물(CL=F), 금 = 금 선물(GC=F, 금 현물 시세와 조금 달라요), 비트코인 = BTC-USD(24시간 거래). 전일 = 하루 전 일봉 종가. 매일 16시·20시 자동 갱신.</p>
+  </div>
+
+  <h2 id="sec-usyield">🏦 미국 국채 금리 — 만기별</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div><b>국채 금리</b> 미국 정부가 돈을 빌릴 때 주는 이자예요. 3개월은 짧게, 30년은 아주 길게 빌릴 때예요. 보통은 길게 빌릴수록 이자가 높아요. 짧은 금리가 긴 금리보다 높아지는 <b>금리 역전</b>은 경기가 나빠질 신호로 많이 봐요.</div></div>
+    <div id="usyield"></div>
+    <div id="yieldplot" class="plot" style="height:250px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 2020년부터 쌓여 있고, 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
   <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
@@ -204,6 +245,15 @@ footer a{color:var(--ink2)}
     </div>
     <div id="mkt-sp500"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+  </div>
+
+  <h2 id="sec-etf">QQQ · SOXX (나스닥100 · 반도체 ETF)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>ETF</b> 여러 회사 주식을 한 바구니에 담아 주식처럼 사고파는 상품이에요. <b>QQQ</b>는 나스닥의 큰 회사 100곳(금융회사 빼고), <b>SOXX</b>는 미국 반도체 회사들을 담아요.</div>
+    </div>
+    <div id="mkt-etf"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(QQQ·SOXX 종가, 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
   <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
@@ -900,7 +950,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us', 'sec-ytd': 'us', 'sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -1080,6 +1130,10 @@ function xStartFor(lastDate, firstDate) {
 
 // 시장 온도계: 온도·50일 이격(다음 지수) + 폭(20일선 아래 %, 60일 신고−신저) — update.py build_kr_thermo
 // 오늘의 지수 — 네이버 증권 시장 화면과 같은 자료(종가·수급·상승/하락 종목 수·1분 지수), 그날 것만
+// 지수 방향 × (오른 종목 수 vs 내린 종목 수) 한 줄 판정 — 한국·미국 '오늘' 카드 같이 씀
+const breadthVerdict = (chg, rise, fall) => rise === fall ? '오른 종목과 내린 종목 수가 같아요' : chg >= 0
+  ? (rise > fall ? '🌤 지수도 오르고 오른 종목도 더 많아요 → <b>온기가 퍼진 날</b>' : '⚠️ 지수는 올랐지만 내린 종목이 더 많아요 → <b>몇몇 큰 종목 쏠림</b>')
+  : (rise > fall ? '⚠️ 지수는 빠졌지만 오른 종목이 더 많아요 → <b>몇몇 큰 종목만 빠진 날</b>' : '🌧 지수도 빠지고 내린 종목도 더 많아요 → <b>다 같이 빠진 날</b>');
 function renderToday() {
   const T = DATA.kr_today, box = document.getElementById('today');
   if (!T) { box.innerHTML = '<p class="small">아직 자료가 없어요.</p>'; return; }
@@ -1087,10 +1141,7 @@ function renderToday() {
   const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
   box.innerHTML = mk.map(([c, nm]) => {
     const o = T[c], U = o.updown, F = o.flow, n = U.rise + U.steady + U.fall, w = v => v / n * 100;
-    const br = U.rise > U.fall ? 1 : U.rise < U.fall ? -1 : 0;
-    const verdict = !br ? '오른 종목과 내린 종목 수가 같아요' : o.chg >= 0
-      ? (br > 0 ? '🌤 지수도 오르고 오른 종목도 더 많아요 → <b>온기가 퍼진 날</b>' : '⚠️ 지수는 올랐지만 내린 종목이 더 많아요 → <b>몇몇 큰 종목 쏠림</b>')
-      : (br > 0 ? '⚠️ 지수는 빠졌지만 오른 종목이 더 많아요 → <b>몇몇 큰 종목만 빠진 날</b>' : '🌧 지수도 빠지고 내린 종목도 더 많아요 → <b>다 같이 빠진 날</b>');
+    const verdict = breadthVerdict(o.chg, U.rise, U.fall);
     return `<div class="card"><h3><span>${nm}</span><span class="small">${md(o.date)} ${o.status === 'CLOSE' ? '장마감' : o.time + ' 기준(장중)'}</span></h3>
       <div class="fgtop"><div class="fgscore">${fmtNum(o.close, 2)}</div><div class="${cls(o.chg)}" style="font-size:15px"><b>${o.chg >= 0 ? '▲' : '▼'} ${fmtNum(Math.abs(o.chg), 2)}<br>(${o.pct >= 0 ? '+' : ''}${o.pct.toFixed(2)}%)</b></div></div>
       <div id="today-${c}" class="plot" style="height:150px"></div>
@@ -1825,9 +1876,98 @@ function renderMove() {
   document.getElementById('movereal').innerHTML = `<b>실제 기록</b> ${v.since.slice(0, 4)}년 이후 날짜들 중 지금보다 낮았던 날이 <b>${v.pct_rank}%</b>예요(점선 = 그 기간 중앙값 ${v.median_all}). 숫자가 높을수록 채권 시장이 불안하다는 뜻이에요.`;
 }
 
+// 미국 탭 위쪽 — 오늘의 미국 증시(Yahoo 지수 5분 단위 · Finviz 종목 수), 올해 주가 흐름·고점 대비 하락률(ETF), 원유·금·비트코인, 국채 금리(미 재무부)
+function renderUsToday() {
+  const T = DATA.us_today;
+  if (!T) return;
+  const md = s => s.slice(5).replace('-', '/'), cls = v => v >= 0 ? 'up' : 'down';
+  const chg = o => `<b class="${cls(o.chg)}">${o.chg >= 0 ? '▲' : '▼'}${fmtNum(Math.abs(o.chg), 2)} (${o.pct >= 0 ? '+' : ''}${o.pct.toFixed(2)}%)</b>`;
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+
+  // 1) 지수 4개 + 미국 전체 종목 수(Finviz)
+  const IX = [['sp500', 'S&amp;P500'], ['nasdaq', '나스닥'], ['dow', '다우'], ['iwm', '러셀2000 <span class="small">IWM</span>']].filter(([k]) => T[k] && T[k].intraday);
+  const sp = T.sp500, B = T.breadth, bn = B ? B.date.length - 1 : -1;
+  const bar = (l, lk, r, rk, mid) => { const lp = B[lk + '_pct'][bn], rp = B[rk + '_pct'][bn];
+    return `<div class="small" style="display:flex;justify-content:space-between;gap:6px;margin:8px 4px 0"><span><b class="up">${l}</b> ${lp}% (${fmtNum(B[lk][bn])})</span>${mid ? `<b>${mid}</b>` : ''}<span>(${fmtNum(B[rk][bn])}) ${rp}% <b class="down">${r}</b></span></div>
+      <div class="udbar" style="margin-top:3px"><span style="width:${lp}%;background:var(--good)"></span><span style="width:${Math.max(0, 100 - lp - rp)}%;background:var(--line)"></span><span style="width:${rp}%;background:var(--bad)"></span></div>`; };
+  const BC = [['date', '날짜'], ['adv', '상승'], ['dec', '하락'], ['high', '신고가'], ['low', '신저가'], ['above50_pct', '50일선 위 %'], ['above200_pct', '200일선 위 %']];
+  document.getElementById('ustoday').innerHTML = !sp ? '<p class="small">아직 자료가 없어요.</p>' : `<div class="card"><h3><span>미국 지수</span><span class="small">${md(sp.date)} ${sp.status === 'OPEN' ? sp.time + ' 기준(장중, 미국 시간)' : '장마감'}</span></h3>
+    <div class="usgrid">${IX.map(([k, nm]) => `<div><div class="small"><b>${nm}</b></div><div style="font-size:19px;font-weight:800;font-variant-numeric:tabular-nums">${fmtNum(T[k].close, 2)}</div>
+      <div class="small">${chg(T[k])}</div><div id="ust-${k}" class="plot" style="height:90px"></div></div>`).join('')}</div>
+    ${!B ? '' : `<div class="small" style="margin:12px 4px 0"><b>미국 전체 종목</b> (뉴욕·나스닥·아멕스 · ${md(B.date[bn])} 마감)</div>
+      ${bar('상승', 'adv', '하락', 'dec')}${bar('신고가', 'high', '신저가', 'low')}${bar('위', 'above50', '아래', 'below50', '50일선')}${bar('위', 'above200', '아래', 'below200', '200일선')}
+      ${B.date[bn] === sp.date ? `<div class="small" style="margin:6px 4px 0;color:var(--ink)">S&amp;P500 ${fmtPct(sp.pct)} · ${breadthVerdict(sp.chg, B.adv[bn], B.dec[bn])}</div>` : ''}
+      <details class="fold"><summary><b>📋 날짜별 기록</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+        <div class="tablebox" style="border:0"><table><thead><tr>${BC.map(([, l]) => `<th>${l}</th>`).join('')}</tr></thead><tbody>${B.date.map((_, i) =>
+          `<tr>${BC.map(([c]) => `<td>${c === 'date' ? md(B.date[i]) : fmtNum(B[c][i], c.endsWith('_pct') ? 1 : 0)}</td>`).join('')}</tr>`).reverse().join('')}</tbody></table></div></details>`}</div>`;
+  IX.forEach(([k]) => {
+    const o = T[k], I = o.intraday, col = css(o.chg >= 0 ? '--good' : '--bad');
+    Plotly.react('ust-' + k, [{x: I.t.map(t => o.date + ' ' + t), y: I.y, type: 'scatter', mode: 'lines', line: {color: col, width: 1.4}, hovertemplate: '%{y:,.2f}<extra></extra>'}],
+      Object.assign(baseLayout(), {margin: {l: 4, r: 4, t: 4, b: 18},
+        xaxis: axis({type: 'date', tickformat: '%H시', hoverformat: '%Y-%m-%d %H:%M', nticks: 4, tickfont: {size: 9}}),
+        yaxis: axis({range: padRange(I.y.concat([o.prev])), showticklabels: false}),
+        shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: o.prev, y1: o.prev, line: {color: css('--muted'), width: 1, dash: 'dot'}}]}), CFG);
+  });
+
+  // 2) 올해 주가 흐름 + 3) 고점 대비 하락률 (ETF)
+  const E = T.etf;
+  if (E) {
+    const YT = [['SOXX', '반도체', '--cds'], ['QQQ', '나스닥100', '--g1'], ['SPY', 'S&P500', '--price']];
+    Plotly.react('ytdplot', YT.map(([t, nm, c]) => ({x: E[t].ytd_x, y: E[t].ytd_y, type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.8}, hovertemplate: `${nm} %{y:+.1f}%<extra></extra>`})),
+      tagLast(Object.assign(baseLayout(), {showlegend: true, legend: {orientation: 'h', x: 0, y: 1.1, font: {size: 11}}, margin: {l: 40, r: 10, t: 26, b: 26},
+        xaxis: axis({type: 'date', tickformat: '%m.%d'}), yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(YT.flatMap(([t]) => E[t].ytd_y), false)})}),
+        YT.map(([t, , c]) => [E[t].ytd_y, 'y', v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', css(c)])), CFG);
+    const AI = [['DRAM', '메모리'], ['SOXX', '반도체'], ['AIPO', '전력'], ['LYTE', '광통신'], ['NCLD', '데이터센터']];
+    const IDX = [['DIA', '다우30'], ['SPY', 'S&P500'], ['QQQ', '나스닥100'], ['MAGS', '빅7'], ['SOXX', '반도체']];
+    const bars = (L, key, ax, color) => ({type: 'bar', x: L.map(([t, nm]) => `${nm}<br>${t}${E[t].new ? '*' : ''}`), y: L.map(([t]) => E[t][key]), yaxis: ax,
+      marker: {color: L.map(([t]) => css(color || (E[t][key] >= 0 ? '--good' : '--bad')))}, text: L.map(([t]) => (E[t][key] > 0 ? '+' : '') + E[t][key].toFixed(1) + '%'),
+      textposition: 'outside', cliponaxis: false, constraintext: 'none', textfont: {size: 11, color: css('--ink')},
+      customdata: L.map(([t]) => `고점 $${fmtNum(E[t].high, 2)} (${E[t].high_date.slice(2).replace(/-/g, '.')}) → 지금 $${fmtNum(E[t].last, 2)}`), hovertemplate: '%{customdata}<extra></extra>'});
+    const rng = v => { const lo = Math.min(0, ...v), hi = Math.max(0, ...v), p = (hi - lo) * 0.28 || 5; return [lo < 0 ? lo - p : 0, hi > 0 ? hi + p : p * 0.3]; };
+    const zl = {zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '%'};
+    const BL = () => Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 40, r: 6, t: 8, b: 40}, bargap: 0.35});
+    Plotly.react('etfai', [bars(AI, 'ytd', 'y'), bars(AI, 'dd', 'y2', '--bad')], Object.assign(BL(), {
+      xaxis: axis({type: 'category', anchor: 'y2', tickfont: {size: 10}}),
+      yaxis: axis(Object.assign({domain: [0.56, 0.92], range: rng(AI.map(([t]) => E[t].ytd))}, zl)),
+      yaxis2: axis(Object.assign({domain: [0, 0.42], range: rng(AI.map(([t]) => E[t].dd))}, zl)),
+      annotations: [lbl(0.93, '<span style="color:' + css('--good') + '">■</span> 올해 수익률'), lbl(0.43, '<span style="color:' + css('--bad') + '">■</span> 고점 대비 하락률')]}), CFG);
+    Plotly.react('etfidx', [bars(IDX, 'dd', 'y', '--bad')], Object.assign(BL(), {
+      xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis(Object.assign({range: rng(IDX.map(([t]) => E[t].dd))}, zl))}), CFG);
+    document.getElementById('etfnote').innerHTML = `자료: Yahoo Finance 일별 종가·장중 최고가(${E.date} 기준, 배당 빼고 가격만), 매일 자동 갱신. 올해 수익률 = 종가 ÷ 작년 마지막 종가 − 1(* 올해 상장 = 상장 첫날 종가부터). 고점 = 2020년(또는 상장) 이후 장중 최고가. 막대를 누르면 고점 날짜·가격이 보여요. 묶음 이름(메모리·전력·광통신·데이터센터·빅7)은 사용자 제공 그림 기준이에요.`;
+  }
+
+  // 4) 원유·금·비트코인
+  const PR = [['oil', '원유 (WTI)'], ['gold', '금'], ['btc', '비트코인']].filter(([k]) => T[k]);
+  document.getElementById('usprice').innerHTML = `<div class="tablebox" style="border:0"><table><thead><tr><th></th><th>값 (달러)</th><th>전일 대비</th></tr></thead><tbody>${PR.map(([k, nm]) =>
+    `<tr><td>${nm}</td><td><b>${fmtNum(T[k].close, 2)}</b></td><td>${chg(T[k])}</td></tr>`).join('')}</tbody></table></div>
+    <div class="small" style="margin:4px">기준 시각(한국): ${PR.map(([k, nm]) => `${nm} ${T[k].kst}`).join(' · ')}</div>`;
+
+  // 5) 국채 금리(만기별)
+  const Y = T.yields;
+  if (!Y) return;
+  const YK = [['m3', '3개월', '--g1'], ['y1', '1년', '--g3'], ['y2', '2년', '--g4'], ['y5', '5년', '--g2'], ['y10', '10년', '--cds'], ['y30', '30년', '--g7']];
+  const n = Y.date.length, last = Y.date[n - 1], m1 = new Date(last);
+  m1.setMonth(m1.getMonth() - 1);
+  let im = n - 1;
+  while (im > 0 && Y.date[im] > m1.toISOString().slice(0, 10)) im--;
+  const dp = (a, b) => a == null || b == null ? '–' : `<span class="${cls(a - b)}">${a - b >= 0 ? '+' : ''}${(a - b).toFixed(2)}%p</span>`;
+  const gap = (a, b) => { const v = Y[a][n - 1] - Y[b][n - 1]; return `<b>${v >= 0 ? '+' : ''}${v.toFixed(2)}%p</b>${v < 0 ? ' ⚠️ 역전' : ''}`; };
+  document.getElementById('usyield').innerHTML = `<div class="small" style="margin:0 4px 4px">${last} 장 마감 기준</div>
+    <div class="tablebox" style="border:0"><table><thead><tr><th>만기</th><th>금리</th><th>전일 대비</th><th>1달 전 대비</th></tr></thead><tbody>${YK.map(([k, nm]) =>
+      `<tr><td>${nm}</td><td><b>${Y[k][n - 1].toFixed(2)}%</b></td><td>${dp(Y[k][n - 1], Y[k][n - 2])}</td><td>${dp(Y[k][n - 1], Y[k][im])}</td></tr>`).join('')}</tbody></table></div>
+    <div class="small" style="margin:4px">긴 금리 − 짧은 금리: 10년 − 3개월 ${gap('y10', 'm3')} · 10년 − 2년 ${gap('y10', 'y2')} (마이너스면 금리 역전)</div>`;
+  const xs = xStartFor(last, Y.date[0]), vis = Y.date.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0);
+  Plotly.react('yieldplot', YK.map(([k, nm, c]) => ({x: Y.date, y: Y[k], type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.5}, hovertemplate: `${nm} %{y:.2f}%<extra></extra>`})),
+    Object.assign(baseLayout(), {showlegend: true, legend: {orientation: 'h', x: 0, y: 1.02, yanchor: 'bottom', font: {size: 11}}, margin: {l: 40, r: 10, t: 46, b: 26},
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m'}),
+      yaxis: axis({range: padRange(vis.flatMap(i => YK.map(([k]) => Y[k][i])).filter(v => v != null), false), ticksuffix: '%'})}), CFG);
+}
+
 function renderUsmkt() {
   [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
+  mktBlock('mkt-etf', [['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
+  renderUsToday();
 }
 // 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
 function fxTrend(o) {
@@ -1850,7 +1990,8 @@ function mktBlock(boxId, list) {
     const sq = v => `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${css(v)};opacity:.35;vertical-align:-1px"></span>`;
     return `<div style="margin:4px 0 2px"><div class="fgtop"><div class="fgscore">${fmtNum(o.last, d)}<span class="small">${unit}</span></div>
       <div><div class="fgrating">${name}</div><div class="small">${o.last_date} ${k === 'usdkrw' ? '' : '미국 장 마감 '}기준</div></div></div>
-      <div class="fgchips"><span class="chip">전일 ${ch(k, o.d1)}</span><span class="chip">1주 전 ${ch(k, o.w1)}</span><span class="chip">1달 전 ${ch(k, o.m1)}</span></div>
+      <div class="fgchips">${(o.d5 !== undefined ? [['전일', o.d1], ['5일', o.d5], ['1개월', o.m1], ['3개월', o.m3]] : [['전일', o.d1], ['1주 전', o.w1], ['1달 전', o.m1]])
+        .map(([l, v]) => `<span class="chip">${l} ${o.d5 !== undefined && v != null ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>` : ch(k, v)}</span>`).join('')}</div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
       <div id="usmkt-${k}" class="plot" style="height:170px"></div>
@@ -1870,12 +2011,12 @@ function mktBlock(boxId, list) {
         showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--muted'), font: {size: 10, color: css('--ink2')}}));
       yr[0] -= pad; yr[1] += pad;
     }
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css(k === 'sp500' ? '--price' : k === 'us10y' ? '--cds' : k === 'usdkrw' ? '--g1' : '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--price', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
-        [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : 0), css('--ink')]]), CFG);
+        [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : unit === '달러' ? 2 : 0), css('--ink')]]), CFG);
   });
 }
 

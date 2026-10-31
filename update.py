@@ -479,6 +479,131 @@ def fetch_usmkt():
         v.rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"{name}.csv"))
 
 
+# ---------- 미국 탭 위쪽: 오늘의 미국 증시 · 올해 주가 흐름 · ETF 고점 대비 하락률 · 원유/금/비트코인 · 국채 금리 ----------
+def _yahoo_chart(sym, interval, rng):
+    r = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}", params={"interval": interval, "range": rng},
+                     headers=BROWSER_UA, timeout=20)
+    r.raise_for_status()
+    return r.json()["chart"]["result"][0]
+
+
+US_TODAY = [("^GSPC", "sp500"), ("^IXIC", "nasdaq"), ("^DJI", "dow"), ("IWM", "iwm"), ("CL=F", "oil"), ("GC=F", "gold"), ("BTC-USD", "btc")]
+
+
+def fetch_us_today():
+    # Yahoo Finance: 지수 4개(S&P500·나스닥·다우·러셀2000 ETF IWM)는 그날 5분 단위 + 종가, 원유·금·비트코인은 마지막 값.
+    # 전일 = 하루 전 일봉 종가. 그날 것만 보여 주므로 받을 때마다 덮어씀
+    out = {}
+    for sym, k in US_TODAY:
+        d = _yahoo_chart(sym, "1d", "5d")
+        m, cl = d["meta"], [c for c in d["indicators"]["quote"][0]["close"] if c is not None]
+        close, prev = float(m["regularMarketPrice"]), float(cl[-2])
+        o = {"close": round(close, 2), "prev": round(prev, 2), "chg": round(close - prev, 2), "pct": round((close / prev - 1) * 100, 2),
+             "kst": datetime.fromtimestamp(m["regularMarketTime"], KST).strftime("%m/%d %H:%M")}
+        if k in ("sp500", "nasdaq", "dow", "iwm"):
+            i = _yahoo_chart(sym, "5m", "1d")
+            off, reg = i["meta"]["gmtoffset"], i["meta"]["currentTradingPeriod"]["regular"]
+            ts = [(t, c) for t, c in zip(i["timestamp"], i["indicators"]["quote"][0]["close"]) if c is not None]
+            et = lambda t: datetime.fromtimestamp(t + off, timezone.utc)  # noqa: E731  거래소(미국 동부) 시각
+            o.update(date=et(ts[-1][0]).strftime("%Y-%m-%d"), time=et(ts[-1][0]).strftime("%H:%M"),
+                     status="OPEN" if reg["start"] <= time.time() < reg["end"] else "CLOSE",
+                     intraday={"t": [et(t).strftime("%H:%M") for t, _ in ts], "y": [round(c, 2) for _, c in ts]})
+        out[k] = o
+    with open(os.path.join(DATA, "us_today.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
+
+
+FINVIZ_STATS = {"Advancing / Declining": ("adv", "dec"), "New High / New Low": ("high", "low"),
+                "Above SMA50 / Below SMA50": ("above50", "below50"), "Above SMA200 / Below SMA200": ("above200", "below200")}
+
+
+def fetch_us_breadth():
+    # Finviz 첫 화면(finviz.com)의 미국 전체 종목(NYSE·Nasdaq·AMEX) 상승/하락, 52주 신고가/신저가, 50일·200일선 위/아래 종목 수와 %.
+    # 그날 값만 보여 주므로 장 마감 뒤에만 날마다 쌓음. 날짜 = Yahoo S&P500 마지막 거래일(미국 날짜).
+    # 같은 날은 처음 받은 값(16시 = 미국 새벽)을 지킴 — 20시(미국 장 시작 전)엔 프리마켓 값이 섞일 수 있어서
+    m = _yahoo_chart("^GSPC", "5m", "1d")
+    reg = m["meta"]["currentTradingPeriod"]["regular"]
+    if reg["start"] <= time.time() < reg["end"] + 1800:
+        return
+    row = {"date": datetime.fromtimestamp(m["timestamp"][-1] + m["meta"]["gmtoffset"], timezone.utc).strftime("%Y-%m-%d")}
+    t = requests.get("https://finviz.com/", headers=BROWSER_UA, timeout=30).text
+    for name, lp, ln, rn, rp in re.findall(r'Total &lt;b&gt;(.*?)&lt;/b&gt; issues.*?translate="no">([\d.]+)% \((\d+)\)<.*?translate="no">\((\d+)\) ([\d.]+)%<', t, re.S):
+        if name in FINVIZ_STATS:
+            a, b = FINVIZ_STATS[name]
+            row.update({a: int(ln), a + "_pct": float(lp), b: int(rn), b + "_pct": float(rp)})
+    if len(row) != 17:
+        raise RuntimeError(f"Finviz 종목 수를 못 읽음 ({(len(row) - 1) // 4}/4개)")
+    path = os.path.join(DATA, "us_breadth.csv")
+    df = pd.DataFrame([row])
+    if os.path.exists(path):
+        df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates("date", keep="first")
+    df.sort_values("date").to_csv(path, index=False)
+
+
+US_YIELDS = {"3 Mo": "m3", "1 Yr": "y1", "2 Yr": "y2", "5 Yr": "y5", "10 Yr": "y10", "30 Yr": "y30"}
+
+
+def fetch_us_yields():
+    # 미국 국채 만기별 금리(미 재무부 Daily Treasury Par Yield Curve, 매일 장 마감 기준). 처음엔 2020년부터, 그 뒤엔 올해(1월엔 작년도)만 받아 합침
+    path, now = os.path.join(DATA, "us_yields.csv"), datetime.now(KST)
+    years = range(2020, now.year + 1) if not os.path.exists(path) else sorted({now.year, now.year if now.month > 1 else now.year - 1})
+    frames = []
+    for yr in years:
+        r = get(f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{yr}/all",
+                params={"type": "daily_treasury_yield_curve", "field_tdr_date_value": yr, "page": "", "_format": "csv"})
+        d = pd.read_csv(io.StringIO(r.text))
+        d["date"] = pd.to_datetime(d["Date"], format="%m/%d/%Y").dt.strftime("%Y-%m-%d")
+        frames.append(d[["date", *US_YIELDS]].rename(columns=US_YIELDS))
+    df = pd.concat(frames)
+    if os.path.exists(path):
+        df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates("date", keep="last")
+    df.sort_values("date").to_csv(path, index=False)
+
+
+US_ETFS = ["SPY", "QQQ", "SOXX", "DIA", "MAGS", "DRAM", "AIPO", "LYTE", "NCLD"]
+
+
+def fetch_us_etfs():
+    # 미국 ETF 일별 종가·장중 최고가(Yahoo, 2020년 또는 상장 뒤부터): QQQ·SOXX 섹션, 올해 주가 흐름, 고점 대비 하락률에 씀
+    import yfinance as yf
+    d = yf.download(US_ETFS, start="2020-01-01", progress=False, auto_adjust=False, threads=False)
+    miss = [t for t in US_ETFS if d["Close"][t].dropna().empty]
+    if miss:
+        raise RuntimeError("ETF 주가 없음: " + ", ".join(miss))
+    df = pd.concat([d["Close"][US_ETFS], d["High"][US_ETFS].add_suffix("_high")], axis=1).round(2)
+    df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
+    df.rename_axis("date").to_csv(os.path.join(DATA, "us_etfs.csv"))
+
+
+def build_us_today():
+    # 올해 수익률 = 마지막 종가 ÷ 작년 마지막 종가 − 1 (올해 상장이면 상장 첫날 종가)
+    # 고점 대비 하락률 = 마지막 종가 ÷ 2020년(또는 상장) 이후 장중 최고가 − 1
+    out = {}
+    tp = os.path.join(DATA, "us_today.json")
+    if os.path.exists(tp):
+        out.update(json.load(open(tp, encoding="utf-8")))
+    for name, key, n in [("us_breadth.csv", "breadth", 260), ("us_yields.csv", "yields", None)]:
+        p = os.path.join(DATA, name)
+        if os.path.exists(p):
+            d = pd.read_csv(p, dtype={"date": str}).sort_values("date")
+            d = d.tail(n) if n else d
+            out[key] = {c: [None if pd.isna(v) else v for v in d[c].tolist()] for c in d.columns}
+    ep = os.path.join(DATA, "us_etfs.csv")
+    if os.path.exists(ep):
+        e = pd.read_csv(ep, dtype={"date": str}).set_index("date").sort_index()
+        yr, etf = e.index[-1][:4], {"date": e.index[-1]}
+        for t in US_ETFS:
+            c, hi = e[t].dropna(), e[t + "_high"].dropna()
+            before = c[c.index < yr]
+            base = float(before.iloc[-1]) if len(before) else float(c.iloc[0])
+            this = c[c.index >= yr]
+            etf[t] = {"last": float(c.iloc[-1]), "ytd": round((c.iloc[-1] / base - 1) * 100, 1), "new": not len(before),
+                      "high": float(hi.max()), "high_date": hi.idxmax(), "dd": round((c.iloc[-1] / hi.max() - 1) * 100, 1),
+                      "ytd_x": list(this.index), "ytd_y": [round((v / base - 1) * 100, 2) for v in this]}
+        out["etf"] = etf
+    return out or None
+
+
 def fetch_kr_breadth():
     # 시장 온도계의 '폭' 지표: 코스피·코스닥 보통주(우선주·ETF·스팩 제외, 네이버 시총 목록) 중
     # 20일선(종가 20일 평균) 아래 종목 비율, 60일 신고가 − 신저가 종목 수(그날 고가 ≥ 60일 최고 고가 / 저가 ≤ 60일 최저 저가).
@@ -1606,7 +1731,7 @@ def build_wti():
 def build_usmkt():
     # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), S&P500은 최고점 대비 하락률
     out = {}
-    for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw")]:
+    for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX")]:
         path = os.path.join(DATA, fname)
         if not os.path.exists(path):
             continue
@@ -1621,10 +1746,13 @@ def build_usmkt():
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
         o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
+        if col in ("QQQ", "SOXX"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
+            today = pd.Timestamp(datetime.now(KST).date())
+            o.update(d5=chg(pd.to_datetime(s.index[-6])), m1=chg(today - pd.Timedelta(days=30)), m3=chg(today - pd.Timedelta(days=90)))
         if col in ("sp500", "usdkrw"):
             o["peak"] = {"date": s.idxmax(), "value": round(float(s.max()), 2)}
             o["mdd"] = round((last / float(s.max()) - 1) * 100, 2)
-        out[col] = o
+        out[col.lower()] = o
     return out or None
 
 
@@ -2152,6 +2280,7 @@ def build():
     out["tv"] = build_tv()
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
+    out["us_today"] = build_us_today()
     out["policy"] = build_policy()
     out["hynix_inv"] = build_hynix_inv()
     out["supply"] = build_equity_supply()
@@ -2185,7 +2314,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
