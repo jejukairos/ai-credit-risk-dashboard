@@ -224,6 +224,45 @@ def fetch_kofia():
     if new.empty:
         raise RuntimeError("금투협 응답이 비어 있음")
     new.sort_values("date").to_csv(path, index=False)
+    # 신용잔고 증가율(1년 전 대비) 장기 차트용: 2015년 전 코스피 신용거래융자(1998-07~, 그 전·일부 날은 0이라 뺌). 지난 자료라 한 번만 받음
+    op = os.path.join(DATA, "kofia_credit_old.csv")
+    if not os.path.exists(op):
+        o = kofia_query("STATSCU0100000070BO", "19980101", "20141231").rename(columns={"TMPV1": "date", "TMPV3": "credit_kospi"})
+        o["credit_kospi"] = pd.to_numeric(o["credit_kospi"])
+        o = o[o["credit_kospi"] > 0]
+        o["date"] = pd.to_datetime(o["date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
+        o[["date", "credit_kospi"]].sort_values("date").to_csv(op, index=False)
+
+
+def build_credit_growth():
+    # 신용잔고 1년 전 대비 증가율(%) + 지수. 미국 = FINRA 월말 신용잔고(1997~) · S&P500 월말 종가, 한국 = 금투협 코스피 신용거래융자
+    # (1998-07~, 1년 전 그날이 없으면 그 전 날) · 코스피. 한국은 2년보다 오래된 기간을 주 1점(금요일)으로 줄여 보냄.
+    # 한국을 코스피만으로 한 이유: 사용자 제공 그림 [표2]의 2026년 고점(약 160%)과 맞는 건 코스피 신용(162.7%), 전체는 107%
+    out = {}
+    mp, sp = os.path.join(DATA, "margin_debt.csv"), os.path.join(DATA, "sp500_monthly.csv")
+    if os.path.exists(mp) and os.path.exists(sp):
+        m = pd.read_csv(mp).set_index("month")["debit"]
+        m.index = pd.PeriodIndex(m.index, freq="M")
+        yoy = ((m / m.reindex(m.index - 12).values - 1) * 100).dropna()
+        s = pd.read_csv(sp).set_index("month")["sp500"]
+        s = s[s.index >= str(yoy.index[0])]
+        end = lambda p: pd.Period(p, freq="M").end_time.strftime("%Y-%m-%d")  # noqa: E731  월말 날짜로 찍음
+        out["us"] = {"x": [end(p) for p in yoy.index], "yoy": [round(float(v), 1) for v in yoy],
+                     "ix": [end(p) for p in s.index], "iy": [round(float(v), 2) for v in s]}
+    kp, op, lp = os.path.join(DATA, "kofia.csv"), os.path.join(DATA, "kofia_credit_old.csv"), os.path.join(DATA, "kospi_long.csv")
+    if os.path.exists(kp) and os.path.exists(op) and os.path.exists(lp):
+        c = pd.concat([pd.read_csv(op), pd.read_csv(kp)[["date", "credit_kospi"]]]).dropna().drop_duplicates("date", keep="last")
+        c = c.assign(date=pd.to_datetime(c["date"])).set_index("date")["credit_kospi"].sort_index()
+        c = c[c > 0]
+        yoy = ((c / c.reindex(c.index - pd.DateOffset(years=1), method="ffill").values - 1) * 100)[c.index - pd.DateOffset(years=1) >= c.index[0]]
+        k = pd.read_csv(lp, dtype={"date": str}).assign(date=lambda d: pd.to_datetime(d["date"])).set_index("date")["kospi"]
+        k = k[k.index >= yoy.index[0]]
+        cut = c.index[-1] - pd.DateOffset(years=2)
+        thin = lambda v: pd.concat([v[v.index < cut].resample("W-FRI").last().dropna(), v[v.index >= cut]])  # noqa: E731
+        yoy, k = thin(yoy), thin(k)
+        out["kr"] = {"x": list(yoy.index.strftime("%Y-%m-%d")), "yoy": [round(float(v), 1) for v in yoy],
+                     "ix": list(k.index.strftime("%Y-%m-%d")), "iy": [round(float(v), 2) for v in k]}
+    return out or None
 
 
 # ---------- CNN 공포·탐욕 지수 (CNN 사이트가 쓰는 공개 데이터 주소, 비공식) ----------
@@ -477,6 +516,10 @@ def fetch_usmkt():
             raise RuntimeError(f"{sym} 데이터가 비어 있음")
         v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
         v.rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"{name}.csv"))
+    # S&P500 월말 종가 1997년~ (미국 신용잔고 증가율 차트용, 이번 달은 지금까지 마지막 종가)
+    m = yf.download("^GSPC", start="1997-01-01", interval="1mo", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    m.index = pd.to_datetime(m.index).strftime("%Y-%m")
+    m.rename("sp500").rename_axis("month").round(2).to_csv(os.path.join(DATA, "sp500_monthly.csv"))
 
 
 # ---------- 미국 탭 위쪽: 오늘의 미국 증시 · 올해 주가 흐름 · ETF 고점 대비 하락률 · 원유/금/비트코인 · 국채 금리 ----------
@@ -596,10 +639,10 @@ def build_us_today():
             c, hi = e[t].dropna(), e[t + "_high"].dropna()
             before = c[c.index < yr]
             base = float(before.iloc[-1]) if len(before) else float(c.iloc[0])
-            this = c[c.index >= yr]
             etf[t] = {"last": float(c.iloc[-1]), "ytd": round((c.iloc[-1] / base - 1) * 100, 1), "new": not len(before),
-                      "high": float(hi.max()), "high_date": hi.idxmax(), "dd": round((c.iloc[-1] / hi.max() - 1) * 100, 1),
-                      "ytd_x": list(this.index), "ytd_y": [round((v / base - 1) * 100, 2) for v in this]}
+                      "high": float(hi.max()), "high_date": hi.idxmax(), "dd": round((c.iloc[-1] / hi.max() - 1) * 100, 1)}
+        p = e[["SPY", "QQQ", "SOXX"]].dropna()  # 주가 흐름 차트(화면 기간 버튼 첫날 = 0%로 화면에서 계산)
+        etf["px"] = {"x": list(p.index), **{t: p[t].tolist() for t in p.columns}}
         out["etf"] = etf
     return out or None
 
@@ -1260,7 +1303,8 @@ def build_cds_board(cds):
             continue
         last, mx = c.iloc[-1], c.loc[c["bp"].idxmax()]
         rows.append({"ticker": tk, "name": nm, "bp": float(last["bp"]), "date": last["date"], "src": last["source_url"],
-                     "tier": next(n for lo, n in config.CDS_TIERS if last["bp"] >= lo), "max": float(mx["bp"]), "max_date": mx["date"]})
+                     "tier": next(n for lo, n in config.CDS_TIERS if last["bp"] >= lo), "max": float(mx["bp"]), "max_date": mx["date"],
+                     "risk": risk_level(float(last["bp"]), last["date"], None, None)[0]})  # 종목 카드 없는 회사는 CDS만으로 색
     return {"tiers": config.CDS_TIERS, "rows": sorted(rows, key=lambda r: -r["bp"])}
 
 
@@ -2280,6 +2324,7 @@ def build():
             })
 
     out["cds_board"] = build_cds_board(cds)
+    out["credit_growth"] = build_credit_growth()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()

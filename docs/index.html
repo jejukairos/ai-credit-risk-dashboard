@@ -192,7 +192,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-ytd">올해</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-ytd">주가흐름</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -206,11 +206,12 @@ footer a{color:var(--ink2)}
   <div id="ustoday"></div>
   <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
 
-  <h2 id="sec-ytd">📈 올해 주가 흐름 — S&amp;P500 · 나스닥100 · 반도체</h2>
+  <h2 id="sec-ytd">📈 주가 흐름 — S&amp;P500 · 나스닥100 · 반도체</h2>
   <div class="card">
-    <div class="glossary" style="margin:0 0 10px"><div>작년 마지막 날 값을 0%로 두고 <b>올해 몇 % 올랐는지</b>를 그린 거예요. 선이 위에 있을수록 올해 많이 오른 거예요.</div></div>
+    <div class="glossary" style="margin:0 0 10px"><div>위 기간 버튼(3개월·1년·전체)의 <b>첫날 값을 0%</b>로 두고 그 뒤로 몇 % 올랐는지를 그린 거예요. 선이 위에 있을수록 많이 오른 거예요. 올해 수익률은 아래 막대 그래프에 있어요.</div></div>
+    <div class="small" id="ytdsub" style="margin:0 4px 2px"></div>
     <div id="ytdplot" class="plot" style="height:260px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance ETF 종가(S&amp;P500 = SPY, 나스닥100 = QQQ, 반도체 = SOXX, 배당 빼고 가격만). 올해 수익률 = 종가 ÷ 작년 마지막 종가 − 1. 매일 자동 갱신. 올해만 보여서 위 기간 버튼과 상관없어요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance ETF 종가(S&amp;P500 = SPY, 나스닥100 = QQQ, 반도체 = SOXX, 배당 빼고 가격만). 기간 수익률 = 종가 ÷ 기간 첫날(쉬는 날이면 그 전 거래일) 종가 − 1. 전체 = 2020년~. 매일 16시·20시 자동 갱신.</p>
   </div>
 
   <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
@@ -353,6 +354,14 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </details></div>
 
+  <h2 id="sec-usmargin">💳 미국 신용잔고 증가율 — 빚투가 꺾이면 주가도?</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div><b>신용잔고 증가율</b> = 미국 투자자들이 증권사에서 <b>돈을 빌려 산 주식</b> 금액이 1년 전보다 몇 % 늘었는지예요. 빚투가 빠르게 늘다가(점선 40% 위) 꺾이면, 그 무렵이나 몇 달 뒤 주가도 고점이었던 때가 많았어요.</div></div>
+    <div class="fgchips" id="usmgchips"></div>
+    <div id="usmgplot" class="plot" style="height:400px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noopener">FINRA 신용잔고</a>(Debit Balances, 월말, 약 3주 뒤 발표) · S&amp;P500 월말 종가 Yahoo Finance(^GSPC, 이번 달은 지금까지). 증가율 = 그 달 잔고 ÷ 1년 전 같은 달 잔고 − 1. 점선 40%와 '고점이 같거나 2·3·9개월 먼저 왔다'는 설명 = 사용자 제공 그림 [표1](미국 금융감독청·블룸버그, 2026년 9월 말 기준). 동그라미 = 40%를 넘은 구간마다 가장 높은 달. 위 기간 버튼을 따라 바뀌어요(전체 = 1998년~). 매일 확인해서 새 달 숫자가 나오면 바로 들어가요.</p>
+  </div>
+
   <h2 id="sec-dxy">달러인덱스 (달러 가치)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -396,7 +405,6 @@ footer a{color:var(--ink2)}
     <div>· <b>🟢 10/28 오라클 선순위 채권 금리 하락</b> — 2056년 만기 6.7% 선순위 무담보 채권의 금리(만기수익률)가 <b>8.20%</b>로 10월 중순 고점에서 내려왔어요. 같은 날 주가는 <b>+10.7%</b>($130.53 → $144.54). 채권 금리가 내려간다는 건 "돈 떼일 걱정"이 조금 줄었다는 뜻이에요. <span class="small">(채권 금리: user: 사용자 제공 화면 10/28 · 주가: Yahoo Finance)</span></div>
     <div>· <b>⚠️ 코어위브 부도위험 여전히 60% 이상</b> — CDS가 1,000 이상이면 임계점 돌파(부실채권 취급)인데, 크게 진정되지 않고 있어요.</div>
     <div>· <b>⚠️ 소프트뱅크 5년 내 부도위험 약 30%</b> — 블룸버그 기준 CDS가 약 4년 만의 최고 수준이에요(2022년 고점 이후 최고). 주가는 반대로 미끄러지는 중이에요.</div>
-    <div class="real" id="cdsreal"></div>
   </div>
 
   <h2>종목별 차트</h2>
@@ -663,6 +671,13 @@ footer a{color:var(--ink2)}
     <div id="liqbox"></div>
   </div>
   <div class="card">
+    <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
+    <div class="small" style="margin:2px 4px 6px">코스피 신용융자(빚내서 산 주식) 잔고가 1년 전보다 몇 % 늘었는지예요. 100%(1년 새 두 배) 위로 치솟았다가 꺾이면, 그 뒤 코스피도 약해졌던 때가 많았어요.</div>
+    <div class="fgchips" id="krmgchips"></div>
+    <div id="krmgplot" class="plot" style="height:400px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> 코스피 신용거래융자(1998년 7월~, 매일) · 코스피 네이버 금융. 증가율 = 그날 잔고 ÷ 1년 전 그날(쉬는 날이면 그 전 날) 잔고 − 1. 2년보다 오래된 기간은 한 주에 한 점(금요일). 점선 100% = 사용자 제공 그림 [표2](금융투자협회, 2026-10-19 기준) 기준선 — 그림의 2026년 고점 약 160%와 맞는 건 코스피 신용(164%)이라 코스피만 썼어요(코스피+코스닥 전체로 하면 107%). 동그라미 = 100%를 넘은 구간마다 가장 높은 날(2007년처럼 아주 높은 값은 위가 잘려요). 이 섹션 기간 버튼을 따라 바뀌어요(전체 = 1999년~).</p>
+  </div>
+  <div class="card">
     <h3><span>월별 일평균 반대매매 (억원)</span></h3>
     <div id="forcedmonth" class="plot" style="height:280px"></div>
     <p class="note" style="margin:4px">그 달에 하루 평균 몇 억원이 강제로 팔렸는지예요(이번 달은 지금까지 평균). 막대가 높을수록 빚내서 산 주식이 많이 강제 청산된 달이에요.
@@ -885,9 +900,6 @@ function renderPd() {
   const rec = DATA.cds_recovery || 0.4;
   document.querySelector('#pdtable tbody').innerHTML = [100, 200, 300, 500, 1000, 1200].map(bp =>
     `<tr><td>${fmtNum(bp)}bp</td><td>${(bp / 100 / (1 - rec)).toFixed(1)}%</td><td><b>${pd5(bp).toFixed(0)}%</b></td></tr>`).join('');
-  const w = DATA.tickers.filter(t => t.cds != null).sort((a, b) => b.cds - a.cds);
-  document.getElementById('cdsreal').innerHTML = '<b>실제 기록 (최근 CDS → 5년 내 부도확률)</b> ' +
-    w.map(t => `${t.name} ${fmtNum(t.cds, 0)}bp → <b>${pd5(t.cds).toFixed(0)}%</b> <span class="small">(${t.cds_date.slice(5).replace('-', '/')})</span>`).join(' · ');
 }
 
 // CDS 단계 표 — config.CDS_TIERS(사용자 그림 기준 600·300·100bp)로 부실·위험·경계·안정
@@ -900,21 +912,23 @@ function renderCdsBoard() {
   el.innerHTML = `<h3><span>🚦 CDS 단계 — 부실 · 위험 · 경계</span></h3>
     <div class="small" style="margin:2px 4px 6px">CDS(회사가 망할 때를 대비한 보험료)가 얼마나 높은지로 회사를 나눴어요. 위로 갈수록 "돈을 못 갚을까 봐" 걱정이 커요.</div>
     ${T.map(([, t], i) => `<div style="margin:3px 4px"><b style="color:var(${TIER_COL[t]})">${TIER_EMO[t]} ${t}</b> <span class="small">(${range(i)})</span> : ${B.rows.filter(r => r.tier === t).map(r => r.name).join(', ') || '<span class="small">없음</span>'}</div>`).join('')}
-    <div class="tablebox" style="border:0;margin-top:6px"><table><thead><tr><th>종목</th><th>CDS<br>(bp)</th><th>기준일</th><th>5년 내<br>부도확률</th><th>기록 중<br>최고</th></tr></thead><tbody>${B.rows.map(r =>
-      `<tr><td>${r.name}</td><td style="text-align:center;background:color-mix(in srgb, var(${TIER_COL[r.tier]}) 30%, transparent)"><b>${fmtNum(r.bp, 0)}</b></td><td>${md(r.date)}</td><td>${pd5(r.bp).toFixed(0)}%</td><td class="small">${fmtNum(r.max, 0)}<br>(${md(r.max_date)})</td></tr>`).join('')}</tbody></table></div>
-    <p class="note" style="margin:6px 4px 2px">단계 기준(600·300·100bp)은 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트의 부실·위험·경계 표시와 같게 맞췄어요. 그 그림 글은 스페이스X(283bp)를 '위험'에 넣었지만, 여기선 숫자 기준이라 '경계'예요. 기준일이 오래된 숫자는 지금과 다를 수 있어요. 부도확률 = 아래 '부도확률은 어떻게 알까?' 식. 기록 중 최고 = 이 대시보드에 적힌 기록 중 가장 높은 값(장중 최고 포함). 자료: cds_log.csv(뉴스 기사 링크 · user: 사용자 제공 화면), 매주 월요일 자동 검색으로 추가돼요.</p>`;
+    <p class="note" style="margin:6px 4px 2px">아래 표 CDS 칸 색 = 이 단계. 단계 기준(600·300·100bp)은 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트의 부실·위험·경계 표시와 같게 맞췄어요. 그 그림 글은 스페이스X(283bp)를 '위험'에 넣었지만, 여기선 숫자 기준이라 '경계'예요. 표의 CDS는 회사마다 가장 최근 기록이고, 기준일이 오래된 숫자는 지금과 다를 수 있어요. 자료: cds_log.csv(뉴스 기사 링크 · user: 사용자 제공 화면), 매주 월요일 자동 검색으로 추가돼요.</p>`;
 }
 
 function renderSummary() {
   renderCdsBoard();
   renderPd();
+  // 종목 카드 회사 + CDS만 기록하는 회사(cds_board)를 한 표로, CDS 높은 순. CDS 칸 색 = CDS 단계
+  const board = (DATA.cds_board && DATA.cds_board.rows) || [], tier = Object.fromEntries(board.map(r => [r.ticker, r.tier]));
+  const rows = DATA.tickers.concat(board.filter(r => !DATA.tickers.some(t => t.ticker === r.ticker))
+    .map(r => ({ticker: r.ticker, name: r.name, risk: r.risk, cds: r.bp, cds_date: r.date, risk_reasons: [], extra: true}))).sort((a, b) => (b.cds || 0) - (a.cds || 0));
   const tb = document.querySelector('#summary tbody');
-  tb.innerHTML = DATA.tickers.map(t => `<tr data-t="${t.ticker}" title="${t.risk_reasons.join(', ')}">
-    <td><span class="dot ${t.risk}" role="img" aria-label="위험 ${riskName[t.risk]}"></span> <span class="tk">${t.name}</span><br><span class="small">${riskName[t.risk]} · ${t.ticker} · ${t.rating}</span></td>
-    <td>${cur(t) === '¥' ? '¥' + fmtNum(t.price, 0) : fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
-    <td>${fmtNum(t.spread)}<br><span class="small">${bucketLabel(t)}</span></td>
-    <td>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">부도 ${pd5(t.cds).toFixed(0)}%</span><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
-  tb.querySelectorAll('tr').forEach(tr => tr.onclick = () =>
+  tb.innerHTML = rows.map(t => `<tr${t.extra ? '' : ` data-t="${t.ticker}"`} title="${t.risk_reasons.join(', ')}">
+    <td><span class="dot ${t.risk}" role="img" aria-label="위험 ${riskName[t.risk]}"></span> <span class="tk">${t.name}</span><br><span class="small">${tier[t.ticker] || riskName[t.risk]} · ${t.extra ? 'CDS만 기록' : `${t.ticker} · ${t.rating}`}</span></td>
+    ${t.extra ? '<td>–</td><td>–</td><td>–</td>' : `<td>${cur(t) === '¥' ? '¥' + fmtNum(t.price, 0) : fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
+    <td>${fmtNum(t.spread)}<br><span class="small">${bucketLabel(t)}</span></td>`}
+    <td${tier[t.ticker] ? ` style="background:color-mix(in srgb, var(${TIER_COL[tier[t.ticker]]}) 30%, transparent)"` : ''}>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">부도 ${pd5(t.cds).toFixed(0)}%</span><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
+  tb.querySelectorAll('tr[data-t]').forEach(tr => tr.onclick = () =>
     document.getElementById('card-' + tr.dataset.t).scrollIntoView({behavior: 'smooth'}));
 }
 
@@ -967,7 +981,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us', 'sec-ytd': 'us', 'sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us', 'sec-ytd': 'us', 'sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -1538,6 +1552,8 @@ function renderKofia() {
     bargap: 0.1,
   }), xs), [[k.forced, 'y', v => fmtNum(v) + '억', css('--bad')], [k.ratio, 'y2', v => v.toFixed(1) + '%', css('--g5')]]), CFG);
   renderEras();
+  const G = DATA.credit_growth && DATA.credit_growth.kr;
+  creditGrowthPlot('kr', !G ? '' : KOFIA_PERIOD === 'all' ? G.x[0] : kofiaStart(G.x[G.x.length - 1], G.x[0]), 100, '코스피', 420);
 }
 document.querySelectorAll('#kofiabar button').forEach(b => b.onclick = () => {
   KOFIA_PERIOD = b.dataset.k;
@@ -1929,11 +1945,17 @@ function renderUsToday() {
   // 2) 올해 주가 흐름 + 3) 고점 대비 하락률 (ETF)
   const E = T.etf;
   if (E) {
-    const YT = [['SOXX', '반도체', '--cds'], ['QQQ', '나스닥100', '--g1'], ['SPY', 'S&P500', '--price']];
-    Plotly.react('ytdplot', YT.map(([t, nm, c]) => ({x: E[t].ytd_x, y: E[t].ytd_y, type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.8}, hovertemplate: `${nm} %{y:+.1f}%<extra></extra>`})),
+    // 주가 흐름: 화면 기간 버튼 첫날(쉬는 날이면 그 전 거래일) 종가 = 0%
+    const YT = [['SOXX', '반도체', '--cds'], ['QQQ', '나스닥100', '--g1'], ['SPY', 'S&P500', '--price']], P = E.px, pn = P.x.length, ps = xStartFor(P.x[pn - 1], P.x[0]);
+    let i0 = 0;
+    while (i0 < pn - 1 && P.x[i0 + 1] <= ps) i0++;
+    const PX = P.x.slice(i0), R = Object.fromEntries(YT.map(([t]) => [t, P[t].slice(i0).map(v => +((v / P[t][i0] - 1) * 100).toFixed(2))]));
+    document.getElementById('ytdsub').innerHTML = `<b>${{'3m': '3개월', '1y': '1년', all: '2020년 이후'}[PERIOD]}</b> 수익률 · ${PX[0].slice(2).replace(/-/g, '.')} 종가 = 0%`;
+    Plotly.react('ytdplot', YT.map(([t, nm, c]) => ({x: PX, y: R[t], type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.8}, hovertemplate: `${nm} %{y:+.1f}%<extra></extra>`})),
       tagLast(Object.assign(baseLayout(), {showlegend: true, legend: {orientation: 'h', x: 0, y: 1.1, font: {size: 11}}, margin: {l: 40, r: 10, t: 26, b: 26},
-        xaxis: axis({type: 'date', tickformat: '%m.%d'}), yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(YT.flatMap(([t]) => E[t].ytd_y), false)})}),
-        YT.map(([t, , c]) => [E[t].ytd_y, 'y', v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', css(c)])), CFG);
+        xaxis: axis({type: 'date', range: [PX[0], PX[PX.length - 1]], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m'}),
+        yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(YT.flatMap(([t]) => R[t]), false)})}),
+        YT.map(([t, , c]) => [R[t], 'y', v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', css(c)])), CFG);
     const AI = [['DRAM', '메모리'], ['SOXX', '반도체'], ['AIPO', '전력'], ['LYTE', '광통신'], ['NCLD', '데이터센터']];
     const IDX = [['DIA', '다우30'], ['SPY', 'S&P500'], ['QQQ', '나스닥100'], ['MAGS', '빅7'], ['SOXX', '반도체']];
     const bars = (L, key, ax, color) => ({type: 'bar', x: L.map(([t, nm]) => `${nm}<br>${t}${E[t].new ? '*' : ''}`), y: L.map(([t]) => E[t][key]), yaxis: ax,
@@ -1980,11 +2002,52 @@ function renderUsToday() {
       yaxis: axis({range: padRange(vis.flatMap(i => YK.map(([k]) => Y[k][i])).filter(v => v != null), false), ticksuffix: '%'})}), CFG);
 }
 
+// 신용잔고 증가율(1년 전 대비, 아래 칸) + 지수(로그 눈금, 위 칸). th = 기준선(%, 사용자 제공 그림 [표1]·[표2]), cap = 이보다 높은 값은 위를 자름.
+// 동그라미 = th를 넘은 구간(100일 안에 다시 넘으면 같은 구간)마다 가장 높은 점
+function creditGrowthPlot(key, xs, th, idxName, cap) {
+  const G = DATA.credit_growth && DATA.credit_growth[key], el = document.getElementById(key + 'mgplot');
+  if (!G) { el.closest('.card').style.display = 'none'; return; }
+  const n = G.x.length, last = G.ix[G.ix.length - 1] > G.x[n - 1] ? G.ix[G.ix.length - 1] : G.x[n - 1];
+  const dt = key === 'us' ? s => s.slice(2, 7).replace('-', '.') : s => s.slice(2).replace(/-/g, '.');
+  const eps = [];
+  G.yoy.forEach((v, i) => {
+    if (v <= th) return;
+    const e = eps[eps.length - 1];
+    if (e && (new Date(G.x[i]) - new Date(G.x[e.end])) / 864e5 <= 100) { e.end = i; if (v > G.yoy[e.pk]) e.pk = i; } else eps.push({pk: i, end: i});
+  });
+  const pk = eps.map(e => e.pk), lp = pk[pk.length - 1], now = G.yoy[n - 1];
+  const turned = lp != null && (new Date(G.x[n - 1]) - new Date(G.x[lp])) / 864e5 <= 400 && now < G.yoy[lp];
+  document.getElementById(key + 'mgchips').innerHTML = `<span class="chip">지금 <b>${fmtNum(now, 1)}%</b> (${dt(G.x[n - 1])})</span>` +
+    (turned ? `<span class="chip warm">📉 고점 ${fmtNum(G.yoy[lp], 0)}%(${dt(G.x[lp])})에서 꺾이는 중</span>` : '') +
+    `<span class="chip">${th}% 넘었던 고점: ${pk.map(i => dt(G.x[i]).slice(0, 5)).join(' · ')}</span>`;
+  const vy = G.yoy.filter((_, i) => G.x[i] >= xs), vi = G.iy.filter((_, i) => G.ix[i] >= xs);
+  const top = Math.min(Math.max(...vy, th), cap), bot = Math.min(...vy, 0), pad = (top - bot) * 0.1;
+  const L = G.iy.map(Math.log10), lo = Math.log10(Math.min(...vi)), hi = Math.log10(Math.max(...vi)), lpad = (hi - lo) * 0.08 || 0.02;
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  const long = (new Date(last) - new Date(xs)) / 2.63e9 > 36;
+  Plotly.react(el, [
+    {x: G.ix, y: G.iy, type: 'scatter', mode: 'lines', name: idxName, line: {color: css('--price'), width: 1.4}, hovertemplate: `${idxName} %{y:,.0f}<extra></extra>`},
+    {x: G.x, y: G.yoy, type: 'scatter', mode: 'lines', name: '증가율', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '신용잔고 증가율 %{y:.1f}%<extra></extra>'},
+    {x: pk.map(i => G.x[i]), y: pk.map(i => Math.min(G.yoy[i], top)), type: 'scatter', mode: 'markers', yaxis: 'y2', hoverinfo: 'skip',
+      marker: {size: 10, color: 'rgba(0,0,0,0)', line: {color: css('--g5'), width: 2}}},
+  ], tagLast(Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: long ? '%Y' : '%y.%m', hoverformat: key === 'us' ? '%Y-%m' : '%Y-%m-%d'}),
+    // 로그 눈금이 3배 넘게 벌어지면 1000·2000·4000…(두 배씩)만 찍어 글자가 겹치지 않게
+    yaxis: axis(Object.assign({domain: [0.6, 0.93], type: 'log', range: [lo - lpad, hi + lpad], nticks: 4},
+      hi - lo > Math.log10(3) ? {tickvals: [250, 500, 1000, 2000, 4000, 8000, 16000, 32000].filter(v => Math.log10(v) >= lo - lpad && Math.log10(v) <= hi + lpad)} : {})),
+    yaxis2: axis({domain: [0, 0.5], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
+    shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: th, y1: th, line: {color: css('--g5'), width: 1, dash: 'dot'}}],
+    annotations: [lbl(0.94, `${idxName} (로그 눈금)`), lbl(0.51, `신용잔고 증가율 (1년 전 대비) · 점선 ${th}%`)],
+  }), [[L, 'y', v => fmtNum(10 ** v, 0), css('--price')], [G.yoy, 'y2', v => fmtNum(v, 0) + '%', css('--g5')]]), CFG);
+}
+
 function renderUsmkt() {
   [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
   mktBlock('mkt-etf', [['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
   renderUsToday();
+  const G = DATA.credit_growth && DATA.credit_growth.us;
+  creditGrowthPlot('us', G ? xStartFor(G.ix[G.ix.length - 1], G.x[0]) : '', 40, 'S&P500', 200);
 }
 // 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
 function fxTrend(o) {
