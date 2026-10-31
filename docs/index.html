@@ -244,13 +244,13 @@ footer a{color:var(--ink2)}
     <div><b>MMF</b>(머니마켓펀드) 안전한 곳에 굴리며 이자를 받는 <b>대기 자금 통장</b>이에요. MMF에 돈이 <b>들어오면</b> 사람들이 현금을 쌓아 두는 거고, <b>빠지면</b> 그 돈이 주식 같은 곳으로 나갔거나 쓰였을 수 있어요.</div>
     <div><b>M2</b> 미국에 풀린 돈의 총량이에요(현금 + 예금 + 개인용 MMF 등). 계속 늘면 시장에 돈이 많아진다는 뜻이고, 줄면 돈이 마르는 거예요.</div>
   </div>
-  <div class="card"><h3><span>MMF — 돈이 들어왔나, 빠졌나</span><span class="small">개인용 · 매주</span></h3>
+  <div class="card"><h3><span>MMF — 돈이 들어왔나, 빠졌나</span><span class="small">ICI · 매주</span></h3>
     <div class="fgchips" id="mmfchips"></div>
     <div id="mmfplot" class="plot" style="height:330px"></div></div>
   <div class="card"><h3><span>M2 — 미국에 풀린 돈</span><span class="small">매달</span></h3>
     <div class="fgchips" id="m2chips"></div>
     <div id="m2plot" class="plot" style="height:330px"></div></div>
-  <p class="note" style="margin:6px 4px 2px">자료: FRED — 개인용 MMF <a href="https://fred.stlouisfed.org/series/WRMFNS" target="_blank" rel="noopener">WRMFNS</a>(연준 H.6, 매주 월요일 기준, 몇 주 늦게 발표) · MMF 전체 <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 자금순환표, 분기, 약 반년 늦음) · M2 <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정). 기관용 MMF 주간 숫자는 연준이 2021년에 발표를 멈춰서, 뉴스에 자주 나오는 MMF 전체 주간 숫자(매주 목요일)는 <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI 사이트</a>에서 직접 봐야 해요(자동으로는 못 받아요). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교. 위 기간 버튼을 따라 바뀌어요(전체 = 2007년~). 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
+  <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
 
   <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
   <div class="card">
@@ -2054,10 +2054,10 @@ function creditGrowthPlot(key, xs, th, idxName, cap) {
   }), [[L, 'y', v => fmtNum(10 ** v, 0), css('--price')], [G.yoy, 'y2', v => fmtNum(v, 0) + '%', css('--g5')]]), CFG);
 }
 
-// 미국 MMF·M2 (FRED, 십억 달러). 위 칸 = 잔고(조 달러), 아래 칸 = MMF는 주마다 증감(억 달러), M2는 1년 전 대비(%)
+// 미국 MMF(ICI 주간)·M2(FRED 매달), 십억 달러. 위 칸 = 잔고(조 달러), 아래 칸 = MMF는 주마다 증감(억 달러), M2는 1년 전 대비(%)
 function renderLiquidity() {
   const Q = DATA.liquidity;
-  if (!Q || !Q.mmf_retail || !Q.m2) { document.getElementById('sec-liq').style.display = 'none'; return; }
+  if (!Q || !Q.mmf || !Q.m2) { document.getElementById('sec-liq').style.display = 'none'; return; }
   const md = s => s.slice(2).replace(/-/g, '.'), jo = v => `$${(v / 1000).toFixed(2)}조`, eok = v => `${v >= 0 ? '+' : '−'}${fmtNum(Math.abs(v) * 10)}억 달러`;
   const ago = (o, i, days) => { const s = new Date(new Date(o.x[i]) - days * 864e5).toISOString().slice(0, 10); let j = i; while (j > 0 && o.x[j] > s) j--; return o.x[j] <= s ? j : -1; };
   const yoy = (o, i) => { const j = ago(o, i, 365); return j < 0 ? null : (o.y[i] / o.y[j] - 1) * 100; };
@@ -2075,13 +2075,13 @@ function renderLiquidity() {
       annotations: [lbl(0.94, '잔고 (조 달러)'), lbl(0.39, bLbl)], bargap: 0.2,
     }), tags), CFG);
   };
-  // MMF: 개인용 매주 + 전체 분기
-  const M = Q.mmf_retail, n = M.x.length, d = M.y.map((v, i) => i ? +(v - M.y[i - 1]).toFixed(1) : null), T = Q.mmf_total;
-  const w4 = M.y[n - 1] - M.y[Math.max(0, n - 5)], my = yoy(M, n - 1), ty = T ? yoy(T, T.x.length - 1) : null;
+  // MMF: ICI 주간 — 전체 잔고·주간 증감, 기관용·개인용 지난주 증감
+  const M = {x: Q.mmf.x, y: Q.mmf.total}, n = M.x.length, ch = k => +(Q.mmf[k][n - 1] - Q.mmf[k][n - 2]).toFixed(2);
+  const d = M.y.map((v, i) => i ? +(v - M.y[i - 1]).toFixed(2) : null), w4 = M.y[n - 1] - M.y[Math.max(0, n - 5)], my = yoy(M, n - 1);
   const inout = v => v >= 0 ? `<b style="color:var(--g1)">들어옴 ${eok(v)}</b>` : `<b style="color:var(--spread)">빠짐 ${eok(v)}</b>`;
-  document.getElementById('mmfchips').innerHTML = `<span class="chip">개인용 <b>${jo(M.y[n - 1])}</b> (${md(M.x[n - 1])})</span><span class="chip">지난주 대비 ${inout(d[n - 1])}</span>` +
-    `<span class="chip">최근 4주 ${inout(w4)}</span>${my == null ? '' : `<span class="chip">1년 전 대비 ${fmtPct(my)}</span>`}` +
-    (T ? `<span class="chip">MMF 전체 <b>${jo(T.y[T.y.length - 1])}</b> (${T.x[T.x.length - 1].slice(2, 4)}년 ${Math.floor((+T.x[T.x.length - 1].slice(5, 7) - 1) / 3) + 1}분기${ty == null ? '' : `, 1년 전 대비 ${fmtPct(ty)}`})</span>` : '');
+  document.getElementById('mmfchips').innerHTML = `<span class="chip">전체 <b>${jo(M.y[n - 1])}</b> (${md(M.x[n - 1])} 주)</span><span class="chip">지난주 대비 ${inout(d[n - 1])}</span>` +
+    `<span class="chip">최근 4주 ${inout(w4)}</span><span class="chip">기관용 ${inout(ch('inst'))} · 개인용 ${inout(ch('retail'))}</span>` +
+    (my == null ? '' : `<span class="chip">1년 전 대비 ${fmtPct(my)}</span>`);
   draw('mmfplot', M, {y: d.map(v => v == null ? null : v * 10), type: 'bar', marker: {color: d.map(v => css(v >= 0 ? '--g1' : '--spread'))}, hovertemplate: '%{y:+,.0f}억 달러<extra></extra>'},
     '주마다 들어옴(+)·빠짐(−) (억 달러)', '--g1', [[M.y.map(v => v / 1000), 'y', v => v.toFixed(2) + '조', css('--g1')]]);
   // M2: 매달, 1년 전 대비 %

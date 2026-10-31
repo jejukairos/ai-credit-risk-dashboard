@@ -958,24 +958,46 @@ def fetch_move():
     v.rename("move").rename_axis("date").round(2).to_csv(os.path.join(DATA, "move.csv"))
 
 
-LIQUIDITY = {"mmf_retail": "WRMFNS", "mmf_total": "MMMFFAQ027S", "m2": "M2SL"}
-
-
 def fetch_liquidity():
-    # 미국 MMF·M2 (FRED): 개인용 MMF 매주(WRMFNS, 연준 H.6, 십억 달러 — 기관용 주간은 연준이 2021년 발표 중단),
-    # MMF 전체 분기(MMMFFAQ027S, 연준 자금순환표, 백만 달러), M2 매달 계절조정(M2SL, 십억 달러). 2007년부터
-    for name, sid in LIQUIDITY.items():
-        (fred_series(sid, start="2006-01-01") / 100).rename(name).rename_axis("date").round(1).to_csv(os.path.join(DATA, f"{name}.csv"))
+    # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
+    (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
+
+
+def fetch_ici_mmf():
+    # ICI(미국 자산운용협회) 주간 MMF 자산: 매주 목요일 발표(그 주 수요일 기준). 최근 20주가 든 엑셀(백만 달러)을 매일 받아
+    # data/ici_mmf.csv(십억 달러)에 쌓음. 같은 주는 새 값으로(ICI가 지난주 숫자를 고치기도 함). 2026-06-17부터
+    x = None
+    for yr in (datetime.now(KST).year, 2025):  # 화면 링크 이름이 'mm_summary_data_2025.xls'(26.11 기준). 해가 바뀌어 이름이 바뀌어도 받게
+        try:
+            x = pd.read_excel(io.BytesIO(get(f"https://www.ici.org/mm_summary_data_{yr}.xls", tries=2, timeout=60).content), header=None)
+            break
+        except Exception:  # noqa: BLE001
+            continue
+    if x is None:
+        raise RuntimeError("ICI 주간 MMF 엑셀을 받지 못함")
+    head = x.iloc[4].astype(str)
+    col = {k: head[head.str.startswith(w)].index[0] + 1 for k, w in [("total", "TOTAL"), ("inst", "INSTITUTIONAL"), ("retail", "RETAIL")]}  # 'TNA' 칸 = 이름 칸 오른쪽
+    d = pd.to_datetime(x[0].astype(str).str.strip(), format="%m/%d/%Y", errors="coerce")  # 날짜 칸 끝에 빈칸이 붙어 있음
+    rows = pd.DataFrame({"date": d.dt.strftime("%Y-%m-%d"), **{k: pd.to_numeric(x[c], errors="coerce") / 1000 for k, c in col.items()}})
+    rows = rows.dropna().round(2)
+    if len(rows) < 10 or ((rows["inst"] + rows["retail"] - rows["total"]).abs() > rows["total"] * 0.005).any():
+        raise RuntimeError("ICI 주간 MMF 엑셀 구조가 바뀐 것 같음 (전체 ≠ 기관용 + 개인용)")
+    path = os.path.join(DATA, "ici_mmf.csv")
+    if os.path.exists(path):
+        rows = pd.concat([pd.read_csv(path, dtype={"date": str}), rows]).drop_duplicates("date", keep="last")
+    rows.sort_values("date").to_csv(path, index=False)
 
 
 def build_liquidity():
-    # 화면에서 증감·1년 전 대비를 계산(README 공식). 단위: MMF 전체만 백만 달러 → 십억 달러로 맞춤
+    # MMF(ICI 주간)·M2(FRED 매달), 십억 달러. 증감·1년 전 대비는 화면에서 계산(README 공식)
     out = {}
-    for name in LIQUIDITY:
-        p = os.path.join(DATA, f"{name}.csv")
-        if os.path.exists(p):
-            s = pd.read_csv(p, dtype={"date": str}).set_index("date")[name].dropna() / (1e3 if name == "mmf_total" else 1)
-            out[name] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
+    mp, gp = os.path.join(DATA, "ici_mmf.csv"), os.path.join(DATA, "m2.csv")
+    if os.path.exists(mp):
+        m = pd.read_csv(mp, dtype={"date": str}).sort_values("date")
+        out["mmf"] = {"x": list(m["date"]), **{k: m[k].tolist() for k in ("total", "inst", "retail")}}
+    if os.path.exists(gp):
+        s = pd.read_csv(gp, dtype={"date": str}).set_index("date")["m2"].dropna()
+        out["m2"] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
     return out or None
 
 
@@ -2396,7 +2418,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 MMF·M2(FRED)", fetch_liquidity), ("국민연금 자산배분(기금운용본부)", fetch_nps),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
