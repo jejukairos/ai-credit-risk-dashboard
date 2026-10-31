@@ -145,9 +145,14 @@ HIDDEN_SECTIONS = ["insider", "arr", "opinions", "phase"]
 # CDS → 5년 내 부도확률 계산에 쓰는 회수율(부도 나도 돌려받는 비율). 업계 관행 40%
 CDS_RECOVERY = 0.40
 
-# 위험 색깔 기준 (README에 설명)
+# CDS 단계(bp 이상): 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트 축의 경계·위험·부실 수준 표시와 같게
+CDS_TIERS = [(600, "부실"), (300, "위험"), (100, "경계"), (0, "안정")]
+# 종목 카드는 없고 CDS만 기록하는 회사(cds_log.csv 티커 → 이름). 'CDS 단계' 표에만 나옴
+CDS_EXTRA = {"META": "메타", "GOOGL": "알파벳", "MSFT": "마이크로소프트", "INTC": "인텔", "SPACEX": "스페이스X"}
+
+# 위험 색깔 기준 (README에 설명). CDS 칸은 위 단계와 맞춤: 빨강 = 위험·부실(300 이상), 노랑 = 경계(100 이상)
 RISK = {
-    "cds_red": 400, "cds_yellow": 150,          # 최근 CDS(bp)
+    "cds_red": 300, "cds_yellow": 100,          # 최근 CDS(bp)
     "spread_red": 500, "spread_yellow": 200,    # 등급 스프레드(bp)
     "m1_red": -25.0, "m1_yellow": -10.0,        # 1개월 주가 변화(%)
     "cds_max_age_days": 90,                     # 이보다 오래된 CDS는 색 판정에서 제외

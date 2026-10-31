@@ -1250,6 +1250,20 @@ def pct_change(s, days):
     return round((s.iloc[-1] / past.iloc[-1] - 1) * 100, 2)
 
 
+def build_cds_board(cds):
+    # 'CDS 단계' 표: 기록된 회사마다 가장 최근 CDS(같은 날이면 마지막 줄 = 종가)·단계(config.CDS_TIERS)·우리 기록 중 최고. CDS 높은 순
+    names = {t["ticker"]: t["name"] for t in config.TICKERS} | config.CDS_EXTRA
+    rows = []
+    for tk, nm in names.items():
+        c = cds[cds["ticker"] == tk]
+        if not len(c):
+            continue
+        last, mx = c.iloc[-1], c.loc[c["bp"].idxmax()]
+        rows.append({"ticker": tk, "name": nm, "bp": float(last["bp"]), "date": last["date"], "src": last["source_url"],
+                     "tier": next(n for lo, n in config.CDS_TIERS if last["bp"] >= lo), "max": float(mx["bp"]), "max_date": mx["date"]})
+    return {"tiers": config.CDS_TIERS, "rows": sorted(rows, key=lambda r: -r["bp"])}
+
+
 def risk_level(cds_bp, cds_date, spread_bp, m1):
     R = config.RISK
     level = 0
@@ -2265,6 +2279,7 @@ def build():
                 "x": list(s.index), "y": [round(float(v), 3) for v in s.values],
             })
 
+    out["cds_board"] = build_cds_board(cds)
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()

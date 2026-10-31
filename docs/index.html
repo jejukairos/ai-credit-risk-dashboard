@@ -374,6 +374,7 @@ footer a{color:var(--ink2)}
   </div>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
+  <div class="card" id="cdsboard"></div>
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
@@ -386,8 +387,8 @@ footer a{color:var(--ink2)}
     <div><b>부도확률은 어떻게 알까?</b> CDS 보험료에서 거꾸로 계산해요. ① 부도가 나도 빌려준 돈의 <b>40%는 돌려받는다</b>고 가정(업계 관행) ② 그러면 1년에 부도날 확률 ≈ CDS ÷ 60% ③ 그게 5년 동안 쌓인 값이 <b>5년 내 부도확률</b>이에요.
       <div class="tablebox" style="border:0;margin-top:6px"><table id="pdtable"><thead><tr><th>CDS</th><th>1년 부도율</th><th>5년 내 부도확률</th></tr></thead><tbody></tbody></table></div>
       <span class="small">시장 가격에서 뽑은 "시장이 걱정하는 정도"이지, 실제로 그만큼 부도가 난다는 뜻은 아니에요(보험료엔 걱정·수급도 섞여 있어요).</span></div>
-    <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 400bp 이상이거나 한 달 새 주가 −25% ·
-      <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 150bp 이상이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
+    <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 300bp 이상(위험·부실)이거나 한 달 새 주가 −25% ·
+      <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 100bp 이상(경계)이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
   </div>
   <div class="memo" style="margin:0 0 10px">
     <b>🐒 투자 메모 (동향 파악용)</b>
@@ -889,7 +890,23 @@ function renderPd() {
     w.map(t => `${t.name} ${fmtNum(t.cds, 0)}bp → <b>${pd5(t.cds).toFixed(0)}%</b> <span class="small">(${t.cds_date.slice(5).replace('-', '/')})</span>`).join(' · ');
 }
 
+// CDS 단계 표 — config.CDS_TIERS(사용자 그림 기준 600·300·100bp)로 부실·위험·경계·안정
+const TIER_COL = {'부실': '--bad', '위험': '--spread', '경계': '--warn', '안정': '--good'}, TIER_EMO = {'부실': '🔴', '위험': '🟠', '경계': '🟡', '안정': '🟢'};
+function renderCdsBoard() {
+  const B = DATA.cds_board, el = document.getElementById('cdsboard');
+  if (!B || !B.rows.length) { el.style.display = 'none'; return; }
+  const md = s => s.slice(2).replace(/-/g, '.'), T = B.tiers;
+  const range = i => i === 0 ? `${T[0][0]}bp 이상` : T[i][0] === 0 ? `${T[i - 1][0]}bp 미만` : `${T[i][0]}~${T[i - 1][0]}bp`;
+  el.innerHTML = `<h3><span>🚦 CDS 단계 — 부실 · 위험 · 경계</span></h3>
+    <div class="small" style="margin:2px 4px 6px">CDS(회사가 망할 때를 대비한 보험료)가 얼마나 높은지로 회사를 나눴어요. 위로 갈수록 "돈을 못 갚을까 봐" 걱정이 커요.</div>
+    ${T.map(([, t], i) => `<div style="margin:3px 4px"><b style="color:var(${TIER_COL[t]})">${TIER_EMO[t]} ${t}</b> <span class="small">(${range(i)})</span> : ${B.rows.filter(r => r.tier === t).map(r => r.name).join(', ') || '<span class="small">없음</span>'}</div>`).join('')}
+    <div class="tablebox" style="border:0;margin-top:6px"><table><thead><tr><th>종목</th><th>CDS<br>(bp)</th><th>기준일</th><th>5년 내<br>부도확률</th><th>기록 중<br>최고</th></tr></thead><tbody>${B.rows.map(r =>
+      `<tr><td>${r.name}</td><td style="text-align:center;background:color-mix(in srgb, var(${TIER_COL[r.tier]}) 30%, transparent)"><b>${fmtNum(r.bp, 0)}</b></td><td>${md(r.date)}</td><td>${pd5(r.bp).toFixed(0)}%</td><td class="small">${fmtNum(r.max, 0)}<br>(${md(r.max_date)})</td></tr>`).join('')}</tbody></table></div>
+    <p class="note" style="margin:6px 4px 2px">단계 기준(600·300·100bp)은 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트의 부실·위험·경계 표시와 같게 맞췄어요. 그 그림 글은 스페이스X(283bp)를 '위험'에 넣었지만, 여기선 숫자 기준이라 '경계'예요. 기준일이 오래된 숫자는 지금과 다를 수 있어요. 부도확률 = 아래 '부도확률은 어떻게 알까?' 식. 기록 중 최고 = 이 대시보드에 적힌 기록 중 가장 높은 값(장중 최고 포함). 자료: cds_log.csv(뉴스 기사 링크 · user: 사용자 제공 화면), 매주 월요일 자동 검색으로 추가돼요.</p>`;
+}
+
 function renderSummary() {
+  renderCdsBoard();
   renderPd();
   const tb = document.querySelector('#summary tbody');
   tb.innerHTML = DATA.tickers.map(t => `<tr data-t="${t.ticker}" title="${t.risk_reasons.join(', ')}">
