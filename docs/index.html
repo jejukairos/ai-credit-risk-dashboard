@@ -789,6 +789,15 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
   </div>
   <div class="card" id="expitems"></div>
+  <div class="card" id="expcountry">
+    <h3><span>🌏 나라별 수출 — 라면 · 화장품</span><span class="small" id="ecmonth"></span></h3>
+    <div class="small" style="margin:2px 4px 6px">어느 나라에 얼마나 팔았는지예요. 막대가 길수록 많이 판 나라, <b style="color:var(--good)">초록</b>은 1년 전보다 늘어난 곳, <b style="color:var(--bad)">빨강</b>은 줄어든 곳이에요.</div>
+    <div class="bar own" role="group" aria-label="수출 품목" id="ecprod" style="position:static"></div>
+    <div class="bar own" role="group" aria-label="수출 기준" id="ecbasis" style="position:static"><button data-b="월합계" class="on">한 달 합계</button><button data-b="일평균">하루 평균(영업일수 감안)</button></div>
+    <div class="fgchips" id="ecchips"></div>
+    <div id="ecplot" class="plot" style="height:340px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="ecnote"></p>
+  </div>
 
   <h2 id="sec-contra">역발상 판독기 — 사람들 마음이 한쪽으로 쏠렸나?</h2>
   <div class="glossary">
@@ -2115,6 +2124,36 @@ function renderTrade() {
   document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
 }
 
+// 나라별 수출(라면·화장품·기초·색조) — export_country_log.csv. 자체 버튼: 품목·기준(한 달 합계 / 하루 평균)
+let EC_P = '라면', EC_B = '월합계';
+function renderExpCountry() {
+  const C = (DATA.trade && DATA.trade.country) || [], el = document.getElementById('expcountry');
+  if (!C.length) { el.style.display = 'none'; return; }
+  const prods = [...new Set(C.map(r => r.product))], emo = {라면: '🍜', 화장품: '💄', 기초: '🧴', 색조: '💋'};
+  const pb = document.getElementById('ecprod');
+  if (!pb.children.length) {
+    pb.innerHTML = prods.map(p => `<button data-p="${p}" class="${p === EC_P ? 'on' : ''}">${emo[p] || ''} ${p}</button>`).join('');
+    document.querySelectorAll('#ecprod button, #ecbasis button').forEach(b => b.onclick = () => {
+      if (b.dataset.p) EC_P = b.dataset.p; else EC_B = b.dataset.b;
+      b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      renderExpCountry();
+    });
+  }
+  const rows = C.filter(r => r.product === EC_P && r.basis === EC_B), lm = rows.length ? rows[rows.length - 1].month : '';
+  const cur = rows.filter(r => r.month === lm), tot = cur.find(r => r.country === '전체'), cs = cur.filter(r => r.country !== '전체').sort((a, b) => a.usd_m - b.usd_m);
+  const prev = C.filter(r => r.product === EC_P && r.basis === EC_B && r.country === '전체' && r.month < lm).pop();
+  const m = v => `$${fmtNum(v, v < 10 ? 1 : 1)}m`, pc = v => `${v > 0 ? '+' : ''}${v}%`;
+  document.getElementById('ecmonth').textContent = lm ? `${+lm.slice(5)}월` : '';
+  document.getElementById('ecchips').innerHTML = !tot ? '' : `<span class="chip">${emo[EC_P] || ''} 전체 <b>${m(tot.usd_m)}</b>${EC_B === '일평균' ? ' /일' : ''}</span><span class="chip">1년 전 대비 ${fmtPct(tot.yoy)}</span><span class="chip">전월 대비 ${fmtPct(tot.mom)}</span>` +
+    (prev ? `<span class="chip">지난달 1년 전 대비 ${fmtPct(prev.yoy)} → 이번 달 ${fmtPct(tot.yoy)}</span>` : '');
+  Plotly.react('ecplot', [{type: 'bar', orientation: 'h', y: cs.map(r => r.country), x: cs.map(r => r.usd_m), marker: {color: cs.map(r => css(r.yoy >= 0 ? '--good' : '--bad'))},
+    text: cs.map(r => `${m(r.usd_m)} · ${pc(r.yoy)}`), textposition: 'outside', cliponaxis: false, constraintext: 'none', textfont: {size: 10, color: css('--ink')},
+    customdata: cs.map(r => `1년 전 대비 ${pc(r.yoy)} · 전월 대비 ${pc(r.mom)}`), hovertemplate: '%{y} $%{x:,.1f}m<br>%{customdata}<extra></extra>'}],
+    Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 74, r: 8, t: 6, b: 24}, bargap: 0.3,
+      xaxis: axis({range: [0, Math.max(...cs.map(r => r.usd_m), 1) * 1.55], ticksuffix: 'm', tickprefix: '$'}), yaxis: axis({type: 'category', tickfont: {size: 11}})}), CFG);
+  document.getElementById('ecnote').innerHTML = `막대 끝 숫자 = 수출액(백만 달러) · 1년 전 같은 달 대비. 막대를 누르면 전월 대비도 보여요. ${tot && tot.note ? tot.note + '. ' : ''}하루 평균 = 영업일수로 나눈 값이라 영업일이 다른 달끼리 비교할 때 더 공정해요. 색조 = 메이크업+립+아이, '5국'은 그 지역 다섯 나라 합. 자료: <a href="https://t.me/s/ked_epic_ai" target="_blank" rel="noopener">한경 에픽 AI 텔레그램</a>(한경에이셀 데이터, 원래 숫자는 관세청 수출 통계) · 첫 달은 사용자 제공 글. 매주 월요일 자동 검색이 새 달 글을 찾아 <code>export_country_log.csv</code>에 더해요(담배는 뺌).`;
+}
+
 // 국민연금 지분율 변동 — OpenDART 대량보유 보고(보고자 국민연금공단), 최근 공시 기준 많이 늘린·줄인 10곳
 function renderNpsStakes() {
   const N = DATA.nps_stakes, el = document.getElementById('npsstakes');
@@ -2856,7 +2895,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

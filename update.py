@@ -1098,6 +1098,15 @@ def build_trade():
         for c in ("yoy", "mom", "ath"):
             e[c] = pd.to_numeric(e[c], errors="coerce")
         out["exp_items"] = e.sort_values("month")[["month", "item", "yoy", "mom", "ath", "source_url", "note"]].to_dict("records")
+    # 나라별 수출(export_country_log.csv: 라면·화장품(기초·색조), 월합계·영업일수 감안 일평균, 백만 달러·1년 전·전월 대비 %)
+    cp = os.path.join(BASE, "export_country_log.csv")
+    if os.path.exists(cp):
+        c = pd.read_csv(cp, dtype=str).fillna("")
+        c = c[c["source_url"].str.startswith("http") | c["source_url"].str.startswith("user:")]
+        c = c.drop_duplicates(["month", "product", "basis", "country"], keep="last")
+        for k in ("usd_m", "yoy", "mom"):
+            c[k] = pd.to_numeric(c[k], errors="coerce")
+        out["country"] = c.dropna(subset=["usd_m"]).sort_values("month", kind="stable").to_dict("records")
     return out
 
 
