@@ -1730,13 +1730,13 @@ def build_kofia():
         now = k.dropna(subset=[col]).iloc[-1]
         return {"date": row["date"], "value": round(row[col] / 1e6, 1),
                 "chg": round((now[col] / row[col] - 1) * 100, 1)}
-    # 지수는 2019년~ (네이버 금융 장기 일별 종가) — 기간 버튼 '전체'와 시기별 흐름에 씀
+    # 지수는 2015년~ (네이버 금융 장기 일별 종가) — 기간 버튼 '전체'와 시기별 흐름에 씀
     idx = {}
     for c in ("kospi", "kosdaq"):
         p = os.path.join(DATA, f"{c}_long.csv")
         if os.path.exists(p):
             s = pd.read_csv(p, dtype={"date": str}).set_index("date")[c]
-            idx[c] = s[s.index >= "2019-01-01"]
+            idx[c] = s[s.index >= "2015-01-01"]  # 금투협 자료(2015~)와 같은 기간
     kospi = {"x": list(idx["kospi"].index), "y": [round(float(v), 2) for v in idx["kospi"]]} if "kospi" in idx else {"x": [], "y": []}
     # 월별 일평균 반대매매(억원): 그 달 거래일 반대매매금액의 평균. 2023-11부터
     km = k.dropna(subset=["forced"]).copy()

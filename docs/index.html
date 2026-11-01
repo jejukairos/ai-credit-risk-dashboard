@@ -555,7 +555,7 @@ footer a{color:var(--ink2)}
     <div><b>한계</b> 종목 "개수"만 세서 삼성전자·SK하이닉스 같은 대형주가 지수를 끌어올려도 ADR은 낮을 수 있어요(지수와 체감 장세가 다를 때 확인용). 과열·침체 구간에 며칠씩 머물 수도 있어서, 단독 매매 신호보다는 <b>쏠림 정도를 보는 온도계</b>로 쓰는 게 좋아요.</div>
   </div>
   <div class="bar own" role="group" aria-label="ADR 기간" id="adrbar" style="position:static">
-    <button data-a="6m">6개월</button><button data-a="1y">1년</button><button data-a="2y">2년</button><button data-a="5y">5년</button><button data-a="all" class="on">7년</button>
+    <button data-a="3m">3개월</button><button data-a="6m">6개월</button><button data-a="1y">1년</button><button data-a="2y">2년</button><button data-a="5y">5년</button><button data-a="all" class="on">7년</button>
   </div>
   <div class="card"><h3><span>KOSPI ADR</span><span class="risk" id="adrk-chip" style="font-size:13px"></span></h3>
     <div id="adrkospi" class="plot" style="height:340px"></div></div>
@@ -793,7 +793,7 @@ footer a{color:var(--ink2)}
   <div class="card" id="expitems"></div>
   <div class="card" id="hscard">
     <h3><span>📈 품목별 수출 — 연도별 같은 달 비교</span></h3>
-    <div class="small" style="margin:2px 4px 6px">해마다 같은 달끼리 수출액을 겹쳐 그렸어요. <b style="color:var(--g2)">주황 선 = 올해</b>, 파란 선은 옅을수록 오래된 해예요. 주황 선이 다른 해보다 위에 있으면 그만큼 많이 팔리는 중이에요.</div>
+    <div class="small" style="margin:2px 4px 6px">해마다 같은 달끼리 수출액을 겹쳐 그렸어요. <b style="color:var(--g2)">진한 주황 선 = 올해</b>, 나머지는 해마다 다른 차분한 색이에요(작년이 가장 진한 파랑, 4·5년 전은 점선). 주황 선이 다른 해보다 위에 있으면 그만큼 많이 팔리는 중이에요.</div>
     <div class="bar own" role="group" aria-label="수출 품목" id="hsitem" style="position:static;flex-wrap:wrap"></div>
     <div class="fgchips" id="hschips"></div>
     <div id="hsplot" class="plot" style="height:340px"></div>
@@ -1498,9 +1498,9 @@ function renderDram() {
 
 // 주변자금 섹션 기간 버튼: 3개월·6개월·1년·3년·전체(2019년~)
 let KOFIA_PERIOD = '1y';
-const KOFIA_PL = {'3m': '3개월', '6m': '6개월', '1y': '1년', '3y': '3년', 'all': '2019년 이후'};
+const KOFIA_PL = {'3m': '3개월', '6m': '6개월', '1y': '1년', '3y': '3년', 'all': '2015년 이후'};
 function kofiaStart(last, first) {
-  let s = '2019-01-01';
+  let s = first;  // 전체 = 받은 자료 처음부터(금투협 2015년~, 거래대금 2020년~)
   if (KOFIA_PERIOD !== 'all') { const d = new Date(last); d.setMonth(d.getMonth() - {'3m': 3, '6m': 6, '1y': 12, '3y': 36}[KOFIA_PERIOD]); s = d.toISOString().slice(0, 10); }
   return s > first ? s : first;
 }
@@ -2155,13 +2155,15 @@ function renderHsSeason() {
   let pre = null;
   if (pc) pre = {m: pc.month, v: pc.usd_m, how: '나라별 글의 전체 금액'};
   else if (pi && val[`${+pi.month.slice(0, 4) - 1}${pi.month.slice(4)}`] != null) pre = {m: pi.month, v: val[`${+pi.month.slice(0, 4) - 1}${pi.month.slice(4)}`] * (1 + pi.yoy / 100), how: `잠정 증가율 ${pi.yoy > 0 ? '+' : ''}${pi.yoy}% × 작년 같은 달 확정치`};
-  const shade = y => y === cy ? css('--g2') : `rgba(42,120,214,${0.25 + 0.75 * (years.indexOf(y) + 1) / (years.length - 1 || 1)})`;
+  // 지난해들은 차분한 서로 다른 색(작년이 가장 진함, 4·5년 전은 점선), 올해만 진한 주황
+  const PAST = ['#4a6fa5', '#5f9e95', '#9488c0', '#c2a874', '#a8a8a8'];
+  const shade = y => y === cy ? css('--g2') : PAST[Math.min(cy - y - 1, PAST.length - 1)];
   const tr = years.map(y => ({x: mon, y: mon.map((_, i) => val[ym(y, i)] ?? null), type: 'scatter', mode: y === cy ? 'lines+markers' : 'lines', name: `${y}년`,
-    line: {color: shade(y), width: y === cy ? 2.6 : 1.6}, marker: {size: 6}, hovertemplate: `${y}년 %{x} $%{y:,.0f}m<extra></extra>`}));
+    line: {color: shade(y), width: y === cy ? 2.8 : cy - y === 1 ? 1.8 : 1.3, dash: cy - y >= 4 ? 'dot' : 'solid'}, marker: {size: 6}, hovertemplate: `${y}년 %{x} $%{y:,.0f}m<extra></extra>`}));
   if (pre && +pre.m.slice(0, 4) === cy) {
     const mi = +pre.m.slice(5) - 1, prevV = val[ym(cy, mi - 1)];
     tr.push({x: [mon[mi - 1], mon[mi]], y: [prevV, pre.v], type: 'scatter', mode: 'lines+markers', name: `${mi + 1}월 잠정`, line: {color: css('--g2'), width: 2, dash: 'dot'},
-      marker: {size: [0, 9], color: css('--surface'), line: {color: css('--g2'), width: 2}}, hovertemplate: `${cy}년 %{x} 잠정 $%{y:,.0f}m<extra></extra>`});
+      marker: {size: [0, 9], color: css('--surface'), line: {color: css('--g2'), width: 2}}, customdata: ['확정', '잠정'], hovertemplate: `${cy}년 %{x} %{customdata} $%{y:,.0f}m<extra></extra>`});
   }
   const lv = val[lastM], ly = val[`${cy - 1}${lastM.slice(4)}`], n = +lastM.slice(5);
   const ytd = y => Array.from({length: n}, (_, i) => val[ym(y, i)] || 0).reduce((a, b) => a + b, 0);
@@ -2545,7 +2547,7 @@ function renderAdr() {
   const draw = (el, m, color, name) => {
     const last = m.x[m.x.length - 1];
     const d = new Date(last);
-    if (ADR_PERIOD !== 'all') { const n = {'6m': 6, '1y': 12, '2y': 24, '5y': 60}[ADR_PERIOD]; d.setMonth(d.getMonth() - n); }
+    if (ADR_PERIOD !== 'all') { const n = {'3m': 3, '6m': 6, '1y': 12, '2y': 24, '5y': 60}[ADR_PERIOD]; d.setMonth(d.getMonth() - n); }
     const xs = ADR_PERIOD === 'all' ? m.x[0] : d.toISOString().slice(0, 10);
     const over = m.y.map(v => Math.max(v, 120)), under = m.y.map(v => Math.min(v, 80));
     const iv = m.index.y.filter((_, i) => m.index.x[i] >= xs), av = m.y.filter((_, i) => m.x[i] >= xs);
@@ -2951,9 +2953,17 @@ document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () =
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
+  syncOwnBars(); renderAdr();
   renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
+// 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)
+function syncOwnBars() {
+  KOFIA_PERIOD = PERIOD; ADR_PERIOD = PERIOD;
+  document.querySelectorAll('#kofiabar button').forEach(x => x.classList.toggle('on', x.dataset.k === KOFIA_PERIOD));
+  document.querySelectorAll('#adrbar button').forEach(x => x.classList.toggle('on', x.dataset.a === ADR_PERIOD));
+}
+syncOwnBars();
 
 (async () => {
   const bust = '?t=' + Date.now();
