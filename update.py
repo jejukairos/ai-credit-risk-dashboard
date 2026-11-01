@@ -1076,6 +1076,22 @@ def build_monthly_avg():
     return out or None
 
 
+def build_trade():
+    # 한국 월별 수출입(trade_log.csv, 산업통상부 발표를 사람/예약 작업이 출처와 함께 추가). 같은 달·항목이 여러 줄이면 마지막 줄
+    p = os.path.join(BASE, "trade_log.csv")
+    if not os.path.exists(p):
+        return None
+    t = pd.read_csv(p, dtype=str).fillna("")
+    t = t[t["source_url"].str.startswith("http") | t["source_url"].str.startswith("user:")]
+    t["value"] = pd.to_numeric(t["value"], errors="coerce")
+    t = t.dropna(subset=["value"]).drop_duplicates(["month", "item"], keep="last").sort_values("month")
+    ex, im = (t[t["item"] == k].set_index("month")["value"] for k in ("수출", "수입"))
+    months = sorted(set(ex.index) & set(im.index))
+    items = t[~t["item"].isin(["수출", "수입"])]
+    return {"x": months, "ex": [float(ex[m]) for m in months], "im": [float(im[m]) for m in months],
+            "items": items[["month", "item", "value", "note"]].to_dict("records"), "src": sorted(set(t["source_url"]))}
+
+
 def fetch_liquidity():
     # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
@@ -2545,6 +2561,7 @@ def build():
     out["midterm"] = build_midterm()
     out["kosdaq_oddeven"] = build_kosdaq_oddeven()
     out["monthly_avg"] = build_monthly_avg()
+    out["trade"] = build_trade()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()

@@ -192,7 +192,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-ytd">주가흐름</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-ytd">주가흐름</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
   </nav>
 
   <div class="bar" role="group" aria-label="기간">
@@ -779,6 +779,15 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card" id="npsstakes"></div>
 
+  <h2 id="sec-trade">🚢 한국 월별 수출입</h2>
+  <div class="glossary"><div><b>수출</b>은 우리나라가 외국에 판 물건, <b>수입</b>은 사 온 물건이에요. 수출이 수입보다 많으면 <b>무역 흑자</b>예요. 한국 회사들 이익과 코스피에 바로 이어지는 숫자라 매달 1일 발표를 챙겨 봐요.</div></div>
+  <div class="card">
+    <div class="fgchips" id="tradechips"></div>
+    <div id="tradeplot" class="plot" style="height:300px"></div>
+    <div class="memo" id="trademem" style="margin-top:8px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
+  </div>
+
   <h2 id="sec-contra">역발상 판독기 — 사람들 마음이 한쪽으로 쏠렸나?</h2>
   <div class="glossary">
     <div><b>역발상 판독기</b> 미국 투자자들의 <b>마음(심리)</b>을 보여주는 지표 5개에 1~5점을 매겨 평균을 내요. 모두가 겁먹으면 1점(공포), 모두가 들뜨면 5점(광기)에 가까워져요.</div>
@@ -1030,7 +1039,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us', 'sec-ytd': 'us', 'sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us', 'sec-ytd': 'us', 'sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -2054,6 +2063,30 @@ function renderMonthAvg() {
   document.getElementById('monthnote').innerHTML = `자료: 네이버 금융 코스피·코스닥 일별 종가. 달 상승률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1, 같은 달끼리 2001년 1월부터 지난달까지 평균(이번 달은 끝나면 들어가요). 막대를 누르면 그 달에 오른 해 수도 보여요. 2001-01~2023-12로 계산하면 머니투데이 그래픽(사용자 제공) 숫자와 똑같아요. 빨간 막대 = 가장 강한 달. 지난 평균이라 올해도 그렇다는 보장은 없어요.`;
 }
 
+// 한국 월별 수출입 — trade_log.csv(산업통상부 발표, 출처와 함께 추가). 분기말(3·6·9·12월)은 막대 테두리로 표시
+function renderTrade() {
+  const T = DATA.trade;
+  if (!T || !T.x.length) { document.getElementById('sec-trade').style.display = 'none'; return; }
+  const n = T.x.length, mlab = T.x.map(m => `${+m.slice(5)}월`), q = T.x.map(m => +m.slice(5) % 3 === 0), last = T.x[n - 1];
+  const val = v => fmtNum(v, v % 1 ? 1 : 0), it = T.items.filter(r => r.month === last && !r.item.includes('제외') && !r.item.includes('품목 중'));
+  const get = (m, k) => (T.items.find(r => r.month === m && r.item === k) || {}).value;
+  const pc = (a, b) => (a / b - 1) * 100, bal = T.ex[n - 1] - T.im[n - 1];
+  document.getElementById('tradechips').innerHTML = `<span class="chip">${mlab[n - 1]} 수출 <b>${val(T.ex[n - 1])}억 달러</b> (전월 대비 ${fmtPct(pc(T.ex[n - 1], T.ex[n - 2]))})</span>` +
+    `<span class="chip">수입 ${val(T.im[n - 1])}억 달러</span><span class="chip">무역 ${bal >= 0 ? '흑자' : '적자'} <b>${val(Math.abs(bal))}억 달러</b></span>`;
+  const bar = (y, nm, c) => ({x: mlab, y, type: 'bar', name: nm, marker: {color: css(c), line: {color: q.map(b => b ? css('--ink') : 'rgba(0,0,0,0)'), width: 1.5}},
+    text: y.map(val), textposition: 'outside', cliponaxis: false, constraintext: 'none', textfont: {size: 9, color: css('--ink')}, hovertemplate: `${nm} %{y:,.1f}억 달러<extra></extra>`});
+  Plotly.react('tradeplot', [bar(T.ex, '수출', '--g1'), bar(T.im, '수입', '--spread')], Object.assign(baseLayout(), {barmode: 'group', bargap: 0.25, bargroupgap: 0.05,
+    showlegend: true, legend: {orientation: 'h', x: 0, y: 1.12, font: {size: 11}}, hovermode: 'x unified', margin: {l: 40, r: 6, t: 30, b: 26},
+    xaxis: axis({type: 'category'}), yaxis: axis({range: [0, Math.max(...T.ex) * 1.15]})}), CFG);
+  const a9 = get('2026-09', '반도체 제외 수출'), a10 = get('2026-10', '반도체 제외 수출'), up = get(last, '20대 품목 중 증가');
+  document.getElementById('trademem').innerHTML = `📌 <b>${mlab[n - 1]} 수출입 핵심</b>
+    <br>· 전월 대비 수출이 꺾인 것처럼 보여도, 9월은 <b>3분기 말 수출 통관 물량이 몰린 달</b>이에요. 3·6·9·12월 같은 분기말은 원래 잘 나와요(그래프에서 테두리 친 막대).
+    ${up != null ? `<br>· 10월은 20대 품목 중 <b>${up}개가 늘어</b> 고르게 좋아졌어요(긍정적). 반도체를 뺀 나머지 수출 증가율도 9월 ${fmtPct(a9)} → 10월 <b>${fmtPct(a10)}</b>로 오히려 좋아졌어요.` : ''}
+    ${it.length ? `<br>· 주요 품목 (1년 전 같은 달 대비): ${it.map(r => `<b>${r.item} ${fmtPct(r.value)}</b>${r.note.includes('·') ? ` <span class="small">(${r.note.split('·').slice(1).join('·').trim()})</span>` : ''}`).join(' · ')}` : ''}
+    <div class="src">출처: user: 사용자 메모(26.11.01, 산업통상부 10월 수출입 동향 요약)</div>`;
+  document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
+}
+
 // 국민연금 지분율 변동 — OpenDART 대량보유 보고(보고자 국민연금공단), 최근 공시 기준 많이 늘린·줄인 10곳
 function renderNpsStakes() {
   const N = DATA.nps_stakes, el = document.getElementById('npsstakes');
@@ -2795,7 +2828,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
