@@ -261,6 +261,7 @@ footer a{color:var(--ink2)}
     </div>
     <div id="mkt-sp500"></div>
     <div class="memo" id="midterm" style="margin:8px 0"></div>
+    <div class="memo" id="seasonmemo" style="margin:8px 0"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
@@ -2047,6 +2048,21 @@ function renderMidterm() {
     <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div>`;
 }
 
+// S&P500 계절성 메모 — 사용자 제공 그림 3장(변동성 계절성·도이치방크·골드만삭스) + 우리 계산(1950~, 10/27 → 12/31, 달별 평균), 올해 10/27 뒤 자동
+function renderSanta() {
+  const S = DATA.santa, el = document.getElementById('seasonmemo');
+  if (!S) { el.style.display = 'none'; return; }
+  const ma = S.month_avg, rk = [...ma].sort((a, b) => b - a), best = ma.indexOf(rk[0]), worst = ma.indexOf(rk[rk.length - 1]);
+  el.innerHTML = `🎅 <b>10월 말이 계절적 바닥, 11~12월은 돈이 들어오는 때</b>
+    <br>· <b>변동성</b>: 지난 20년 평균으로 보면 미국 증시 변동성(VIX)은 <b>10월 말에 가장 높았다가</b> 11~12월에 내려가요. 계절적으로 '가장 나쁜 정점'을 지나는 구간이에요.
+    <br>· <b>도이치방크</b>: 1928~2022년 S&amp;P500 평균 흐름에서 <b>10월 27일이 계절적 저점</b>이고, 지금부터 <b>산타랠리</b>(연말 상승) 초입이라고 봤어요.
+    <br>· <b>골드만삭스</b>: S&amp;P500(1950~2022)·나스닥100(1985~2022) 평균 흐름도 10월 말이 바닥이었어요. <b>11~12월엔 401K 같은 대규모 연금 자금이 들어오는 달</b>이라, 계절적으로 산타랠리 가능성이 있다고 봤어요.
+    <br>· <b>✅ 우리 계산</b>(S&amp;P500, ${S.first}~${S.last}년): 10월 27일 → 12월 31일 <b>평균 ${fmtPct(S.avg)}, ${S.n}번 중 ${S.pos}번 올랐어요</b>(2000년 뒤로는 평균 ${fmtPct(S.avg2000)}, ${S.n2000}번 중 ${S.pos2000}번). 달별 평균은 <b>${best + 1}월이 가장 강하고(${fmtPct(ma[best])})</b> ${worst + 1}월이 가장 약해요(${fmtPct(ma[worst])}).
+    ${S.cur ? `<br>· <b>올해(${S.year})</b>: 10월 27일 종가 ${fmtNum(S.cur.base, 2)} → 지금 ${fmtPct(S.cur.now)} (${S.cur.date.slice(2).replace(/-/g, '.')})` : ''}
+    <br>· 평균일 뿐이라 해마다 달라요. 금리가 높은 해엔 계절성보다 금리 영향이 더 클 수 있어요.
+    <div class="src">출처: 그림 = user: 사용자 제공 그림(EquityClock 'Volatility S&amp;P 500 Index Seasonality' 2023년 말까지 20년 · 도이치방크/블룸버그 'Average daily performance of the S&amp;P 500 1928-2022' · 골드만삭스 'S&amp;P 500·NASDAQ 100 seasonality' 23.10.24) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가. 10/27·12/31이 쉬는 날이면 그 전 거래일, 달 수익률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1.</div>`;
+}
+
 // 코스닥 홀짝 효과 — 방송 주장 vs 우리 계산(네이버 금융 코스닥 1996-07~), 올해가 홀수·짝수해인지와 올해 수익률 자동
 function renderKqOddEven() {
   const K = DATA.kosdaq_oddeven, el = document.getElementById('kqoddeven');
@@ -2947,7 +2963,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

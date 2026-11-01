@@ -1038,6 +1038,30 @@ def build_midterm():
     return {"rows": rows, "m6": st("m6"), "m12": st("m12"), "last": last.strftime("%Y-%m-%d")}
 
 
+def build_santa():
+    # S&P500 계절성: 해마다 10/27(그날 쉬면 그 전 거래일) 종가 → 12/31 종가 변화율(1950~작년), 달별 평균(그달 마지막 종가 ÷ 전달 − 1),
+    # 올해 10/27 뒤 지금까지. 10/27 = 사용자 제공 도이치방크 그림의 계절적 저점 날짜
+    hp, cp = os.path.join(DATA, "sp500_1950.csv"), os.path.join(DATA, "sp500.csv")
+    if not (os.path.exists(hp) and os.path.exists(cp)):
+        return None
+    s = pd.concat([pd.read_csv(hp, dtype={"date": str}), pd.read_csv(cp, dtype={"date": str})]).drop_duplicates("date", keep="last")
+    s = s.assign(date=pd.to_datetime(s["date"])).set_index("date")["sp500"].sort_index()
+    at = lambda d: float(s[s.index <= d].iloc[-1])  # noqa: E731
+    now_y = s.index[-1].year
+    yrs = range(1950, now_y if s.index[-1] < pd.Timestamp(f"{now_y}-12-31") else now_y + 1)
+    r = [round((at(pd.Timestamp(f"{y}-12-31")) / at(pd.Timestamp(f"{y}-10-27")) - 1) * 100, 2) for y in yrs]
+    m = s.resample("ME").last().pct_change() * 100
+    m = m[(m.index.year >= 1950) & (m.index.year < now_y)].dropna()
+    cur = None
+    if s.index[-1] >= pd.Timestamp(f"{now_y}-10-27"):
+        cur = {"base": round(at(pd.Timestamp(f"{now_y}-10-27")), 2), "now": round((float(s.iloc[-1]) / at(pd.Timestamp(f"{now_y}-10-27")) - 1) * 100, 2),
+               "date": s.index[-1].strftime("%Y-%m-%d")}
+    rec = [v for y, v in zip(yrs, r) if y >= 2000]
+    return {"n": len(r), "avg": round(sum(r) / len(r), 2), "pos": sum(v > 0 for v in r), "first": yrs[0], "last": yrs[-1],
+            "n2000": len(rec), "avg2000": round(sum(rec) / len(rec), 2), "pos2000": sum(v > 0 for v in rec),
+            "month_avg": [round(float(v), 2) for v in m.groupby(m.index.month).mean()], "year": now_y, "cur": cur}
+
+
 def build_kosdaq_oddeven():
     # 코스닥 연도별 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1 (1996년은 출범 첫 거래일 종가부터, 올해는 지금까지).
     # 홀수해만·짝수해만·쭉 보유 누적 = 해당 해 (1 + 수익률)을 곱한 값 − 1. 네이버 금융 코스닥 일별
@@ -2625,6 +2649,7 @@ def build():
     out["nps_stakes"] = build_nps_stakes()
     out["bubble"] = build_bubble()
     out["midterm"] = build_midterm()
+    out["santa"] = build_santa()
     out["kosdaq_oddeven"] = build_kosdaq_oddeven()
     out["monthly_avg"] = build_monthly_avg()
     out["trade"] = build_trade()
