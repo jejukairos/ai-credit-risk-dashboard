@@ -1058,6 +1058,24 @@ def build_kosdaq_oddeven():
     return out
 
 
+def build_monthly_avg():
+    # 코스피·코스닥 달별 평균 상승률: 달마다 (그달 마지막 종가 ÷ 전달 마지막 종가 − 1)을 2001-01부터 지난달까지 같은 달끼리 평균.
+    # 2001-01~2023-12로 하면 사용자 제공 머니투데이 그림 숫자와 소수 둘째 자리까지 같음(26.11.01 확인). 오른 해 = 그 달이 플러스였던 해 수
+    out = {}
+    for c in ("kospi", "kosdaq"):
+        p = os.path.join(DATA, f"{c}_long.csv")
+        if not os.path.exists(p):
+            continue
+        s = pd.read_csv(p, dtype={"date": str}).assign(date=lambda d: pd.to_datetime(d["date"])).set_index("date")[c]
+        m = s.resample("ME").last()
+        r = ((m / m.shift(1) - 1) * 100)["2001-01":]
+        r = r[r.index < pd.Timestamp(datetime.now(KST).strftime("%Y-%m-01"))]  # 이번 달은 아직 안 끝나서 뺌
+        g = r.groupby(r.index.month)
+        out[c] = {"avg": [round(float(v), 2) for v in g.mean()], "up": [int(v) for v in g.apply(lambda x: (x > 0).sum())],
+                  "n": [int(v) for v in g.size()], "to": r.index[-1].strftime("%Y-%m")}
+    return out or None
+
+
 def fetch_liquidity():
     # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
@@ -2526,6 +2544,7 @@ def build():
     out["bubble"] = build_bubble()
     out["midterm"] = build_midterm()
     out["kosdaq_oddeven"] = build_kosdaq_oddeven()
+    out["monthly_avg"] = build_monthly_avg()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()

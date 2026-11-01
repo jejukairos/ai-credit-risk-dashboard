@@ -685,6 +685,26 @@ footer a{color:var(--ink2)}
     <div id="liqbox"></div>
     <div class="memo" id="kqoddeven" style="margin-top:8px"></div>
   </div>
+  <div class="card" id="monthcard">
+    <h3><span>📅 달별 평균 상승률 — 코스피 · 코스닥</span><span class="small" id="monthto"></span></h3>
+    <div class="small" style="margin:2px 4px 6px">2001년부터 해마다 그 달에 지수가 평균 몇 % 올랐는지예요. 막대가 위로 길수록 그 달에 잘 올랐던 거예요.</div>
+    <div id="monthkospi" class="plot" style="height:200px"></div>
+    <div class="memo" style="margin:4px 0 10px">📌 <b>코스피는 12월보다 <span style="color:var(--bad)">11월</span>이 강해요</b> — 12월이 강하다고 생각하기 쉽지만, 통계로는 11월이 가장 강해요.
+      <br>· 11월부터 내년 회계연도 자금을 새로 집행해요.
+      <br>· 12월 배당을 노린 돈이 들어와요.
+      <br>· 연말 소비 시즌에 대한 기대감이 있어요.
+      <br>· 미국 중간선거가 있는 해엔 미리 빠지면서 불확실성이 걷혀요.
+      <div class="real" id="kospirank" style="margin-top:6px"></div>
+      <div class="src">출처: user: 사용자 메모(26.11.01)</div></div>
+    <div id="monthkosdaq" class="plot" style="height:200px"></div>
+    <div class="memo" style="margin:4px 0 6px">📌 <b>코스닥은 <span style="color:var(--bad)">1월</span>이 가장 강해요</b> — 꼭 기억해 두면 좋아요.
+      <br>· 연초엔 당장의 실적보다 <b>새해 기대감</b>이 커요.
+      <br>· <b>CES</b>(세계 최대 전자·IT 박람회)와 <b>JP모건 헬스케어 콘퍼런스</b>가 1월에 열려요.
+      <br>· 2027년 1월도 CES 기대감(로봇 등)이 있을 테니, <b>11월 중순부터 미리 준비</b>하면 돼요.
+      <br>· 2026년 1월에도 코스닥이 매우 강했어요.
+      <div class="src">출처: user: 사용자 메모(26.11.01)</div></div>
+    <p class="note" style="margin:6px 4px 2px" id="monthnote"></p>
+  </div>
   <div class="card">
     <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
     <div class="small" style="margin:2px 4px 6px">코스피 신용융자(빚내서 산 주식) 잔고가 1년 전보다 몇 % 늘었는지예요. 100%(1년 새 두 배) 위로 치솟았다가 꺾이면, 그 뒤 코스피도 약해졌던 때가 많았어요.</div>
@@ -2013,6 +2033,27 @@ function renderKqOddEven() {
     <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 계산 = 네이버 금융 코스닥 일별 종가. 해마다 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1(1996년은 첫 거래일부터, 올해는 지금까지), 누적 = 그 해들의 (1 + 수익률)을 곱한 값 − 1.</div>`;
 }
 
+// 코스피·코스닥 달별 평균 상승률(2001-01~지난달). 가장 강한 달은 진하게
+function renderMonthAvg() {
+  const M = DATA.monthly_avg;
+  if (!M || !M.kospi || !M.kosdaq) { document.getElementById('monthcard').style.display = 'none'; return; }
+  const mon = Array.from({length: 12}, (_, i) => `${i + 1}월`);
+  [['kospi', '코스피'], ['kosdaq', '코스닥']].forEach(([k, nm]) => {
+    const o = M[k], best = o.avg.indexOf(Math.max(...o.avg));
+    Plotly.react('month' + k, [{x: mon, y: o.avg, type: 'bar', marker: {color: o.avg.map((v, i) => css(i === best ? '--bad' : v >= 0 ? '--g1' : '--muted'))},
+      text: o.avg.map(v => (v > 0 ? '+' : '') + v.toFixed(2)), textposition: 'outside', cliponaxis: false, constraintext: 'none', textfont: {size: 9, color: css('--ink')},
+      customdata: o.up.map((u, i) => `${u}/${o.n[i]}`), hovertemplate: `${nm} %{x} 평균 %{y:+.2f}% · 오른 해 %{customdata}<extra></extra>`}],
+      Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 34, r: 6, t: 22, b: 24}, bargap: 0.25,
+        xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(o.avg.concat([0]).map(v => v * 1.25), false)}),
+        annotations: [{xref: 'paper', yref: 'paper', x: 0, y: 1.02, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${nm} 달별 평균 상승률 (%)</b>`, font: {size: 11, color: css('--ink2')}}]}), CFG);
+  });
+  const ka = M.kospi.avg, rk = [...ka].sort((a, b) => b - a), top = ka.indexOf(rk[0]);
+  document.getElementById('kospirank').innerHTML = `🔍 <b>지금 데이터로 다시 보면</b> (2001.01~${M.kospi.to.slice(2).replace('-', '.')}): 11월 평균 ${fmtPct(ka[10])}로 12개월 중 <b>${rk.indexOf(ka[10]) + 1}위</b>예요. 12월은 ${rk.indexOf(ka[11]) + 1}위` +
+    (top === 10 ? '.' : `, 1위는 <b>${top + 1}월</b>(${fmtPct(ka[top])})이에요. 그림 기간(2001~2023)에선 11월(+3.01%)이 4월(+2.89%)보다 조금 앞서 1위였어요.`);
+  document.getElementById('monthto').textContent = `2001.01~${M.kospi.to.slice(2).replace('-', '.')}`;
+  document.getElementById('monthnote').innerHTML = `자료: 네이버 금융 코스피·코스닥 일별 종가. 달 상승률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1, 같은 달끼리 2001년 1월부터 지난달까지 평균(이번 달은 끝나면 들어가요). 막대를 누르면 그 달에 오른 해 수도 보여요. 2001-01~2023-12로 계산하면 머니투데이 그래픽(사용자 제공) 숫자와 똑같아요. 빨간 막대 = 가장 강한 달. 지난 평균이라 올해도 그렇다는 보장은 없어요.`;
+}
+
 // 국민연금 지분율 변동 — OpenDART 대량보유 보고(보고자 국민연금공단), 최근 공시 기준 많이 늘린·줄인 10곳
 function renderNpsStakes() {
   const N = DATA.nps_stakes, el = document.getElementById('npsstakes');
@@ -2754,7 +2795,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
