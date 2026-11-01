@@ -86,6 +86,8 @@ details a{color:var(--ink2);word-break:break-all}
 .todaygrid div{display:flex;justify-content:space-between}
 .usgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:4px}
 .usgrid>div{min-width:0}
+#hsitem{flex-wrap:wrap;gap:4px}
+#hsitem button{flex:0 0 auto;padding:6px 10px}
 .era{padding:8px 4px;border-top:1px solid var(--line);line-height:1.55}
 .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink)}
 .chip.hot{background:var(--bad);border-color:var(--bad);color:#fff}
@@ -789,6 +791,14 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
   </div>
   <div class="card" id="expitems"></div>
+  <div class="card" id="hscard">
+    <h3><span>📈 품목별 수출 — 연도별 같은 달 비교</span></h3>
+    <div class="small" style="margin:2px 4px 6px">해마다 같은 달끼리 수출액을 겹쳐 그렸어요. <b style="color:var(--g2)">주황 선 = 올해</b>, 파란 선은 옅을수록 오래된 해예요. 주황 선이 다른 해보다 위에 있으면 그만큼 많이 팔리는 중이에요.</div>
+    <div class="bar own" role="group" aria-label="수출 품목" id="hsitem" style="position:static;flex-wrap:wrap"></div>
+    <div class="fgchips" id="hschips"></div>
+    <div id="hsplot" class="plot" style="height:340px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="hsnote"></p>
+  </div>
   <div class="card" id="expcountry">
     <h3><span>🌏 나라별 수출 — 라면 · 화장품</span><span class="small" id="ecmonth"></span></h3>
     <div class="small" style="margin:2px 4px 6px">어느 나라에 얼마나 팔았는지예요. 막대가 길수록 많이 판 나라, <b style="color:var(--good)">초록</b>은 1년 전보다 늘어난 곳, <b style="color:var(--bad)">빨강</b>은 줄어든 곳이에요.</div>
@@ -2104,7 +2114,7 @@ function renderTrade() {
   document.getElementById('tradewsj').innerHTML = last !== '2026-10' ? '' : `📰 <b>WSJ — "반도체가 이끄는 수출 가속, 연 1조 달러 목표에 한 걸음 더"</b>
     <br>· 10월 수출이 예상(${fmtPct(g('수출 증가율 예상'))})보다 빠른 <b>${fmtPct(yy)}</b>로, 9월(${fmtPct(get('2026-09', '수출 증가율'))})보다 더 빨라졌어요. 1~10월 누적 ${fmtNum(cum)}억 달러로 <b>사상 첫 연 1조 달러</b>에 가까워졌어요.
     <br>· <b>반도체</b>가 이끌었어요: 10월 ${val(semi)}억 달러로 1년 전의 3배 넘게. AI 인프라 투자로 고성능 반도체 수요가 전례 없이 커졌고, 삼성전자·SK하이닉스는 연속으로 분기 사상 최대 실적을 내며 <b>공급 부족이 몇 년 더 갈 것</b>이라고 다시 확인했어요.
-    <br>· 지역별: 미국 약 3배, 중국 2배 넘게, 중동 ${fmtPct(mid)}(분쟁이 길어졌는데도).
+    <br>· 지역별: 미국 약 3배${g('대미국 수출') != null ? `(${fmtPct(g('대미국 수출'))})` : ''}, 중국 2배 넘게${g('대중국 수출') != null ? `(${fmtPct(g('대중국 수출'))})` : ''}, 중동 ${fmtPct(mid)}(분쟁이 길어졌는데도). <span class="small">(괄호 숫자: 사용자 제공 '요약하는 고잉' 글)</span>
     <br>· 무역 흑자 ${val(bal)}억 달러로 예상(${val(bexp)}억)보다 컸지만, 9월 수정치 ${val(b9)}억 달러(사상 최대)보다는 줄었어요.
     <div class="src">출처: <a href="https://www.wsj.com/world/asia/south-koreas-chip-led-exports-accelerate-bringing-1-trln-annual-target-closer-5180b539" target="_blank" rel="noopener">WSJ</a>(사용자 제공 요약, 26.11.01)</div>`;
   // 주요 품목 수출 증가율 표: 가장 최근 달, 품목마다 1년 전·전월 대비와 사상 최고 표시, 지난달 기록이 있으면 1년 전 대비 변화도
@@ -2122,6 +2132,46 @@ function renderTrade() {
       <p class="note" style="margin:6px 4px 2px">자료: <a href="https://t.me/s/ked_epic_ai" target="_blank" rel="noopener">한경 에픽 AI 텔레그램</a>('잠정 수출' 요약, 한경에이셀 데이터 — 원래 숫자는 관세청 품목별 수출 통계) · 첫 달은 사용자 제공 글(user:). 매주 월요일 자동 검색이 새 달 요약을 찾아 <code>export_items_log.csv</code>에 더해요. 잠정치라 나중에 확정치와 조금 다를 수 있어요. 품목별 긴 막대 그래프는 관세청 품목별 수출 자료(공공데이터포털 키)가 있으면 자동으로 그릴 수 있어요.</p>`;
   }
   document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
+}
+
+// 품목별 수출 연도별 같은 달 비교 — 관세청 확정치(hs_exports) + 확정 전 마지막 달은 잠정(빈 동그라미):
+// 화장품·라면은 나라별 글의 '전체' 금액, 나머지는 잠정 증가율 × 작년 같은 달 확정치
+let HS_IT = '디램';
+function renderHsSeason() {
+  const H = DATA.hs_exports, el = document.getElementById('hscard');
+  if (!H) { el.style.display = 'none'; return; }
+  const bb = document.getElementById('hsitem');
+  if (!bb.children.length) {
+    bb.innerHTML = H.items.map(it => `<button data-h="${it}" class="${it === HS_IT ? 'on' : ''}">${it.replace('(10000KVA 이상)', '')}</button>`).join('');
+    bb.querySelectorAll('button').forEach(b => b.onclick = () => { HS_IT = b.dataset.h; bb.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderHsSeason(); });
+  }
+  const o = H.data[HS_IT], val = {}, lastM = o.x[o.x.length - 1];
+  o.x.forEach((m, i) => { val[m] = o.y[i]; });
+  const cy = +lastM.slice(0, 4), years = [...new Set(o.x.map(m => +m.slice(0, 4)))].sort(), mon = Array.from({length: 12}, (_, i) => `${i + 1}월`);
+  const ym = (y, i) => `${y}-${String(i + 1).padStart(2, '0')}`;
+  // 확정 전 잠정치
+  const T = DATA.trade || {}, items = T.exp_items || [], ctry = T.country || [];
+  const pi = items.filter(r => r.item === HS_IT && r.month > lastM).pop(), pc = ctry.filter(r => r.product === HS_IT && r.basis === '월합계' && r.country === '전체' && r.month > lastM).pop();
+  let pre = null;
+  if (pc) pre = {m: pc.month, v: pc.usd_m, how: '나라별 글의 전체 금액'};
+  else if (pi && val[`${+pi.month.slice(0, 4) - 1}${pi.month.slice(4)}`] != null) pre = {m: pi.month, v: val[`${+pi.month.slice(0, 4) - 1}${pi.month.slice(4)}`] * (1 + pi.yoy / 100), how: `잠정 증가율 ${pi.yoy > 0 ? '+' : ''}${pi.yoy}% × 작년 같은 달 확정치`};
+  const shade = y => y === cy ? css('--g2') : `rgba(42,120,214,${0.25 + 0.75 * (years.indexOf(y) + 1) / (years.length - 1 || 1)})`;
+  const tr = years.map(y => ({x: mon, y: mon.map((_, i) => val[ym(y, i)] ?? null), type: 'scatter', mode: y === cy ? 'lines+markers' : 'lines', name: `${y}년`,
+    line: {color: shade(y), width: y === cy ? 2.6 : 1.6}, marker: {size: 6}, hovertemplate: `${y}년 %{x} $%{y:,.0f}m<extra></extra>`}));
+  if (pre && +pre.m.slice(0, 4) === cy) {
+    const mi = +pre.m.slice(5) - 1, prevV = val[ym(cy, mi - 1)];
+    tr.push({x: [mon[mi - 1], mon[mi]], y: [prevV, pre.v], type: 'scatter', mode: 'lines+markers', name: `${mi + 1}월 잠정`, line: {color: css('--g2'), width: 2, dash: 'dot'},
+      marker: {size: [0, 9], color: css('--surface'), line: {color: css('--g2'), width: 2}}, hovertemplate: `${cy}년 %{x} 잠정 $%{y:,.0f}m<extra></extra>`});
+  }
+  const lv = val[lastM], ly = val[`${cy - 1}${lastM.slice(4)}`], n = +lastM.slice(5);
+  const ytd = y => Array.from({length: n}, (_, i) => val[ym(y, i)] || 0).reduce((a, b) => a + b, 0);
+  document.getElementById('hschips').innerHTML = `<span class="chip">${n}월 확정 <b>$${fmtNum(lv, 0)}m</b> (1년 전 대비 ${fmtPct((lv / ly - 1) * 100)})</span>` +
+    `<span class="chip">1~${n}월 누적 ${fmtPct((ytd(cy) / ytd(cy - 1) - 1) * 100)}</span>` +
+    (pre ? `<span class="chip warm">${+pre.m.slice(5)}월 잠정 $${fmtNum(pre.v, 0)}m${pi ? ` (1년 전 대비 ${fmtPct(pi.yoy)})` : ''}</span>` : '');
+  const allv = o.y.concat(pre ? [pre.v] : []);
+  Plotly.react('hsplot', tr, Object.assign(baseLayout(), {hovermode: 'closest', showlegend: true, legend: {orientation: 'h', x: 0, y: -0.12, yanchor: 'top', font: {size: 10}},
+    margin: {l: 54, r: 8, t: 8, b: 20}, xaxis: axis({type: 'category', tickangle: 0, tickfont: {size: 9}}), yaxis: axis({range: padRange(allv, false), tickformat: ',.0f', tickprefix: '$', ticksuffix: 'm', tickfont: {size: 9}})}), CFG);
+  document.getElementById('hsnote').innerHTML = `자료: <a href="https://www.data.go.kr/data/15100475/openapi.do" target="_blank" rel="noopener">관세청 품목별 수출입실적</a>(공공데이터포털, 확정치는 다음 달 중순에 나와요) — ${HS_IT} = HS ${H.codes[HS_IT].join(' + ')}${HS_IT === '디램' ? '(디램 칩 + 디램 모듈)' : HS_IT === '반도체장비' ? '(반도체·디스플레이 제조장비 전체)' : ''}, 백만 달러. 2021년부터, 매일 16시·20시 확인. ${pre ? `빈 동그라미 = ${+pre.m.slice(5)}월 잠정(${pre.how}, 확정치가 나오면 바뀌어요).` : ''} 누적 = 올해 1~${n}월 합 ÷ 작년 같은 기간 합 − 1.`;
 }
 
 // 나라별 수출(라면·화장품·기초·색조) — export_country_log.csv. 자체 버튼: 품목·기준(한 달 합계 / 하루 평균)
@@ -2895,7 +2945,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

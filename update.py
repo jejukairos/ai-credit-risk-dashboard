@@ -1110,6 +1110,54 @@ def build_trade():
     return out
 
 
+# 관세청 품목별 수출(HS 10자리 코드 앞부분). 사용자 제공 품목 그림(26.10)의 26년 9월 값과 맞춰 고름 —
+# 디램 = 칩(8542.32-1010) + 모듈(8473.30-4060) 합이어야 그림과 같음, 반도체장비 = HS 8486 전체(그림보다 약 7% 적음: 품목 범위 차이)
+HS_ITEMS = {"디램": ["8542321010", "8473304060"], "낸드": ["8542321030"], "SSD": ["8523511000"], "MCP(HBM)": ["8542323000"],
+            "반도체장비": ["8486"], "MLCC": ["8532240000"], "PCB": ["8534"], "대형변압기(10000KVA 이상)": ["8504230000"],
+            "화장품": ["3304"], "라면": ["1902301010"]}
+
+
+def fetch_hs_exports():
+    # 공공데이터포털 '관세청_품목별 수출입실적(GW)' (키 DATA_GO_KR_KEY 는 .env 에만). 한 번에 1년까지라 해마다 따로,
+    # 처음엔 2021년부터, 그 뒤엔 작년·올해만 다시 받음(확정치가 고쳐질 수 있어서). 달마다 HS 코드 합(백만 달러)
+    import xml.etree.ElementTree as ET
+    key = os.environ.get("DATA_GO_KR_KEY", "").strip()
+    if not key:
+        raise RuntimeError("DATA_GO_KR_KEY 가 .env 에 없음")
+    path, now = os.path.join(DATA, "hs_exports.csv"), datetime.now(KST)
+    old = pd.read_csv(path, dtype={"month": str}) if os.path.exists(path) else None
+    rows = []
+    for y in (range(2021, now.year + 1) if old is None else (now.year - 1, now.year)):
+        end = f"{y}12" if y < now.year else now.strftime("%Y%m")
+        for item, codes in HS_ITEMS.items():
+            acc = {}
+            for c in codes:
+                root = ET.fromstring(get("https://apis.data.go.kr/1220000/Itemtrade/getItemtradeList", timeout=120,
+                                         params={"serviceKey": key, "strtYymm": f"{y}01", "endYymm": end, "hsSgn": c}).text)
+                if root.findtext(".//resultCode") != "00":
+                    raise RuntimeError(f"관세청 API 오류 {root.findtext('.//resultCode')} {root.findtext('.//resultMsg')}")
+                for it in root.findall(".//item"):
+                    ym, hs = it.findtext("year") or "", it.findtext("hsCode") or ""
+                    if re.fullmatch(r"\d{4}\.\d{2}", ym) and hs.startswith(c):
+                        acc[ym] = acc.get(ym, 0) + float(it.findtext("expDlr") or 0)
+            rows += [{"month": ym.replace(".", "-"), "item": item, "usd_m": round(v / 1e6, 2)} for ym, v in acc.items()]
+    if not rows:
+        raise RuntimeError("관세청 품목별 수출을 하나도 못 받음")
+    df = pd.DataFrame(rows)
+    if old is not None:
+        df = pd.concat([old, df]).drop_duplicates(["month", "item"], keep="last")
+    df.sort_values(["item", "month"]).to_csv(path, index=False)
+
+
+def build_hs_exports():
+    p = os.path.join(DATA, "hs_exports.csv")
+    if not os.path.exists(p):
+        return None
+    d = pd.read_csv(p, dtype={"month": str}).sort_values("month")
+    return {"items": list(HS_ITEMS), "codes": HS_ITEMS,
+            "data": {it: {"x": list(g["month"]), "y": g["usd_m"].tolist()} for it, g in d.groupby("item")}}
+
+
 def fetch_liquidity():
     # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
@@ -2580,6 +2628,7 @@ def build():
     out["kosdaq_oddeven"] = build_kosdaq_oddeven()
     out["monthly_avg"] = build_monthly_avg()
     out["trade"] = build_trade()
+    out["hs_exports"] = build_hs_exports()
     out["dram"] = build_dram()
     out["kofia"] = build_kofia()
     out["nps"] = build_nps()
@@ -2629,7 +2678,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
@@ -2640,7 +2689,7 @@ def main():
             print(f"[OK] {name}")
         except Exception as e:  # noqa: BLE001
             # 오류 글에 들어간 주소의 API 키는 가림(status.json은 공개 사이트에 올라감)
-            msg = re.sub(r"(api_key|crtfc_key)=[^&\s'\"]+", r"\1=***", f"{type(e).__name__}: {e}")[:500]
+            msg = re.sub(r"(api_key|crtfc_key|serviceKey)=[^&\s'\"]+", r"\1=***", f"{type(e).__name__}: {e}")[:500]
             prev = status["sources"].get(name, {})
             status["sources"][name] = {"ok": False, "last_ok": prev.get("last_ok"), "error": msg}
             status["errors"].append(f"{name} 실패 — {msg}")
