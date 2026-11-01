@@ -409,17 +409,17 @@ NVDA,2025-03-03,SHOQUIST DEBORA C,Officer,122220,0.0,Stock Award(Grant) at price
 NVDA,2025-03-03,HUANG JEN-HSUN,Chief Executive Officer,956480,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 ORCL,2026-10-23,HENLEY JEFFREY O,Officer and Director,8033,,,I,other
 ORCL,2026-10-23,CATZ SAFRA A,Chief Executive Officer,8033,,,D,other
-ORCL,2026-10-23,SMITH MARIA,Officer,8926,,,D,other
 ORCL,2026-10-23,LEVEY STUART A,Officer,12497,,,D,other
+ORCL,2026-10-23,SMITH MARIA,Officer,8926,,,D,other
 ORCL,2026-09-29,RUSCKOWSKI STEPHEN H,Director,25000,3483800.0,Purchase at price 139.35 per share.,I,purchase
 ORCL,2026-09-22,SMITH MARIA,Officer,2631,399123.0,Sale at price 151.70 per share.,D,sale
 ORCL,2026-09-22,SICILIA MICHAEL D,Chief Executive Officer,22562,3420174.0,Sale at price 151.59 per share.,D,sale
 ORCL,2026-09-18,HENLEY JEFFREY O,Officer and Director,46461,,,I,other
-ORCL,2026-09-18,SMITH MARIA,Officer,17440,,,D,other
 ORCL,2026-09-18,LEVEY STUART A,Officer,20885,,,D,other
 ORCL,2026-09-18,SICILIA MICHAEL D,Chief Executive Officer,109213,,,D,other
 ORCL,2026-09-18,MAGOUYRK CLAYTON M,Chief Executive Officer,129862,,,D,other
 ORCL,2026-09-18,HURA MARK,Officer,67110,,,D,other
+ORCL,2026-09-18,SMITH MARIA,Officer,17440,,,D,other
 ORCL,2026-09-16,SICILIA MICHAEL D,Chief Executive Officer,10882,1522827.0,Sale at price 139.94 per share.,D,sale
 ORCL,2026-09-15,SICILIA MICHAEL D,Chief Executive Officer,52673,,,D,other
 ORCL,2026-06-24,HENLEY JEFFREY O,Officer and Director,400000,63664040.0,Sale at price 156.06 - 165.57 per share.,D,sale
@@ -447,23 +447,23 @@ ORCL,2025-09-26,SELIGMAN NAOMI O,Director,2222,641958.0,Sale at price 288.91 per
 ORCL,2025-09-26,SELIGMAN NAOMI O,Director,1406,0.0,Stock Gift at price 0.00 per share.,D,gift
 ORCL,2025-09-23,SICILIA MICHAEL D,Officer,33845,10869660.0,Sale at price 321.16 per share.,D,sale
 ORCL,2025-09-19,HENLEY JEFFREY O,Officer and Director,46460,,,I,other
-ORCL,2025-09-19,SMITH MARIA,Officer,17440,,,D,other
 ORCL,2025-09-19,LEVEY STUART A,Officer,20884,,,D,other
-ORCL,2025-09-19,SICILIA MICHAEL D,Officer,109212,,,D,other
 ORCL,2025-09-19,MAGOUYRK CLAYTON M,Officer,129861,,,D,other
+ORCL,2025-09-19,SMITH MARIA,Officer,17440,,,D,other
+ORCL,2025-09-19,SICILIA MICHAEL D,Officer,109212,,,D,other
 ORCL,2025-09-16,SICILIA MICHAEL D,Officer,16323,5118893.0,Sale at price 313.60 per share.,D,sale
 ORCL,2025-09-15,HENLEY JEFFREY O,Officer and Director,19753,,,I,other
-ORCL,2025-09-15,SMITH MARIA,Officer,13169,,,D,other
 ORCL,2025-09-15,LEVEY STUART A,Officer,26337,,,D,other
-ORCL,2025-09-15,SICILIA MICHAEL D,Officer,52673,,,D,other
 ORCL,2025-09-15,MAGOUYRK CLAYTON M,President,61452,,,D,other
+ORCL,2025-09-15,SMITH MARIA,Officer,13169,,,D,other
+ORCL,2025-09-15,SICILIA MICHAEL D,Officer,52673,,,D,other
 ORCL,2025-09-12,PARRETT WILLIAM GREGORY,Director,11500,3519000.0,Sale at price 306.00 per share.,I,sale
 ORCL,2025-09-12,MAGOUYRK CLAYTON M,President,21241,6310865.0,Sale at price 297.11 per share.,D,sale
 ORCL,2025-08-05,SICILIA MICHAEL D,Officer,15880,4041142.0,Sale at price 254.48 per share.,D,sale
 ORCL,2025-08-04,HENLEY JEFFREY O,Officer and Director,25000,,,I,other
+ORCL,2025-08-04,MAGOUYRK CLAYTON M,Officer,62500,,,D,other
 ORCL,2025-08-04,SMITH MARIA,Officer,3375,,,D,other
 ORCL,2025-08-04,SICILIA MICHAEL D,Officer,50000,,,D,other
-ORCL,2025-08-04,MAGOUYRK CLAYTON M,Officer,62500,,,D,other
 ORCL,2025-08-04,SICILIA MICHAEL D,Officer,183,44222.0,Stock Award(Grant) at price 241.21 per share.,D,award
 ORCL,2025-07-16,SELIGMAN NAOMI O,Director,3303,770656.0,Sale at price 233.32 per share.,D,sale
 ORCL,2025-07-15,ELLISON LAWRENCE JOSEPH,Chief Technology Officer,6500000,332345000.0,Conversion of Exercise of derivative security at price 51.13 per share.,D,other
@@ -487,8 +487,8 @@ ORCL,2025-05-30,FAIRHEAD RONA ALISON,Director,2986,,,D,other
 ORCL,2025-05-30,BERG JEFFREY S,Director,2986,,,I,other
 ORCL,2025-05-30,SELIGMAN NAOMI O,Director,2986,,,D,other
 ORCL,2025-05-30,BOSKIN MICHAEL J,Director,2986,,,D,other
-ORCL,2025-05-30,CONRADES GEORGE HENRY,Director,2986,,,D,other
 ORCL,2025-05-30,PANETTA LEON E,Director,2986,,,I,other
+ORCL,2025-05-30,CONRADES GEORGE HENRY,Director,2986,,,D,other
 ORCL,2025-05-30,ABLO AWO,Director,2986,,,D,other
 ORCL,2025-05-30,PARRETT WILLIAM GREGORY,Director,2986,,,D,other
 ORCL,2025-05-14,BERG JEFFREY S,Director,12334,0.0,Stock Gift at price 0.00 per share.,I,gift
