@@ -36,7 +36,7 @@ body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 -apple-syst
 h1{font-size:20px;margin:4px 0 2px}
 h2{font-size:16px;margin:22px 0 8px}
 .sub{color:var(--ink2);font-size:12px}
-.banner{border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px}
+.banner{border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;overflow-wrap:anywhere}
 .banner.err{background:var(--banner-err);color:var(--banner-err-ink)}
 .banner.ok{background:var(--banner-ok);color:var(--ink2)}
 .banner ul{margin:6px 0 0;padding-left:18px}
@@ -787,6 +787,7 @@ footer a{color:var(--ink2)}
     <div class="memo" id="trademem" style="margin-top:8px"></div>
     <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
   </div>
+  <div class="card" id="expitems"></div>
 
   <h2 id="sec-contra">역발상 판독기 — 사람들 마음이 한쪽으로 쏠렸나?</h2>
   <div class="glossary">
@@ -2084,6 +2085,20 @@ function renderTrade() {
     ${up != null ? `<br>· 10월은 20대 품목 중 <b>${up}개가 늘어</b> 고르게 좋아졌어요(긍정적). 반도체를 뺀 나머지 수출 증가율도 9월 ${fmtPct(a9)} → 10월 <b>${fmtPct(a10)}</b>로 오히려 좋아졌어요.` : ''}
     ${it.length ? `<br>· 주요 품목 (1년 전 같은 달 대비): ${it.map(r => `<b>${r.item} ${fmtPct(r.value)}</b>${r.note.includes('·') ? ` <span class="small">(${r.note.split('·').slice(1).join('·').trim()})</span>` : ''}`).join(' · ')}` : ''}
     <div class="src">출처: user: 사용자 메모(26.11.01, 산업통상부 10월 수출입 동향 요약)</div>`;
+  // 주요 품목 수출 증가율 표: 가장 최근 달, 품목마다 1년 전·전월 대비와 사상 최고 표시, 지난달 기록이 있으면 1년 전 대비 변화도
+  const E = T.exp_items || [], el = document.getElementById('expitems');
+  if (!E.length) el.style.display = 'none';
+  else {
+    const lm = E[E.length - 1].month, cur = E.filter(r => r.month === lm), prev = m => E.filter(r => r.month < lm && r.item === m).pop();
+    const cell = v => v == null ? '–' : `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${fmtNum(v)}%</span>`;
+    el.innerHTML = `<h3><span>📦 주요 품목 수출 — ${+lm.slice(5)}월</span><span class="small">${cur[0].note || ''}</span></h3>
+      <div class="small" style="margin:2px 4px 6px">AI·반도체·전력·소비재 품목이 1년 전 같은 달보다, 그리고 지난달보다 얼마나 더 팔렸는지예요. ★ = 역대 가장 많이 판 달(사상 최고).</div>
+      <div class="tablebox" style="border:0"><table><thead><tr><th>품목</th><th>1년 전 대비</th><th>전월 대비</th></tr></thead><tbody>${cur.map(r => {
+        const p = prev(r.item);
+        return `<tr><td style="white-space:normal">${r.ath ? '★ ' : ''}<b>${r.item}</b></td><td>${cell(r.yoy)}${p ? `<br><span class="small">전달 ${p.yoy >= 0 ? '+' : ''}${fmtNum(p.yoy)}%</span>` : ''}</td><td>${cell(r.mom)}</td></tr>`;
+      }).join('')}</tbody></table></div>
+      <p class="note" style="margin:6px 4px 2px">자료: <a href="https://t.me/s/ked_epic_ai" target="_blank" rel="noopener">한경 에픽 AI 텔레그램</a>('잠정 수출' 요약, 한경에이셀 데이터 — 원래 숫자는 관세청 품목별 수출 통계) · 첫 달은 사용자 제공 글(user:). 매주 월요일 자동 검색이 새 달 요약을 찾아 <code>export_items_log.csv</code>에 더해요. 잠정치라 나중에 확정치와 조금 다를 수 있어요. 품목별 긴 막대 그래프는 관세청 품목별 수출 자료(공공데이터포털 키)가 있으면 자동으로 그릴 수 있어요.</p>`;
+  }
   document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
 }
 

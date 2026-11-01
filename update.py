@@ -1088,8 +1088,17 @@ def build_trade():
     ex, im = (t[t["item"] == k].set_index("month")["value"] for k in ("수출", "수입"))
     months = sorted(set(ex.index) & set(im.index))
     items = t[~t["item"].isin(["수출", "수입"])]
-    return {"x": months, "ex": [float(ex[m]) for m in months], "im": [float(im[m]) for m in months],
-            "items": items[["month", "item", "value", "note"]].to_dict("records"), "src": sorted(set(t["source_url"]))}
+    out = {"x": months, "ex": [float(ex[m]) for m in months], "im": [float(im[m]) for m in months],
+           "items": items[["month", "item", "value", "note"]].to_dict("records"), "src": sorted(set(t["source_url"]))}
+    # 주요 품목 수출 증가율(export_items_log.csv: 한경 에픽 AI 텔레그램 '잠정 수출' 요약, 1년 전·전월 대비 %, ath = 사상 최고 표시). 같은 달·품목은 마지막 줄
+    ip = os.path.join(BASE, "export_items_log.csv")
+    if os.path.exists(ip):
+        e = pd.read_csv(ip, dtype=str).fillna("")
+        e = e[e["source_url"].str.startswith("http") | e["source_url"].str.startswith("user:")].drop_duplicates(["month", "item"], keep="last")
+        for c in ("yoy", "mom", "ath"):
+            e[c] = pd.to_numeric(e[c], errors="coerce")
+        out["exp_items"] = e.sort_values("month")[["month", "item", "yoy", "mom", "ath", "source_url", "note"]].to_dict("records")
+    return out
 
 
 def fetch_liquidity():
@@ -2621,7 +2630,8 @@ def main():
             status["sources"][name] = {"ok": True, "last_ok": now_kst()}
             print(f"[OK] {name}")
         except Exception as e:  # noqa: BLE001
-            msg = f"{type(e).__name__}: {e}"[:500]
+            # 오류 글에 들어간 주소의 API 키는 가림(status.json은 공개 사이트에 올라감)
+            msg = re.sub(r"(api_key|crtfc_key)=[^&\s'\"]+", r"\1=***", f"{type(e).__name__}: {e}")[:500]
             prev = status["sources"].get(name, {})
             status["sources"][name] = {"ok": False, "last_ok": prev.get("last_ok"), "error": msg}
             status["errors"].append(f"{name} 실패 — {msg}")
