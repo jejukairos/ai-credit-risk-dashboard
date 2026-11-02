@@ -2843,12 +2843,19 @@ function renderMarginPeak(it) {
     <div class="small" style="margin-top:2px">※ 메모의 '6월 고점 54%'는 6월에 발표된 <b>5월 말</b> 숫자예요(FINRA는 한 달쯤 늦게 발표). 아래 표·차트는 '몇 월 말' 기준이에요.</div>
     <div id="rd-margin-long" class="plot" style="height:230px"></div>
     <div class="small" style="margin:0 4px">1998년~ 전체 · 빨강일수록 빚투가 뜨거웠던 때, 초록일수록 식었던 때 · 점선 = 50%</div>
+    <div style="margin-top:12px"><b>📉 빚투 증가율이 꺾이면 = 증시도 꺾일 확률</b> <span class="small">(11/2 메모)</span></div>
+    <div>· <b>핵심</b>: 빚투가 역대급으로 많이 쌓였다가 그 <b>증가세가 느려질 때</b>, 증시도 오를 힘이 떨어져요.</div>
+    <div>· <b>왜?</b> 빚을 더 내서 주식을 사 줄 사람이 <b>더는 없다</b>는 뜻이니까요.</div>
+    <div>· <b>지금</b>: 빚투 증가율이 <b>역대 4번째</b> 기록을 세운 뒤 줄어들고 있어요.</div>
+    <div class="quote">거품이 빠진다 ✗ → 빚을 내서 더 사 줄 사람이 없다 ✓</div>
+    <div id="rd-margin-lvl" class="plot" style="height:300px"></div>
+    <div class="small" style="margin:0 4px">1998년~ 전체 · 위 = S&amp;P500 지수(월말), 아래 = 빚투 잔고(월말, 십억 달러) · 세로 점선 = 그 시기 빚투 잔고가 가장 많았던 달</div>
     <div class="tablebox" style="border:0;margin:6px 0"><table><thead><tr><th>50% 넘었던 때<br>피크</th><th>그때<br>증가율</th><th>4달 뒤</th></tr></thead><tbody>${eps.map(e =>
       `<tr><td>${ym(x[e.pk])}</td><td>${fmtPct(y[e.pk])}</td><td>${after(e.pk)}</td></tr>`).join('')}</tbody></table></div>
     <details class="srcs"><summary><b>월별 숫자 보기</b> <span class="small">(최근 24개월, 누르면 펼쳐져요)</span></summary>
       <div class="tablebox" style="border:0"><table><thead><tr><th>월</th><th>빚투 잔고<br>(십억 달러)</th><th>1년 전 대비</th></tr></thead><tbody>${x.slice(-24).reverse().map((d, k) =>
         `<tr><td>${d.slice(0, 7)}</td><td>${fmtNum(it.debits[n - 1 - k], 1)}</td><td>${fmtPct(y[n - 1 - k])}</td></tr>`).join('')}</tbody></table></div></details>
-    <div class="small" style="margin-top:4px;color:var(--muted)">글쓴이 의견 — 텔레그램 '소수의견' 메모·그림 '빚투 증가세, 역대급 위험 구간 진입'(26.6.30)·'빚투 증가세, 피크 아웃 가능성 확대'(26.10.28) (사용자 제공, 소몽 『미국주식 마스터클래스』 챕터 4 참고) · 숫자·차트 — FINRA Margin Statistics(아래 링크)</div>
+    <div class="small" style="margin-top:4px;color:var(--muted)">글쓴이 의견 — 텔레그램 '소수의견' 메모·그림 '빚투 증가세, 역대급 위험 구간 진입'(26.6.30)·'빚투 증가세, 피크 아웃 가능성 확대'(26.10.28)·'빚투 증가율 꺾인다 = 증시도 꺾일 확률'(26.11.2) (사용자 제공, 소몽 『미국주식 마스터클래스』 챕터 4 참고) · 숫자·차트 — FINRA Margin Statistics(아래 링크)</div>
   </div>`);
   Plotly.react('rd-margin-long', [{x, y, type: 'scatter', mode: 'lines+markers', line: {color: css('--muted'), width: 1.2},
     marker: {size: 5, color: y, cmin: -40, cmax: 80, colorscale: [[0, '#2e9d4a'], [0.33, '#2e9d4a'], [0.6, '#c0392b'], [1, '#e8141b']]}, hovertemplate: '%{y:.1f}%<extra></extra>'}],
@@ -2858,6 +2865,26 @@ function renderMarginPeak(it) {
       shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 0, line: {color: css('--ink2'), width: 1.2}},
                {type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 50, y1: 50, line: {color: css('--bad'), width: 1, dash: 'dot'}}],
     }), CFG);
+  // 빚투 잔고 vs S&P500 (위아래 두 칸, 날짜축 같이). 세로 점선 = 시기별 빚투 잔고 최고 달
+  const S = DATA.credit_growth && DATA.credit_growth.us, deb = it.debits;
+  if (!S) return;
+  const sx = S.ix.filter(d => d >= x[0]), sy = S.iy.slice(S.ix.length - sx.length);
+  const peakIn = (a, b) => x.reduce((p, d, i) => d >= a && d <= b && (p < 0 || deb[i] > deb[p]) ? i : p, -1);
+  const ev = [['닷컴버블', peakIn('1999', '2001-12-31')], ['금융위기', peakIn('2006', '2009-12-31')],
+              ['코로나', peakIn('2020', '2022-12-31')], ['현재', peakIn(x[n - 12], x[n - 1])]].filter(e => e[1] >= 0);
+  const lbl = (yy, text) => ({xref: 'paper', yref: 'paper', x: 0, y: yy, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  Plotly.react('rd-margin-lvl', [
+    {x: sx, y: sy, type: 'scatter', mode: 'lines', line: {color: css('--ink'), width: 1.4}, hovertemplate: 'S&P500 %{y:,.0f}<extra></extra>'},
+    {x, y: deb, type: 'scatter', mode: 'lines', yaxis: 'y2', line: {color: css('--bad'), width: 1.8}, hovertemplate: '빚투 잔고 $%{y:,.0f}B<extra></extra>'},
+  ], tagLast(Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y2', tickformat: '%Y', hoverformat: '%Y-%m'}),
+    yaxis: axis({domain: [0.6, 0.92], tickformat: ',.0f'}),
+    yaxis2: axis({domain: [0, 0.47], tickformat: ',.0f', tickprefix: '$'}),
+    shapes: ev.map(([, i]) => ({type: 'line', xref: 'x', yref: 'paper', x0: x[i], x1: x[i], y0: 0, y1: 0.92, line: {color: css('--muted'), width: 1, dash: 'dot'}})),
+    annotations: [lbl(0.93, 'S&P500 지수'), lbl(0.48, '빚투 잔고 (Margin Debt, 십억 달러)'),
+      ...ev.map(([t, i], k) => ({x: x[i], y: deb[i], xref: 'x', yref: 'y2', text: t, showarrow: true, arrowhead: 0, ax: 0, ay: k === 1 ? -30 : -14,
+        xanchor: k === 0 ? 'left' : k === ev.length - 1 ? 'right' : 'center', font: {size: 10, color: css('--bad')}, bgcolor: css('--surface')}))],
+  }), [[sy, 'y', n0, css('--ink')], [deb, 'y2', v => '$' + n0(v) + 'B', css('--bad')]]), CFG);
 }
 
 // ---------- 시장 4국면 (우라가미 구니오) ----------

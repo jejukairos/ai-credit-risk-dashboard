@@ -69,7 +69,7 @@ CDS(부도 보험료)가 거래되는 AI 빚 많은 기업 5곳의
 
 | 투자자 심리 설문(Bull/Bear) | [AAII Sentiment Survey](https://www.aaii.com/sentimentsurvey) 엑셀 파일 | 매주 목요일. 강세 − 약세 응답(%p), 2015년부터 표시 |
 | 풋/콜 비율 | [CBOE 일별 옵션 통계](https://www.cboe.com/us/options/market_statistics/daily/) | 주식(EQUITY) 풋/콜 비율. 하루치씩만 주므로 처음 1년치를 받고 이후 매일 쌓음 |
-| 신용잔고(Margin Debt) | [FINRA Margin Statistics](https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics) | 매월(약 3주 뒤 발표). 고객 신용 잔고(Debit Balances). 카드 안에 '빚투 증가세 피크아웃' 메모(텔레그램 소수의견 6/30·10/28, 사용자 제공) + 1998년~ 1년 변화율 장기 차트 + 50% 넘었던 때의 피크와 4달 뒤 값(우리 데이터로 계산) + 최근 24개월 표(접어 둠) |
+| 신용잔고(Margin Debt) | [FINRA Margin Statistics](https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics) | 매월(약 3주 뒤 발표). 고객 신용 잔고(Debit Balances). 카드 안에 '빚투 증가세 피크아웃' 메모(텔레그램 소수의견 6/30·10/28, 사용자 제공) + 1998년~ 1년 변화율 장기 차트 + '빚투 증가율 꺾인다 = 증시도 꺾일 확률' 메모(11/2)와 1998년~ 빚투 잔고(십억 달러)·S&P500 월말 종가 위아래 차트(세로 점선 = 1999~2001·2006~2009·2020~2022·최근 12개월 중 잔고가 가장 많았던 달) + 50% 넘었던 때의 피크와 4달 뒤 값(우리 데이터로 계산) + 최근 24개월 표(접어 둠) |
 | S&P500 이평선 위 종목 비율 | [위키백과 S&P500 종목 목록](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) + Yahoo Finance 종목별 주가 | 직접 계산(아래 공식). 지금 종목 기준이라 바차트 등과 조금 다를 수 있음 |
 | S&P500 12개월 예상 P/E | [FactSet Earnings Insight](https://insight.factset.com/) 주간 보고서(PDF) 첫 장 | 매주 금요일. 보고서마다 출처 URL을 `data/sp500_pe.csv` 에 함께 저장, 5년·10년 평균도 보고서 문장 그대로 |
 
