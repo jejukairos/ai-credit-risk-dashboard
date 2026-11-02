@@ -521,7 +521,7 @@ def fetch_trading_value():
 
 def fetch_wti():
     import yfinance as yf
-    v = yf.download("CL=F", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    v = yf.download("CL=F", start="2000-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()  # Yahoo는 2000-08-23부터
     if v.empty:
         raise RuntimeError("WTI 데이터가 비어 있음")
     v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
@@ -531,8 +531,8 @@ def fetch_wti():
 def fetch_usmkt():
     # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB)·원/달러 환율(KRW=X). S&P500은 fetch_prices가 sp500.csv로 받음
     import yfinance as yf
-    for sym, name in [("^TNX", "us10y"), ("DX-Y.NYB", "dxy"), ("KRW=X", "usdkrw")]:
-        v = yf.download(sym, start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    for sym, name, start in [("^TNX", "us10y", "1962-01-01"), ("DX-Y.NYB", "dxy", "2020-01-01"), ("KRW=X", "usdkrw", "2020-01-01")]:
+        v = yf.download(sym, start=start, progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if v.empty:
             raise RuntimeError(f"{sym} 데이터가 비어 있음")
         v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
@@ -608,16 +608,17 @@ US_YIELDS = {"3 Mo": "m3", "1 Yr": "y1", "2 Yr": "y2", "5 Yr": "y5", "10 Yr": "y
 
 
 def fetch_us_yields():
-    # 미국 국채 만기별 금리(미 재무부 Daily Treasury Par Yield Curve, 매일 장 마감 기준). 처음엔 2020년부터, 그 뒤엔 올해(1월엔 작년도)만 받아 합침
+    # 미국 국채 만기별 금리(미 재무부 Daily Treasury Par Yield Curve, 매일 장 마감 기준). 처음엔 1990년(재무부 자료 시작)부터, 그 뒤엔 올해(1월엔 작년도)만 받아 합침
     path, now = os.path.join(DATA, "us_yields.csv"), datetime.now(KST)
-    years = range(2020, now.year + 1) if not os.path.exists(path) else sorted({now.year, now.year if now.month > 1 else now.year - 1})
+    full = not os.path.exists(path) or pd.read_csv(path, dtype={"date": str})["date"].min() > "1990-12-31"
+    years = range(1990, now.year + 1) if full else sorted({now.year, now.year if now.month > 1 else now.year - 1})
     frames = []
     for yr in years:
         r = get(f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{yr}/all",
                 params={"type": "daily_treasury_yield_curve", "field_tdr_date_value": yr, "page": "", "_format": "csv"})
         d = pd.read_csv(io.StringIO(r.text))
         d["date"] = pd.to_datetime(d["Date"], format="%m/%d/%Y").dt.strftime("%Y-%m-%d")
-        frames.append(d[["date", *US_YIELDS]].rename(columns=US_YIELDS))
+        frames.append(d.reindex(columns=["date", *US_YIELDS]).rename(columns=US_YIELDS))  # 30년물은 2002~2006년 발행 중단(빈칸)
     df = pd.concat(frames)
     if os.path.exists(path):
         df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates("date", keep="last")
@@ -628,9 +629,9 @@ US_ETFS = ["SPY", "QQQ", "SOXX", "DIA", "MAGS", "DRAM", "AIPO", "LYTE", "NCLD"]
 
 
 def fetch_us_etfs():
-    # 미국 ETF 일별 종가·장중 최고가(Yahoo, 2020년 또는 상장 뒤부터): QQQ·SOXX 섹션, 올해 주가 흐름, 고점 대비 하락률에 씀
+    # 미국 ETF 일별 종가·장중 최고가(Yahoo, 1999년 또는 상장 뒤부터): QQQ·SOXX 섹션(전체 기간), 올해 주가 흐름·고점 대비 하락률(2020년~만)에 씀
     import yfinance as yf
-    d = yf.download(US_ETFS, start="2020-01-01", progress=False, auto_adjust=False, threads=False)
+    d = yf.download(US_ETFS, start="1999-01-01", progress=False, auto_adjust=False, threads=False)
     miss = [t for t in US_ETFS if d["Close"][t].dropna().empty]
     if miss:
         raise RuntimeError("ETF 주가 없음: " + ", ".join(miss))
@@ -655,6 +656,7 @@ def build_us_today():
     ep = os.path.join(DATA, "us_etfs.csv")
     if os.path.exists(ep):
         e = pd.read_csv(ep, dtype={"date": str}).set_index("date").sort_index()
+        e = e[e.index >= "2020-01-01"]
         yr, etf = e.index[-1][:4], {"date": e.index[-1]}
         for t in US_ETFS:
             c, hi = e[t].dropna(), e[t + "_high"].dropna()
@@ -2185,16 +2187,18 @@ def build_hynix_inv():
 # ---------- 주식 공급: 미국 기업 주식 순발행(연준) · 미국 IPO(나스닥 IPO 달력) ----------
 def fetch_equity_supply():
     # 순발행 = 새로 찍은 주식(IPO·증자) − 사라진 주식(자사주 매입·현금 인수합병). 연준 자금순환표(Z.1) 미국 비금융 기업, 분기 합계(백만 달러)
-    net = fred_series("BOGZ1FU103164103Q", "2019-01-01") / 100  # fred_series는 %→bp(×100)로 돌려주므로 되돌림
+    net = fred_series("BOGZ1FU103164103Q", "1946-01-01") / 100  # fred_series는 %→bp(×100)로 돌려주므로 되돌림. 연준 자료는 1946년 4분기부터
     net.rename("usd_mil").rename_axis("date").to_csv(os.path.join(DATA, "us_equity_net.csv"))
-    # IPO: 나스닥 IPO 달력에서 공모가가 정해진(priced) 건. 처음엔 2019년부터 채우고, 이후엔 지난달~다음 달만 다시 받음
+    # IPO: 나스닥 IPO 달력에서 공모가가 정해진(priced) 건. 처음엔 2000년부터 채우고, 이후엔 지난달~다음 달만 다시 받음
     path, upath = os.path.join(DATA, "us_ipo.csv"), os.path.join(DATA, "us_ipo_upcoming.csv")
     old = pd.read_csv(path, dtype={"deal": str, "date": str}) if os.path.exists(path) else None
+    if old is not None and old["date"].min() > "2008-12-31":
+        old = None
     this = pd.Period(datetime.now(KST).strftime("%Y-%m"), "M")
     usd = lambda s: float(s.replace("$", "").replace(",", "")) if s else None
     day = lambda s: pd.to_datetime(s, format="%m/%d/%Y").strftime("%Y-%m-%d")
     rows, up = [], []
-    for m in pd.period_range("2019-01" if old is None else this - 1, this + 1, freq="M"):
+    for m in pd.period_range("2000-01" if old is None else this - 1, this + 1, freq="M"):
         d = requests.get(f"https://api.nasdaq.com/api/ipo/calendar?date={m}", headers={**BROWSER_UA, "Accept": "application/json"},
                          timeout=30).json()["data"]
         for r in (d.get("priced") or {}).get("rows") or []:

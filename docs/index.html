@@ -533,7 +533,7 @@ footer a{color:var(--ink2)}
     <div class="memo">
       <b>🐒 왜 보나</b>
       <div>· 폴 튜더 존스(26년 10월): 지난 4년 강세장은 <b>자사주 매입·인수합병으로 주식이 줄어든 덕</b>이 컸는데, 2027년엔 앤트로픽·오픈AI 상장 가능성, AI 투자 자금용 증자, 스페이스X 등의 <b>보호예수 해제</b>가 겹쳐 <b>"2002년 이후 가장 나쁜 수급"</b>이 될 수 있다고 경고했어요.</div>
-      <div>· 우리 데이터로 보면 이미 시작됐어요: 순발행이 <b>26년 1분기부터 플러스</b>로 바뀌었고, 26년 6월 <b>스페이스X IPO 750억 달러</b>는 2019년 이후 한 건으로 가장 커요(그래프 26년 6월 막대, 나스닥 IPO 달력).</div>
+      <div>· 우리 데이터로 보면 이미 시작됐어요: 순발행이 <b>26년 1분기부터 플러스</b>로 바뀌었고, 26년 6월 <b>스페이스X IPO 750억 달러</b>는 2000년 이후 한 건으로 가장 커요(그래프 26년 6월 막대, 나스닥 IPO 달력 2000년~ 기준).</div>
       <div>· 그래서 순발행 막대가 <b>플러스로 더 커지는지</b>, IPO 막대가 <b>계속 치솟는지</b> 봐요.</div>
       <div>· 좋은 회사 주가가 빠질 때 <b>회사 문제인지, 물량(공급) 문제인지</b> 가르는 데 써요. 물량 문제라면 회사 가치는 그대로일 수 있어요.</div>
       <div class="src">출처: <a href="https://qz.com/paul-tudor-jones-2027-stock-market-warning-101326" target="_blank" rel="noopener">Quartz</a> · <a href="https://m.news.nate.com/view/20261013n36939" target="_blank" rel="noopener">뉴스핌(네이트)</a> (사용자 제공 요약에 달린 출처)</div>
@@ -1461,8 +1461,9 @@ function renderSupply() {
     ${S.upcoming.length ? `<div class="small" style="margin:6px 4px 2px"><b>곧 상장 예정</b> (나스닥 IPO 달력)</div><ul class="small" style="margin:0 4px 6px;padding-left:18px">${S.upcoming.map(u =>
       `<li>${md(u.date)} ${h(u.name)}${u.ticker ? ` (${h(u.ticker)})` : ''} · 공모가 $${h(u.price || '–')} · 약 ${u.usd ? fmtNum(u.usd / 1e8, 1) + '억 달러' : '–'}</li>`).join('')}</ul>` : ''}`;
   const end = new Date(new Date(I.x[I.x.length - 1]).getTime() + 40 * 864e5).toISOString().slice(0, 10);
-  // 위 기간 버튼을 따름. 분기 막대가 첫날 앞에서 시작해도 보이게 3달 앞까지
-  const ps = periodStart(I.x[I.x.length - 1]), xs = ps ? new Date(new Date(ps) - 92 * 864e5).toISOString().slice(0, 10) : (N.x[0] < I.x[0] ? N.x[0] : I.x[0]);
+  // 위 기간 버튼을 따름. 분기 막대가 첫날 앞에서 시작해도 보이게 3달 앞까지, 순발행은 늦게 나오니 마지막 분기는 늘 보이게
+  const ps = periodStart(I.x[I.x.length - 1]), p3 = ps && new Date(new Date(ps) - 92 * 864e5).toISOString().slice(0, 10);
+  const xs = ps ? (p3 < N.x[k - 1] ? p3 : N.x[k - 1]) : (N.x[0] < I.x[0] ? N.x[0] : I.x[0]);
   const vr = o => padRange(o.y.filter((_, i) => o.x[i] >= xs).concat([0]), false);
   Plotly.react('supplyplot', [
     {x: N.x, y: N.y, customdata: N.x.map(ql), type: 'bar', name: '순발행', xperiod: 'M3', xperiodalignment: 'middle',
