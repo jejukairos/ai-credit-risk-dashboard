@@ -684,6 +684,14 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">시장마다 위 = <b>빚내서 산 주식</b> 금액(신용융자), 아래 = 그 시장 지수예요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 고른 기간의 최고점. 이 섹션 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS · 지수 네이버 금융(2019년~)</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <div class="memo" style="margin:8px 0">🧭 <b>부의 나침반 생각</b> <span class="small">(10/29 신용잔고 기준)</span>
+      <div>· 코스피 지수는 <b>3주째 박스권</b>인데, 신용잔고는 같은 기간 <b>빠르게 줄었어요</b>(코스피 22조 5,478억, 1주 새 −9,751억 · 코스닥 6조 5,408억, −2,996억 · 합계 29조 886억).</div>
+      <div>· 지수가 오르는 날 기대감에 <b>따라 샀다가 위아래로 털리기 딱 좋은 시장</b>이에요.</div>
+      <div>· 바닥을 찍고 <b>V자로 반등</b>해서 빚낸 사람에게 쉽게 수익을 주는 시장이 아니에요.</div>
+      <div>· 팔 사람이 다 팔고 나면, <b>나쁜 뉴스에도 시장이 크게 반응하지 않는 구간</b>에 들어가요.</div>
+      <div class="real" id="wcompassauto"></div>
+      <div class="src">출처: user: 사용자가 보내 준 텔레그램 '부의 나침반'(t.me/w_compass) 글·그림 '코스피/코스닥 지수 vs 신용잔고'(26.10.29 기준) · 숫자는 금투협 자료와 같음을 확인(26.11.02)</div>
+    </div>
     <div id="cleanbox"></div>
     <div id="liqbox"></div>
     <div class="memo" id="kqoddeven" style="margin-top:8px"></div>
@@ -1621,6 +1629,12 @@ function renderKofia() {
   }
   const w = k.w1_val;
   document.getElementById('creditmktnow').innerHTML = `1주 전(코스피 ${fmtNum(w.credit_kospi, 2)}조 · 코스닥 ${fmtNum(w.credit_kosdaq, 2)}조) → 지금(코스피 ${fmtNum(k.credit_kospi[k.credit_kospi.length - 1], 2)}조 · 코스닥 ${fmtNum(k.credit_kosdaq[k.credit_kosdaq.length - 1], 2)}조)`;
+  if (k.credit_kospi && k.kospi && k.x.length > 16) {  // 부의 나침반 메모: 최근 3주(15거래일) 코스피 vs 신용잔고, 매일 다시 계산
+    const P = k.kospi, e = k.x.length - 1, a = e - 15, d2 = s => s.slice(2).replace(/-/g, '.'), chg = (b, z) => fmtPct((z / b - 1) * 100);
+    const at = d => { let i = P.x.length - 1; while (i > 0 && P.x[i] > d) i--; return i; }, i0 = at(k.x[a]), i1 = at(k.x[e]), win = P.y.slice(i0, i1 + 1);
+    document.getElementById('wcompassauto').innerHTML = `<b>우리 자료로 매일 다시 보기</b> 최근 3주(15거래일, ${d2(k.x[a])} → ${d2(k.x[e])}) 코스피 ${chg(P.y[i0], P.y[i1])}
+      (그 사이 ${n0(Math.min(...win))}~${n0(Math.max(...win))}) · 코스피 신용 ${chg(k.credit_kospi[a], k.credit_kospi[e])} · 코스닥 신용 ${chg(k.credit_kosdaq[a], k.credit_kosdaq[e])}`;
+  }
   Plotly.react('kofiaplot', [
     {x: k.x, y: k.forced, type: 'bar', name: '반대매매', marker: {color: css('--bad')}, hovertemplate: '%{y:,.0f}억'},
     {x: k.x, y: k.ratio, type: 'scatter', mode: 'lines', name: '미수금 대비 비중', yaxis: 'y2', line: {color: css('--g5'), width: 1.6}, hovertemplate: '%{y:.1f}%'},
