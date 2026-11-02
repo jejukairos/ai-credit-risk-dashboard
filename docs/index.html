@@ -632,7 +632,7 @@ footer a{color:var(--ink2)}
     <div class="memo">
       <b>📈 VKOSPI가 가장 크게 치솟았던 때 — 주가는 언제 반응했나</b>
       <div>· <b>08.10.29 89.30</b> 글로벌 금융위기 때 종가 최고(공식 발표는 2009년 4월부터라 그 전 자료 기준)</div>
-      <div>· <b>26.03.05 83.58</b> 이란 전쟁이 터졌을 때. 바로 전날(3/4) 코스피가 하루 <b>−12.06%</b>로 2019년 이후 가장 크게 빠졌어요.</div>
+      <div>· <b>26.03.05 장중 83.58</b>(그날 종가 73.71 · 종가로는 전날 3/4의 80.37이 더 높았어요, 한국거래소) 이란 전쟁이 터졌을 때. 바로 전날(3/4) 코스피가 하루 <b>−12.06%</b>로 2019년 이후 가장 크게 빠졌어요.</div>
       <div>· <b>26.06.09 91.23</b>(하루 +19%) 2009년 이후 처음 종가 90을 넘었어요. 6/5·6/8 이틀 새 크게 빠졌다가 이날 코스피 <b>+8.2%</b>로 튀는 등 위아래로 마구 흔들리던 때예요. 그런데 코스피는 그 뒤로도 <b>2주(9거래일) 더 올라 6/22 최고점 9,115</b>을 찍었어요.</div>
       <div>· <b>26.06.23</b> 바로 다음 날 코스피 하루 <b>910포인트 넘게 폭락</b>(역대 최대 폭, −10.0%) · 매도 사이드카·서킷브레이커 → 6/24 장중 95.48, <b>6/29 종가 96.94 역대 최고</b></div>
       <div class="real" id="vkauto"></div>
@@ -1951,7 +1951,7 @@ function renderVkospi() {
   document.getElementById('vkscore').textContent = k.last.toFixed(2);
   const rt = document.getElementById('vkrating');
   rt.textContent = `역대 최고(26.06.29 96.94)의 ${Math.round(k.last / REC * 100)}%`; rt.style.color = css('--ink2');
-  document.getElementById('vkprev').innerHTML = `${k.last_date} 한국 장 마감 기준<br>전일 ${k.prev.toFixed(2)} · ${md(k.since)} 이후 우리 기록 중 최고 ${k.max_1y.value.toFixed(2)} (${md(k.max_1y.date)})`;
+  document.getElementById('vkprev').innerHTML = `${k.last_date} 한국 장 마감 기준<br>전일 ${k.prev.toFixed(2)} · 최근 1년 최고 ${k.max_1y.value.toFixed(2)} (${md(k.max_1y.date)})`;
   const xs = xStartFor(last, k.x[0]);
   const traces = [{x: k.x, y: k.y, type: 'scatter', mode: k.x.length < 40 ? 'lines+markers' : 'lines', name: 'VKOSPI', line: {color: css('--cds'), width: 2.2}, marker: {size: 4}, hovertemplate: '%{y:.2f}'}];
   Plotly.react('vkplot', traces, tagLast(Object.assign(baseLayout(), {
@@ -1960,13 +1960,14 @@ function renderVkospi() {
   }), [[k.y, 'y', v => v.toFixed(2), css('--cds')]]), CFG);
   // 우리 기록에서 하루에 가장 크게 뛴 날 + 그 앞뒤 5거래일 코스피 (코스피 = 네이버 금융 일별 종가)
   const P = DATA.kofia && DATA.kofia.kospi;
-  let j = 1; for (let i = 2; i < k.y.length; i++) if (k.y[i] - k.y[i - 1] > k.y[j] - k.y[j - 1]) j = i;
   if (P && P.x.length && k.y.length > 2) {
+    const j0 = Math.max(1, k.x.findIndex(d => d > P.x[0]));  // 코스피 자료(2015년~)가 있는 날 중에서
+    let j = j0; for (let i = j0 + 1; i < k.y.length; i++) if (k.y[i] - k.y[i - 1] > k.y[j] - k.y[j - 1]) j = i;
     const pi = P.x.indexOf(k.x[j]), ch = (a, b) => a >= 0 && b >= 0 && b < P.y.length ? fmtPct((P.y[b] / P.y[a] - 1) * 100) : '<span class="small">아직</span>';
-    document.getElementById('vkauto').innerHTML = pi < 0 ? '' : `<b>우리 기록(${md(k.since)}~, 매일 자동)</b> 하루에 가장 크게 뛴 날은 <b>${md(k.x[j])}</b> ${k.y[j - 1].toFixed(2)} → ${k.y[j].toFixed(2)} (+${(k.y[j] - k.y[j - 1]).toFixed(2)})예요.
+    document.getElementById('vkauto').innerHTML = pi < 0 ? '' : `<b>우리 기록(${md(k.x[j0 - 1])}~, 매일 자동)</b> 하루에 가장 크게 뛴 날은 <b>${md(k.x[j])}</b> ${k.y[j - 1].toFixed(2)} → ${k.y[j].toFixed(2)} (+${(k.y[j] - k.y[j - 1]).toFixed(2)})예요.
       그날 코스피 ${ch(pi - 1, pi)} · 그 전 5거래일 ${ch(pi - 6, pi - 1)} · 그 뒤 5거래일 ${ch(pi, pi + 5)}`;
   }
-  document.getElementById('vknote').innerHTML = `자료: <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a> (최근 약 20거래일만 공개돼서 ${k.since}부터 매일 쌓는 중). 그 전 기록은 위 기사 숫자예요.`;
+  document.getElementById('vknote').innerHTML = `자료: <a href="https://openapi.krx.co.kr/" target="_blank" rel="noopener">한국거래소 Open API</a>(파생상품지수 시세정보 · 코스피 200 변동성지수 종가, ${k.since}~, 다음 날 아침에 나와요) · 오늘 마감 숫자는 <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a>에서 먼저 받아요(두 곳 숫자가 같은지 확인함). ${k.since.slice(0, 4)}년 전 기록은 위 기사 숫자예요. 위 기간 버튼 '전체'를 누르면 ${k.since.slice(0, 4)}년부터 보여요.`;
 }
 
 function renderMove() {

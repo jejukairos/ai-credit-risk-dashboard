@@ -439,9 +439,30 @@ def fetch_vix():
     v.rename("vix").rename_axis("date").round(2).to_csv(os.path.join(DATA, "vix.csv"))
 
 
+def fetch_vkospi_krx(start=None):
+    # VKOSPI 종가: 한국거래소 Open API '파생상품지수 시세정보'(호출 1번 = 그날 하루치, 2010-01-04~, 다음 날 아침에 나옴).
+    # 평소엔 최근 7일을 다시 불러 거래소 공식 종가로 덮음(장중에 인베스팅닷컴에서 받은 값 정리). 과거 채우기는 한 번만 fetch_vkospi_krx("2010-01-04")
+    key = os.environ.get("KRX_API_KEY")
+    if not key:
+        raise RuntimeError("KRX_API_KEY 없음 (.env)")
+    path = os.path.join(DATA, "vkospi.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "vkospi"])
+    have, recent = set(old["date"]), (pd.Timestamp(old["date"].max()) - pd.Timedelta(days=7)).strftime("%Y-%m-%d")
+    days = [d for d in pd.bdate_range(start or recent, datetime.now(KST).date()).strftime("%Y-%m-%d") if d not in have or d >= recent]
+    rows, ses = [], requests.Session()
+    for d in days:
+        r = ses.get(KRX_IDX_URL, params={"basDd": d.replace("-", "")}, headers={"AUTH_KEY": key}, timeout=30)
+        r.raise_for_status()
+        v = [x["CLSPRC_IDX"] for x in r.json().get("OutBlock_1", []) if x.get("IDX_NM") == "코스피 200 변동성지수"]
+        if v and v[0]:
+            rows.append({"date": d, "vkospi": float(v[0].replace(",", ""))})
+    if rows:
+        pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
+
+
 def fetch_vkospi():
     # VKOSPI(코스피200 변동성지수): 인베스팅닷컴 공개 '과거 데이터' 페이지에 실린 최근 약 20거래일 종가를 매일 저장해 쌓음
-    # (야후에는 없고, 한국거래소 데이터 사이트는 로그인이 필요)
+    # (한국거래소 Open API는 하루 늦게 나와서, 오늘 마감 숫자는 여기서 먼저 받음)
     html = requests.get(VKOSPI_URL, headers=BROWSER_UA, timeout=60).text
     rows = [{"date": datetime.strptime(d, "%b %d, %Y").strftime("%Y-%m-%d"), "vkospi": float(v.replace(",", ""))}
             for d, v in re.findall(r'<time[^>]*dateTime="([^"]+)"[^<]*</time></td><td[^>]*>([\d.,]+)<', html)]
@@ -1241,6 +1262,7 @@ def fetch_hy():
 # ---------- 판독기 탭: AAII 심리 · CBOE 풋콜 · FINRA 신용잔고 · S&P500 이평선 위 종목 비율 · FactSet P/E ----------
 # 일부 사이트는 프로그램 이름이 붙은 요청을 막아서 일반 브라우저처럼 요청
 VKOSPI_URL = "https://www.investing.com/indices/kospi-volatility-historical-data"
+KRX_IDX_URL = "https://data-dbg.krx.co.kr/svc/apis/idx/drvprod_dd_trd"
 BROWSER_UA ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"}
 
 
@@ -2703,7 +2725,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(인베스팅닷컴)", fetch_vkospi), ("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
