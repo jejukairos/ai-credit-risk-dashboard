@@ -579,7 +579,9 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card"><h3><span id="invtitle"></span></h3>
     <div class="small" id="invsum" style="margin:0 4px 6px;color:var(--ink)"></div>
+    <div class="fgchips" id="invbig"></div>
     <div id="invplot" class="plot" style="height:400px"></div>
+    <div id="invbighist"></div>
     <details class="fold"><summary><b>📋 날짜별 숫자</b> <span class="small">(▶ 누르면 펼쳐져요 · 억원)</span></summary>
       <div class="tablebox" style="border:0"><table id="invtable"><thead></thead><tbody></tbody></table></div></details>
     <div class="memo" style="margin:8px 0">
@@ -593,7 +595,7 @@ footer a{color:var(--ink2)}
       <div>· <b>보험·은행·기타금융기관</b> 보험회사(보험료를 길게 굴림)·은행·저축은행·캐피털 등이에요. 금액이 작은 편이에요.</div>
       <div><b>기타법인</b> 금융회사가 아닌 일반 회사예요. 자기 회사 주식을 사들이는 <b>자사주 매입</b>도 여기 잡혀요.</div>
     </div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a>(KRX, 순매수 억원, 매일 16시·20시 자동 갱신, 2026-06-05부터 쌓여요). 1주·1개월·3개월 = 마지막 날부터 7일·1달·3달 안 거래일 합계. 묶음은 네이버 화면과 같아요: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모, 연기금등 = 연기금+국가·지자체, 기관계 = 금융투자~연기금등 합. 지수 변화 = 네이버 금융 종가(기간 시작 전날 → 마지막 날). 한 줄 요약은 숫자로 자동으로 만든 거예요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a>(한국거래소 KRX + 넥스트레이드 NXT 합계 = 증권사 HTS '통합' 화면과 같음, 순매수 억원, 매일 16시·20시 자동 갱신, 2024-05-14부터 · 마감 직후엔 잠정치라 다음 갱신 때 확정치로 바뀌어요). 1주·1개월·3개월 = 마지막 날부터 7일·1달·3달 안 거래일 합계. 묶음은 네이버 화면과 같아요: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모, 연기금등 = 연기금+국가·지자체, 기관계 = 금융투자~연기금등 합. 지수 변화 = 네이버 금융 종가(기간 시작 전날 → 마지막 날). 한 줄 요약은 숫자로 자동으로 만든 거예요.</p>
   </div>
 
   <h2 id="sec-fx">원/달러 환율</h2>
@@ -1289,7 +1291,7 @@ function renderToday() {
   });
 }
 
-// 투자자별 매매동향 — 네이버 증권(KRX) 일별 순매수(억원). 섹션 자체 버튼: 시장·기간
+// 투자자별 매매동향 — 네이버 증권(KRX+NXT 합계) 일별 순매수(억원). 섹션 자체 버튼: 시장·기간
 let INV_MK = 'kospi', INV_P = '1d';
 const INV_COLS = [['indiv', '개인'], ['foreign', '외국인'], ['inst', '기관계'], ['fin', '금융투자'], ['ins', '보험'], ['trust', '투신(사모)'],
   ['bank', '은행'], ['otherfin', '기타금융'], ['pension', '연기금등'], ['corp', '기타법인']];
@@ -1330,6 +1332,25 @@ function renderInvestors() {
   const tb = document.getElementById('invtable');
   tb.tHead.innerHTML = `<tr><th>날짜</th>${INV_COLS.map(([, l]) => `<th>${l}</th>`).join('')}</tr>`;
   tb.tBodies[0].innerHTML = o.x.slice(t0).map((d, j) => `<tr><td>${md(d)}</td>${INV_COLS.map(([k]) => cell(o[k][t0 + j])).join('')}</tr>`).reverse().join('');
+  // 대량매수 강조(update.py: 그날 순매수가 그 전 1년 하루 값 중 상위 5% 이상). 마지막 날 기준 며칠째인지 + 과거 연기금 이틀 연속 때 지수
+  const B = o.big || {}, bn = {pension: '연기금', foreign: '외국인', inst: '기관'};
+  const streak = k => { let c = 0; while (c < n && B[k][n - 1 - c]) c++; return c; };
+  const ord = c => c < 2 ? '' : (['', '', '이틀째 ', '사흘째 ', '나흘째 '][c] || `${c}일째 `);
+  document.getElementById('invbig').innerHTML = Object.keys(bn).filter(k => B[k] && B[k][n - 1]).map(k =>
+    `<span class="chip hot">🔔 ${bn[k]} ${ord(streak(k))}대량매수 ${won(o[k][n - 1])} (${md(last)})</span>`).join('');
+  const hist = document.getElementById('invbighist'), P = B.pension;
+  if (!P) { hist.innerHTML = ''; return; }
+  const ev = []; for (let i = 1; i < n; i++) if (P[i] && P[i - 1] && !(i > 1 && P[i - 2])) ev.push(i);  // 이틀 연속이 된 날
+  const aft = (i, d) => i + d < n && o.idx[i] && o.idx[i + d] ? (o.idx[i + d] / o.idx[i] - 1) * 100 : null;
+  const pc = v => v == null ? '<span class="small">아직</span>' : fmtPct(v), done = ev.filter(i => aft(i, 20) != null);
+  hist.innerHTML = `<div class="memo" style="margin:4px 0 8px">
+    <b>🏦 연기금이 이틀 이상 크게 사면 — 변곡점?</b>
+    <div>· <b>대량매수</b> = 그날 산 금액(순매수)이 <b>지난 1년 하루 값 중 상위 5%</b> 안에 드는 날이에요(지금 ${INV_MK === 'kospi' ? '코스피' : '코스닥'} 연기금 기준 <b>${fmtNum(o.big_th.pension)}억</b> 이상). 이런 날이 이어지면 위에 🔔로 크게 보여 줘요(외국인·기관도 같은 규칙).</div>
+    <div>· 연기금은 주가가 많이 빠졌을 때 정해진 비중을 맞추려고 <b>사들이는</b> 경우가 많아서, 크게 사는 날이 이어지면 <b>바닥(변곡점) 근처일 수도</b> 있다고 봐요. <span class="small">(사용자 메모 26.11.02)</span></div>
+    <div class="tablebox" style="border:0;margin:6px 0"><table><thead><tr><th>이틀째 날</th><th>그날 지수</th><th>5거래일 뒤</th><th>20거래일 뒤</th></tr></thead><tbody>${ev.slice().reverse().map(i =>
+      `<tr><td>${o.x[i].slice(2).replace(/-/g, '.')}</td><td>${o.idx[i] ? fmtNum(o.idx[i], 0) : '–'}</td><td>${pc(aft(i, 5))}</td><td>${pc(aft(i, 20))}</td></tr>`).join('')}</tbody></table></div>
+    <div class="small">${o.x[0].slice(0, 4)}년~ 우리 자료로 자동 계산 · 20거래일이 지난 ${done.length}번 중 <b>${done.filter(i => aft(i, 20) > 0).length}번</b> 지수가 올랐어요. 횟수가 적어서 참고만 해요.</div>
+  </div>`;
 }
 document.querySelectorAll('#invmk button, #invbar button').forEach(b => b.onclick = () => {
   if (b.dataset.m) INV_MK = b.dataset.m; else INV_P = b.dataset.i;

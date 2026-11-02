@@ -776,29 +776,39 @@ def fetch_kr_today():
 # 연기금등 = 연기금+국가·지자체). 기관계 = 금융투자~연기금등 합
 INVESTORS = {"indiv": ["8000"], "foreign": ["9000", "9001"], "fin": ["1000"], "ins": ["2000"], "trust": ["3000", "3100"],
              "bank": ["4000"], "otherfin": ["5000"], "pension": ["6000", "7000"], "corp": ["7100"]}
+BIG_BUY = ["pension", "foreign", "inst"]  # 대량매수 강조할 주체(연기금등·외국인·기관계)
 
 
 def fetch_kr_investors():
-    # 투자자별 매매동향(네이버 증권 stock.naver.com/market/stock/kr/trend/trader, KRX): 일별 순매수(억원).
-    # 한 번에 최근 100거래일을 받아 쌓음(같은 날은 나중 값으로). 장 마감 전 오늘 값은 움직이는 중이라 뺌
+    # 투자자별 매매동향(네이버 증권 stock.naver.com/market/stock/kr/trend/trader): 일별 순매수(억원) = 한국거래소(KRX) + 넥스트레이드(NXT)
+    # 합계(증권사 HTS '통합' 화면과 같음, 26.10.30 연기금 8,929 + 36 = 8,965억 ≈ HTS 8,966억 확인). NXT는 2025-03부터라 그 전은 KRX만.
+    # 평소엔 최근 100거래일, 저장된 게 2년(500일)이 안 되면 600거래일을 받아 쌓음(같은 날은 나중 값으로). 장 마감 전 오늘 값은 움직이는 중이라 뺌
     now = datetime.now(KST)
-    rows = []
+    path = os.path.join(DATA, "kr_investors.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
+    pages = range(6) if old is None or (old["market"] == "kospi").sum() < 500 else [0]
+    acc = {}
     for mk in ("KOSPI", "KOSDAQ"):
-        j = get("https://stock.naver.com/api/domestic/market/trend/daily", timeout=30,
-                params={"tradeType": "KRX", "marketType": mk, "bizdate": now.strftime("%Y%m%d"), "startIdx": 0, "pageSize": 100}).json()
-        for d in j["content"]:
-            if d["bizdate"] == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
-                continue
-            v = {a["investorGubun"]: int(a["diffValue"]) for a in d["netAmounts"]}
-            r = {k: round(sum(v.get(c, 0) for c in cs) / 1e8, 2) for k, cs in INVESTORS.items()}
-            r["inst"] = round(sum(r[k] for k in ("fin", "ins", "trust", "bank", "otherfin", "pension")), 2)
-            rows.append({"date": f"{d['bizdate'][:4]}-{d['bizdate'][4:6]}-{d['bizdate'][6:]}", "market": mk.lower(), **r})
+        for tt in ("KRX", "NXT"):
+            for st in pages:
+                j = get("https://stock.naver.com/api/domestic/market/trend/daily", timeout=30,
+                        params={"tradeType": tt, "marketType": mk, "bizdate": now.strftime("%Y%m%d"), "startIdx": st, "pageSize": 100}).json()
+                for d in j["content"]:
+                    if d["bizdate"] == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
+                        continue
+                    v = acc.setdefault((d["bizdate"], mk.lower()), {})
+                    for a in d["netAmounts"]:
+                        v[a["investorGubun"]] = v.get(a["investorGubun"], 0) + int(a["diffValue"])
+    rows = []
+    for (bd, mk), v in acc.items():
+        r = {k: round(sum(v.get(c, 0) for c in cs) / 1e8, 2) for k, cs in INVESTORS.items()}
+        r["inst"] = round(sum(r[k] for k in ("fin", "ins", "trust", "bank", "otherfin", "pension")), 2)
+        rows.append({"date": f"{bd[:4]}-{bd[4:6]}-{bd[6:]}", "market": mk, **r})
     if len(rows) < 100:
         raise RuntimeError(f"투자자별 매매동향을 너무 적게 받음 ({len(rows)}행)")
-    path = os.path.join(DATA, "kr_investors.csv")
     df = pd.DataFrame(rows)
-    if os.path.exists(path):
-        df = pd.concat([pd.read_csv(path, dtype={"date": str}), df]).drop_duplicates(["date", "market"], keep="last")
+    if old is not None:
+        df = pd.concat([old, df]).drop_duplicates(["date", "market"], keep="last")
     df.sort_values(["date", "market"]).to_csv(path, index=False)
 
 
@@ -809,11 +819,15 @@ def build_kr_investors():
     df = pd.read_csv(path, dtype={"date": str})
     out = {}
     for mk in ("kospi", "kosdaq"):
-        m = df[df["market"] == mk].sort_values("date").tail(260)
+        m = df[df["market"] == mk].sort_values("date").tail(520)
         lp = os.path.join(DATA, f"{mk}_long.csv")
         idx = pd.read_csv(lp, dtype={"date": str}).set_index("date")[mk] if os.path.exists(lp) else pd.Series(dtype=float)
+        # 대량매수 = 그날 순매수가 그 전 1년(250거래일, 최소 120일) 하루 값 중 상위 5% 이상. th = 다음 날 기준선
+        th = {k: m[k].rolling(250, min_periods=120).quantile(0.95) for k in BIG_BUY}
         out[mk] = {"x": list(m["date"]), **{k: [round(float(v), 1) for v in m[k]] for k in ["inst", *INVESTORS]},
-                   "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]]}
+                   "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]],
+                   "big": {k: [int(v >= t) for v, t in zip(m[k], th[k].shift(1))] for k in BIG_BUY},
+                   "big_th": {k: round(float(th[k].iloc[-2]), 0) for k in BIG_BUY}}
     return out
 
 
