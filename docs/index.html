@@ -220,7 +220,7 @@ footer a{color:var(--ink2)}
   <div class="glossary">
     <div><b>고점 대비 하락률</b> = 지금 값이 가장 비쌌던 때(장중 최고가)보다 몇 % 아래인지예요. 올해 많이 올랐어도 고점에서 많이 빠졌으면, 그만큼 크게 흔들리고 있다는 뜻이에요.</div>
   </div>
-  <div class="card"><h3><span>AI 인프라 ETF — 올해 수익률 · 고점 대비</span></h3>
+  <div class="card"><h3><span>AI 인프라 ETF — 올해 수익률 · 고점 대비</span><span class="small" id="etfdate"></span></h3>
     <div id="etfai" class="plot" style="height:340px"></div></div>
   <div class="card"><h3><span>주요 지수 ETF — 고점 대비 하락률</span></h3>
     <div id="etfidx" class="plot" style="height:200px"></div>
@@ -238,7 +238,7 @@ footer a{color:var(--ink2)}
     <div class="glossary" style="margin:0 0 10px"><div><b>국채 금리</b> 미국 정부가 돈을 빌릴 때 주는 이자예요. 3개월은 짧게, 30년은 아주 길게 빌릴 때예요. 보통은 길게 빌릴수록 이자가 높아요. 짧은 금리가 긴 금리보다 높아지는 <b>금리 역전</b>은 경기가 나빠질 신호로 많이 봐요.</div></div>
     <div id="usyield"></div>
     <div id="yieldplot" class="plot" style="height:250px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 2020년부터 쌓여 있고, 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 재무부 자료가 시작된 1990년부터 쌓여 있고(30년물은 2002~2006년에 발행을 쉬어서 빈칸), 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1990년~).</p>
   </div>
 
   <h2 id="sec-liq">💧 미국 MMF · M2 — 돈이 어디에 쌓였나</h2>
@@ -271,7 +271,7 @@ footer a{color:var(--ink2)}
       <div><b>ETF</b> 여러 회사 주식을 한 바구니에 담아 주식처럼 사고파는 상품이에요. <b>QQQ</b>는 나스닥의 큰 회사 100곳(금융회사 빼고), <b>SOXX</b>는 미국 반도체 회사들을 담아요.</div>
     </div>
     <div id="mkt-etf"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(QQQ·SOXX 종가, 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(QQQ·SOXX 종가, 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 상장 뒤 전부: QQQ 1999년~, SOXX 2001년~).</p>
   </div>
 
   <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
@@ -280,7 +280,7 @@ footer a{color:var(--ink2)}
       <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
     </div>
     <div id="mkt-us10y"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1962년~).</p>
   </div>
 
   <h2 id="sec-fg">CNN 공포·탐욕 지수 (미국 증시 분위기)</h2>
@@ -396,7 +396,7 @@ footer a{color:var(--ink2)}
     </div>
     <div class="fgtop"><div class="fgscore" id="wtiscore">–</div><div><div class="fgrating" id="wtirating"></div><div class="small" id="wtiprev"></div></div></div>
     <div id="wtiplot" class="plot" style="height:240px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(WTI 원유 근월물 선물, CL=F), 매일 갱신. 2020년 4월엔 코로나로 기름이 남아돌아 하루 동안 마이너스(−37.63달러)가 된 적도 있어요. 위 기간 버튼으로 길게(전체) 볼 수 있어요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(WTI 원유 근월물 선물, CL=F), 매일 갱신. 2020년 4월엔 코로나로 기름이 남아돌아 하루 동안 마이너스(−37.63달러)가 된 적도 있어요. 위 기간 버튼으로 길게 볼 수 있어요(전체 = Yahoo에 자료가 있는 2000년 8월~).</p>
   </div>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
@@ -538,7 +538,7 @@ footer a{color:var(--ink2)}
       <div>· 좋은 회사 주가가 빠질 때 <b>회사 문제인지, 물량(공급) 문제인지</b> 가르는 데 써요. 물량 문제라면 회사 가치는 그대로일 수 있어요.</div>
       <div class="src">출처: <a href="https://qz.com/paul-tudor-jones-2027-stock-market-warning-101326" target="_blank" rel="noopener">Quartz</a> · <a href="https://m.news.nate.com/view/20261013n36939" target="_blank" rel="noopener">뉴스핌(네이트)</a> (사용자 제공 요약에 달린 출처)</div>
     </div>
-    <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 분기·월 자료라 위 기간 버튼과 상관없이 2019년부터 보여요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 위 기간 버튼을 따라 바뀌어요(전체 = 순발행 1946년~, IPO는 나스닥 달력에 기록이 있는 때부터).</p>
   </div>
 
   <h2 id="sec-today">📊 오늘의 코스피 · 코스닥</h2>
@@ -1449,27 +1449,30 @@ function renderSupply() {
   const S = DATA.supply, box = document.getElementById('supplybox');
   if (!S) { box.innerHTML = '<p class="note">주식 공급 데이터 없음</p>'; return; }
   const N = S.net, I = S.ipo, k = N.y.length, v = N.y[k - 1], md = s => s.slice(2).replace(/-/g, '.');
-  const ql = d => `${d.slice(2, 4)}년 ${(+d.slice(5, 7) + 2) / 3}분기`, h = s => String(s).replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
+  const ql = d => `${d.slice(0, 4)}년 ${(+d.slice(5, 7) + 2) / 3}분기`, h = s => String(s).replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
   let run = 1;
   while (run < k && (N.y[k - 1 - run] >= 0) === (v >= 0)) run++;
   const sq = c => `<span style="color:${css(c)}">■</span>`;
   const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
   box.innerHTML = `<div class="nowline"><span>순발행 ${ql(N.x[k - 1])} <b style="color:${css(v >= 0 ? '--bad' : '--good')}">${v >= 0 ? '+' : ''}${fmtNum(v)}억 달러</b></span>
-      <span>${v >= 0 ? '📈 주식이 <b>늘어나는 중</b>' : '📉 주식이 <b>줄어드는 중</b>'} (${run}분기 연속${v === Math.max(...N.y) ? ' · 2019년 이후 가장 많이 늘어남' : ''})</span></div>
+      <span>${v >= 0 ? '📈 주식이 <b>늘어나는 중</b>' : '📉 주식이 <b>줄어드는 중</b>'} (${run}분기 연속${v === Math.max(...N.y) ? ` · ${N.x[0].slice(0, 4)}년 이후 가장 많이 늘어남` : ''})</span></div>
     <div class="small" style="margin:2px 4px 6px">미국 IPO 올해(${S.year}) 누적 <b>${fmtNum(S.ytd[0])}억 달러</b> (${S.ytd[1]}건) · 작년 1년 ${fmtNum(S.prev[0])}억 달러 (${S.prev[1]}건)</div>
     <div id="supplyplot" class="plot" style="height:380px"></div>
     ${S.upcoming.length ? `<div class="small" style="margin:6px 4px 2px"><b>곧 상장 예정</b> (나스닥 IPO 달력)</div><ul class="small" style="margin:0 4px 6px;padding-left:18px">${S.upcoming.map(u =>
       `<li>${md(u.date)} ${h(u.name)}${u.ticker ? ` (${h(u.ticker)})` : ''} · 공모가 $${h(u.price || '–')} · 약 ${u.usd ? fmtNum(u.usd / 1e8, 1) + '억 달러' : '–'}</li>`).join('')}</ul>` : ''}`;
   const end = new Date(new Date(I.x[I.x.length - 1]).getTime() + 40 * 864e5).toISOString().slice(0, 10);
+  // 위 기간 버튼을 따름. 분기 막대가 첫날 앞에서 시작해도 보이게 3달 앞까지
+  const ps = periodStart(I.x[I.x.length - 1]), xs = ps ? new Date(new Date(ps) - 92 * 864e5).toISOString().slice(0, 10) : (N.x[0] < I.x[0] ? N.x[0] : I.x[0]);
+  const vr = o => padRange(o.y.filter((_, i) => o.x[i] >= xs).concat([0]), false);
   Plotly.react('supplyplot', [
     {x: N.x, y: N.y, customdata: N.x.map(ql), type: 'bar', name: '순발행', xperiod: 'M3', xperiodalignment: 'middle',
       marker: {color: N.y.map(y => css(y >= 0 ? '--bad' : '--good'))}, hovertemplate: '%{customdata} 순발행 %{y:+,.0f}억 달러<extra></extra>'},
     {x: I.x, y: I.y, customdata: I.n, type: 'bar', name: 'IPO', yaxis: 'y2', xperiod: 'M1', xperiodalignment: 'middle',
       marker: {color: css('--g1')}, hovertemplate: 'IPO %{y:,.1f}억 달러 (%{customdata}건)<extra></extra>'},
   ], Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: 'y2', range: [N.x[0] < I.x[0] ? N.x[0] : I.x[0], end], tickformat: '%y년', dtick: 'M12'}),
-    yaxis: axis({domain: [0.56, 0.93], zeroline: true, zerolinecolor: css('--ink2')}),
-    yaxis2: axis({domain: [0, 0.44], rangemode: 'tozero'}),
+    xaxis: axis(Object.assign({type: 'date', anchor: 'y2', range: [xs, end]}, ps ? {tickformat: '%y.%m'} : {tickformat: '%Y'})),
+    yaxis: axis({domain: [0.56, 0.93], range: vr(N), zeroline: true, zerolinecolor: css('--ink2')}),
+    yaxis2: axis({domain: [0, 0.44], range: vr(I)}),
     annotations: [lbl(0.94, `순발행 (분기, 억 달러) ${sq('--bad')} 늘어남 ${sq('--good')} 줄어듦`), lbl(0.45, '미국 IPO 공모 금액 (월, 억 달러)')],
   }), CFG);
 }
@@ -2335,6 +2338,7 @@ function renderUsToday() {
       annotations: [lbl(0.93, '<span style="color:' + css('--good') + '">■</span> 올해 수익률'), lbl(0.43, '<span style="color:' + css('--bad') + '">■</span> 고점 대비 하락률')]}), CFG);
     Plotly.react('etfidx', [bars(IDX, 'dd', 'y', '--bad')], Object.assign(BL(), {
       xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis(Object.assign({range: rng(IDX.map(([t]) => E[t].dd))}, zl))}), CFG);
+    document.getElementById('etfdate').textContent = `${md(E.date)} 미국 마감 · 매일 갱신`;
     document.getElementById('etfnote').innerHTML = `자료: Yahoo Finance 일별 종가·장중 최고가(${E.date} 기준, 배당 빼고 가격만), 매일 자동 갱신. 올해 수익률 = 종가 ÷ 작년 마지막 종가 − 1(* 올해 상장 = 상장 첫날 종가부터). 고점 = 2020년(또는 상장) 이후 장중 최고가. 막대를 누르면 고점 날짜·가격이 보여요. 묶음 이름(메모리·전력·광통신·데이터센터·빅7)은 사용자 제공 그림 기준이에요.`;
   }
 
@@ -2361,7 +2365,7 @@ function renderUsToday() {
   const xs = xStartFor(last, Y.date[0]), vis = Y.date.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0);
   Plotly.react('yieldplot', YK.map(([k, nm, c]) => ({x: Y.date, y: Y[k], type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.5}, hovertemplate: `${nm} %{y:.2f}%<extra></extra>`})),
     Object.assign(baseLayout(), {showlegend: true, legend: {orientation: 'h', x: 0, y: 1.02, yanchor: 'bottom', font: {size: 11}}, margin: {l: 40, r: 10, t: 46, b: 26},
-      xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m'}),
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y'}),
       yaxis: axis({range: padRange(vis.flatMap(i => YK.map(([k]) => Y[k][i])).filter(v => v != null), false), ticksuffix: '%'})}), CFG);
 }
 
@@ -2498,7 +2502,7 @@ function mktBlock(boxId, list) {
     Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--price', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
-        xaxis: axis({type: 'date', range: [xs, last], tickformat: PERIOD === '3m' ? '%m.%d' : '%y.%m', hoverformat: '%Y-%m-%d'}),
+        xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y', hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
         [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : unit === '달러' ? 2 : 0), css('--ink')]]), CFG);
   });
@@ -2516,7 +2520,7 @@ function renderWti() {
   Plotly.react('wtiplot', [{x: w.x, y: w.y, type: 'scatter', mode: 'lines', name: 'WTI', line: {color: css('--price'), width: 2}, hovertemplate: '$%{y:.2f}<extra></extra>'}],
     Object.assign(baseLayout(), {
       showlegend: false,
-      xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y', hoverformat: '%Y-%m-%d'}),
       yaxis: axis({range: padRange(w.y.filter((_, i) => w.x[i] >= xs), false), tickprefix: '$'}),
     }), CFG);
 }
@@ -3033,7 +3037,7 @@ document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () =
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)
