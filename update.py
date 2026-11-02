@@ -83,7 +83,7 @@ def fred_series(series_id, start=None):
         obs = r.json()["observations"]
         s = pd.Series({o["date"]: o["value"] for o in obs})
     else:
-        r = get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}&cosd={config.START_DATE}",
+        r = get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}&cosd={start}",
                 tries=1, timeout=60)
         d = pd.read_csv(io.StringIO(r.text))
         s = pd.Series(d.iloc[:, 1].values, index=d.iloc[:, 0].values)
@@ -1222,6 +1222,8 @@ def build_hs_exports():
 def fetch_liquidity():
     # 미국 M2 매달 계절조정(FRED M2SL, 연준 H.6, 십억 달러), 2006년부터
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
+    # MMF 긴 흐름: 연준 Z.1 분기 MMF 총금융자산(FRED MMMFFAQ027S, 백만 달러 → 십억 달러), 0이 아닌 1974년 1분기부터
+    (fred_series("MMMFFAQ027S", start="1974-01-01") / 1e5).rename("mmf").rename_axis("date").round(1).to_csv(os.path.join(DATA, "mmf_fed_q.csv"))
 
 
 def fetch_ici_mmf():
@@ -1259,6 +1261,10 @@ def build_liquidity():
     if os.path.exists(gp):
         s = pd.read_csv(gp, dtype={"date": str}).set_index("date")["m2"].dropna()
         out["m2"] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
+    qp = os.path.join(DATA, "mmf_fed_q.csv")
+    if os.path.exists(qp):
+        s = pd.read_csv(qp, dtype={"date": str}).set_index("date")["mmf"].dropna()
+        out["mmf_q"] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
     return out or None
 
 
