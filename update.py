@@ -460,6 +460,50 @@ def fetch_vkospi_krx(start=None):
         pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
 
 
+KRX_STK_URL = "https://data-dbg.krx.co.kr/svc/apis/sto/stk_bydd_trd"
+SEMI_CODES = {"005930", "005935", "000660"}  # 삼성전자·삼성전자우·SK하이닉스
+
+
+def fetch_kr_semi_share():
+    # 반도체 두 회사(삼성전자 보통주+우선주·SK하이닉스) 시가총액 ÷ 유가증권시장 전체 주식 시가총액. 한국거래소 Open API '유가증권 일별매매정보'
+    # (호출 1번 = 그날 모든 종목, 2010~, 다음 날 아침에 나옴). 처음 한 번은 2010년부터 달마다 마지막 거래일, 그 뒤로는 날마다
+    key = os.environ.get("KRX_API_KEY")
+    if not key:
+        raise RuntimeError("KRX_API_KEY 없음 (.env)")
+    path = os.path.join(DATA, "kr_semi_share.csv")
+    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "semi_jo", "total_jo", "share"])
+    ses, today = requests.Session(), datetime.now(KST).date()
+
+    def one(d):
+        r = ses.get(KRX_STK_URL, params={"basDd": d.strftime("%Y%m%d")}, headers={"AUTH_KEY": key}, timeout=30)
+        r.raise_for_status()
+        rows = r.json().get("OutBlock_1", [])
+        if not rows:
+            return None  # 쉬는 날이거나 아직 안 나옴
+        tot = sum(int(x["MKTCAP"]) for x in rows)
+        semi = sum(int(x["MKTCAP"]) for x in rows if x["ISU_CD"] in SEMI_CODES)
+        return {"date": d.strftime("%Y-%m-%d"), "semi_jo": round(semi / 1e12, 1), "total_jo": round(tot / 1e12, 1), "share": round(semi / tot * 100, 2)}
+
+    rows = []
+    if old.empty:
+        for m in pd.date_range("2010-01-01", today, freq="ME"):
+            r = next((r for d in pd.bdate_range(end=m, periods=5)[::-1] if (r := one(d))), None)
+            if r:
+                rows.append(r)
+    start = pd.Timestamp(old["date"].max() if len(old) else rows[-1]["date"]) + pd.Timedelta(days=1)
+    rows += [r for d in pd.bdate_range(start, today) if (r := one(d))]
+    if rows:
+        pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
+
+
+def build_kr_semi_share():
+    p = os.path.join(DATA, "kr_semi_share.csv")
+    if not os.path.exists(p):
+        return None
+    d = pd.read_csv(p, dtype={"date": str})
+    return {"d": d["date"].tolist(), "v": d["share"].tolist(), "semi": float(d["semi_jo"].iloc[-1]), "total": float(d["total_jo"].iloc[-1])}
+
+
 def fetch_vkospi():
     # VKOSPI(코스피200 변동성지수): 인베스팅닷컴 공개 '과거 데이터' 페이지에 실린 최근 약 20거래일 종가를 매일 저장해 쌓음
     # (한국거래소 Open API는 하루 늦게 나와서, 오늘 마감 숫자는 여기서 먼저 받음)
@@ -2693,6 +2737,7 @@ def build():
     out["liquidity"] = build_liquidity()
     out["nps_stakes"] = build_nps_stakes()
     out["bubble"] = build_bubble()
+    out["kr_semi_share"] = build_kr_semi_share()
     out["midterm"] = build_midterm()
     out["santa"] = build_santa()
     out["kosdaq_oddeven"] = build_kosdaq_oddeven()
@@ -2748,7 +2793,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

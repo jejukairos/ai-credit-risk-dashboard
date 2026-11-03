@@ -917,6 +917,7 @@ footer a{color:var(--ink2)}
       <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_eps_momentum.png" width="1835" height="871" loading="lazy" alt="코스피 상승률·코스피 이익 모멘텀·S&amp;P500 이익 모멘텀, 2006~2026년 (다올투자증권 퀀트)"></div>
       <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요(옆으로 밀어서 보기). 한 번 더 누르면 원래대로.</div>
       <p class="note" style="margin:6px 4px 2px">자료: user: 사용자가 보내 준 다올투자증권 퀀트 그림(오른쪽 위 'DAOL QUANT', 26.11.03 받음). 숫자·상자 이름·설명 글은 그림 그대로이고, 이 대시보드가 다시 계산한 값이 아니에요(선 계산 방법은 그림에 안 나와 있어요). 자동 갱신 안 됨 — 새 그림을 주시면 바꿔요.</p></div>
+    <div class="card" id="leadcard"></div>
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
     <div class="vm-sec">1. 금리</div>
@@ -2091,6 +2092,34 @@ function renderBubble() {
   }), CFG);
 }
 
+// 주도업종 비중 급증 후유증 — 유진투자증권 그림 핵심(그림은 재배포 금지라 글로만) + 삼성전자·SK하이닉스 코스피 시총 비중(한국거래소, 자동)
+function renderLeadShare() {
+  const S = DATA.kr_semi_share, el = document.getElementById('leadcard');
+  if (!S || !S.d.length) { el.style.display = 'none'; return; }
+  const n = S.d.length - 1, md = s => s.slice(2).replace(/-/g, '.'), pk = S.v.indexOf(Math.max(...S.v));
+  const ago = new Date(S.d[n]); ago.setFullYear(ago.getFullYear() - 1);
+  const a = S.d.map((d, i) => [d, i]).filter(([d]) => d <= ago.toISOString().slice(0, 10)).pop()[1];
+  el.innerHTML = `<h3><span>🔥 주도업종 비중 급증 후유증 (유진투자증권)</span></h3>
+    <div class="small" style="margin:2px 4px 6px">한 업종이 코스피 전체 주식값(시가총액)에서 차지하는 몫을 <b>비중</b>이라고 해요. 과거엔 주도업종의 비중이 짧은 기간에 <b>2~3배</b>로 커진 뒤, 크게 줄어드는 일이 되풀이됐어요.</div>
+    <div class="memo">📌 <b>핵심 내용</b>(유진투자증권 그림)
+      <br>· <b>2006~08년 중국·원자재</b>(철강·화학·조선·건설): 비중 16.2% → <b>30.6%</b>
+      <br>· <b>2011~12년 차화정</b>(자동차·화학·정유): 12.5% → <b>27.9%</b>
+      <br>· <b>2021~22년 2차전지</b>(IT가전·화학·철강): 9.6% → <b>26.5%</b>
+      <br>&nbsp;&nbsp;→ 세 번 모두 꼭대기를 찍은 뒤 비중이 계속 줄어, 그림 끝에선 모두 10% 아래예요.
+      <br>· <b>반도체</b>: 25년 2분기 25% → 26년 6월 <b>63%</b>. 2년도 안 돼 60%대를 넘었어요. 코스피 영업이익에서 반도체 몫이 <b>70%대</b>를 넘을 거라는 기대 때문이고, <b>이미 '이익 독점' 기대를 상당 부분 반영</b>했다고 봤어요.
+      <br>· 과거 패턴이 이번에도 그대로 되풀이된다는 보장은 없어요.
+      <div class="src">출처: user: 사용자 제공 유진투자증권 리서치 그림 '주도업종 비중 급증 후유증'(자료 Quantiwise, 26.11.03 받음). 그림엔 '재배포·복제 금지' 표시가 있어 싣지 않고 숫자만 옮겼어요.</div></div>
+    <div class="small" style="margin:10px 4px 0;color:var(--ink)"><b>📊 자동 계산 — 삼성전자·SK하이닉스 비중</b> (코스피 전체 시가총액 중 두 회사 몫, 2010년~)<br><span class="small">유진 그림의 '반도체'는 업종 전체라 이 선보다 조금 높아요(26년 6월: 그림 63% · 두 회사 ${S.v[S.d.findIndex(d => d.startsWith('2026-06'))]?.toFixed(1) ?? '–'}%, 6월 말).</span></div>
+    <div class="fgchips"><span class="chip">지금 <b>${S.v[n].toFixed(1)}%</b> (${md(S.d[n])})</span><span class="chip">1년 전 ${S.v[a].toFixed(1)}% → <b>${(S.v[n] / S.v[a]).toFixed(1)}배</b></span><span class="chip">고점 ${S.v[pk].toFixed(1)}% (${md(S.d[pk])})</span></div>
+    <div id="leadplot" class="plot" style="height:230px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://openapi.krx.co.kr/" target="_blank" rel="noopener">한국거래소 Open API</a> '유가증권 일별매매정보' 시가총액. 계산 = (삼성전자 + 삼성전자우 + SK하이닉스 시가총액) ÷ 유가증권시장 전체 주식 시가총액 × 100. 지금 두 회사 ${fmtNum(S.semi, 0)}조 원 ÷ 전체 ${fmtNum(S.total, 0)}조 원. 2010년~지난달은 달마다 마지막 거래일, 그 뒤는 날마다(거래소 자료는 다음 날 아침에 나와요). 매일 16시·20시 갱신.</p>`;
+  Plotly.react('leadplot', [{x: S.d, y: S.v, type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: 1.8}, hovertemplate: '두 회사 비중 %{y:.1f}%<extra></extra>'}],
+    Object.assign(baseLayout(), {hovermode: 'x', margin: {l: 34, r: 12, t: 14, b: 24},
+      xaxis: axis({type: 'date', tickformat: '%Y'}), yaxis: axis({ticksuffix: '%', rangemode: 'tozero'}),
+      annotations: [...new Set([pk, n])].map(i => ({x: S.d[i], y: S.v[i], text: `<b>${S.v[i].toFixed(1)}%</b>`, showarrow: false, xanchor: 'right', xshift: -3,
+        yanchor: i === pk ? 'bottom' : 'top', font: {size: 10, color: css('--bad')}}))}), CFG);
+}
+
 // 미국 중간선거 뒤 S&P500 — 방송 인용 주장 vs 우리 계산(1950~2022), 2026년 선거 뒤 자동 추적. 2026년부터 한 번이라도 틀리면 다음 선거부터 이 메모를 숨김
 function renderMidterm() {
   const M = DATA.midterm, el = document.getElementById('midterm'), MT_H = [1, 2, 3, 6, 12];
@@ -3067,7 +3096,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
