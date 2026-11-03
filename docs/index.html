@@ -206,14 +206,14 @@ footer a{color:var(--ink2)}
     <div><b>지수</b>는 애플·엔비디아 같은 큰 회사 몇 개만 움직여도 크게 바뀌어요. 그래서 미국 전체 주식(뉴욕·나스닥·아멕스 상장) 중 <b>오른 종목·내린 종목이 몇 개인지</b> 같이 봐요. <b>신고가·신저가</b> = 최근 1년(52주) 중 가장 비싼·가장 싼 값을 새로 쓴 종목, <b>50일선·200일선 위</b> = 자기 최근 50일·200일 평균 가격보다 비싸게 거래되는 종목이에요. 초록 쪽이 길수록 시장 전체가 튼튼해요.</div>
   </div>
   <div id="ustoday"></div>
-  <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 + 미국 장 마감 30분 뒤(한국 06:30, 서머타임엔 05:30) 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
+  <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
 
   <h2 id="sec-ytd">📈 주가 흐름 — S&amp;P500 · 나스닥100 · 반도체</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px"><div>위 기간 버튼(3개월·1년·전체)의 <b>첫날 값을 0%</b>로 두고 그 뒤로 몇 % 올랐는지를 그린 거예요. 선이 위에 있을수록 많이 오른 거예요. 올해 수익률은 아래 막대 그래프에 있어요.</div></div>
     <div class="small" id="ytdsub" style="margin:0 4px 2px"></div>
     <div id="ytdplot" class="plot" style="height:260px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance ETF 종가(S&amp;P500 = SPY, 나스닥100 = QQQ, 반도체 = SOXX, 배당 빼고 가격만). 기간 수익률 = 종가 ÷ 기간 첫날(쉬는 날이면 그 전 거래일) 종가 − 1. 전체 = 2020년~. 매일 16시·20시 + 미국 장 마감 30분 뒤(한국 06:30, 서머타임엔 05:30) 자동 갱신.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance ETF 종가(S&amp;P500 = SPY, 나스닥100 = QQQ, 반도체 = SOXX, 배당 빼고 가격만). 기간 수익률 = 종가 ÷ 기간 첫날(쉬는 날이면 그 전 거래일) 종가 − 1. 전체 = 2020년~. 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신.</p>
   </div>
 
   <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
@@ -230,7 +230,7 @@ footer a{color:var(--ink2)}
   <div class="card">
     <div class="glossary" style="margin:0 0 10px"><div>돈이 어디로 몰리는지 보는 대표 가격이에요. 불안할 때는 <b>금</b>, 기대가 클 때는 <b>비트코인</b> 같은 위험한 곳으로 돈이 가는 일이 많아요. <b>원유</b>가 오르면 물가가 오르기 쉬워요.</div></div>
     <div id="usprice"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance — 원유 = WTI 선물(CL=F), 금 = 금 선물(GC=F, 금 현물 시세와 조금 달라요), 비트코인 = BTC-USD(24시간 거래). 전일 = 하루 전 일봉 종가. 매일 16시·20시 + 미국 장 마감 30분 뒤(한국 06:30, 서머타임엔 05:30) 자동 갱신.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance — 원유 = WTI 선물(CL=F), 금 = 금 선물(GC=F, 금 현물 시세와 조금 달라요), 비트코인 = BTC-USD(24시간 거래). 전일 = 하루 전 일봉 종가. 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신.</p>
   </div>
 
   <h2 id="sec-usyield">🏦 미국 국채 금리 — 만기별</h2>

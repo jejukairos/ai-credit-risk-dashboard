@@ -25,7 +25,7 @@
 6. 수정 후 폰 화면(가로 375px)에서 가로 스크롤이 생기지 않는지, 콘솔 오류가 없는지 확인
 
 ## 자동 실행 (이 컴퓨터, Windows)
-- 작업 스케줄러: 매일 16:00, 20:00 `run_update.bat` / 미국 장 마감 30분 뒤 `us_close_update.bat`(작업 '…_미국마감', 05:30·06:30에 불리고 `us_close_check.py` 가 뉴욕 16:20 뒤 마감마다 한 번만 통과 → 서머타임 05:30, 아니면 06:30. 기록 `logs\us_close_done.txt`) / CNN 지수는 `fg_update.bat` 수시 실행
+- 작업 스케줄러: 매일 16:00, 20:00 `run_update.bat` / 미국 장 마감 뒤 `us_close_update.bat`(작업 '…_미국마감', 금·토 05:30·06:30 / 일~목 07:30(사용자가 7:15~7:20에 컴퓨터를 켬)에 불리고 `us_close_check.py` 가 뉴욕 16:20 뒤 마감마다 한 번만 통과 → 금·토는 서머타임 05:30, 아니면 06:30. 기록 `logs\us_close_done.txt`) / CNN 지수는 `fg_update.bat` 수시 실행
 - 주 1회 CDS 뉴스 수집은 Claude 데스크톱 예약 작업(월요일 오전)으로 돌고 있음 — 뉴스에서 `config.py` 의 TICKERS 5곳 + CDS_EXTRA 5곳(메타·알파벳·마이크로소프트·인텔·스페이스X) CDS(bp)를 찾아 출처와 함께 `cds_log.csv` 에 추가 후 `run_update.bat` 실행. 지시문: `%USERPROFILE%\.claude\scheduled-tasks\weekly-cds-news-update\SKILL.md`. 종목별 CDS를 매일 무료로 주는 곳은 없음(유료 데이터) — 사용자가 화면을 주면 `user:` 출처로 추가
 
 ## 직접 실행해 보기
