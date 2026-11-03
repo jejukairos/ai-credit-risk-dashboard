@@ -49,6 +49,7 @@ th,td{padding:7px 5px;text-align:right;white-space:nowrap;border-bottom:1px soli
 th{font-weight:600;color:var(--ink2);font-size:11.5px}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
 tr:last-child td{border-bottom:0}
+table.mt{font-size:11px}table.mt th,table.mt td{padding:6px 3px}table.mt th{font-size:10.5px}
 tbody tr{cursor:pointer}
 .tk{font-weight:600}
 .small{font-size:10.5px;color:var(--muted)}
@@ -2092,8 +2093,8 @@ function renderBubble() {
 
 // 미국 중간선거 뒤 S&P500 — 방송 인용 주장 vs 우리 계산(1950~2022), 2026년 선거 뒤 자동 추적. 2026년부터 한 번이라도 틀리면 다음 선거부터 이 메모를 숨김
 function renderMidterm() {
-  const M = DATA.midterm, el = document.getElementById('midterm');
-  if (!M) { el.style.display = 'none'; return; }
+  const M = DATA.midterm, el = document.getElementById('midterm'), MT_H = [1, 2, 3, 6, 12];
+  if (!M || !M.m1) { el.style.display = 'none'; return; }
   const cur = M.rows[M.rows.length - 1], md = s => s.slice(2).replace(/-/g, '.');
   const add = (d, m) => { const x = new Date(d); x.setMonth(x.getMonth() + m); return x.toISOString().slice(0, 10); };
   const bad = r => (r.m6 != null && r.m6 <= 0) || (r.m12 != null && r.m12 <= 0);
@@ -2102,12 +2103,19 @@ function renderMidterm() {
   const verdict = k => cur[k] == null ? `<span class="small">${md(add(cur.date, k === 'm6' ? 6 : 12))}에 판정</span>` : cur[k] > 0 ? `<b>${fmtPct(cur[k])} ✅ 맞음</b>` : `<b>${fmtPct(cur[k])} ❌ 틀림</b>`;
   el.innerHTML = `🗳 <b>미국 중간선거가 끝나면 올랐다?</b> ${failed ? '<span class="chip warm">이번엔 틀림 → 다음 선거부턴 빼요</span>' : ''}
     <br>· <b>주장</b>(방송, 복부장 조사 인용): 1950년 이후 중간선거 19번 모두 그 뒤 지수가 올랐어요. 6개월 뒤 평균 +12.1%(95%), 12개월 뒤 +15.5~16.9%. 11월 3일 선거로 불확실성이 걷히는지가 핵심이에요.
-    <br>· <b>✅ 우리 계산</b>(S&amp;P500, 선거일 종가 기준): 6개월 뒤 <b>${M.m6.n}번 중 ${M.m6.pos}번 올랐고 평균 ${fmtPct(M.m6.avg)}</b> · 12개월 뒤 <b>${M.m12.n}번 중 ${M.m12.pos}번 올랐고 평균 ${fmtPct(M.m12.avg)}</b>. "모두 올랐다"는 맞아요(평균은 계산 방법에 따라 조금 달라요).
+    <br>· <b>그림</b>(@going_tothe_moon '지난 70년간 안 깨진 주식 공식'): 1·2·3·6달 뒤 평균 +1.7·+3.5·+7.7·+13.8%, 오른 비율 79·79·89·100%.
+    <br>· <b>✅ 우리 계산</b>(S&amp;P500, 선거일 종가 기준, 아래 표): 6개월 뒤 <b>${M.m6.n}번 중 ${M.m6.pos}번 올랐고 평균 ${fmtPct(M.m6.avg)}</b> · 12개월 뒤 <b>${M.m12.n}번 중 ${M.m12.pos}번 올랐고 평균 ${fmtPct(M.m12.avg)}</b>. "모두 올랐다"는 맞아요. 그림과 비교하면 오른 비율 4개와 1·2·3달 뒤 평균은 같고, 6달 뒤 평균만 날짜 잡는 방법 차이로 조금 달라요.
     <br>· <b>이번 ${cur.year}년 선거(${md(cur.date)})</b>: ${cur.now == null ? '선거가 끝나면 자동으로 재요' : `선거일보다 지금 ${fmtPct(cur.now)} (${md(M.last)})`} · 6개월 뒤 ${verdict('m6')} · 12개월 뒤 ${verdict('m12')}
     <br>· 이런 '과거 통계 법칙'은 장단기 금리차 역전(경기침체 신호)처럼 어느 순간 안 맞을 수 있어요. 이번에 틀리면 표시하고, 다음 선거부턴 이 메모를 빼요.
-    <details class="srcs"><summary><b>${M.m12.n}번 결과 보기</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary><div class="tablebox" style="border:0"><table><thead><tr><th>선거일</th><th>6개월 뒤</th><th>12개월 뒤</th></tr></thead><tbody>${M.rows.filter(r => r.m12 != null).map(r =>
-      `<tr><td>${r.date}</td><td>${fmtPct(r.m6)}</td><td>${fmtPct(r.m12)}</td></tr>`).reverse().join('')}</tbody></table></div></details>
-    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div>`;
+    <div class="small" style="margin-top:8px;color:var(--ink)"><b>📅 중간선거 뒤 S&amp;P500</b> — 선거일 종가보다 몇 % 올랐나(초록 = 오름, 빨강 = 내림). 이번 ${cur.year}년 줄은 그날이 지나면 저절로 채워져요.</div>
+    <div class="tablebox" style="margin-top:4px"><table class="mt"><thead><tr><th>선거</th>${MT_H.map(m => `<th>${m}달 뒤</th>`).join('')}</tr></thead><tbody>${M.rows.filter(r => r.m1 != null || r === cur).map(r => `<tr${r === cur ? ' style="font-weight:700"' : ''}><td>${r === cur ? `${r.year}<br>이번` : r.year}</td>${MT_H.map(m => {
+      const v = r['m' + m];
+      return v == null ? `<td class="small">${add(r.date, m).slice(5).replace('-', '/')}</td>` : `<td style="background:color-mix(in srgb, var(${v >= 0 ? '--good' : '--bad'}) ${Math.round(Math.min(45, Math.abs(v) * 2) + 5)}%, transparent)">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</td>`;
+    }).join('')}</tr>`).join('')}
+    <tr style="font-weight:700"><td>평균</td>${MT_H.map(m => `<td>${fmtPct(M['m' + m].avg)}</td>`).join('')}</tr>
+    <tr style="font-weight:700"><td>오른 비율</td>${MT_H.map(m => `<td>${Math.round(M['m' + m].pos / M['m' + m].n * 100)}%</td>`).join('')}</tr></tbody></table></div>
+    <div class="small">평균·오른 비율 = 다 끝난 ${M.m12.n}번(${M.rows.find(r => r.m12 != null).year}~${M.rows.filter(r => r.m12 != null).pop().year}년). 빈칸 날짜 = 그날 종가가 나오면 채워져요.</div>
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 그림 = user: 사용자 제공 그림 '미국 중간선거 뒤 S&amp;P지수 흐름'(@going_tothe_moon, 26.11.03) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 1·2·3·6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div>`;
 }
 
 // S&P500 계절성 메모 — 사용자 제공 그림 3장(변동성 계절성·도이치방크·골드만삭스) + 우리 계산(1950~, 10/27 → 12/31, 달별 평균), 올해 10/27 뒤 자동
