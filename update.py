@@ -1051,7 +1051,8 @@ def _election_day(y):  # 미국 선거일 = 11월 첫 월요일 다음 화요일
 
 
 def build_midterm():
-    # 중간선거(1950~2022 19번) 선거일 종가 → 6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 변화율 + 이번(2026) 선거 뒤 추적
+    # 중간선거(1950~2022 19번) 선거일 종가 → 1·2·3·6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 변화율 + 이번(2026) 선거 뒤 추적
+    HORIZONS = (1, 2, 3, 6, 12)
     hp, cp = os.path.join(DATA, "sp500_1950.csv"), os.path.join(DATA, "sp500.csv")
     if not (os.path.exists(hp) and os.path.exists(cp)):
         return None
@@ -1064,13 +1065,13 @@ def build_midterm():
         r = {"year": y, "date": e.strftime("%Y-%m-%d")}
         if last >= e:
             b = at(e)
-            for k, m in (("m6", 6), ("m12", 12)):
-                r[k] = round((at(e + pd.DateOffset(months=m)) / b - 1) * 100, 1) if last >= e + pd.DateOffset(months=m) else None
+            for m in HORIZONS:
+                r[f"m{m}"] = round((at(e + pd.DateOffset(months=m)) / b - 1) * 100, 1) if last >= e + pd.DateOffset(months=m) else None
             r["now"] = round((float(s.iloc[-1]) / b - 1) * 100, 1)
         rows.append(r)
     done = [r for r in rows if r.get("m12") is not None]
     st = lambda k: {"avg": round(sum(r[k] for r in done) / len(done), 1), "pos": sum(r[k] > 0 for r in done), "n": len(done)}  # noqa: E731
-    return {"rows": rows, "m6": st("m6"), "m12": st("m12"), "last": last.strftime("%Y-%m-%d")}
+    return {"rows": rows, **{f"m{m}": st(f"m{m}") for m in HORIZONS}, "last": last.strftime("%Y-%m-%d")}
 
 
 def build_santa():
