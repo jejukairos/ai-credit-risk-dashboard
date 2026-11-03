@@ -577,6 +577,30 @@ def fetch_us_today():
         json.dump(out, f, ensure_ascii=False)
 
 
+def fetch_us_map():
+    # 미국 탭 맨 위 S&P500 지도(Finviz 지도처럼): 종목·업종 = 위키백과 S&P500 목록(GICS), 등락률 = Yahoo 일별 종가(전날 종가 대비),
+    # 상자 크기 = 나스닥 스크리너 시가총액. 나스닥 시가총액은 같은 회사 여러 주식(GOOGL·GOOG 등)에 회사 전체 값이라 목록의 첫 주식만 씀.
+    # 그날 것만 보여 주므로 받을 때마다 덮어씀
+    # shortcut: 미국 장중에 돌리면 그 순간 값이 '종가'로 들어감 — 예약 실행(장 마감 뒤·장 시작 전)만 쓰는 동안은 괜찮음
+    import yfinance as yf
+    html = get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies").text
+    w = pd.read_html(io.StringIO(html), attrs={"id": "constituents"})[0].drop_duplicates("CIK").rename(columns={"GICS Sector": "sec", "GICS Sub-Industry": "sub"})
+    w["sym"] = w["Symbol"].astype(str).str.replace(".", "-", regex=False)
+    r = requests.get("https://api.nasdaq.com/api/screener/stocks", params={"tableonly": "true", "download": "true"},
+                     headers={**BROWSER_UA, "Accept": "application/json"}, timeout=60)
+    cap = {x["symbol"].replace("/", "-"): float(x["marketCap"]) for x in r.json()["data"]["rows"] if x["marketCap"]}
+    px = yf.download(w["sym"].tolist(), period="7d", progress=False, auto_adjust=False, threads=True)["Close"]
+    px = px[px.notna().mean(axis=1) > 0.9]  # 몇 종목만 있는 덜 찬 날은 뺌
+    px.index = pd.to_datetime(px.index).strftime("%Y-%m-%d")
+    last, prev = px.iloc[-1], px.iloc[-2]
+    items = [[s.sym, s.Security, s.sec, s.sub, round(cap[s.sym] / 1e8), round(float(last[s.sym]), 2), round((last[s.sym] / prev[s.sym] - 1) * 100, 2)]
+             for s in w.itertuples() if cap.get(s.sym) and pd.notna(last.get(s.sym)) and pd.notna(prev.get(s.sym))]
+    if len(items) < len(w) * 0.95:
+        raise RuntimeError(f"S&P500 지도 종목이 {len(items)}/{len(w)}개뿐")
+    with open(os.path.join(DATA, "us_map.json"), "w", encoding="utf-8") as f:
+        json.dump({"date": px.index[-1], "n": len(w), "items": items}, f, ensure_ascii=False)
+
+
 FINVIZ_STATS = {"Advancing / Declining": ("adv", "dec"), "New High / New Low": ("high", "low"),
                 "Above SMA50 / Below SMA50": ("above50", "below50"), "Above SMA200 / Below SMA200": ("above200", "below200")}
 
@@ -2714,6 +2738,8 @@ def build():
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
     out["us_today"] = build_us_today()
+    mp = os.path.join(DATA, "us_map.json")
+    out["us_map"] = json.load(open(mp, encoding="utf-8")) if os.path.exists(mp) else None
     out["policy"] = build_policy()
     out["hynix_inv"] = build_hynix_inv()
     out["supply"] = build_equity_supply()
@@ -2747,7 +2773,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("S&P500 지도: 종목(위키백과)·시가총액(나스닥)·등락률(Yahoo)", fetch_us_map),("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
