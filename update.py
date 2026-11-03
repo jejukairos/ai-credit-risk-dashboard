@@ -629,7 +629,7 @@ US_ETFS = ["SPY", "QQQ", "SOXX", "DIA", "MAGS", "DRAM", "AIPO", "LYTE", "NCLD"]
 
 
 def fetch_us_etfs():
-    # 미국 ETF 일별 종가·장중 최고가(Yahoo, 1999년 또는 상장 뒤부터): QQQ·SOXX 섹션(전체 기간), 올해 주가 흐름·고점 대비 하락률(2020년~만)에 씀
+    # 미국 ETF 일별 종가·장중 최고가(Yahoo, 1999년 또는 상장 뒤부터): QQQ·SOXX 섹션(전체 기간), 고점 대비 하락률(2020년~만)에 씀
     import yfinance as yf
     d = yf.download(US_ETFS, start="1999-01-01", progress=False, auto_adjust=False, threads=False)
     miss = [t for t in US_ETFS if d["Close"][t].dropna().empty]
@@ -664,8 +664,6 @@ def build_us_today():
             base = float(before.iloc[-1]) if len(before) else float(c.iloc[0])
             etf[t] = {"last": float(c.iloc[-1]), "ytd": round((c.iloc[-1] / base - 1) * 100, 1), "new": not len(before),
                       "high": float(hi.max()), "high_date": hi.idxmax(), "dd": round((c.iloc[-1] / hi.max() - 1) * 100, 1)}
-        p = e[["SPY", "QQQ", "SOXX"]].dropna()  # 주가 흐름 차트(화면 기간 버튼 첫날 = 0%로 화면에서 계산)
-        etf["px"] = {"x": list(p.index), **{t: p[t].tolist() for t in p.columns}}
         out["etf"] = etf
     return out or None
 
