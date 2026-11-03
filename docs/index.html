@@ -106,6 +106,9 @@ details.fold>summary{cursor:pointer;padding:4px;font-size:15px;color:var(--ink);
 .sd{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:6px}
 .k-sale{color:var(--bad);font-weight:700} .k-purchase{color:var(--good);font-weight:700}
 .ins{border-top:2px solid var(--line);padding-top:10px;margin-top:14px}
+.imgbox{overflow-x:auto;border-radius:8px;background:#fff}
+.imgbox img{display:block;width:100%;height:auto;cursor:zoom-in}
+.imgbox.big img{width:1100px;max-width:none;cursor:zoom-out}  /* 폰에서 글씨가 읽히는 크기, 원본 1835px라 확대해도 안 깨짐 */
 .glossary{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;font-size:12.5px;color:var(--ink2)}
 .glossary div{padding:4px 0;border-bottom:1px solid var(--line)} .glossary div:last-child{border-bottom:0}
 .glossary b{color:var(--ink)}
@@ -906,6 +909,11 @@ footer a{color:var(--ink2)}
         <div class="src">출처: user: 사용자 메모(26.11.01)</div></div>
     </div>
     <div class="card" id="bubblecard"></div>
+    <div class="card" id="epsmomcard"><h3><span>📈 코스피 이익 모멘텀 — 2006년부터 (다올투자증권 그림)</span></h3>
+      <div class="small" style="margin:2px 4px 6px">회사들이 버는 돈(이익)이 늘어나는 기세와 주가 상승을 같이 그린 그림이에요. <b>남색 선 = 코스피 이익 모멘텀</b>, 회색 = 코스피 상승률, 하늘색 = S&amp;P500 이익 모멘텀. 남색 선이 높을수록 이익이 빠르게 늘고 있다는 뜻이에요. 그림 기준 남색 선은 <b>26년 9월 279.9 → 10월 238.1</b>로 꺾였어요.</div>
+      <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_eps_momentum.png" width="1835" height="871" loading="lazy" alt="코스피 상승률·코스피 이익 모멘텀·S&amp;P500 이익 모멘텀, 2006~2026년 (다올투자증권 퀀트)"></div>
+      <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요(옆으로 밀어서 보기). 한 번 더 누르면 원래대로.</div>
+      <p class="note" style="margin:6px 4px 2px">자료: user: 사용자가 보내 준 다올투자증권 퀀트 그림(오른쪽 위 'DAOL QUANT', 26.11.03 받음). 숫자·상자 이름·설명 글은 그림 그대로이고, 이 대시보드가 다시 계산한 값이 아니에요(선 계산 방법은 그림에 안 나와 있어요). 자동 갱신 안 됨 — 새 그림을 주시면 바꿔요.</p></div>
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
     <div class="vm-sec">1. 금리</div>
