@@ -580,6 +580,8 @@ footer a{color:var(--ink2)}
     <div class="small" id="invsum" style="margin:0 4px 6px;color:var(--ink)"></div>
     <div class="fgchips" id="invbig"></div>
     <div id="invplot" class="plot" style="height:400px"></div>
+    <div class="small" id="invpentitle" style="margin:10px 4px 0;color:var(--ink)"></div>
+    <div id="invpension" class="plot" style="height:230px"></div>
     <div id="invbighist"></div>
     <details class="fold"><summary><b>📋 날짜별 숫자</b> <span class="small">(▶ 누르면 펼쳐져요 · 억원)</span></summary>
       <div class="tablebox" style="border:0"><table id="invtable"><thead></thead><tbody></tbody></table></div></details>
@@ -1336,6 +1338,17 @@ function renderInvestors() {
     yaxis2: axis({domain: [0, 0.5], showgrid: false}),
     annotations: [lbl(0.95, '개인 · 외국인 · 기관 · 기타법인'), lbl(0.51, '기관 안에서는 누가? (칸마다 길이 기준이 달라요)')],
   }), CFG);
+  // 연기금 순매수 추이: 최근 40거래일 하루 값(억원), 점선 = 대량매수 기준선(update.py big_th: 지난 1년 상위 5%)
+  const k0 = Math.max(0, n - 40), PX = o.x.slice(k0), PY = o.pension.slice(k0), pth = o.big_th.pension, pl = PX.length - 1;
+  const pk = PY.reduce((b, v, i) => Math.abs(v) > Math.abs(PY[b]) ? i : b, 0), tk = PX.filter((_, i) => (pl - i) % 8 === 0);
+  document.getElementById('invpentitle').innerHTML = `<b>🏦 ${mkn} 연기금 순매수 추이</b> — 최근 ${PX.length}거래일(억원)<br><span class="small">초록 = 그날 더 많이 삼, 빨강 = 더 많이 팖 · 점선 = 대량매수 기준(${fmtNum(pth)}억)</span>`;
+  Plotly.react('invpension', [{type: 'bar', x: PX, y: PY, marker: {color: PY.map(v => css(v >= 0 ? '--good' : '--bad'))}, hovertemplate: '%{x} 연기금 %{y:+,.0f}억<extra></extra>'}],
+    Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 44, r: 18, t: 16, b: 24}, bargap: 0.25,
+      xaxis: axis({type: 'category', tickvals: tk, ticktext: tk.map(md), showgrid: false}),
+      yaxis: axis({zeroline: true, zerolinecolor: css('--ink2'), tickformat: ',.0f'}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: pth, y1: pth, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
+      annotations: [...new Set([pk, pl])].map(i => ({x: PX[i], y: PY[i], text: `<b>${won(PY[i])}</b>`, showarrow: false, xanchor: i === pl ? 'right' : 'center',
+        yanchor: PY[i] >= 0 ? 'bottom' : 'top', font: {size: 11, color: css('--ink')}}))}), CFG);
   // 날짜별 표(접힘): 고른 기간의 날짜, 1일이면 최근 10거래일
   const t0 = Math.min(i0, n - 10 < 0 ? 0 : n - 10), cell = v => `<td class="${v >= 0 ? 'up' : 'down'}">${fmtNum(v)}</td>`;
   const tb = document.getElementById('invtable');
