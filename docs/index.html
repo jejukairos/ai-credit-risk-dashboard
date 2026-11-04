@@ -689,6 +689,13 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">시장마다 위 = <b>빚내서 산 주식</b> 금액(신용융자), 아래 = 그 시장 지수예요. 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요.
     점선 = 고른 기간의 최고점. 이 섹션 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS · 지수 네이버 금융(2019년~)</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <div id="krmgbox" style="margin-top:16px">
+      <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
+      <div class="small" style="margin:2px 4px 6px">코스피 신용융자(빚내서 산 주식) 잔고가 1년 전보다 몇 % 늘었는지예요. 100%(1년 새 두 배) 위로 치솟았다가 꺾이면, 그 뒤 코스피도 약해졌던 때가 많았어요.</div>
+      <div class="fgchips" id="krmgchips"></div>
+      <div id="krmgplot" class="plot" style="height:400px"></div>
+      <p class="note" style="margin:6px 4px 2px">자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> 코스피 신용거래융자(1998년 7월~, 매일) · 코스피 네이버 금융. 증가율 = 그날 잔고 ÷ 1년 전 그날(쉬는 날이면 그 전 날) 잔고 − 1. 2년보다 오래된 기간은 한 주에 한 점(금요일). 점선 100% = 사용자 제공 그림 [표2](금융투자협회, 2026-10-19 기준) 기준선 — 그림의 2026년 고점 약 160%와 맞는 건 코스피 신용(164%)이라 코스피만 썼어요(코스피+코스닥 전체로 하면 107%). 동그라미 = 100%를 넘은 구간마다 가장 높은 날(2007년처럼 아주 높은 값은 위가 잘려요). 이 섹션 기간 버튼을 따라 바뀌어요(전체 = 1999년~).</p>
+    </div>
     <div class="memo" style="margin:8px 0">🧭 <b>부의 나침반 생각</b> <span class="small">(10/29 신용잔고 기준)</span>
       <div>· 코스피 지수는 <b>3주째 박스권</b>인데, 신용잔고는 같은 기간 <b>빠르게 줄었어요</b>(코스피 22조 5,478억, 1주 새 −9,751억 · 코스닥 6조 5,408억, −2,996억 · 합계 29조 886억).</div>
       <div>· 지수가 오르는 날 기대감에 <b>따라 샀다가 위아래로 털리기 딱 좋은 시장</b>이에요.</div>
@@ -720,13 +727,6 @@ footer a{color:var(--ink2)}
       <br>· 2026년 1월에도 코스닥이 매우 강했어요.
       <div class="src">출처: user: 사용자 메모(26.11.01)</div></div>
     <p class="note" style="margin:6px 4px 2px" id="monthnote"></p>
-  </div>
-  <div class="card">
-    <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
-    <div class="small" style="margin:2px 4px 6px">코스피 신용융자(빚내서 산 주식) 잔고가 1년 전보다 몇 % 늘었는지예요. 100%(1년 새 두 배) 위로 치솟았다가 꺾이면, 그 뒤 코스피도 약해졌던 때가 많았어요.</div>
-    <div class="fgchips" id="krmgchips"></div>
-    <div id="krmgplot" class="plot" style="height:400px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> 코스피 신용거래융자(1998년 7월~, 매일) · 코스피 네이버 금융. 증가율 = 그날 잔고 ÷ 1년 전 그날(쉬는 날이면 그 전 날) 잔고 − 1. 2년보다 오래된 기간은 한 주에 한 점(금요일). 점선 100% = 사용자 제공 그림 [표2](금융투자협회, 2026-10-19 기준) 기준선 — 그림의 2026년 고점 약 160%와 맞는 건 코스피 신용(164%)이라 코스피만 썼어요(코스피+코스닥 전체로 하면 107%). 동그라미 = 100%를 넘은 구간마다 가장 높은 날(2007년처럼 아주 높은 값은 위가 잘려요). 이 섹션 기간 버튼을 따라 바뀌어요(전체 = 1999년~).</p>
   </div>
   <div class="card">
     <h3><span>월별 일평균 반대매매 (억원)</span></h3>
@@ -2467,11 +2467,11 @@ function renderUsToday() {
       yaxis: axis({range: padRange(vis.flatMap(i => YK.map(([k]) => Y[k][i])).filter(v => v != null), false), ticksuffix: '%'})}), CFG);
 }
 
-// 신용잔고 증가율(1년 전 대비, 아래 칸) + 지수(로그 눈금, 위 칸). th = 기준선(%, 사용자 제공 그림 [표1]·[표2]), cap = 이보다 높은 값은 위를 자름.
-// 동그라미 = th를 넘은 구간(100일 안에 다시 넘으면 같은 구간)마다 가장 높은 점
+// 신용잔고 증가율(1년 전 대비) + 지수(로그 눈금) 두 칸. 미국 = 지수 위·증가율 아래, 한국 = 증가율 위·지수 아래(사용자 요청 26.11.04).
+// th = 기준선(%, 사용자 제공 그림 [표1]·[표2]), cap = 이보다 높은 값은 위를 자름. 동그라미 = th를 넘은 구간(100일 안에 다시 넘으면 같은 구간)마다 가장 높은 점
 function creditGrowthPlot(key, xs, th, idxName, cap) {
-  const G = DATA.credit_growth && DATA.credit_growth[key], el = document.getElementById(key + 'mgplot');
-  if (!G) { el.closest('.card').style.display = 'none'; return; }
+  const G = DATA.credit_growth && DATA.credit_growth[key], el = document.getElementById(key + 'mgplot'), gTop = key === 'kr';
+  if (!G) { el.parentElement.style.display = 'none'; return; }
   const n = G.x.length, last = G.ix[G.ix.length - 1] > G.x[n - 1] ? G.ix[G.ix.length - 1] : G.x[n - 1];
   const dt = key === 'us' ? s => s.slice(2, 7).replace('-', '.') : s => s.slice(2).replace(/-/g, '.');
   const eps = [];
@@ -2496,13 +2496,13 @@ function creditGrowthPlot(key, xs, th, idxName, cap) {
     {x: pk.map(i => G.x[i]), y: pk.map(i => Math.min(G.yoy[i], top)), type: 'scatter', mode: 'markers', yaxis: 'y2', hoverinfo: 'skip',
       marker: {size: 10, color: 'rgba(0,0,0,0)', line: {color: css('--g5'), width: 2}}},
   ], tagLast(Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: long ? '%Y' : '%y.%m', hoverformat: key === 'us' ? '%Y-%m' : '%Y-%m-%d'}),
+    xaxis: axis({type: 'date', anchor: gTop ? 'y' : 'y2', range: [xs, last], tickformat: long ? '%Y' : '%y.%m', hoverformat: key === 'us' ? '%Y-%m' : '%Y-%m-%d'}),
     // 로그 눈금이 3배 넘게 벌어지면 1000·2000·4000…(두 배씩)만 찍어 글자가 겹치지 않게
-    yaxis: axis(Object.assign({domain: [0.6, 0.93], type: 'log', range: [lo - lpad, hi + lpad], nticks: 4},
+    yaxis: axis(Object.assign({domain: gTop ? [0, 0.35] : [0.6, 0.93], type: 'log', range: [lo - lpad, hi + lpad], nticks: 4},
       hi - lo > Math.log10(3) ? {tickvals: [250, 500, 1000, 2000, 4000, 8000, 16000, 32000].filter(v => Math.log10(v) >= lo - lpad && Math.log10(v) <= hi + lpad)} : {})),
-    yaxis2: axis({domain: [0, 0.5], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
+    yaxis2: axis({domain: gTop ? [0.45, 0.93] : [0, 0.5], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
     shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: th, y1: th, line: {color: css('--g5'), width: 1, dash: 'dot'}}],
-    annotations: [lbl(0.94, `${idxName} (로그 눈금)`), lbl(0.51, `신용잔고 증가율 (1년 전 대비) · 점선 ${th}%`)],
+    annotations: [lbl(gTop ? 0.36 : 0.94, `${idxName} (로그 눈금)`), lbl(gTop ? 0.94 : 0.51, `신용잔고 증가율 (1년 전 대비) · 점선 ${th}%`)],
   }), [[L, 'y', v => fmtNum(10 ** v, 0), css('--price')], [G.yoy, 'y2', v => fmtNum(v, 0) + '%', css('--g5')]]), CFG);
 }
 
