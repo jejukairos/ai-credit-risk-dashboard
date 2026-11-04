@@ -43,6 +43,9 @@ h2{font-size:16px;margin:22px 0 8px}
 .bar{position:sticky;top:0;z-index:5;background:var(--page);padding:8px 0;display:flex;gap:6px;align-items:center}
 .bar button{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 0;font-size:14px;cursor:pointer}
 .bar button.on{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.bar.p7{gap:3px} .bar.p7 button{font-size:12.5px;white-space:nowrap}
+details.more>summary{cursor:pointer;list-style:none} details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::after{content:' ▶ 자세히';font-size:11px;color:var(--muted);white-space:nowrap} details.more[open]>summary::after{content:' ▼ 접기'}
 .tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
 table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{padding:7px 5px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
@@ -199,11 +202,11 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">온도계</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
   </nav>
 
-  <div class="bar" role="group" aria-label="기간">
-    <button data-p="3m">3개월</button><button data-p="1y" class="on">1년</button><button data-p="all">전체</button>
+  <div class="bar p7" role="group" aria-label="기간">
+    <button data-p="1m">1개월</button><button data-p="3m">3개월</button><button data-p="6m">6개월</button><button data-p="1y" class="on">1년</button><button data-p="3y">3년</button><button data-p="5y">5년</button><button data-p="all">전체</button>
   </div>
 
   <h2 id="sec-ustoday">📊 오늘의 미국 증시</h2>
@@ -291,10 +294,7 @@ footer a{color:var(--ink2)}
     <div class="fgbar" aria-hidden="true"><span style="flex:25" class="z1"></span><span style="flex:20" class="z2"></span><span style="flex:10" class="z3"></span><span style="flex:20" class="z4"></span><span style="flex:25" class="z5"></span><i id="fgmark"></i></div>
     <div class="fgscale"><span>0 극단적 공포</span><span>50 중립</span><span>극단적 탐욕 100</span></div>
     <div id="fgplot" class="plot" style="height:240px"></div>
-    <div class="memo">
-      <b>🐒 투자 메모</b>
-      <div>· <b>20 이하</b> → <b>분할매수를 시작하기 좋은 기회</b>예요.</div>
-      <div>· <b>10 이하(한 자리 숫자)</b> → <b>절호의 기회</b>예요. 지나고 보면 보통 기회였어요 (기계적 매수 대응 구간).</div>
+    <div class="memo"><details class="more"><summary><b>🐒 투자 메모</b> 20 이하 = <b>분할매수 시작</b> · 10 이하 = <b>절호의 기회</b></summary>
       <div>· 이런 구간은 <b>1년에 1~2번꼴</b>로 와요. 그때마다 시장지수나 우량주를 <b>장기 계좌에 나눠 담아두면</b> 성과가 꽤 좋았어요.</div>
       <div>· 뉴스를 열심히 보는 것보다 공포지수를 보고 나눠 담는 게 나을 수도 있어요. 뉴스는 이성적인 판단을 방해하거든요.</div>
       <div>· 지나고 나면 누구나 <b>"그때 샀어야지"</b> 하지만, 막상 또 그 상황이 오면 <b>"이번엔 달라…"</b> 하는 게 사람이에요.</div>
@@ -302,10 +302,10 @@ footer a{color:var(--ink2)}
       <div>· <b>메모 작성자 개인 의견:</b> 이번에도 10 내외 부근에서는 적극적인 비중 확대를 노려볼 생각이라고 해요.</div>
       <div class="small" style="font-size:10px;color:var(--muted);margin-top:4px">※ 공포 쪽(낮은 숫자) 신호로만 유용하고, 탐욕(높은 숫자)은 이후 주가와 관계가 낮아 '팔 때' 신호로는 잘 맞지 않는다고 해요.</div>
       <div class="real" id="fgreal"></div>
-    </div>
-    <div class="small" style="margin:10px 4px 4px">실제로 그랬을까? — 지수가 10 이하로 떨어진 구간과 그 뒤 S&amp;P500 수익률 (2021년~). '그때 증시'는 최저일에 S&amp;P500이 직전 최고점보다 얼마나 낮았는지예요.</div>
-    <div class="tablebox" style="border:0"><table id="fgtable"><thead><tr><th>시작</th><th>최저</th><th>그때<br>증시</th><th>3개월<br>후</th><th>6개월<br>후</th><th>1년<br>후</th></tr></thead><tbody></tbody></table></div>
-    <p class="note" style="margin:4px" id="fgnote"></p>
+      <div class="small" style="margin:10px 0 4px">실제로 그랬을까? — 지수가 10 이하로 떨어진 구간과 그 뒤 S&amp;P500 수익률 (2021년~). '그때 증시'는 최저일에 S&amp;P500이 직전 최고점보다 얼마나 낮았는지예요.</div>
+      <div class="tablebox" style="border:0;margin:0 -10px"><table id="fgtable"><thead><tr><th>시작</th><th>최저</th><th>그때<br>증시</th><th>3개월<br>후</th><th>6개월<br>후</th><th>1년<br>후</th></tr></thead><tbody></tbody></table></div>
+      <p class="note" style="margin:4px" id="fgnote"></p>
+    </details></div>
   </div>
 
   <h2 id="sec-vix">VIX 지수 (증시 변동성)</h2>
@@ -405,6 +405,7 @@ footer a{color:var(--ink2)}
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
+  <div id="cdssrc"></div>
   <div class="glossary">
     <div><b>CDS</b> 회사가 망할 때를 대비한 <b>보험료</b>예요. 숫자가 클수록 "이 회사 망할까 봐 걱정된다"는 뜻이에요.</div>
     <div><b>신용등급</b> 회사가 빌린 돈을 잘 갚을지 매긴 <b>성적표</b>예요. AAA가 1등이고, BB+부터는 "조심" 등급이에요.</div>
@@ -425,15 +426,6 @@ footer a{color:var(--ink2)}
     <div>· <b>⚠️ 소프트뱅크 5년 내 부도위험 약 30%</b> — 블룸버그 기준 CDS가 약 4년 만의 최고 수준이에요(2022년 고점 이후 최고). 주가는 반대로 미끄러지는 중이에요.</div>
   </div>
 
-  <h2>종목별 차트</h2>
-  <div class="legend">
-    <span><span class="sw" style="border-color:var(--cds)"></span>CDS 5년(bp, 점=기사)</span>
-    <span><span class="sw" style="border-color:var(--spread)"></span>등급 스프레드(bp)</span>
-    <span><span class="sw" style="border-color:var(--warnline);border-top-style:dashed"></span>CDS 1,000bp (5년 부도확률 약 57%, 부실채권 수준)</span>
-    <span><span class="sw" style="border-color:var(--price)"></span>주가</span>
-  </div>
-  <div id="cards"></div>
-
   <h2 id="sec-gpu">엔비디아 GPU 임대가격 · LLM 토큰 가격</h2>
   <div class="glossary">
     <div><b>GPU 임대가격</b> AI용 그래픽카드(GPU) 1장을 1시간 빌리는 값이에요. 오르면 AI 컴퓨팅 수요가 공급보다 세다는 뜻이에요.</div>
@@ -444,13 +436,11 @@ footer a{color:var(--ink2)}
     <div class="tablebox" style="border:0"><table id="sdtable"><thead><tr><th>지수</th><th>최근가</th><th>1주</th><th>기록<br>시작 대비</th></tr></thead><tbody></tbody></table></div>
     <div class="small" style="margin:8px 4px 0">첫 기록일 = 100으로 맞춘 비교 (사진의 Silicon Data 차트와 같은 방식)</div>
     <div id="sdplot" class="plot" style="height:300px"></div>
-    <div class="memo">
-      <b>🐒 투자 메모</b>
-      <div>· B300이 약간 주춤하긴 하지만 H100·H200은 전반적으로 다 좋아요. <b>D램 현물가격과 GPU 임대가격</b>, 제일 중요하고 객관적인 두 지표가 좋아요.</div>
-      <div>· 다만 <b>LLM Token Index는 하락 중</b>이에요. 비싼 모델보다 <b>저가 모델이 더 많이 쓰인다</b>는 얘기예요.</div>
-      <div>· <b>JP모건 데이터센터 보고서(10/26)</b>: 10월 AI 토큰 <b>지출</b> 전월 대비 <b>+40%</b>(8월 +7% → 9월 +28% → 가속). 사용량 +25%에 비싼 모델 사용이 늘어 단가도 올랐어요. GPU 임대료는 구형 <b>A100 −3.5%</b>, <b>H100 +6.5%</b>, <b>B200 +4.7%</b> — 고성능 칩 위주로 반등. <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
+    <div class="memo"><details class="more"><summary><b>🐒 투자 메모</b> GPU 임대가격·D램 현물가격은 <b>좋고</b>, LLM 토큰 가격은 <b>하락</b>(싼 모델이 더 많이 쓰임)</summary>
+      <div>· B300이 약간 주춤하지만 H100·H200은 좋아요.</div>
+      <div>· <b>JP모건(10/26)</b>: 10월 AI 토큰 지출 전월 대비 <b>+40%</b> · GPU 임대료 A100 −3.5% · H100 +6.5% · B200 +4.7%(고성능 칩 위주로 반등). <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
       <div class="real" id="sdreal"></div>
-    </div>
+    </details></div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
   </div>
   <div class="card">
@@ -556,8 +546,8 @@ footer a{color:var(--ink2)}
     <div><span class="vixkey" style="border-color:var(--g1)"></span> <b>80% 이하 = 과매도(침체) 구간</b> 내리는 종목이 훨씬 많았다는 뜻. 공포에 너도나도 판 <b>매도 쏠림</b>이라, 팔 사람이 거의 다 판 상태가 되기 쉬워 반등이 나오기 쉬워요. (adrinfo는 75% 이하를 바닥권으로 봐요)</div>
     <div><b>한계</b> 종목 "개수"만 세서 삼성전자·SK하이닉스 같은 대형주가 지수를 끌어올려도 ADR은 낮을 수 있어요(지수와 체감 장세가 다를 때 확인용). 과열·침체 구간에 며칠씩 머물 수도 있어서, 단독 매매 신호보다는 <b>쏠림 정도를 보는 온도계</b>로 쓰는 게 좋아요.</div>
   </div>
-  <div class="bar own" role="group" aria-label="ADR 기간" id="adrbar" style="position:static">
-    <button data-a="3m">3개월</button><button data-a="6m">6개월</button><button data-a="1y">1년</button><button data-a="2y">2년</button><button data-a="5y">5년</button><button data-a="all" class="on">7년</button>
+  <div class="bar own p7" role="group" aria-label="ADR 기간" id="adrbar" style="position:static">
+    <button data-a="1m">1개월</button><button data-a="3m">3개월</button><button data-a="6m">6개월</button><button data-a="1y" class="on">1년</button><button data-a="3y">3년</button><button data-a="5y">5년</button><button data-a="all">전체</button>
   </div>
   <div class="card"><h3><span>KOSPI ADR</span><span class="risk" id="adrk-chip" style="font-size:13px"></span></h3>
     <div id="adrkospi" class="plot" style="height:340px"></div></div>
@@ -616,16 +606,9 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
-  <h2 id="sec-thermo">🌡 시장 온도계 — 코스피 · 코스닥</h2>
-  <div class="glossary">
-    <div><b>온도</b> 지수가 최근 50거래일 평균보다 얼마나 높은지(<b>50일 이격</b>)를 0~100도로 바꾼 거예요. 평균의 90% 이하면 0도, <b>110%면 80도(과열 경고선)</b>예요.</div>
-    <div><b>20일선 아래</b> 종목 중 몇 %가 자기 20일 평균 가격보다 싸게 거래되는지예요. <b>90% 넘으면 투매권</b>(다들 던지는 구간). <b>신고−신저</b> 최근 60거래일 최고가를 새로 쓴 종목 수 − 최저가를 새로 쓴 종목 수예요. 마이너스가 클수록 약한 시장이에요.</div>
-    <div><b>🧊 급락</b> 지수가 50일 평균의 90% 아래로 떨어져 온도가 0도에 닿은 상태예요. <b>수급</b> 그날 외국인·기관·개인이 판 돈보다 산 돈이 얼마나 많은지예요(▲ 더 많이 삼, ▼ 더 많이 팖).</div>
-  </div>
-  <div class="fgchips" id="thermochips"></div>
-  <div id="thermo"></div>
-  <p class="note" style="margin:6px 4px 2px">계산: 온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 0도 = 급락, ■□ 10칸 = 10도마다 한 칸(그쪽과 같아요). 차가움·서늘함·보통·따뜻함·뜨거움(20도 간격)과 약세·매우약세(신고−신저가 종목 수의 10% 넘게 마이너스면 매우약세)는 이 대시보드가 정한 구간이에요. 종목은 우선주·ETF·스팩을 뺀 보통주. 장 마감 종가 기준이라 장중(15:20) 값과 조금 달라요. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수) · <a href="https://finance.naver.com/sise/" target="_blank" rel="noopener">네이버 금융</a>(전 종목 일별 시세) · <a href="https://m.stock.naver.com/domestic/index/KOSPI/total" target="_blank" rel="noopener">네이버 증권</a>(수급, 억원 · 장 마감 뒤 값이라 그쪽 장중 15:20 값과 달라요, 2026-10-30부터 쌓여요). 폭 지표(20일선 아래·신고−신저)는 2026년 7월부터 있어요.</p>
+  <h2 id="sec-thermo">🎢 광기·외면 곡선 — 한국</h2>
   <div class="card" id="krcurve-card"></div>
+  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 장 마감 종가 기준. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수)</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
@@ -654,16 +637,15 @@ footer a{color:var(--ink2)}
     <div><b>신용비율</b> = 신용잔고(코스피+코스닥) ÷ 고객예탁금. 신용잔고가 빚의 <b>크기(조원)</b>라면, 신용비율은 그 빚이 대기 현금의 <b>몇 %</b>인지예요. 잔고가 줄어도 예탁금이 더 빨리 줄면 비율은 올라가요. 빚에 비해 받쳐 줄 현금이 얇아졌다는 뜻이라, 높을수록 조심해서 봐요.</div>
     <div><b>반대매매</b> 빌린 돈(미수금)을 못 갚아서 증권사가 <b>강제로 판</b> 금액이에요.</div>
   </div>
-  <div class="bar own" role="group" aria-label="주변자금 기간" id="kofiabar" style="position:static">
-    <button data-k="3m">3개월</button><button data-k="6m">6개월</button><button data-k="1y" class="on">1년</button><button data-k="3y">3년</button><button data-k="all">전체</button>
+  <div class="bar own p7" role="group" aria-label="주변자금 기간" id="kofiabar" style="position:static">
+    <button data-k="1m">1개월</button><button data-k="3m">3개월</button><button data-k="6m">6개월</button><button data-k="1y" class="on">1년</button><button data-k="3y">3년</button><button data-k="5y">5년</button><button data-k="all">전체</button>
   </div>
   <div class="tiles" id="kofiatiles"></div>
-  <div class="memo" style="margin:0 0 10px">🐒 <b>한걸음 블로그 생각</b> — 코스피·코스닥 신용잔고가 <b>7월 말~8월 초 급락 때(1년 버튼의 '최저')만큼은 아직 안 빠졌다</b> → 빚이 덜 정리돼서 시장 참여자의 불안 심리를 계속 자극하는 중이라고 봐요. <span class="small">(출처: user: 사용자가 보내 준 '한걸음 블로그' 글 캡처 26.10)</span></div>
   <div class="card">
     <h3><span>고객예탁금 · 코스피</span></h3>
     <div id="fundplot" class="plot" style="height:420px"></div>
     <p class="note" style="margin:4px">대기 현금(예탁금)이 늘면 주식을 살 돈이 많아져 호황, 줄면 불황 쪽으로 가는 흐름을 코스피와 함께 볼 수 있어요.
-    이 섹션 기간 버튼(3개월~전체, 전체 = 2019년~)으로 바꿀 수 있고, 3년·전체에선 배경 번호 ①~⑩ = 아래 '시기별로 보기'예요. 점선 = 고른 기간의 최고점. 오른쪽 끝 숫자 = 가장 최신 값. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: 네이버 금융</p>
+    이 섹션 기간 버튼(1개월~전체, 전체 = 2019년~)으로 바꿀 수 있고, 3년·5년·전체에선 배경 번호 ①~⑩ = 아래 '시기별로 보기'예요. 점선 = 고른 기간의 최고점. 오른쪽 끝 숫자 = 가장 최신 값. 신용융자는 아래 '신용융자 잔고' 차트에 있어요. 코스피: 네이버 금융</p>
   </div>
   <div class="card">
     <h3><span>신용비율 — 빚(신용잔고)이 대기 현금(예탁금)의 몇 %인가</span></h3>
@@ -700,14 +682,12 @@ footer a{color:var(--ink2)}
       <div id="krmgplot" class="plot" style="height:400px"></div>
       <p class="note" style="margin:6px 4px 2px">자료: <a href="https://freesis.kofia.or.kr" target="_blank" rel="noopener">금융투자협회 FreeSIS</a> 코스피 신용거래융자(1998년 7월~, 매일) · 코스피 네이버 금융. 증가율 = 그날 잔고 ÷ 1년 전 그날(쉬는 날이면 그 전 날) 잔고 − 1. 2년보다 오래된 기간은 한 주에 한 점(금요일). 점선 100% = 사용자 제공 그림 [표2](금융투자협회, 2026-10-19 기준) 기준선 — 그림의 2026년 고점 약 160%와 맞는 건 코스피 신용(164%)이라 코스피만 썼어요(코스피+코스닥 전체로 하면 107%). 동그라미 = 100%를 넘은 구간마다 가장 높은 날(2007년처럼 아주 높은 값은 위가 잘려요). 이 섹션 기간 버튼을 따라 바뀌어요(전체 = 1999년~).</p>
     </div>
-    <div class="memo" style="margin:8px 0">🧭 <b>부의 나침반 생각</b> <span class="small">(10/29 신용잔고 기준)</span>
-      <div>· 코스피 지수는 <b>3주째 박스권</b>인데, 신용잔고는 같은 기간 <b>빠르게 줄었어요</b>(코스피 22조 5,478억, 1주 새 −9,751억 · 코스닥 6조 5,408억, −2,996억 · 합계 29조 886억).</div>
-      <div>· 지수가 오르는 날 기대감에 <b>따라 샀다가 위아래로 털리기 딱 좋은 시장</b>이에요.</div>
-      <div>· 바닥을 찍고 <b>V자로 반등</b>해서 빚낸 사람에게 쉽게 수익을 주는 시장이 아니에요.</div>
-      <div>· 팔 사람이 다 팔고 나면, <b>나쁜 뉴스에도 시장이 크게 반응하지 않는 구간</b>에 들어가요.</div>
+    <div class="memo" style="margin:8px 0"><details class="more"><summary>🧭 <b>부의 나침반 생각</b> — 지수는 박스권인데 빚(신용)만 빠르게 줄어, <b>따라 샀다가 털리기 쉬운 시장</b>이에요</summary>
+      <div>· 10/29 기준 코스피 신용 22조 5,478억(1주 새 −9,751억) · 코스닥 6조 5,408억(−2,996억).</div>
+      <div>· V자 반등으로 빚낸 사람에게 쉽게 수익을 주는 시장은 아니에요. 팔 사람이 다 팔고 나면 <b>나쁜 뉴스에도 덜 빠지는 구간</b>이 와요.</div>
       <div class="real" id="wcompassauto"></div>
       <div class="src">출처: user: 사용자가 보내 준 텔레그램 '부의 나침반'(t.me/w_compass) 글·그림 '코스피/코스닥 지수 vs 신용잔고'(26.10.29 기준) · 숫자는 금투협 자료와 같음을 확인(26.11.02)</div>
-    </div>
+    </details></div>
     <div id="cleanbox"></div>
     <div id="liqbox"></div>
     <div class="memo" id="kqoddeven" style="margin-top:8px"></div>
@@ -993,11 +973,12 @@ const riskName = {green: '초록', yellow: '노랑', red: '빨강'};
 const cur = t => t.currency || '$';
 const bucketLabel = t => t.rating === '무등급' ? 'B지수' : t.bucket + '등급';
 
+const PM = {'1m': 1, '3m': 3, '6m': 6, '1y': 12, '3y': 36, '5y': 60};  // 기간 버튼 → 개월 수 (전체 = 없음)
+const TF = () => PM[PERIOD] <= 3 ? '%m.%d' : PM[PERIOD] <= 36 ? '%y.%m' : '%Y';  // 기간에 맞는 날짜 눈금
 function periodStart(lastDate) {
+  if (!PM[PERIOD]) return null;
   const d = new Date(lastDate);
-  if (PERIOD === '3m') d.setMonth(d.getMonth() - 3);
-  else if (PERIOD === '1y') d.setFullYear(d.getFullYear() - 1);
-  else return null;
+  d.setMonth(d.getMonth() - PM[PERIOD]);
   return d.toISOString().slice(0, 10);
 }
 function inRange(s, start) {
@@ -1059,8 +1040,9 @@ function renderSummary() {
     ${t.extra ? '<td>–</td><td>–</td><td>–</td>' : `<td>${cur(t) === '¥' ? '¥' + fmtNum(t.price, 0) : fmtNum(t.price, 2)}</td><td>${fmtPct(t.w1)}<br>${fmtPct(t.m1)}</td>
     <td>${fmtNum(t.spread)}<br><span class="small">${bucketLabel(t)}</span></td>`}
     <td${tier[t.ticker] ? ` style="background:color-mix(in srgb, var(${TIER_COL[tier[t.ticker]]}) 30%, transparent)"` : ''}>${t.cds == null ? '<span class="small">기록 없음</span>' : `<b>${fmtNum(t.cds, 0)}</b><br><span class="small">부도 ${pd5(t.cds).toFixed(0)}%</span><br><span class="small">${t.cds_date.slice(2).replace(/-/g, '.')}</span>`}</td></tr>`).join('');
-  tb.querySelectorAll('tr[data-t]').forEach(tr => tr.onclick = () =>
-    document.getElementById('card-' + tr.dataset.t).scrollIntoView({behavior: 'smooth'}));
+  // 종목별 차트는 뺐고(사용자 요청 26.11.04), 표 CDS 숫자의 기사 출처만 접어서 남김
+  document.getElementById('cdssrc').innerHTML = `<details class="fold" style="margin:4px 0"><summary><b>📎 종목별 CDS 출처</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>${DATA.tickers.map(t =>
+    `<div style="margin:8px 4px 0"><b>${t.name}</b> <span class="small">${t.ticker}</span></div>${srcHtml(t)}`).join('')}</details>`;
 }
 
 function baseLayout() {
@@ -1078,7 +1060,7 @@ const axis = extra => {
   // '연.월' 눈금이 반달 간격으로 찍혀 같은 달이 두 번 나오지 않게, 보이는 기간에 맞춰 1·2·3달 간격으로
   if (o.type === 'date' && o.tickformat === '%y.%m' && !o.dtick && o.range) {
     const months = (new Date(o.range[1]) - new Date(o.range[0])) / 2.63e9;
-    if (months <= 5) o.dtick = 'M1'; else if (months <= 14) o.dtick = 'M2'; else if (months <= 30) o.dtick = 'M3';
+    if (months <= 2) o.tickformat = '%m.%d'; else if (months <= 5) o.dtick = 'M1'; else if (months <= 14) o.dtick = 'M2'; else if (months <= 30) o.dtick = 'M3';
   }
   return o;
 };
@@ -1098,8 +1080,6 @@ function tagLast(layout, tags) {
 const n0 = v => fmtNum(v, 0);
 // CDS(bp) → 5년 내 부도확률(%). 1년 부도율 ≈ CDS ÷ (1 − 회수율), 5년 누적 = 1 − e^(−5 × 1년 부도율)
 const pd5 = bp => (1 - Math.exp(-5 * (bp / 10000) / (1 - ((DATA && DATA.cds_recovery) || 0.4)))) * 100;
-const fmtUsd = v => v == null ? '–' : v >= 1e9 ? '$' + (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'K' : '$' + v;
-const secUrl = tk => `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${tk}&type=4&dateb=&owner=include&count=40`;
 
 function srcHtml(t) {
   const s = t.series.cds_sources;
@@ -1111,7 +1091,7 @@ function srcHtml(t) {
 
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
-// 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2(종목별 차트)는 바로 앞 섹션을 따라감
+// 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
 const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
@@ -1143,32 +1123,6 @@ function applyHidden() {
   if (isHidden('phase')) document.getElementById('phase-card').style.display = 'none';
 }
 
-function insiderHtml(t) {
-  if (isHidden('insider')) return '';
-  const i = t.insider;
-  const head = '<b>내부자 매수·매도</b> <span class="small">(임원·이사가 자기 회사 주식을 사고판 기록)</span>';
-  if (!i || i.rows === -1) return `<div class="ins">${head}<div class="small" style="margin-top:6px">일본 상장 기업이라 미국식 내부자 공시(Form 4)가 없어요.</div></div>`;
-  if (!i.rows || !i.first) return `<div class="ins">${head}<div class="small" style="margin-top:6px">아직 받은 기록이 없어요.</div></div>`;
-  const md = s => s.slice(2).replace(/-/g, '.');
-  const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v" style="font-size:17px">${v}</div><div class="s">${s}</div></div>`;
-  const cxo = i.cxo_n ? tile('CEO·CFO (90일)', '매도 ' + fmtUsd(i.cxo_sell90), '매수 ' + (i.cxo_buy90 > 0 ? fmtUsd(i.cxo_buy90) : '없음'))
-                      : tile('CEO·CFO (90일)', '거래 없음', '매수·매도 기록 없음');
-  const list = i.recent.length ? `<ul class="inslist">${i.recent.map(r => `<li><span class="sd">${md(r.date)}</span><b>${r.name}</b> <span class="small">(${r.pos}${r.indirect ? ' · 간접보유' : ''})</span><br>
-      <span class="k-${r.kind}">${r.kind === 'sale' ? '매도' : '매수'}</span> ${fmtNum(r.shares)}주 · ${fmtUsd(r.amount)}</li>`).join('')}</ul>` : '';
-  return `<div class="ins">${head}
-    <div class="tiles" style="margin:8px 0">
-      ${tile('내부자 매도 (90일)', i.sell90_n ? fmtUsd(i.sell90) : '없음', i.sell90_n ? `${i.sell90_n}건 · ${i.sell90_people}명` : '최근 90일 매도 기록 없음')}
-      ${tile('내부자 매수 (90일)', i.buy90_n ? fmtUsd(i.buy90) : '없음', i.buy90_n ? `${i.buy90_n}건` : '최근 90일 매수 기록 없음')}
-      ${cxo}
-      ${tile('기록 범위', `${md(i.first)}~${md(i.last)}`, `${i.rows}건 (매일 쌓는 중)`)}
-    </div>
-    <div class="small">월별 금액 ($M) — 빨강 위쪽 = 매도, 초록 아래쪽 = 매수</div>
-    <div class="plot" id="ins-${t.ticker}" style="height:190px"></div>
-    ${list}
-    <div class="small" style="margin-top:6px">공시 원문: <a href="${secUrl(t.ticker)}" target="_blank" rel="noopener">SEC Form 4 목록 ↗</a> · <a href="https://finance.yahoo.com/quote/${t.ticker}/insider-transactions/" target="_blank" rel="noopener">Yahoo 내부자 거래 ↗</a></div>
-    <div class="small" style="margin-top:4px">Yahoo Finance가 SEC 공시(Form 4)를 정리한 자료(최근 약 150건)예요. 미리 정해둔 매도계획(10b5-1)인지는 표시되지 않아요. 매도는 세금·생활비 때문일 수도 있어서, 그 자체가 나쁜 신호라는 뜻은 아니에요.</div>
-  </div>`;
-}
 const CFG = {displayModeBar: false, responsive: true};
 
 // 위에 큰 숫자가 따로 없는 차트만: 가장 최근 값을 차트 바로 위 한 줄로 표시 (그래프는 가리지 않음)
@@ -1206,64 +1160,6 @@ function addNowBoxes(el, data, layout) {
 const _plotlyReact = Plotly.react;
 Plotly.react = function (el, data, layout, cfg) { try { if (layout) addNowBoxes(el, data, layout); } catch (e) { console.warn('now-box', e); } return _plotlyReact.call(Plotly, el, data, layout, cfg); };
 
-function renderCards() {
-  const box = document.getElementById('cards');
-  if (!box.children.length) {
-    box.innerHTML = DATA.tickers.map(t => `<div class="card" id="card-${t.ticker}">
-      <h3><span>${t.name} <span class="small">${t.ticker}</span></span><span class="risk" style="font-size:13px"><span class="dot ${t.risk}"></span>${riskName[t.risk]}</span></h3>
-      <div class="meta">${t.group} · 주가 ${cur(t)}${fmtNum(t.price, 2)} · 스프레드 ${fmtNum(t.spread)}bp(${t.rating === '무등급' ? '신용등급 없음 → B등급 지수 참고' : t.rating + ' → ' + t.bucket + '등급 지수'}) · CDS ${t.cds == null ? '기록 없음' : fmtNum(t.cds) + 'bp (' + t.cds_date + ') → 5년 부도확률 약 ' + pd5(t.cds).toFixed(0) + '%'}</div>
-      <div class="plot" id="plot-${t.ticker}"></div>
-      <div class="small" style="margin:0 4px">그래프를 누르면 그날의 날짜와 숫자가 나와요.</div>
-      ${srcHtml(t)}
-      ${insiderHtml(t)}
-    </div>`).join('');
-  }
-  for (const t of DATA.tickers) {
-    const s = t.series, last = s.price.x[s.price.x.length - 1];
-    const start = periodStart(last);
-    const hasCds = s.cds.x.length > 0;
-    const topVals = inRange(s.spread, start).concat(inRange(s.cds, start));
-    let topRange = padRange(topVals, true);
-    // CDS가 400bp 이상인 종목만 1,000bp 경고선이 보이도록 축을 넓힘 (낮은 종목은 선이 납작해지지 않게)
-    const showWarn = hasCds && Math.max(...s.cds.y) >= 400;
-    if (showWarn) topRange = [0, Math.max(1100, ...s.cds.y.map(v => v * 1.08))];
-    const traces = [
-      {x: s.spread.x, y: s.spread.y, name: '스프레드', type: 'scatter', mode: 'lines',
-       line: {color: css('--spread'), width: 2}, hovertemplate: '%{y:.0f}bp'},
-      {x: s.cds.x, y: s.cds.y, name: 'CDS', type: 'scatter', mode: 'lines+markers',
-       line: {color: css('--cds'), width: 2}, marker: {size: 8, color: css('--cds'), line: {color: css('--surface'), width: 2}},
-       customdata: s.cds.y.map(v => pd5(v)), hovertemplate: '%{y:.0f}bp (부도확률 %{customdata:.0f}%)', connectgaps: true},
-      {x: s.price.x, y: s.price.y, name: '주가', type: 'scatter', mode: 'lines', yaxis: 'y2',
-       line: {color: css('--price'), width: 1.6}, hovertemplate: cur(t) + '%{y:,.2f}'},
-    ];
-    const layout = Object.assign(baseLayout(), {
-      xaxis: axis({anchor: 'y2', range: [start || s.price.x[0], last], type: 'date', tickformat: '%y.%m'}),
-      yaxis: axis({domain: [0.47, 1], range: topRange, title: {text: 'bp', standoff: 2}}),
-      yaxis2: axis({domain: [0, 0.43], range: padRange(inRange(s.price, start), false), title: {text: cur(t), standoff: 2}}),
-      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 1000, y1: 1000,
-                line: {color: css('--warnline'), width: 1.5, dash: 'dash'}}],
-      annotations: showWarn ? [{xref: 'paper', x: 0.01, yref: 'y', y: 1000, yanchor: 'bottom', xanchor: 'left', showarrow: false,
-                text: 'CDS 1,000bp · 5년 부도확률 약 57% (부실채권 수준)', font: {size: 10, color: css('--warnline')}}]
-        : [{xref: 'paper', x: 0.01, yref: 'paper', y: 1, yanchor: 'top', xanchor: 'left', showarrow: false,
-            text: '1,000bp 경고선은 화면 위쪽 범위 밖', font: {size: 10, color: css('--muted')}}],
-    });
-    const el = document.getElementById('plot-' + t.ticker);
-    Plotly.react(el, traces, layout, CFG);  // 그래프를 눌러도 페이지가 이동하지 않음 (링크는 아래 '출처' 목록에서만)
-    const i = t.insider;
-    if (i && i.rows > 0 && i.months && document.getElementById('ins-' + t.ticker)) {
-      const xm = i.months.map(m => m + '-01');
-      Plotly.react('ins-' + t.ticker, [
-        {x: xm, y: i.m_sell, type: 'bar', name: '매도', marker: {color: css('--bad')}, hovertemplate: '매도 $%{y:.1f}M'},
-        {x: xm, y: i.m_buy.map(v => -v), customdata: i.m_buy, type: 'bar', name: '매수', marker: {color: css('--good')}, hovertemplate: '매수 $%{customdata:.1f}M'},
-      ], Object.assign(baseLayout(), {
-        margin: {l: 44, r: 8, t: 6, b: 26}, barmode: 'relative', bargap: 0.25,
-        xaxis: axis({type: 'date', tickformat: '%y.%m', hoverformat: '%Y-%m', nticks: 6}),
-        yaxis: axis({title: {text: '$M', standoff: 2}}),
-      }), CFG);
-    }
-  }
-}
-
 function renderGpu() {
   const colors = ['--g1', '--g2', '--g3', '--g4'].map(css);
   document.querySelector('#gputable tbody').innerHTML = DATA.gpu.map((g, i) => `<tr>
@@ -1290,7 +1186,6 @@ function xStartFor(lastDate, firstDate) {
   return s && s > firstDate ? s : firstDate;
 }
 
-// 시장 온도계: 온도·50일 이격(다음 지수) + 폭(20일선 아래 %, 60일 신고−신저) — update.py build_kr_thermo
 // 오늘의 지수 — 네이버 증권 시장 화면과 같은 자료(종가·수급·상승/하락 종목 수·1분 지수), 그날 것만
 // 지수 방향 × (오른 종목 수 vs 내린 종목 수) 한 줄 판정 — 한국·미국 '오늘' 카드 같이 씀
 const breadthVerdict = (chg, rise, fall) => rise === fall ? '오른 종목과 내린 종목 수가 같아요' : chg >= 0
@@ -1419,51 +1314,11 @@ document.querySelectorAll('#invmk button, #invbar button').forEach(b => b.onclic
   renderInvestors();
 });
 
-function renderThermo() {
-  const T = DATA.kr_thermo, box = document.getElementById('thermo');
+// 한국 광기·외면 곡선. 온도계 카드는 뺐고(사용자 요청 26.11.04) 온도(update.py build_kr_thermo)만 단계로 씀
+function renderKrCurve() {
+  const T = DATA.kr_thermo;
   if (!T) return;
-  const word = t => t <= 0 ? '🧊 급락' : t < 20 ? '🔵 차가움' : t < 40 ? '🔵 서늘함' : t < 60 ? '🟢 보통' : t < 80 ? '🟠 따뜻함' : '🔴 뜨거움';
-  const flow = v => `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '▲' : '▼'}${fmtNum(Math.abs(v))}억</span>`;
-  const netWord = (v, n) => v / n <= -0.1 ? '매우약세' : v < 0 ? '약세' : v / n >= 0.1 ? '매우강세' : v > 0 ? '강세' : '보합';
-  const md = s => s.slice(5).replace('-', '/');
   const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
-  const warn = [], cold = mk.filter(([c]) => T[c].temp[T[c].temp.length - 1] <= 0).map(a => a[1]);
-  box.innerHTML = mk.map(([c, nm]) => {
-    const o = T[c], n = o.x.length, t = o.temp[n - 1], B = o.breadth, bi = B ? B.x.length - 1 : -1, F = o.flow;
-    if (t >= 80) warn.push(`<span class="chip hot">${nm} 과열 경고 (80도 이상)</span>`);
-    if (B && B.below_pct[bi] >= 90) warn.push(`<span class="chip warm">${nm} 투매권 (20일선 아래 90% 이상)</span>`);
-    const col = t >= 80 ? css('--bad') : t >= 60 ? css('--spread') : css('--g1');
-    return `<div class="card"><h3><span>${nm} · ${word(t)}</span><span class="small">${md(o.x[n - 1])} 마감</span></h3>
-      <div class="fgtop"><div class="fgscore">${Math.round(t)}<span class="small">도</span></div><div style="flex:1">
-        <div style="display:flex;gap:3px;height:14px">${Array.from({length: 10}, (_, i) => `<span style="flex:1;border-radius:3px;${i < Math.round(t / 10) ? `background:${col}` : 'border:1.5px solid var(--line)'}"></span>`).join('')}</div>
-        <div style="position:relative;height:14px"><span class="small" style="position:absolute;left:80%;transform:translateX(-50%)">▲80</span></div>
-        <div class="small">지수 <b>${fmtNum(o.last, 2)}</b> (${fmtPct(o.chg)}) · 50일선 ${fmtNum(o.ma50, 0)} · 50일 이격 <b>${o.disp[n - 1].toFixed(1)}</b></div>
-        ${B ? `<div class="small">20일선 아래 <b>${Math.round(B.below_pct[bi])}%</b> (${fmtNum(B.below[bi])}/${fmtNum(B.n20[bi])}) · 신고−신저 <b>${B.net[bi] > 0 ? '+' : ''}${B.net[bi]}</b> · ${netWord(B.net[bi], B.n60[bi])}</div>` : ''}
-        ${F ? `<div class="small">수급(${md(F.date)}) 외국인 ${flow(F.foreign)} · 기관 ${flow(F.inst)} · 개인 ${flow(F.indiv)}</div>` : ''}
-      </div></div>
-      <div id="thermo-${c}" class="plot" style="height:400px"></div></div>`;
-  }).join('');
-  document.getElementById('thermochips').innerHTML = (cold.length ? `<span class="chip">🧊 ${cold.join('·')} 급락권</span>` : '') + (warn.length ? warn.join('') : '<span class="chip">✅ 과열 경고 없음</span>');
-  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
-  const hl = (yref, v, color) => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref, y0: v, y1: v, line: {color, width: 1.2, dash: 'dash'}});
-  mk.forEach(([c]) => {
-    const o = T[c], B = o.breadth || {x: [], below_pct: [], net: []}, last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]);
-    const vis = B.net.filter((_, i) => B.x[i] >= xs);
-    Plotly.react('thermo-' + c, [
-      {x: o.x, y: o.temp, type: 'scatter', mode: 'lines', name: '온도', line: {color: css('--bad'), width: 1.8}, hovertemplate: '온도 %{y:.0f}도<extra></extra>'},
-      {x: B.x, y: B.below_pct, type: 'scatter', mode: 'lines', name: '20일선 아래', yaxis: 'y2', line: {color: css('--g1'), width: 1.8}, hovertemplate: '20일선 아래 %{y:.0f}%<extra></extra>'},
-      {x: B.x, y: B.net, type: 'bar', name: '신고−신저', yaxis: 'y3', marker: {color: B.net.map(v => v >= 0 ? css('--good') : css('--bad'))}, hovertemplate: '신고−신저 %{y:+d}<extra></extra>'},
-    ], tagLast(Object.assign(baseLayout(), {
-      xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
-      yaxis: axis({domain: [0.7, 0.94], range: [0, 100], tickvals: [0, 40, 80, 100]}),
-      yaxis2: axis({domain: [0.37, 0.61], range: [0, 100], tickvals: [0, 50, 90]}),
-      yaxis3: axis({domain: [0, 0.28], range: padRange(vis.concat([0]), false), zeroline: true, zerolinecolor: css('--ink2')}),
-      shapes: [hl('y', 80, css('--bad')), hl('y2', 90, css('--bad'))],
-      annotations: [lbl(0.95, '온도 (도) · 점선 80 = 과열 경고'), lbl(0.62, '20일선 아래 종목 (%) · 점선 90 = 투매권'), lbl(0.29, '60일 신고가 − 신저가 (종목 수)')],
-      bargap: 0.15,
-    }), [[o.temp, 'y', v => Math.round(v) + '도', css('--bad')], [B.below_pct, 'y2', v => Math.round(v) + '%', css('--g1')],
-         [B.net, 'y3', v => (v > 0 ? '+' : '') + v, css(B.net[B.net.length - 1] >= 0 ? '--good' : '--bad')]]), CFG);
-  });
   // 광기·외면 곡선(한국): 온도 20도 칸마다 한 단계 — 80도~ 광기 5 · 60~ 스릴 4 · 40~ 낙관~흥분 3 · 20~ 희망~안정 2 · 그 아래 외면 1
   const kc = mk.map(([c, nm]) => { const t = T[c].temp[T[c].temp.length - 1]; return [nm, t >= 80 ? 5 : t >= 60 ? 4 : t >= 40 ? 3 : t >= 20 ? 2 : 1]; });
   const same = kc.length > 1 && kc[0][1] === kc[1][1];
@@ -1487,14 +1342,14 @@ function renderThermo() {
   }
   renderCurve('krcurve-card', {cur: kc.map(a => a[1]), title: '광기·외면 곡선 <span style="white-space:nowrap">— 한국 주식 기준</span>', band: s => ['20도 아래', '20~40도', '40~60도', '60~80도', '80도~'][s - 1],
     chip: (same ? [[kc.map(a => a[0]).join('·'), kc[0][1]]] : kc).map(([nm, s]) => curveChip(s, nm)).join(' '),
-    intro: '위 <b>온도계 온도</b>(코스피·코스닥)를 곡선 단계로 옮겨서 지금 어디쯤인지 보여줘요.',
-    memo: `<div>· 같은 온도라도 <b>올라가는 길</b>인지 <b>내려가는 길</b>인지는 온도만으로는 몰라요. 위 온도 그래프가 어느 쪽으로 움직이는지 함께 보세요. 0도(🧊 급락)는 막 크게 빠진 상태라 <b>패닉~외면</b> 사이일 수도 있어요.</div>
+    intro: `코스피·코스닥 <b>온도</b>(지수가 최근 50거래일 평균보다 얼마나 높은지를 0~100도로 바꾼 값: ${mk.map(([c, nm]) => `${nm} ${Math.round(T[c].temp[T[c].temp.length - 1])}도`).join(' · ')})를 곡선 단계로 옮겨서 지금 어디쯤인지 보여줘요.`,
+    memo: `<div>· 같은 온도라도 <b>올라가는 길</b>인지 <b>내려가는 길</b>인지는 온도만으로는 몰라요. 지수가 어느 쪽으로 움직이는지 함께 보세요. 0도(급락)는 막 크게 빠진 상태라 <b>패닉~외면</b> 사이일 수도 있어요.</div>
       <div>· <b>외면 단계 신호</b>: "개인 증권계좌가 확 줄었다", "증시 떠나는 개인… 예탁금 감소" 같은 뉴스가 나와요. 아래 <b>주변자금</b> 섹션의 <b>고객예탁금</b> 그래프로 확인할 수 있어요.</div>
       ${kfLine}
       ${sbLine}
       <div>· <b>실제 예</b>: 아래 '📜 2019년부터 돈의 흐름' 상자에서 <b>코로나 충격(폭락)</b> → <b>동학개미 광기장</b> 때 예탁금·빚이 어떻게 움직였는지 볼 수 있어요.</div>
       <div>· 관심 종목도 종목토론방·댓글 분위기를 이 곡선에 맞춰 보면 지금 어느 단계인지 가늠하는 데 도움이 돼요.</div>
-      <div class="small" style="color:var(--muted)">단계 나누기(온도 20도 칸 = 위 온도계의 차가움~뜨거움 구간)는 이 대시보드가 정한 거예요. 곡선 그림은 미국 곡선과 같아요(사용자 엑셀).</div>`});
+      <div class="small" style="color:var(--muted)">단계 나누기(온도 20도 칸)는 이 대시보드가 정한 거예요. 곡선 그림은 미국 곡선과 같아요(사용자 엑셀).</div>`});
 }
 
 // SK하이닉스 분기 재고일수 (OpenDART, 2019년~ 고정 — 분기 자료라 위 기간 버튼과 무관)
@@ -1611,19 +1466,19 @@ function renderDram() {
   });
 }
 
-// 주변자금 섹션 기간 버튼: 3개월·6개월·1년·3년·전체(2019년~)
+// 주변자금 섹션 기간 버튼: 맨 위 버튼과 같은 1개월~5년·전체(2019년~)
 let KOFIA_PERIOD = '1y';
-const KOFIA_PL = {'3m': '3개월', '6m': '6개월', '1y': '1년', '3y': '3년', 'all': '2015년 이후'};
+const KOFIA_PL = {'1m': '1개월', '3m': '3개월', '6m': '6개월', '1y': '1년', '3y': '3년', '5y': '5년', 'all': '2015년 이후'};
 function kofiaStart(last, first) {
   let s = first;  // 전체 = 받은 자료 처음부터(금투협 2015년~, 거래대금 2020년~)
-  if (KOFIA_PERIOD !== 'all') { const d = new Date(last); d.setMonth(d.getMonth() - {'3m': 3, '6m': 6, '1y': 12, '3y': 36}[KOFIA_PERIOD]); s = d.toISOString().slice(0, 10); }
+  if (PM[KOFIA_PERIOD]) { const d = new Date(last); d.setMonth(d.getMonth() - PM[KOFIA_PERIOD]); s = d.toISOString().slice(0, 10); }
   return s > first ? s : first;
 }
-// 3년·전체로 볼 때 시기(①~⑩) 구간을 옅은 배경과 위쪽 번호로 표시 — 아래 '시기별 흐름'과 같은 번호
+// 3년·5년·전체로 볼 때 시기(①~⑩) 구간을 옅은 배경과 위쪽 번호로 표시 — 아래 '시기별 흐름'과 같은 번호
 const ERA_NUM = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫';
 function withEras(layout, xs) {
   const E = (DATA.kofia && DATA.kofia.eras) || [];
-  if (!['3y', 'all'].includes(KOFIA_PERIOD)) return layout;
+  if (!['3y', '5y', 'all'].includes(KOFIA_PERIOD)) return layout;
   const vis = E.map((e, i) => Object.assign({i, a: e.start > xs ? e.start : xs}, e)).filter(e => e.end >= xs);
   layout.shapes = (layout.shapes || []).concat(vis.filter(e => e.i % 2 === 0).map(e => ({type: 'rect', xref: 'x', yref: 'paper', x0: e.a, x1: e.end, y0: 0, y1: 1,
     fillcolor: css('--ink'), opacity: 0.06, line: {width: 0}, layer: 'below'})));
@@ -1827,11 +1682,14 @@ function renderEras() {
       <div>· 예탁금: <b>${mon(prev.start, prev.deposit.max[1])}개월</b> 동안 ${fmtPct((prev.deposit.max[0] / prev.deposit.start - 1) * 100)} → 최고(${md(prev.deposit.max[1])} ${prev.deposit.max[0].toFixed(1)}조)에서 <b>${mon(prev.deposit.max[1], cur.deposit.min[1])}개월</b> 만에 ${fmtPct((cur.deposit.min[0] / prev.deposit.max[0] - 1) * 100)}</div>
       <div>· 신용(빚): 최고(${md(prev.credit.max[1])} ${prev.credit.max[0].toFixed(1)}조) → 지금 ${cur.credit.end.toFixed(1)}조 ${fmtPct(cdrop)} — ${Math.abs(cdrop) < Math.abs(kdrop) ? '지수가 빠진 것보다 <b>덜 줄었어요</b>(빚 정리가 덜 됨)' : '지수가 빠진 만큼 줄었어요'}</div>
       ${drops ? `<div>· 2019년 이후 코스피가 하루에 가장 크게 빠진 날: ${drops}</div>` : ''}</div>` : '';
+  // 사용자 요청(26.11.04): 한 줄 요약만 보이고 시기별 내용은 접음
+  const gist = cmp ? `<div style="margin:2px 4px 6px">⚠️ <b>오를 땐 천천히, 무너질 땐 빠르게</b>: 코스피 ${mon(prev.start, prev.kospi.max[1])}개월 동안 ${fmtPct((prev.kospi.max[0] / prev.kospi.start - 1) * 100)} → ${mon(prev.kospi.max[1], cur.kospi.min[1])}개월 만에 ${fmtPct((cur.kospi.min[0] / prev.kospi.max[0] - 1) * 100)}</div>` : '';
   box.innerHTML = `<h3><span>📜 2019년부터 돈의 흐름 — 시기별로 보기</span></h3>
-    <div class="small" style="margin:2px 4px 8px">개인 돈(예탁금)·빚(신용)·강제로 팔린 돈(반대매매)이 시기마다 어떻게 바뀌었는지예요. 위 기간 버튼에서 <b>3년·전체</b>를 누르면 그래프 배경에 같은 번호가 보여요.</div>
+    <div class="small" style="margin:2px 4px 6px">개인 돈(예탁금)·빚(신용)·강제로 팔린 돈(반대매매)이 시기마다 어떻게 바뀌었는지예요.</div>
+    ${gist}<details class="fold"><summary><b>시기별 숫자 ${E.length}개</b> <span class="small">(▶ 누르면 펼쳐져요 · 위 기간 버튼 3년·5년·전체에선 그래프 배경에 같은 번호)</span></summary>
     ${cmp}${blocks}
     <p class="note" style="margin:6px 4px 2px">숫자는 매일 자동 계산: 시작 = 그 시기 직전 거래일 값, 끝·최고·최저 = 그 기간 일별 값, 신용비율 = 신용 ÷ 예탁금, 반대매매 = 하루 평균·최대·합계.
-    자료: 금융투자협회 FreeSIS(예탁금·신용·반대매매) · 네이버 금융(코스피) · 한국은행·FRED(기준금리). 시기 이름과 💬 메모는 사용자 메모(26.10.30)와 출처 있는 기사예요. 투자 권유가 아닌 참고용이에요.</p>`;
+    자료: 금융투자협회 FreeSIS(예탁금·신용·반대매매) · 네이버 금융(코스피) · 한국은행·FRED(기준금리). 시기 이름과 💬 메모는 사용자 메모(26.10.30)와 출처 있는 기사예요. 투자 권유가 아닌 참고용이에요.</p></details>`;
 }
 
 // 코스피 빚(신용융자) 정리 진행도 = 신용 1년 고점 대비 감소율 ÷ 코스피 고점 대비 하락률 (생각의 출처: 사용자 제공 방송 요약 2026-10-28)
@@ -1845,15 +1703,13 @@ function renderClean() {
   let lo = -1; for (let i = pi + 1; i < li; i++) if (c[i] != null && (lo < 0 || c[i] < c[lo])) lo = i;  // 고점 뒤 직전 저점(오늘 제외)
   const cd = (c[li] / c[pi] - 1) * 100, idd = M.last, ratio = Math.round(cd / idd * 100);
   const gap = lo >= 0 ? c[li] - c[lo] : null;
-  document.getElementById('cleanbox').innerHTML = `<div class="memo">
-    <b>🧹 코스피 빚 정리, 얼마나 됐나?</b> <span class="small">(매일 자동)</span>
-    <div class="fgchips" style="margin:6px 0"><span class="chip">빚 정리 ${ratio}% 진행</span>${gap != null ? `<span class="chip">직전 저점까지 ${gap > 0 ? fmtNum(gap, 2) + '조 남음' : '저점 아래로 내려감'}</span>` : ''}</div>
-    <div>· 코스피 신용융자: 1년 고점 ${fmtNum(c[pi], 2)}조(${md(x[pi])}) → 지금 ${fmtNum(c[li], 2)}조(${md(x[li])}) = <b>${fmtPct(cd)}</b></div>
-    <div>· 코스피 지수: 최고점(${md(M.peak_date)}) 대비 <b>${fmtPct(idd)}</b> → 지수가 빠진 만큼의 <b>${ratio}%</b>만 빚이 줄었어요. 과거엔 지수가 빠진 만큼 빚도 비슷하게 줄어든 경우가 많았대요. 그래서 아직 정리가 덜 됐다고 보는 시각이 있어요.</div>
-    ${lo >= 0 ? `<div>· 직전 저점: ${fmtNum(c[lo], 2)}조(${md(x[lo])}). 여기까지 내려가면 단기 바닥일 가능성이 높다고 보는 의견이 있어요.</div>` : ''}
-    <div>· <b>타이밍 주의</b>: 신용 바닥은 지수 바닥보다 <b>늦게</b>와요(평균 3~19거래일). 신용 바닥이 확인됐을 땐 지수가 이미 5~18% 오른 뒤였대요. 실제로 26년 여름에도 지수 바닥 7/30 → 신용 바닥 8/4(3거래일 뒤). 그때 코스피는 이미 +13.7%였어요.</div>
-    <div class="small" style="color:var(--muted);margin-top:4px">'빚 정리 %' = 신용 1년 고점 대비 감소율 ÷ 코스피 최고점 대비 하락률. 생각의 출처: 사용자 제공 방송 요약(2026-10-28) · 숫자: 금융투자협회 FreeSIS, 네이버 금융</div>
-  </div>`;
+  document.getElementById('cleanbox').innerHTML = `<div class="memo"><details class="more"><summary>
+    <b>🧹 코스피 빚 정리 ${ratio}% 진행</b> — 지수가 빠진 만큼의 ${ratio}%만 빚이 줄었어요${gap != null ? ` · 직전 저점까지 ${gap > 0 ? fmtNum(gap, 2) + '조 남음' : '저점 아래로 내려감'}` : ''}</summary>
+    <div>· 신용: 1년 고점 ${fmtNum(c[pi], 2)}조(${md(x[pi])}) → 지금 ${fmtNum(c[li], 2)}조(${md(x[li])}) <b>${fmtPct(cd)}</b> · 지수: 최고점(${md(M.peak_date)}) 대비 <b>${fmtPct(idd)}</b>. 과거엔 지수가 빠진 만큼 빚도 비슷하게 줄었던 경우가 많아, 아직 정리가 덜 됐다고 보는 시각이 있어요.</div>
+    ${lo >= 0 ? `<div>· 직전 저점 ${fmtNum(c[lo], 2)}조(${md(x[lo])})까지 내려가면 단기 바닥일 가능성이 높다는 의견이 있어요.</div>` : ''}
+    <div>· <b>타이밍 주의</b>: 신용 바닥은 지수 바닥보다 늦게 와요(평균 3~19거래일). 26년 여름에도 지수 바닥 7/30 → 신용 바닥 8/4, 그때 코스피는 이미 +13.7%였어요.</div>
+    <div class="small" style="color:var(--muted);margin-top:4px">'빚 정리 %' = 신용 1년 고점 대비 감소율 ÷ 코스피 최고점 대비 하락률(매일 자동). 생각의 출처: 사용자 제공 방송 요약(2026-10-28) · 숫자: 금융투자협회 FreeSIS, 네이버 금융</div>
+  </details></div>`;
 }
 
 function renderLiq() {
@@ -1862,17 +1718,17 @@ function renderLiq() {
   const md = s => s.slice(2).replace(/-/g, '.'), eok = v => fmtNum(v) + '억';
   const now = -L.last_chg >= L.threshold;
   const last = L.events[L.events.length - 1];
-  document.getElementById('liqbox').innerHTML = `<div class="memo">
+  document.getElementById('liqbox').innerHTML = `<div class="memo"><details class="more"><summary>
     <b>🔔 코스닥 신용융자 청산 신호</b> <span class="small">(하루에 ${eok(L.threshold)} 넘게 줄면 표시)</span>
     <div class="fgchips" style="margin:6px 0">${now ? `<span class="chip hot">${md(L.last_date)} 청산 신호! 하루 ${eok(-L.last_chg)} 감소</span>`
-      : `<span class="chip">${md(L.last_date)} 기준 신호 없음 (하루 ${L.last_chg > 0 ? '+' : ''}${eok(L.last_chg)})</span>`}${last ? `<span class="chip">최근 신호 ${md(last.date)}</span>` : ''}</div>
+      : `<span class="chip">${md(L.last_date)} 기준 신호 없음 (하루 ${L.last_chg > 0 ? '+' : ''}${eok(L.last_chg)})</span>`}${last ? `<span class="chip">최근 신호 ${md(last.date)}</span>` : ''}</div></summary>
     <div>· <b>무슨 뜻?</b> 빚내서 산 주식이 하루에 크게 줄었다는 건 <b>억지로 팔렸거나 급히 갚았다</b>는 뜻이에요. 팔 사람이 거의 다 팔고 나면, 그 뒤에 <b>반등</b>이 자주 나왔어요.</div>
     <div class="tablebox" style="border:0;margin:6px 0"><table><thead><tr><th>신호 날짜</th><th>하루 감소</th><th>그날 코스닥</th><th>5거래일 뒤</th></tr></thead><tbody>${L.events.slice().reverse().map(e =>
       `<tr><td>${md(e.date)}</td><td>${eok(e.drop)}</td><td>${e.kosdaq == null ? '–' : fmtNum(e.kosdaq, 1)}</td><td>${e.after5 == null ? '<span class="small">아직</span>' : fmtPct(e.after5)}</td></tr>`).join('') || '<tr><td colspan="4" class="small">최근 1년 신호 없음</td></tr>'}</tbody></table></div>
     <div>· <b>지금 다른 점</b>: 반등하려면 사 줄 돈이 필요한데, 대기 현금(고객예탁금)이 <b>${fmtNum(K.last.deposit, 1)}조</b>로 1년 최고(${md(K.last.deposit_peak.date)} ${fmtNum(K.last.deposit_peak.value, 1)}조)보다 ${Math.abs(K.last.deposit_peak.chg)}% 줄었어요. 신호가 나와도 예전만큼 세게 튀지 않을 수 있어요.</div>
     <div>· <b>좋은 점</b>: 코스닥 신용융자 잔고가 ${fmtNum(L.balance, 2)}조로 1년 최저(${md(L.min_1y.date)} ${fmtNum(L.min_1y.value, 2)}조)에 가까워요. 억지로 팔릴 물량 자체가 많이 줄었다는 뜻이에요.</div>
     <div class="small" style="color:var(--muted);margin-top:4px">신호만으로 바닥이라고 단정할 수는 없어요. 생각의 출처: SK증권 리포트 요약(사용자 제공) · 숫자: 금융투자협회 FreeSIS, 코스닥 — Yahoo Finance</div>
-  </div>`;
+  </details></div>`;
 }
 
 // 하락기(최고점 날짜)별 하락·반등 이유 — 사용자 정리(2026-10-27). 숫자는 data.json에서 자동
@@ -2199,8 +2055,9 @@ function renderMidterm() {
   const failed = M.rows.find(r => r.year >= 2026 && bad(r));
   if (failed && cur.year > failed.year) { el.style.display = 'none'; return; }
   const verdict = k => cur[k] == null ? `<span class="small">${md(add(cur.date, k === 'm6' ? 6 : 12))}에 판정</span>` : cur[k] > 0 ? `<b>${fmtPct(cur[k])} ✅ 맞음</b>` : `<b>${fmtPct(cur[k])} ❌ 틀림</b>`;
-  el.innerHTML = `🗳 <b>미국 중간선거가 끝나면 올랐다?</b> ${failed ? '<span class="chip warm">이번엔 틀림 → 다음 선거부턴 빼요</span>' : ''}
-    <br>· <b>주장</b>(방송, 복부장 조사 인용): 1950년 이후 중간선거 19번 모두 그 뒤 지수가 올랐어요. 6개월 뒤 평균 +12.1%(95%), 12개월 뒤 +15.5~16.9%. 11월 3일 선거로 불확실성이 걷히는지가 핵심이에요.
+  // 사용자 요청(26.11.04): 한 줄 요약만 보이고 나머지(표·설명)는 눌러야 펼쳐짐
+  el.innerHTML = `<details class="more"><summary>🗳 <b>중간선거 뒤 S&amp;P500</b> — 1950년 이후 6개월 뒤 <b>${M.m6.n}번 중 ${M.m6.pos}번</b> 올랐어요(평균 ${fmtPct(M.m6.avg)}). 이번 ${cur.year}년: ${cur.now == null ? '선거가 끝나면 자동으로 재요' : `선거일보다 ${fmtPct(cur.now)}`} ${failed ? '<span class="chip warm">이번엔 틀림 → 다음 선거부턴 빼요</span>' : ''}</summary>
+    · <b>주장</b>(방송, 복부장 조사 인용): 1950년 이후 중간선거 19번 모두 그 뒤 지수가 올랐어요. 6개월 뒤 평균 +12.1%(95%), 12개월 뒤 +15.5~16.9%. 11월 3일 선거로 불확실성이 걷히는지가 핵심이에요.
     <br>· <b>그림</b>(@going_tothe_moon '지난 70년간 안 깨진 주식 공식'): 1·2·3·6달 뒤 평균 +1.7·+3.5·+7.7·+13.8%, 오른 비율 79·79·89·100%.
     <br>· <b>✅ 우리 계산</b>(S&amp;P500, 선거일 종가 기준, 아래 표): 6개월 뒤 <b>${M.m6.n}번 중 ${M.m6.pos}번 올랐고 평균 ${fmtPct(M.m6.avg)}</b> · 12개월 뒤 <b>${M.m12.n}번 중 ${M.m12.pos}번 올랐고 평균 ${fmtPct(M.m12.avg)}</b>. "모두 올랐다"는 맞아요. 그림과 비교하면 오른 비율 4개와 1·2·3달 뒤 평균은 같고, 6달 뒤 평균만 날짜 잡는 방법 차이로 조금 달라요.
     <br>· <b>이번 ${cur.year}년 선거(${md(cur.date)})</b>: ${cur.now == null ? '선거가 끝나면 자동으로 재요' : `선거일보다 지금 ${fmtPct(cur.now)} (${md(M.last)})`} · 6개월 뒤 ${verdict('m6')} · 12개월 뒤 ${verdict('m12')}
@@ -2213,7 +2070,7 @@ function renderMidterm() {
     <tr style="font-weight:700"><td>평균</td>${MT_H.map(m => `<td>${fmtPct(M['m' + m].avg)}</td>`).join('')}</tr>
     <tr style="font-weight:700"><td>오른 비율</td>${MT_H.map(m => `<td>${Math.round(M['m' + m].pos / M['m' + m].n * 100)}%</td>`).join('')}</tr></tbody></table></div>
     <div class="small">평균·오른 비율 = 다 끝난 ${M.m12.n}번(${M.rows.find(r => r.m12 != null).year}~${M.rows.filter(r => r.m12 != null).pop().year}년). 빈칸 날짜 = 그날 종가가 나오면 채워져요.</div>
-    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 그림 = user: 사용자 제공 그림 '미국 중간선거 뒤 S&amp;P지수 흐름'(@going_tothe_moon, 26.11.03) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 1·2·3·6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div>`;
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 그림 = user: 사용자 제공 그림 '미국 중간선거 뒤 S&amp;P지수 흐름'(@going_tothe_moon, 26.11.03) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(1950~). 선거일 = 11월 첫 월요일 다음 화요일, 1·2·3·6·12개월 뒤(그날 쉬면 그 전 거래일) 종가 ÷ 선거일 종가 − 1, 배당 빼고 가격만.</div></details>`;
 }
 
 // S&P500 계절성 메모 — 사용자 제공 그림 3장(변동성 계절성·도이치방크·골드만삭스) + 우리 계산(1950~, 10/27 → 12/31, 달별 평균), 올해 10/27 뒤 자동
@@ -2221,37 +2078,28 @@ function renderSanta() {
   const S = DATA.santa, el = document.getElementById('seasonmemo');
   if (!S) { el.style.display = 'none'; return; }
   const ma = S.month_avg, rk = [...ma].sort((a, b) => b - a), best = ma.indexOf(rk[0]), worst = ma.indexOf(rk[rk.length - 1]);
-  el.innerHTML = `🎅 <b>10월 말이 계절적 바닥, 11~12월은 돈이 들어오는 때</b>
-    <br>· <b>변동성</b>: 지난 20년 평균으로 보면 미국 증시 변동성(VIX)은 <b>10월 말에 가장 높았다가</b> 11~12월에 내려가요. 계절적으로 '가장 나쁜 정점'을 지나는 구간이에요.
-    <br>· <b>도이치방크</b>: 1928~2022년 S&amp;P500 평균 흐름에서 <b>10월 27일이 계절적 저점</b>이고, 지금부터 <b>산타랠리</b>(연말 상승) 초입이라고 봤어요.
-    <br>· <b>골드만삭스</b>: S&amp;P500(1950~2022)·나스닥100(1985~2022) 평균 흐름도 10월 말이 바닥이었어요. <b>11~12월엔 401K 같은 대규모 연금 자금이 들어오는 달</b>이라, 계절적으로 산타랠리 가능성이 있다고 봤어요.
-    <br>· <b>✅ 우리 계산</b>(S&amp;P500, ${S.first}~${S.last}년): 10월 27일 → 12월 31일 <b>평균 ${fmtPct(S.avg)}, ${S.n}번 중 ${S.pos}번 올랐어요</b>(2000년 뒤로는 평균 ${fmtPct(S.avg2000)}, ${S.n2000}번 중 ${S.pos2000}번). 달별 평균은 <b>${best + 1}월이 가장 강하고(${fmtPct(ma[best])})</b> ${worst + 1}월이 가장 약해요(${fmtPct(ma[worst])}).
-    ${S.cur ? `<br>· <b>올해(${S.year})</b>: 10월 27일 종가 ${fmtNum(S.cur.base, 2)} → 지금 ${fmtPct(S.cur.now)} (${S.cur.date.slice(2).replace(/-/g, '.')})` : ''}
-    <br>· 평균일 뿐이라 해마다 달라요. 금리가 높은 해엔 계절성보다 금리 영향이 더 클 수 있어요.
-    <div class="src">출처: 그림 = user: 사용자 제공 그림(EquityClock 'Volatility S&amp;P 500 Index Seasonality' 2023년 말까지 20년 · 도이치방크/블룸버그 'Average daily performance of the S&amp;P 500 1928-2022' · 골드만삭스 'S&amp;P 500·NASDAQ 100 seasonality' 23.10.24) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가. 10/27·12/31이 쉬는 날이면 그 전 거래일, 달 수익률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1.</div>`;
+  // 사용자 요청(26.11.04): 핵심 한 줄만 보이고, 나머지는 줄여서 접음
+  el.innerHTML = `<details class="more"><summary>🎅 <b>10월 말이 계절적 바닥</b> — 10/27 → 12/31 S&amp;P500 <b>평균 ${fmtPct(S.avg)}, ${S.n}번 중 ${S.pos}번 올랐어요</b>${S.cur ? `. 올해는 지금 ${fmtPct(S.cur.now)}` : ''}</summary>
+    · <b>도이치방크·골드만삭스</b>: 평균으로 보면 10월 말이 바닥이고, 11~12월엔 401K 같은 연금 돈이 들어와 <b>산타랠리</b>(연말 상승)가 잦았어요.
+    <br>· 달별 평균은 <b>${best + 1}월이 가장 강하고(${fmtPct(ma[best])})</b> ${worst + 1}월이 가장 약해요(${fmtPct(ma[worst])}). 평균일 뿐이라 해마다 달라요.
+    <div class="src">출처: user: 사용자 제공 그림(도이치방크/블룸버그 'Average daily performance of the S&amp;P 500 1928-2022' · 골드만삭스 'S&amp;P 500·NASDAQ 100 seasonality' 23.10.24) · 계산 = Yahoo Finance S&amp;P500(^GSPC) 일별 종가(${S.first}~${S.last}년). 10/27·12/31이 쉬는 날이면 그 전 거래일, 달 수익률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1.</div></details>`;
 }
 
 // 코스닥 홀짝 효과 — 방송 주장 vs 우리 계산(네이버 금융 코스닥 1996-07~), 올해가 홀수·짝수해인지와 올해 수익률 자동
 function renderKqOddEven() {
   const K = DATA.kosdaq_oddeven, el = document.getElementById('kqoddeven');
   if (!K) { el.style.display = 'none'; return; }
-  const n = K.years.length, y = K.years[n - 1], r99 = K.ret[K.years.indexOf(1999)];
+  const n = K.years.length, y = K.years[n - 1];
   // 1998년부터 다 끝난 해만, 홀수해·짝수해 따로 해마다 수익률의 단순 평균
   const avg = odd => { const v = K.ret.filter((_, i) => K.years[i] >= 1998 && K.years[i] < y && K.years[i] % 2 === odd); return {a: v.reduce((s, x) => s + x, 0) / v.length, n: v.length, up: v.filter(x => x > 0).length}; };
   const ao = avg(1), ae = avg(0);
-  el.innerHTML = `🎲 <b>코스닥 홀짝 효과</b>
-    <br>· <b>주장</b>(방송): 한국 시장은 홀짝 효과가 커요. 코스닥을 <b>홀수해에만 투자하면 누적 +39.7%</b>, 짝수해까지 <b>계속 투자하면 −18.1%</b>.
-    <br>· <b>✅ 우리 계산</b>: 이 숫자는 '누적'이 아니라 <b>1998년 이후 해마다 수익률의 평균</b>으로 보면 거의 같아요(1998~${y - 1}년, 다 끝난 해만).
-    <br>&nbsp;&nbsp;홀수해 평균 <b>${fmtPct(ao.a)}</b>(${ao.n}번 중 ${ao.up}번 오름) · 짝수해 평균 <b>${fmtPct(ae.a)}</b>(${ae.n}번 중 ${ae.up}번 오름)
-    <br>&nbsp;&nbsp;참고로 누적은 출범(96.07)부터: 홀수해만 ${fmtPct(K.odd)}(1999년 한 해 ${fmtPct(r99)}가 큼) · 짝수해만 ${fmtPct(K.even)} · 쭉 보유 ${fmtPct(K.all)}
-    <br>&nbsp;&nbsp;최근 10년(${K.from10}~) 누적: 홀수해만 ${fmtPct(K.odd10)} · 짝수해만 ${fmtPct(K.even10)} · 쭉 보유 ${fmtPct(K.all10)}
-    <br>· <b>올해 ${y}년(${y % 2 ? '홀수' : '짝수'}해)</b> 지금까지 ${fmtPct(K.ret[n - 1])} (${K.last.slice(2).replace(/-/g, '.')} 기준)
-    <br>· <b>박세익 대표</b>(체슬리투자자문, 26.11.03 받은 요약): 98년 이후 코스닥 홀수해 평균 +39%, 짝수해 평균 −1%(우리 계산은 ${fmtPct(ae.a)}), 올해 코스피 +30%·코스닥 −17%라고 했어요.
-      짝수해·미국 중간선거 2년차의 약세가 <b>10월 말이면 거의 끝난다</b>고 보고, 과거 패턴상 10월 말에 사서 <b>내년 5~7월</b>에 팔면 약 30% 수익이 가능하다고 봤어요(더 빠질 수 있는 건 별개라는 단서를 달았어요).
-      돈은 대형주가 옆으로 긴 뒤 → 내년 7월까지 <b>중형주</b> → 내년 말~내후년 초 <b>소형주</b> 차례로 돌 거라는 전망이에요.
+  // 사용자 요청(26.11.04): 한 줄 요약만 보이고 나머지는 줄여서 접음
+  el.innerHTML = `<details class="more"><summary>🎲 <b>코스닥 홀짝 효과</b> — 1998년 이후 홀수해 평균 <b>${fmtPct(ao.a)}</b>, 짝수해 평균 <b>${fmtPct(ae.a)}</b> · 올해(${y % 2 ? '홀수' : '짝수'}해) ${fmtPct(K.ret[n - 1])}</summary>
+    · <b>주장</b>(방송): 코스닥을 홀수해에만 투자하면 +39.7%, 계속 투자하면 −18.1%. <b>✅ 우리 계산</b>: '누적'이 아니라 해마다 수익률의 평균(1998~${y - 1}년, 다 끝난 해만)으로 보면 거의 같아요 — 홀수해 ${ao.n}번 중 ${ao.up}번, 짝수해 ${ae.n}번 중 ${ae.up}번 올랐어요.
+    <br>· <b>박세익 대표</b>(26.11.03 받은 요약): 짝수해·중간선거 해의 약세는 10월 말이면 거의 끝나고, 10월 말에 사서 <b>내년 5~7월</b>에 팔면 약 30% 가능하다고 봤어요(더 빠질 수도 있다는 단서). 돈은 대형주 → <b>중형주</b> → <b>소형주</b> 차례로 돌 거라는 전망이에요.
     <details class="srcs"><summary><b>해마다 코스닥 수익률</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary><div class="small" style="margin:4px;line-height:1.9">${K.years.map((yy, i) =>
       `<span style="display:inline-block;min-width:84px">${yy % 2 ? '<b>' : ''}${yy}${yy % 2 ? '</b>' : ''} ${fmtPct(K.ret[i])}</span>`).join('')}</div><div class="small" style="margin:0 4px">굵은 해 = 홀수해</div></details>
-    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 박세익 대표 의견 = user: 사용자가 보내 준 요약문(26.11.03), 회사 이름은 <a href="https://www.fntimes.com/html/view.php?ud=202509231545111168b4a7c6999c_18" target="_blank" rel="noopener">한국금융신문(25.09.23)</a> · 계산 = 네이버 금융 코스닥 일별 종가. 해마다 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1(1996년은 첫 거래일부터, 올해는 지금까지), 평균 = 그 해들 수익률을 더해 해 수로 나눈 값, 누적 = 그 해들의 (1 + 수익률)을 곱한 값 − 1.</div>`;
+    <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 박세익 대표 의견 = user: 사용자가 보내 준 요약문(26.11.03), 회사 이름은 <a href="https://www.fntimes.com/html/view.php?ud=202509231545111168b4a7c6999c_18" target="_blank" rel="noopener">한국금융신문(25.09.23)</a> · 계산 = 네이버 금융 코스닥 일별 종가. 해마다 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1(1996년은 첫 거래일부터, 올해는 지금까지), 평균 = 그 해들 수익률을 더해 해 수로 나눈 값.</div></details>`;
 }
 
 // 코스피·코스닥 달별 평균 상승률(2001-01~지난달). 가장 강한 달은 진하게
@@ -2490,14 +2338,14 @@ function renderUsToday() {
   const xs = xStartFor(last, Y.date[0]), vis = Y.date.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0);
   Plotly.react('yieldplot', YK.map(([k, nm, c]) => ({x: Y.date, y: Y[k], type: 'scatter', mode: 'lines', name: nm, line: {color: css(c), width: 1.5}, hovertemplate: `${nm} %{y:.2f}%<extra></extra>`})),
     Object.assign(baseLayout(), {showlegend: true, legend: {orientation: 'h', x: 0, y: 1.02, yanchor: 'bottom', font: {size: 11}}, margin: {l: 40, r: 10, t: 46, b: 26},
-      xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y'}),
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: TF()}),
       yaxis: axis({range: padRange(vis.flatMap(i => YK.map(([k]) => Y[k][i])).filter(v => v != null), false), ticksuffix: '%'})}), CFG);
 }
 
-// 신용잔고 증가율(1년 전 대비) + 지수(로그 눈금) 두 칸. 미국 = 지수 위·증가율 아래, 한국 = 증가율 위·지수 아래(사용자 요청 26.11.04).
+// 신용잔고 증가율(1년 전 대비) + 지수(로그 눈금) 두 칸. 미국·한국 모두 증가율 위·지수 아래(사용자 요청 26.11.04).
 // th = 기준선(%, 사용자 제공 그림 [표1]·[표2]), cap = 이보다 높은 값은 위를 자름. 동그라미 = th를 넘은 구간(100일 안에 다시 넘으면 같은 구간)마다 가장 높은 점
 function creditGrowthPlot(key, xs, th, idxName, cap) {
-  const G = DATA.credit_growth && DATA.credit_growth[key], el = document.getElementById(key + 'mgplot'), gTop = key === 'kr';
+  const G = DATA.credit_growth && DATA.credit_growth[key], el = document.getElementById(key + 'mgplot');
   if (!G) { el.parentElement.style.display = 'none'; return; }
   const n = G.x.length, last = G.ix[G.ix.length - 1] > G.x[n - 1] ? G.ix[G.ix.length - 1] : G.x[n - 1];
   const dt = key === 'us' ? s => s.slice(2, 7).replace('-', '.') : s => s.slice(2).replace(/-/g, '.');
@@ -2523,13 +2371,13 @@ function creditGrowthPlot(key, xs, th, idxName, cap) {
     {x: pk.map(i => G.x[i]), y: pk.map(i => Math.min(G.yoy[i], top)), type: 'scatter', mode: 'markers', yaxis: 'y2', hoverinfo: 'skip',
       marker: {size: 10, color: 'rgba(0,0,0,0)', line: {color: css('--g5'), width: 2}}},
   ], tagLast(Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', anchor: gTop ? 'y' : 'y2', range: [xs, last], tickformat: long ? '%Y' : '%y.%m', hoverformat: key === 'us' ? '%Y-%m' : '%Y-%m-%d'}),
+    xaxis: axis({type: 'date', anchor: 'y', range: [xs, last], tickformat: long ? '%Y' : '%y.%m', hoverformat: key === 'us' ? '%Y-%m' : '%Y-%m-%d'}),
     // 로그 눈금이 3배 넘게 벌어지면 1000·2000·4000…(두 배씩)만 찍어 글자가 겹치지 않게
-    yaxis: axis(Object.assign({domain: gTop ? [0, 0.35] : [0.6, 0.93], type: 'log', range: [lo - lpad, hi + lpad], nticks: 4},
+    yaxis: axis(Object.assign({domain: [0, 0.35], type: 'log', range: [lo - lpad, hi + lpad], nticks: 4},
       hi - lo > Math.log10(3) ? {tickvals: [250, 500, 1000, 2000, 4000, 8000, 16000, 32000].filter(v => Math.log10(v) >= lo - lpad && Math.log10(v) <= hi + lpad)} : {})),
-    yaxis2: axis({domain: gTop ? [0.45, 0.93] : [0, 0.5], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
+    yaxis2: axis({domain: [0.45, 0.93], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
     shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: th, y1: th, line: {color: css('--g5'), width: 1, dash: 'dot'}}],
-    annotations: [lbl(gTop ? 0.36 : 0.94, `${idxName} (로그 눈금)`), lbl(gTop ? 0.94 : 0.51, `신용잔고 증가율 (1년 전 대비) · 점선 ${th}%`)],
+    annotations: [lbl(0.36, `${idxName} (로그 눈금)`), lbl(0.94, `신용잔고 증가율 (1년 전 대비) · 점선 ${th}%`)],
   }), [[L, 'y', v => fmtNum(10 ** v, 0), css('--price')], [G.yoy, 'y2', v => fmtNum(v, 0) + '%', css('--g5')]]), CFG);
 }
 
@@ -2548,7 +2396,7 @@ function renderLiquidity() {
       {x: o.x, y: o.y.map(v => v / 1000), type: 'scatter', mode: 'lines', line: {color: css(col), width: 1.8}, hovertemplate: '%{y:.2f}조 달러<extra></extra>'},
       Object.assign({x: o.x, yaxis: 'y2'}, bottom),
     ], tagLast(Object.assign(baseLayout(), {
-      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: full ? '%Y' : PERIOD === '3m' ? '%m.%d' : '%y.%m'}),
+      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: full ? '%Y' : TF()}),
       yaxis: axis({domain: [0.5, 0.93], range: padRange(vis.map(v => v / 1000), false)}),
       yaxis2: axis({domain: [0, 0.38], range: padRange(bv.concat([0]), false), zeroline: true, zerolinecolor: css('--ink2')}),
       annotations: [lbl(0.94, '잔고 (조 달러)'), lbl(0.39, bLbl)], bargap: 0.2,
@@ -2634,10 +2482,10 @@ function mktBlock(boxId, list) {
         showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--muted'), font: {size: 10, color: css('--ink2')}}));
       yr[0] -= pad; yr[1] += pad;
     }
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--price', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PERIOD === '3m' ? 2 : 1.5},
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--price', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
-        xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y', hoverformat: '%Y-%m-%d'}),
+        xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
         [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : unit === '달러' ? 2 : 0), css('--ink')]]), CFG);
   });
@@ -2655,7 +2503,7 @@ function renderWti() {
   Plotly.react('wtiplot', [{x: w.x, y: w.y, type: 'scatter', mode: 'lines', name: 'WTI', line: {color: css('--price'), width: 2}, hovertemplate: '$%{y:.2f}<extra></extra>'}],
     Object.assign(baseLayout(), {
       showlegend: false,
-      xaxis: axis({type: 'date', range: [xs, last], tickformat: {'3m': '%m.%d', '1y': '%y.%m'}[PERIOD] || '%Y', hoverformat: '%Y-%m-%d'}),
+      xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),
       yaxis: axis({range: padRange(w.y.filter((_, i) => w.x[i] >= xs), false), tickprefix: '$'}),
     }), CFG);
 }
@@ -2738,8 +2586,8 @@ function renderAdr() {
   const draw = (el, m, color, name) => {
     const last = m.x[m.x.length - 1];
     const d = new Date(last);
-    if (ADR_PERIOD !== 'all') { const n = {'3m': 3, '6m': 6, '1y': 12, '2y': 24, '5y': 60}[ADR_PERIOD]; d.setMonth(d.getMonth() - n); }
-    const xs = ADR_PERIOD === 'all' ? m.x[0] : d.toISOString().slice(0, 10);
+    if (PM[ADR_PERIOD]) d.setMonth(d.getMonth() - PM[ADR_PERIOD]);
+    const xs = !PM[ADR_PERIOD] ? m.x[0] : d.toISOString().slice(0, 10);
     const over = m.y.map(v => Math.max(v, 120)), under = m.y.map(v => Math.min(v, 80));
     const iv = m.index.y.filter((_, i) => m.index.x[i] >= xs), av = m.y.filter((_, i) => m.x[i] >= xs);
     // 아래쪽에 빈 칸을 둬서 오른쪽 아래 'ADR 오늘 값' 상자가 선을 가리지 않게 함
@@ -3165,14 +3013,14 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu(); renderCards(); renderDram(); renderHynixInv(); renderSupply();renderThermo(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu();renderDram(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderCards(); renderDram(); renderThermo(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)

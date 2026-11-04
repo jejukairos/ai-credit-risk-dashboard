@@ -6,9 +6,10 @@
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 // 탭 전체 기간 버튼 (모든 차트가 같이 바뀜). [키, 이름, 일수(0 = 전부)]
-const PERIODS = [["1w", "1주", 7], ["3m", "3개월", 91], ["6m", "6개월", 183], ["1y", "1년", 365], ["3y", "3년", 1096], ["5y", "5년", 1826], ["all", "역사적", 0]];
+const PERIODS = [["1m", "1개월", 30], ["3m", "3개월", 91], ["6m", "6개월", 183], ["1y", "1년", 365], ["3y", "3년", 1096], ["5y", "5년", 1826], ["all", "전체", 0]];
 let M = null, loading = null, VP = "5y", DRAWS = [];
 try { VP = localStorage.getItem("vmPeriod") || VP; } catch (e) {}
+if (!PERIODS.some((p) => p[0] === VP)) VP = "5y";  // 예전 '1주' 저장값
 
 function n(v, d = 0) {
   if (v === null || v === undefined || Number.isNaN(v)) return "N/A";
