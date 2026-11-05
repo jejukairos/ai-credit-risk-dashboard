@@ -514,6 +514,14 @@ footer a{color:var(--ink2)}
     <div class="tablebox" style="border:0"><table id="adrtable"><thead><tr><th>날짜</th><th>KOSPI</th><th>KOSDAQ</th></tr></thead><tbody></tbody></table></div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="http://adrinfo.kr/chart" target="_blank" rel="noopener">adrinfo.kr</a> (2019-10부터, 장 마감 후 갱신). 텔레그램 등 다른 곳 숫자와 몇 %p 다를 수 있어요(집계 기준 차이, 10/30 다른 채널 그림(user: 사용자 제공 캡처) 코스피 71.5%·코스닥 74.4% vs 여기 68.3%·69.6%, 모양과 과열·과매도 구간은 같아요). 아래쪽 회색 = 지수.</p>
   </div>
+  <div class="card"><h3><span>50일 신고가 · 신저가 종목 수</span></h3>
+    <div class="small" style="margin:2px 4px 6px">최근 50거래일 중 가장 비싸진(<b style="color:var(--bad)">신고가</b>) 종목, 가장 싸진(<b style="color:var(--g1)">신저가</b>) 종목이 몇 개인지예요. 신고가가 늘고 신저가가 줄면 시장 힘이 살아나는 중이에요.</div>
+    <div class="nowline" id="hl50kospiday"></div>
+    <div id="hl50kospi" class="plot" style="height:300px"></div>
+    <div class="nowline" id="hl50kosdaqday"></div>
+    <div id="hl50kosdaq" class="plot" style="height:300px"></div>
+    <p class="note" style="margin:6px 4px 2px">신고가 = 그날 고가가 직전 50거래일 최고 고가보다 높은 종목, 신저가 = 그날 저가가 직전 50거래일 최저 저가보다 낮은 종목. 보통주만(우선주·ETF·스팩 제외), 지금 상장된 종목으로 계산. 위 ADR 기간 버튼을 따라가요(자료는 2025-10부터). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세(장 끝난 뒤 넥스트레이드 거래도 섞여 있어요). 다른 곳과 몇 % 다를 수 있어요(11/05 user: 사용자 제공 캡처 코스피 27·116, 코스닥 19·364 vs 여기 29·116, 18·405).</p>
+  </div>
 
   <h2 id="sec-investor">👥 투자자별 매매동향 — 누가 사고 누가 팔았나</h2>
   <div class="glossary">
@@ -1556,22 +1564,22 @@ function renderKofia() {
   if (tv) {
     const tl = tv.x[tv.x.length - 1], tx = kofiaStart(tl, tv.x[0]);
     const tvR = arr => arr.filter((v, i) => v != null && tv.x[i] >= tx);
-    // 시장마다 위 = 거래대금 5일 평균, 아래 = 지수 (날짜축 공유). 점선 = 최근 1년 최고 이후 '거래대금 바닥'
+    // 시장마다 거래대금 5일 평균과 지수를 한 칸에 겹침(사용자 요청 26.11.05). 이중 y축 대신 둘 다 '고른 기간의 최고점 = 100'. 점선 = 최근 1년 최고 이후 '거래대금 바닥'
     [['kospi', '코스피', 'tvkospi', 'tvkospinow'], ['kosdaq', '코스닥', 'tvkosdaq', 'tvkosdaqnow']].forEach(([c, nm, id, nowId]) => {
-      const d = tv[c];
+      const d = tv[c], pk = a => Math.max(...tvR(a));
+      const ta = pk(d.avg5), ti = pk(d.idx), na = d.avg5.map(v => v == null ? null : v / ta * 100), ni = d.idx.map(v => v == null ? null : v / ti * 100);
+      const bl = d.low.value / ta * 100, lo = Math.min(...tvR(na), ...tvR(ni), bl);
       Plotly.react(id, [
-        {x: tv.x, y: d.avg5, type: 'scatter', mode: 'lines', name: '거래대금 5일 평균', line: {color: css('--bad'), width: 2}, hovertemplate: '5일 평균 %{y:.2f}조<extra></extra>'},
-        {x: tv.x, y: d.idx, type: 'scatter', mode: 'lines', name: nm, yaxis: 'y2', line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'},
+        {x: tv.x, y: na, customdata: d.avg5, type: 'scatter', mode: 'lines', name: '거래대금 5일 평균', line: {color: css('--bad'), width: 2}, hovertemplate: '5일 평균 %{customdata:.2f}조 (고점의 %{y:.0f}%)<extra></extra>'},
+        {x: tv.x, y: ni, customdata: d.idx, type: 'scatter', mode: 'lines', name: nm, line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{customdata:,.0f} (고점의 %{y:.0f}%)<extra></extra>'},
       ], tagLast(withEras(Object.assign(baseLayout(), {
-        showlegend: false,
-        xaxis: axis({type: 'date', anchor: 'y2', range: [tx, tl], tickformat: '%y.%m'}),
-        yaxis: axis({domain: [0.5, 0.93], range: [0, Math.max(...tvR(d.avg5)) * 1.08]}),
-        yaxis2: axis({domain: [0, 0.38], range: padRange(tvR(d.idx), false)}),
-        shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: d.low.value, y1: d.low.value, line: {color: css('--ink2'), width: 1.2, dash: 'dot'}}],
-        annotations: [panelLbl(0.94, `${nm} 거래대금 5일 평균 (조원)`), panelLbl(0.39, `${nm} 지수`),
-          {xref: 'paper', yref: 'y', x: 1, y: d.low.value, xanchor: 'right', yanchor: 'top', showarrow: false,
+        xaxis: axis({type: 'date', range: [tx, tl], tickformat: '%y.%m'}),
+        yaxis: axis({domain: [0, 0.9], range: [lo - (104 - lo) * 0.06, 104]}),
+        shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: bl, y1: bl, line: {color: css('--ink2'), width: 1.2, dash: 'dot'}}],
+        annotations: [panelLbl(0.92, `${nm} 거래대금 5일 평균 vs 지수 (고른 기간 최고점 = 100)`),
+          {xref: 'paper', yref: 'y', x: 1, y: bl, xanchor: 'right', yanchor: 'top', showarrow: false,
            text: `바닥 ${d.low.value.toFixed(2)}조 (${md(d.low.date)})`, font: {size: 10, color: css('--ink2')}}],
-      }), tx), [[d.avg5, 'y', v => v.toFixed(1) + '조', css('--bad')], [d.idx, 'y2', n0, css('--price')]]), CFG);
+      }), tx), [[na, 'y', () => d.last.toFixed(1) + '조', css('--bad')], [ni, 'y', () => n0(d.idx[d.idx.length - 1]), css('--price')]]), CFG);
       const dchg = (d.day / d.day_prev - 1) * 100;
       document.getElementById(id + 'day').innerHTML =
         `<span><i style="color:${css('--bad')}">●</i>오늘 거래대금 <b>${d.day.toFixed(2)}조</b> <span class="small">(전일 ${d.day_prev.toFixed(2)}조, ${fmtPct(dchg)})</span></span>` +
@@ -2627,6 +2635,30 @@ function renderAdr() {
   const cell = v => v == null ? '–' : `<span class="risk"><span class="dot ${status(v)[1]}"></span>${v.toFixed(1)}%</span>`;
   document.querySelector('#adrtable tbody').innerHTML = A.kospi.recent.slice().reverse().map(r =>
     `<tr><td>${r.date.slice(5).replace('-', '/')}</td><td>${cell(r.adr)}</td><td>${cell(qm[r.date])}</td></tr>`).join('');
+  // 50일 신고가·신저가 종목 수(사용자 요청 26.11.05) — 시장마다 위 = 신고가, 아래 = 신저가 (날짜축 공유)
+  const T = DATA.kr_thermo || {}, lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  [['kospi', '코스피'], ['kosdaq', '코스닥']].forEach(([c, nm]) => {
+    const b = T[c] && T[c].breadth;
+    if (!b || !b.hi50) return;
+    const ok = b.x.map((_, i) => b.hi50[i] != null), x = b.x.filter((_, i) => ok[i]), hi = b.hi50.filter((_, i) => ok[i]), lo = b.lo50.filter((_, i) => ok[i]);
+    const last = x[x.length - 1], d = new Date(last);
+    if (PM[ADR_PERIOD]) d.setMonth(d.getMonth() - PM[ADR_PERIOD]);
+    const xs = PM[ADR_PERIOD] && d.toISOString().slice(0, 10) > x[0] ? d.toISOString().slice(0, 10) : x[0];
+    const top = a => Math.max(...a.filter((_, i) => x[i] >= xs)) * 1.1 + 2;
+    Plotly.react('hl50' + c, [
+      {x, y: hi, type: 'scatter', mode: 'lines', name: '신고가', line: {color: css('--bad'), width: 2}, hovertemplate: '신고가 %{y}종목<extra></extra>'},
+      {x, y: lo, type: 'scatter', mode: 'lines', name: '신저가', yaxis: 'y2', line: {color: css('--g1'), width: 2}, hovertemplate: '신저가 %{y}종목<extra></extra>'},
+    ], tagLast(Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+      yaxis: axis({domain: [0.56, 0.92], range: [0, top(hi)]}),
+      yaxis2: axis({domain: [0, 0.4], range: [0, top(lo)]}),
+      annotations: [lbl(0.93, `${nm} 50일 신고가 (종목)`), lbl(0.41, `${nm} 50일 신저가 (종목)`)],
+    }), [[hi, 'y', v => v + '개', css('--bad')], [lo, 'y2', v => v + '개', css('--g1')]]), CFG);
+    const n = x.length - 1;
+    document.getElementById('hl50' + c + 'day').innerHTML =
+      `<span><i style="color:${css('--bad')}">●</i>${nm} 신고가 <b>${hi[n]}종목</b> <span class="small">(전일 ${hi[n - 1]})</span></span>` +
+      `<span><i style="color:${css('--g1')}">●</i>신저가 <b>${lo[n]}종목</b> <span class="small">(전일 ${lo[n - 1]})</span></span><span class="nowdt">${last.slice(2).replace(/-/g, '.')} 기준</span>`;
+  });
 }
 document.querySelectorAll('#adrbar button').forEach(b => b.onclick = () => {
   ADR_PERIOD = b.dataset.a;
