@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-ma200">200일선</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -215,6 +215,17 @@ footer a{color:var(--ink2)}
   </div>
   <div id="ustoday"></div>
   <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
+
+  <h2 id="sec-sp500">📈 미국 지수 — S&amp;P500 · 다우 · QQQ · SOXX</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>S&amp;P500</b>은 미국 대표 회사 500곳, <b>다우</b>는 30곳의 주가를 모은 지수예요. <b>QQQ</b>(나스닥 큰 회사 100곳)·<b>SOXX</b>(미국 반도체 회사들)는 여러 주식을 한 바구니에 담아 사고파는 <b>ETF</b>예요.</div>
+    </div>
+    <div id="mkt-etf"></div>
+    <div class="memo" id="midterm" style="margin:8px 0"></div>
+    <div class="memo" id="seasonmemo" style="margin:8px 0"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC·다우 ^DJI 지수, QQQ·SOXX 종가는 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = S&amp;P500·다우 2020년~, QQQ 1999년~, SOXX 2001년~).</p>
+  </div>
 
   <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
   <div class="glossary">
@@ -257,36 +268,6 @@ footer a{color:var(--ink2)}
     <div class="fgchips" id="m2chips"></div>
     <div id="m2plot" class="plot" style="height:330px"></div></div>
   <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · MMF 긴 흐름 — FRED <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 Z.1 금융계정, MMF 총금융자산, 3개월마다, 1974년 1분기~. 날짜는 분기 첫날, 값은 분기 말 잔고. 증감 = 바로 전 분기 대비) · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
-
-  <h2 id="sec-ma200">📏 200일선 — 지수가 선 위에 있나, 아래에 있나</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>200일선</b> 최근 200거래일(약 10개월) 종가의 평균선이에요. 지수가 이 선 <b>위</b>면 큰 흐름이 오르는 중, <b>아래</b>로 내려가면 큰 흐름이 꺾였다는 신호로 많이 봐요.</div>
-    </div>
-    <div class="fgchips" id="ma200chips" style="margin-bottom:4px"></div>
-    <div id="ma200plot" class="plot" style="height:380px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^NDX·^GSPC·^SOX·^DJI 종가), 매일 갱신. 굵은 선 = 지수, 파란 선 = 200일선. 이격도 = 지수 ÷ 200일선 − 1. 위 기간 버튼을 따라 바뀌어요(전체 = 2020년~).</p>
-  </div>
-
-  <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>S&amp;P500</b> 미국 대표 회사 500곳의 주가를 모은 지수예요. 미국 증시 전체의 성적표예요.</div>
-    </div>
-    <div id="mkt-sp500"></div>
-    <div class="memo" id="midterm" style="margin:8px 0"></div>
-    <div class="memo" id="seasonmemo" style="margin:8px 0"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^GSPC), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 최고점은 2020년 이후 종가 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
-  </div>
-
-  <h2 id="sec-etf">QQQ · SOXX (나스닥100 · 반도체 ETF)</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>ETF</b> 여러 회사 주식을 한 바구니에 담아 주식처럼 사고파는 상품이에요. <b>QQQ</b>는 나스닥의 큰 회사 100곳(금융회사 빼고), <b>SOXX</b>는 미국 반도체 회사들을 담아요.</div>
-    </div>
-    <div id="mkt-etf"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(QQQ·SOXX 종가, 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 상장 뒤 전부: QQQ 1999년~, SOXX 2001년~).</p>
-  </div>
 
   <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
   <div class="card">
@@ -487,40 +468,6 @@ footer a{color:var(--ink2)}
     </div>
     <div class="srcs" id="arrsrcs"></div>
     <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
-  </div>
-
-  <h2 id="sec-sage">💡 투자 고수 의견 — AI 주식 언제 팔까?</h2>
-  <div class="card">
-    <div class="small" style="margin:0 4px 8px">한 투자 고수가 빅테크 실적 발표(26년 10월)를 보고 쓴 생각이에요. <b>주가가 올라 팔기 싫어질 때 다시 꺼내 보려고</b> 기록해 둬요. 숫자가 아니라 한 사람의 의견이에요.</div>
-    <div class="memo" style="margin:0 0 10px">
-      <b>한 줄 요약</b> 아직 들고 가지만 <b>사이클 후반부</b>. 돈(자금)이 병목이라 시장이 AI 주식을 <b>까다롭게 고르는 중</b>이고, 큰 변화가 없으면 <b>중간선거 뒤 위험자산을 조금씩 줄일</b> 생각.
-      <br><b>생각을 바꿀 조건</b> 금리 인하 · 새로운 AI 이야기(피지컬 AI·생명공학 등) · 미국 정부의 노골적인 AI 금융 지원
-    </div>
-    <details class="fold"><summary><b>인프라를 사는 쪽 (빅테크)</b></summary>
-      <div class="small" style="margin:6px 4px">
-      ① <b>현금흐름</b>: 쓰는 돈보다 버는 돈이 많은(FCF 양수) 마이크로소프트·애플 빼고, FCF가 마이너스인 회사들은 주가가 빠짐<br>
-      ② <b>다들 돈을 빌리는 중</b>: 가장 보수적이던 마이크로소프트까지 채권 발행<br>
-      ③ <b>AI 검색이 광고 판을 바꿈</b>: 구글·레딧은 타격, 메타는 건재<br>
-      ④ <b>클라우드는 건재</b>: 빅테크 클라우드 성장률이 더 빨라짐<br>
-      ⑤ <b>2027년 투자(Capex)</b>: 구체적 숫자는 없지만 공격적으로 늘리는 중, 예상보다 높을 듯(특히 스페이스X·메타·구글)</div></details>
-    <details class="fold"><summary><b>인프라를 파는 쪽 (반도체·서버·네오클라우드)</b></summary>
-      <div class="small" style="margin:6px 4px">
-      ① <b>사상 최대 실적</b>인데 시장은 "이제 꼭대기 아닐까(피크아웃)"를 걱정<br>
-      ② <b>앞으로 전망이 갈림</b>: AI 서버·기업용은 강하고, PC·모바일 같은 소비자 제품 비중이 크면 약함<br>
-      ③ <b>공급망 병목</b>: "병목만 없었으면 실적이 더 좋았다"는 말이 나옴 → 병목이 생각보다 오래갈 수도<br>
-      ④ <b>주주환원 주인공이 바뀜</b>: 돈을 버는 쪽이 빅테크에서 인프라 회사로 옮겨 가면서 배당·자사주도 인프라 회사가 하게 됨<br>
-      ⑤ <b>재무가 약하면 약함</b>: 빚이 많은 인프라 회사(대표적으로 네오클라우드)는 주가가 약함</div></details>
-    <details class="fold"><summary><b>총평 전체</b></summary>
-      <div class="small" style="margin:6px 4px">
-      · 지금도 이렇게 출렁이는데, 앤트로픽이 상장해 실적을 내기 시작하면 변동성이 아주 클 듯<br>
-      · <b>돈이 병목</b> — 시장은 AI 수혜주를 까다롭게 고르기 시작했고, 점점 더 강한 회사로 좁혀질 듯<br>
-      · "엔비디아 은행"(엔비디아가 돈을 대 주는 효과)도 시장 불안을 달래는 힘이 떨어지는 느낌<br>
-      · 금리·중간선거·미국-이스라엘-이란 전쟁에서 좋은 소식이 없으면 분위기가 쉽게 안 바뀜. 나쁜 소식에 민감한 상태<br>
-      · 중간선거 민주당 상원 확률 68%로 조금씩 오르는 중(<a href="https://kalshi.com/category/elections/midterms/governor" target="_blank" rel="noopener">Kalshi</a>) — 이미 주가에 반영됐다고 봄. 오히려 선거가 끝나면 예상 못 한 움직임이 나올 수도<br>
-      · AI 에이전트는 아직 초기(포춘500 약 절반이 앤트로픽을 쓰지만 지출은 회사 비용의 0.1%). 주가가 더 가려면 "사무직 일 대신하기" 시장만으로는 한계 → 피지컬 AI·생명공학 같은 새 이야기가 필요<br>
-      · 2027년 오픈AI 상장 전까지 AI 주식을 들고 간다는 계획은 그대로지만, 분명 사이클 후반부. 전고점을 뚫고 계속 오르긴 어려울 듯<br>
-      · 투자자의 가장 큰 약점은 "이미 정한 포지션에 맞춰 이야기를 덧붙이는 것" → 그래서 꾸준히 기록하고 점검</div></details>
-    <p class="note" style="margin:8px 4px 2px">출처: user: 사용자 제공 '테크 실발 후기 (AI 주식 언제 팔까?)' 글(26.10.30). 쉬운 말로 바꿨고 내용은 그대로예요.</p>
   </div>
 
   <h2 id="sec-supply">📦 주식 공급 — 새 주식이 얼마나 풀리나</h2>
@@ -1122,7 +1069,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-ma200': 'us','sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-ism': 'kr','sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -2510,35 +2457,12 @@ function renderLiquidity() {
 
 function renderUsmkt() {
   renderLiquidity();
-  [['sp500', 'S&amp;P500', 'pt', 2], ['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
-  mktBlock('mkt-etf', [['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
+  [['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
+  mktBlock('mkt-etf', [['sp500', 'S&amp;P500', 'pt', 2], ['dow', '다우', 'pt', 2], ['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
   renderUsToday();
-  renderMa200();
   const G = DATA.credit_growth && DATA.credit_growth.us;
   creditGrowthPlot('us', G ? xStartFor(G.ix[G.ix.length - 1], G.x[0]) : '', 40, 'S&P500', 200);
-}
-// 200일선: 4개 지수를 2×2 칸에. 칸마다 y축 따로(이중 축 아님), 날짜는 위 기간 버튼
-function renderMa200() {
-  const M = DATA.ma200;
-  if (!M) return;
-  const md = s => s.slice(2).replace(/-/g, '.'), last = M.x[M.x.length - 1], xs = xStartFor(last, M.x[0]);
-  const side = up => M.idx.filter(o => o.above === up).map(o => `${o.name} <span class="small">(${md(o.since)}부터)</span>`).join(' · ');
-  document.getElementById('ma200chips').innerHTML = [[true, '🟢 <b>200일선 위</b>'], [false, '🔴 <b>200일선 아래</b>']].filter(([up]) => side(up))
-    .map(([up, t]) => `<div style="width:100%;margin:2px 0;font-size:14px">${t} — ${side(up)}</div>`).join('')
-    + `<div class="small" style="width:100%;margin:2px 0 0">차트 제목 옆 숫자 = 이격도(200일선보다 몇 % 위·아래) · ${md(last)} 미국 장 마감 기준</div>`;
-  const vis = M.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), traces = [], L = Object.assign(baseLayout(), {margin: {l: 34, r: 6, t: 22, b: 22}, hovermode: 'closest', annotations: []});
-  M.idx.forEach((o, j) => {
-    const n = j ? j + 1 : '', col = j % 2, row = j < 2 ? 0 : 1, yd = row ? [0, 0.38] : [0.56, 0.94];
-    const hov = nm => `%{x|%Y-%m-%d}<br>${nm} %{y:,.2f}<extra></extra>`;
-    traces.push({x: M.x, y: o.ma, xaxis: 'x' + n, yaxis: 'y' + n, type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.5}, hovertemplate: hov('200일선')},
-      {x: M.x, y: o.y, xaxis: 'x' + n, yaxis: 'y' + n, type: 'scatter', mode: 'lines', line: {color: css('--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.6}, hovertemplate: hov(o.name)});
-    L['xaxis' + n] = Object.assign(axis({type: 'date', tickformat: TF(), nticks: 4, anchor: 'y' + n, domain: col ? [0.56, 1] : [0, 0.44], tickfont: {size: 9}}), {range: [xs, last]});
-    L['yaxis' + n] = axis({anchor: 'x' + n, domain: yd, range: padRange(vis.flatMap(i => [o.y[i], o.ma[i]]).filter(v => v != null), false), tickformat: '~s', tickfont: {size: 9}});
-    L.annotations.push({xref: 'paper', yref: 'paper', x: col ? 0.56 : 0, y: yd[1] + 0.01, xanchor: 'left', yanchor: 'bottom', showarrow: false,
-      text: `<b>${o.name}</b> ${o.above ? '🟢' : '🔴'} <span style="color:${css(o.gap >= 0 ? '--good' : '--bad')}">${o.gap >= 0 ? '+' : ''}${o.gap.toFixed(1)}%</span>`, font: {size: 11, color: css('--ink')}});
-  });
-  Plotly.react('ma200plot', traces, L, CFG);
 }
 // 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
 function fxTrend(o) {
@@ -2582,7 +2506,7 @@ function mktBlock(boxId, list) {
         showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--muted'), font: {size: 10, color: css('--ink2')}}));
       yr[0] -= pad; yr[1] += pad;
     }
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--price', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.5},
+    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--g1', dow: '--g1', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds'}[k] || '--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.5},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),

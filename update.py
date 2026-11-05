@@ -65,8 +65,8 @@ def fetch_prices():
     df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
     df.index.name = "date"
     df.round(4).to_csv(os.path.join(DATA, "prices.csv"))
-    # 코스피(고객예탁금 비교용) · S&P500(공포탐욕지수 이후 수익률 계산용), 2020년부터
-    for sym, name in [("^KS11", "kospi"), ("^KQ11", "kosdaq"), ("^GSPC", "sp500")]:
+    # 코스피(고객예탁금 비교용) · S&P500(공포탐욕지수 이후 수익률 계산용) · 다우(미국 지수 칸), 2020년부터
+    for sym, name in [("^KS11", "kospi"), ("^KQ11", "kosdaq"), ("^GSPC", "sp500"), ("^DJI", "dow")]:
         k = yf.download(sym, start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if not k.empty:
             k.index = pd.to_datetime(k.index).strftime("%Y-%m-%d")
@@ -624,20 +624,6 @@ def fetch_usmkt():
     m = yf.download("^GSPC", start="1997-01-01", interval="1mo", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
     m.index = pd.to_datetime(m.index).strftime("%Y-%m")
     m.rename("sp500").rename_axis("month").round(2).to_csv(os.path.join(DATA, "sp500_monthly.csv"))
-
-
-# 200일선 차트: 나스닥100·S&P500·필라델피아 반도체·다우 일별 종가. 2020년 1월부터 200일선이 나오게 2019년부터
-MA200 = [("^NDX", "ndx", "나스닥100"), ("^GSPC", "sp500", "S&P500"), ("^SOX", "sox", "반도체(SOX)"), ("^DJI", "dow", "다우")]
-
-
-def fetch_ma200():
-    import yfinance as yf
-    d = yf.download([m[0] for m in MA200], start="2019-01-01", progress=False, auto_adjust=False, threads=False)["Close"].dropna(how="all")
-    empty = [m[0] for m in MA200 if m[0] not in d or d[m[0]].dropna().empty]
-    if empty:
-        raise RuntimeError("지수 없음: " + ", ".join(empty))
-    d.index = pd.to_datetime(d.index).strftime("%Y-%m-%d")
-    d[[m[0] for m in MA200]].set_axis([m[1] for m in MA200], axis=1).rename_axis("date").round(2).to_csv(os.path.join(DATA, "ma200_idx.csv"))
 
 
 # ISM 제조업지수: ISM이 매달 첫 영업일 PR Newswire에 올리는 보도자료의 'MANUFACTURING AT A GLANCE' 표(ISM 사이트는 자동 접속을 막음).
@@ -2309,9 +2295,9 @@ def build_wti():
 
 
 def build_usmkt():
-    # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), S&P500은 최고점 대비 하락률
+    # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), 환율은 최고점 대비 하락률
     out = {}
-    for fname, col in [("sp500.csv", "sp500"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX")]:
+    for fname, col in [("sp500.csv", "sp500"), ("dow.csv", "dow"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX")]:
         path = os.path.join(DATA, fname)
         if not os.path.exists(path):
             continue
@@ -2326,34 +2312,14 @@ def build_usmkt():
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
         o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
-        if col in ("QQQ", "SOXX"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
+        if col in ("sp500", "dow", "QQQ", "SOXX"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
             today = pd.Timestamp(datetime.now(KST).date())
             o.update(d5=chg(pd.to_datetime(s.index[-6])), m1=chg(today - pd.Timedelta(days=30)), m3=chg(today - pd.Timedelta(days=90)))
-        if col in ("sp500", "usdkrw"):
+        if col == "usdkrw":
             o["peak"] = {"date": s.idxmax(), "value": round(float(s.max()), 2)}
             o["mdd"] = round((last / float(s.max()) - 1) * 100, 2)
         out[col.lower()] = o
     return out or None
-
-
-def build_ma200():
-    # 200일선 = 최근 200거래일 종가 평균, 이격도 = 종가 ÷ 200일선 − 1 (README). run = 지금과 같은 쪽(위/아래)에 이어서 있는 거래일 수
-    p = os.path.join(DATA, "ma200_idx.csv")
-    if not os.path.exists(p):
-        return None
-    d = pd.read_csv(p, dtype={"date": str}).set_index("date").sort_index()
-    keep = d.index >= "2020-01-01"
-    nz = lambda v: [None if pd.isna(a) else round(float(a), 2) for a in v]
-    idx = []
-    for _, k, name in MA200:
-        s = d[k].dropna()
-        ma = s.rolling(200).mean()
-        a = (s > ma)[ma.notna()]
-        run = int((a[::-1] != a.iloc[-1]).cumsum().eq(0).sum())
-        idx.append({"k": k, "name": name, "y": nz(d[k][keep]), "ma": nz(ma.reindex(d.index)[keep]), "last": round(float(s.iloc[-1]), 2),
-                    "last_date": s.index[-1], "ma_last": round(float(ma.iloc[-1]), 2), "gap": round((float(s.iloc[-1]) / float(ma.iloc[-1]) - 1) * 100, 2),
-                    "above": bool(a.iloc[-1]), "run": run, "since": a.index[-run]})
-    return {"x": list(d.index[keep]), "idx": idx}
 
 
 def build_ism():
@@ -2918,7 +2884,6 @@ def build():
     out["tv"] = build_tv()
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
-    out["ma200"] = build_ma200()
     out["ism"] = build_ism()
     out["us_today"] = build_us_today()
     out["policy"] = build_policy()
@@ -2954,7 +2919,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("200일선: 나스닥100·S&P500·반도체·다우(Yahoo)", fetch_ma200),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
