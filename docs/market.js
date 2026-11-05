@@ -163,8 +163,7 @@ function seasonsNow() {
   const diff = ["금리", "실적", "주가"].filter((_, i) => us.a[i] !== kr.a[i]);
   const verdict = us.row && us.row === kr.row ? `<b>미국과 한국이 같아요</b> — 둘 다 ${say(us)}이에요.`
     : `<b>미국과 한국이 달라요</b> — 미국은 ${say(us)}, 한국은 ${say(kr)}이에요.${diff.length ? ` 갈리는 곳: ${diff.map((k) => { const i = ["금리", "실적", "주가"].indexOf(k); return `${k}(미국 ${us.a[i]} · 한국 ${kr.a[i]})`; }).join(", ")}` : ""}`;
-  el.innerHTML = `<b>우리 데이터로 대 보기 — 미국 · 한국 따로</b>
-    ${mk.map((m) => `<div style="margin-top:6px"><b>${m.name}</b> → ${say(m)}${["금리", "실적", "주가"].map((k, i) => `<br>· ${k} <b>${m.a[i]}</b> — ${m.why[i]}`).join("")}</div>`).join("")}
+  el.innerHTML = `${mk.map((m) => `<div style="margin-top:6px"><b>${m.name}</b> → ${say(m)}${["금리", "실적", "주가"].map((k, i) => `<br>· ${k} <b>${m.a[i]}</b> — ${m.why[i]}`).join("")}</div>`).join("")}
     <div style="margin-top:6px">→ ${verdict} <span class="src">세 숫자의 방향만 단순히 대 본 거라 참고용이에요. DB증권·블로그 글쓴이는 ③→④ 넘어가는 중으로 봤어요.</span></div>${spreadLine(D)}`;
   // 그림 위에 미국·한국 점 (같은 국면이면 점 하나에 '미국·한국')
   const svg = $("#vm-seasons-svg"), at = {};
