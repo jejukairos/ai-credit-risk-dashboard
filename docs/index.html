@@ -624,6 +624,13 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:4px">시장마다 <b>빚내서 산 주식</b> 금액(신용융자)과 <b>그 시장 지수</b>를 한 칸에 겹쳤어요. 단위가 달라서 둘 다 <b>고른 기간에서 가장 높았던 날 = 100</b>으로 맞췄어요(80이면 고점보다 20% 아래). 동그라미 = 고점. 어느 동그라미가 먼저 나왔는지 보면 <b>신용과 주가 중 누가 먼저 꺾였는지</b> 알 수 있어요. 손가락을 대면 실제 금액·지수가 나와요.
     신용이 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요. 이 섹션 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS · 지수 네이버 금융(2019년~)</p>
     <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <div id="krcapbox" style="margin-top:16px">
+      <h3><span>코스피 신용잔고 — 평소 범위 · 코스피 비중 · 시총 대비</span></h3>
+      <div class="small" style="margin:2px 4px 6px">분홍 띠 = 최근 60거래일 평균에서 위아래로 평소 움직이는 범위예요. 띠 아래로 내려가면 빚이 평소보다 빠르게 줄어든 거예요. 아래 두 칸은 전체 빚 중 코스피 몫, 코스피 시가총액 대비 빚이에요.</div>
+      <div class="nowline" id="krcapday"></div>
+      <div id="krcapplot" class="plot" style="height:440px"></div>
+      <p class="note" style="margin:6px 4px 2px">띠 = 60거래일 평균 ± 2 × 표준편차. 신용잔고는 금투협 날짜를 실제 매매일(2거래일 전)로 옮겨 그렸어요(금투협 잔고는 매매 뒤 대금이 오가는 날 기준, user: 사용자 제공 캡처 26.11.05). 코스피 비중 = 코스피 신용 ÷ (코스피 + 코스닥 신용). 신용/시총 = 코스피 신용 ÷ 그날 유가증권시장 시가총액. 이 섹션 기간 버튼을 따라가요. 자료: 금융투자협회 FreeSIS · 한국거래소 Open API(시가총액, 2021-11 전은 달마다 1점)</p>
+    </div>
     <div id="krmgbox" style="margin-top:16px">
       <h3><span>신용잔고 증가율 — 1년 전보다 빚이 몇 % 늘었나 (코스피)</span></h3>
       <div class="small" style="margin:2px 4px 6px">코스피 신용융자(빚내서 산 주식) 잔고가 1년 전보다 몇 % 늘었는지예요. 100%(1년 새 두 배) 위로 치솟았다가 꺾이면, 그 뒤 코스피도 약해졌던 때가 많았어요.</div>
@@ -649,7 +656,8 @@ footer a{color:var(--ink2)}
   <div class="card">
     <h3><span>거래대금 5일 평균 — 코스피 · 코스닥</span></h3>
     <p class="note" style="margin:4px 4px 6px">하루 동안 주식이 사고팔린 <b>금액</b>을 최근 5거래일로 평균 낸 거예요. 늘면 시장에 돈이 <b>몰리는</b> 중(유동성 풍부), 줄면 돈이 <b>마르는</b> 중이에요.
-    점선 = 최근 1년 최고점 이후 가장 낮았던 값(<b>거래대금 바닥</b>). 이 아래로 깨면 돈이 더 빠지는 중이고, 바닥을 높여 가면 돈이 다시 들어오는 중이에요.</p>
+    점선 = 최근 1년 최고점 이후 가장 낮았던 값(<b>거래대금 바닥</b>). 이 아래로 깨면 돈이 더 빠지는 중이고, 바닥을 높여 가면 돈이 다시 들어오는 중이에요.
+    거래대금과 지수는 둘 다 <b>고른 기간 최고점 = 100</b>으로 맞춰 한 칸에 겹쳤어요(손가락을 대면 실제 값).</p>
     <div class="nowline" id="tvkospiday"></div>
     <div id="tvkospi" class="plot" style="height:300px"></div>
     <div class="small" id="tvkospinow" style="margin:2px 4px 10px"></div>
@@ -1576,7 +1584,7 @@ function renderKofia() {
         xaxis: axis({type: 'date', range: [tx, tl], tickformat: '%y.%m'}),
         yaxis: axis({domain: [0, 0.9], range: [lo - (104 - lo) * 0.06, 104]}),
         shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: bl, y1: bl, line: {color: css('--ink2'), width: 1.2, dash: 'dot'}}],
-        annotations: [panelLbl(0.92, `${nm} 거래대금 5일 평균 vs 지수 (고른 기간 최고점 = 100)`),
+        annotations: [panelLbl(0.92, `${nm} 거래대금 5일 평균 vs 지수 (최고점 = 100)`),
           {xref: 'paper', yref: 'y', x: 1, y: bl, xanchor: 'right', yanchor: 'top', showarrow: false,
            text: `바닥 ${d.low.value.toFixed(2)}조 (${md(d.low.date)})`, font: {size: 10, color: css('--ink2')}}],
       }), tx), [[na, 'y', () => d.last.toFixed(1) + '조', css('--bad')], [ni, 'y', () => n0(d.idx[d.idx.length - 1]), css('--price')]]), CFG);
@@ -1628,6 +1636,43 @@ function renderKofia() {
       text: m.y.map((v, i) => (v >= 300 || i === m.y.length - 1) ? String(v) : ''), textposition: 'outside', cliponaxis: false, textfont: {size: 11}}],
     Object.assign(baseLayout(), {xaxis: axis({type: 'category', tickangle: -60, tickvals: m.x.filter((_, i) => i % 3 === 0 || i === m.x.length - 1), tickfont: {size: 9}}),
       yaxis: axis({range: [0, mx * 1.18]}), bargap: 0.25}), CFG);
+  }
+  {
+    // 코스피 신용잔고 띠(60일 평균 ± 2σ)·코스피 비중·시총 대비(사용자 요청 26.11.05, 캡처 그림처럼). 금투협 날짜 j의 잔고 = 2거래일 전(k.x[j-2]) 매매분
+    const S = DATA.kr_semi_share || {}, capAt = Object.fromEntries((S.d || []).map((d, i) => [d, S.cap[i]]));
+    const P = []; for (let j = 2; j < k.x.length; j++) if (k.credit_kospi[j] != null) P.push({t: k.x[j - 2], v: k.credit_kospi[j], q: k.credit_kosdaq[j], kd: k.x[j]});
+    const X = P.map(p => p.t), V = P.map(p => p.v), L = P.length - 1;
+    const ma = V.map(() => null), up = ma.slice(), dn = ma.slice();
+    for (let i = 59; i < V.length; i++) {
+      const w = V.slice(i - 59, i + 1), m = w.reduce((a, b) => a + b) / 60, sd = Math.sqrt(w.reduce((a, b) => a + (b - m) ** 2, 0) / 59);
+      ma[i] = m; up[i] = m + 2 * sd; dn[i] = m - 2 * sd;
+    }
+    const SH = P.map(p => p.q == null ? null : p.v / (p.v + p.q) * 100);
+    const R = P.filter(p => capAt[p.t]), RX = R.map(p => p.t), RY = R.map(p => p.v / capAt[p.t] * 100);
+    const vis = (xx, a) => a.filter((v, i) => v != null && xx[i] >= xs);
+    Plotly.react('krcapplot', [
+      {x: X, y: up, type: 'scatter', mode: 'lines', line: {width: 0}, hoverinfo: 'skip'},
+      {x: X, y: dn, type: 'scatter', mode: 'lines', line: {width: 0}, fill: 'tonexty', fillcolor: 'rgba(208,59,59,0.13)', hoverinfo: 'skip'},
+      {x: X, y: ma, type: 'scatter', mode: 'lines', name: '60일 평균', line: {color: css('--g7'), width: 1.2, dash: 'dot'}, hovertemplate: '60일 평균 %{y:.2f}조<extra></extra>'},
+      {x: X, y: V, type: 'scatter', mode: 'lines', name: '코스피 신용', line: {color: css('--price'), width: 2}, hovertemplate: '코스피 신용 %{y:.2f}조<extra></extra>'},
+      {x: X, y: SH, type: 'scatter', mode: 'lines', name: '코스피 비중', yaxis: 'y2', fill: 'tozeroy', line: {color: css('--g7'), width: 1.2}, fillcolor: 'rgba(98,80,214,0.25)', hovertemplate: '코스피 비중 %{y:.1f}%<extra></extra>'},
+      {x: RX, y: RY, type: 'scatter', mode: 'lines', name: '신용/시총', yaxis: 'y3', line: {color: css('--bad'), width: 1.4}, hovertemplate: '신용/시총 %{y:.3f}%<extra></extra>'},
+    ], tagLast(withEras(Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y3', range: [xs, X[L]], tickformat: '%y.%m'}),
+      yaxis: axis({domain: [0.47, 0.92], range: padRange([...vis(X, V), ...vis(X, up), ...vis(X, dn)], false), ticksuffix: '조'}),
+      yaxis2: axis({domain: [0.25, 0.39], range: padRange(vis(X, SH), false), ticksuffix: '%'}),
+      yaxis3: axis({domain: [0, 0.17], range: padRange(vis(RX, RY), false), ticksuffix: '%'}),
+      annotations: [panelLbl(0.93, '코스피 신용잔고 · 60일 평균 · 띠(±2σ)'), panelLbl(0.40, '전체 신용잔고 중 코스피 비중'), panelLbl(0.18, '코스피 신용 ÷ 코스피 시가총액')],
+    }), xs), [[V, 'y', v => v.toFixed(1) + '조', css('--price')], [SH, 'y2', v => v.toFixed(1) + '%', css('--g7')], [RY, 'y3', v => v.toFixed(3) + '%', css('--bad')]]), CFG);
+    const back = (days, months) => { const d = new Date(X[L]); if (months) d.setMonth(d.getMonth() - months); else d.setDate(d.getDate() - days);
+      const s = d.toISOString().slice(0, 10); let i = L; while (i > 0 && X[i] > s) i--; return i; };
+    const chg = (j, nm) => { const dv = V[L] - V[j], pc = dv / V[j] * 100;
+      return `${nm} <span class="${dv >= 0 ? 'up' : 'down'}">${dv >= 0 ? '+' : '−'}${fmtNum(Math.round(Math.abs(dv) * 1e4))}억 (${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%)</span>`; };
+    const cap = capAt[X[L]];
+    document.getElementById('krcapday').innerHTML =
+      `<span><i style="color:${css('--price')}">●</i>코스피 신용 <b>${fmtNum(V[L], 2)}조</b> <span class="small">(${md(X[L])} 매매분 · 금투협 ${md(P[L].kd)})</span></span>` +
+      `<span class="small">${chg(L - 1, '전일')} · ${chg(back(7), '1주')} · ${chg(back(0, 1), '1개월')}</span>` +
+      (cap ? `<span>시총 <b>${fmtNum(cap, 1)}조</b> · 신용/시총 <b>${(V[L] / cap * 100).toFixed(3)}%</b></span>` : '');
   }
   const w = k.w1_val;
   document.getElementById('creditmktnow').innerHTML = `1주 전(코스피 ${fmtNum(w.credit_kospi, 2)}조 · 코스닥 ${fmtNum(w.credit_kosdaq, 2)}조) → 지금(코스피 ${fmtNum(k.credit_kospi[k.credit_kospi.length - 1], 2)}조 · 코스닥 ${fmtNum(k.credit_kosdaq[k.credit_kosdaq.length - 1], 2)}조)`;
