@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-ma200">200일선</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -257,6 +257,16 @@ footer a{color:var(--ink2)}
     <div class="fgchips" id="m2chips"></div>
     <div id="m2plot" class="plot" style="height:330px"></div></div>
   <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · MMF 긴 흐름 — FRED <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 Z.1 금융계정, MMF 총금융자산, 3개월마다, 1974년 1분기~. 날짜는 분기 첫날, 값은 분기 말 잔고. 증감 = 바로 전 분기 대비) · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
+
+  <h2 id="sec-ma200">📏 200일선 — 지수가 선 위에 있나, 아래에 있나</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>200일선</b> 최근 200거래일(약 10개월) 종가의 평균선이에요. 지수가 이 선 <b>위</b>면 큰 흐름이 오르는 중, <b>아래</b>로 내려가면 큰 흐름이 꺾였다는 신호로 많이 봐요.</div>
+    </div>
+    <div class="fgchips" id="ma200chips" style="margin-bottom:4px"></div>
+    <div id="ma200plot" class="plot" style="height:380px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^NDX·^GSPC·^SOX·^DJI 종가), 매일 갱신. 굵은 선 = 지수, 파란 선 = 200일선. 이격도 = 지수 ÷ 200일선 − 1. 위 기간 버튼을 따라 바뀌어요(전체 = 2020년~).</p>
+  </div>
 
   <h2 id="sec-sp500">S&amp;P500 (미국 증시)</h2>
   <div class="card">
@@ -1092,7 +1102,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-ma200': 'us','sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
                 'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -2437,8 +2447,31 @@ function renderUsmkt() {
   mktBlock('mkt-etf', [['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
   renderUsToday();
+  renderMa200();
   const G = DATA.credit_growth && DATA.credit_growth.us;
   creditGrowthPlot('us', G ? xStartFor(G.ix[G.ix.length - 1], G.x[0]) : '', 40, 'S&P500', 200);
+}
+// 200일선: 4개 지수를 2×2 칸에. 칸마다 y축 따로(이중 축 아님), 날짜는 위 기간 버튼
+function renderMa200() {
+  const M = DATA.ma200;
+  if (!M) return;
+  const md = s => s.slice(2).replace(/-/g, '.'), last = M.x[M.x.length - 1], xs = xStartFor(last, M.x[0]);
+  const side = up => M.idx.filter(o => o.above === up).map(o => `${o.name} <span class="small">(${md(o.since)}부터)</span>`).join(' · ');
+  document.getElementById('ma200chips').innerHTML = [[true, '🟢 <b>200일선 위</b>'], [false, '🔴 <b>200일선 아래</b>']].filter(([up]) => side(up))
+    .map(([up, t]) => `<div style="width:100%;margin:2px 0;font-size:14px">${t} — ${side(up)}</div>`).join('')
+    + `<div class="small" style="width:100%;margin:2px 0 0">차트 제목 옆 숫자 = 이격도(200일선보다 몇 % 위·아래) · ${md(last)} 미국 장 마감 기준</div>`;
+  const vis = M.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), traces = [], L = Object.assign(baseLayout(), {margin: {l: 34, r: 6, t: 22, b: 22}, hovermode: 'closest', annotations: []});
+  M.idx.forEach((o, j) => {
+    const n = j ? j + 1 : '', col = j % 2, row = j < 2 ? 0 : 1, yd = row ? [0, 0.38] : [0.56, 0.94];
+    const hov = nm => `%{x|%Y-%m-%d}<br>${nm} %{y:,.2f}<extra></extra>`;
+    traces.push({x: M.x, y: o.ma, xaxis: 'x' + n, yaxis: 'y' + n, type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.5}, hovertemplate: hov('200일선')},
+      {x: M.x, y: o.y, xaxis: 'x' + n, yaxis: 'y' + n, type: 'scatter', mode: 'lines', line: {color: css('--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.6}, hovertemplate: hov(o.name)});
+    L['xaxis' + n] = Object.assign(axis({type: 'date', tickformat: TF(), nticks: 4, anchor: 'y' + n, domain: col ? [0.56, 1] : [0, 0.44], tickfont: {size: 9}}), {range: [xs, last]});
+    L['yaxis' + n] = axis({anchor: 'x' + n, domain: yd, range: padRange(vis.flatMap(i => [o.y[i], o.ma[i]]).filter(v => v != null), false), tickformat: '~s', tickfont: {size: 9}});
+    L.annotations.push({xref: 'paper', yref: 'paper', x: col ? 0.56 : 0, y: yd[1] + 0.01, xanchor: 'left', yanchor: 'bottom', showarrow: false,
+      text: `<b>${o.name}</b> ${o.above ? '🟢' : '🔴'} <span style="color:${css(o.gap >= 0 ? '--good' : '--bad')}">${o.gap >= 0 ? '+' : ''}${o.gap.toFixed(1)}%</span>`, font: {size: 11, color: css('--ink')}});
+  });
+  Plotly.react('ma200plot', traces, L, CFG);
 }
 // 추세 구간: 20일 평균 > 60일 평균(거래일)이면 올라가는 추세. 두 평균이 엇갈린 날 = 추세가 꺾인 날
 function fxTrend(o) {
