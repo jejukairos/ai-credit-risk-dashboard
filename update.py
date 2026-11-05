@@ -4,6 +4,7 @@
 데이터 출처마다 따로 시도하고, 실패하면 data/ 폴더에 저장해 둔 지난 데이터를 그대로 쓰면서
 status.json 에 오류를 기록합니다. 화면 상단에 그 오류가 표시됩니다.
 """
+import html
 import io
 import json
 import os
@@ -637,6 +638,60 @@ def fetch_ma200():
         raise RuntimeError("지수 없음: " + ", ".join(empty))
     d.index = pd.to_datetime(d.index).strftime("%Y-%m-%d")
     d[[m[0] for m in MA200]].set_axis([m[1] for m in MA200], axis=1).rename_axis("date").round(2).to_csv(os.path.join(DATA, "ma200_idx.csv"))
+
+
+# ISM 제조업지수: ISM이 매달 첫 영업일 PR Newswire에 올리는 보도자료의 'MANUFACTURING AT A GLANCE' 표(ISM 사이트는 자동 접속을 막음).
+# 달마다 그달 보도자료의 첫 발표값(다음 해 1월 계절조정 수정은 반영 안 함). 처음엔 목록 끝(2012년쯤)까지, 이후엔 첫 쪽(최근 100건)만
+ISM_COLS = [("pmi", r"PMI"), ("new_orders", r"New Orders"), ("production", r"Production"), ("employment", r"Employment"),
+            ("supplier_deliveries", r"Supplier Deliveries"), ("inventories", r"(?<!Customers' )Inventories"), ("customers_inventories", r"Customers' Inventories"),
+            ("prices", r"Prices"), ("backlog", r"Backlog ?of Orders"), ("export_orders", r"(?:New Export Orders|Exports)"), ("imports", r"Imports")]  # 2016년 봄까지는 'Exports'
+ISM_LIST = "https://www.prnewswire.com/news/institute-for-supply-management/?page={}&pagesize=100"
+
+
+def parse_ism(html_text):
+    t = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<script.*?</script>|<style.*?</style>", " ", html_text, flags=re.S)))
+    t = re.sub(r"\s+", " ", t.replace("®", "").replace("™", "").replace("’", "'"))
+    m = re.search(r"MANUFACTURING AT A GLANCE ([A-Za-z]+) ((?:\d ?){3}\d)", t, re.I)  # 태그 때문에 '202 2', 'O rders'처럼 끊긴 글자가 있음
+    if not m:
+        return None
+    seg = re.sub(r"(?<=[A-Za-z]) (?=[a-z])", "", t[m.end():m.end() + 1500])
+    o = {"month": pd.to_datetime(f"{m.group(1)} {m.group(2).replace(' ', '')}").strftime("%Y-%m")}
+    for k, pat in ISM_COLS:
+        v = re.search(pat + r" ([\d.]+) ([\d.]+)", seg)
+        o[k] = float(v.group(1)) if v else None
+    d = re.search(r"PMI [\d.]+ ([\d.]+) [+-]?[\d.]+ ([A-Za-z]+) ((?:From )?[A-Za-z]+) (\d+)", seg)  # 전달 값 · 방향 · 속도 · 몇 달째
+    if d:
+        o.update(pmi_prev=float(d.group(1)), pmi_dir=d.group(2), pmi_rate=d.group(3), pmi_trend=int(d.group(4)))
+    return o if o["pmi"] else None
+
+
+def fetch_ism():
+    path = os.path.join(DATA, "ism_mfg.csv")
+    old = pd.read_csv(path, dtype={"month": str}) if os.path.exists(path) else None
+    done = set() if old is None else set(old["source_url"])
+    links = []
+    for page in range(1, 2 if old is not None else 20):
+        hs = list(dict.fromkeys(re.findall(r'href="(/news-releases/[^"]+\.html)"', get(ISM_LIST.format(page), tries=1, timeout=40).text)))
+        if not hs:
+            break
+        links += [h for h in hs if re.search(r"(?<!non-)manufacturing-(?:ism-report-on-business|pmi-report)", h)]
+    rows = []
+    for h in links:
+        url = "https://www.prnewswire.com" + h
+        if url in done:
+            continue
+        o = parse_ism(get(url, tries=1, timeout=40).content.decode("utf-8", "replace"))
+        if o:
+            rows.append({**o, "source_url": url})
+        else:
+            print("   ISM 표를 못 읽음:", url)
+        time.sleep(0.5)
+    if not rows and old is not None:
+        return
+    df = pd.concat([old, pd.DataFrame(rows)]) if old is not None else pd.DataFrame(rows)
+    if df.empty:
+        raise RuntimeError("ISM 보도자료를 하나도 못 읽음")
+    df.sort_values("month").drop_duplicates("month", keep="first").to_csv(path, index=False)
 
 
 # ---------- 미국 탭 위쪽: 오늘의 미국 증시 · 올해 주가 흐름 · ETF 고점 대비 하락률 · 원유/금/비트코인 · 국채 금리 ----------
@@ -1411,22 +1466,30 @@ HYNIX_CORP = "00164779"  # 에스케이하이닉스(주) DART 고유번호
 DART_REPRT = [("Q1", "11013"), ("Q2", "11012"), ("Q3", "11014"), ("Q4", "11011")]  # 1분기·반기·3분기·사업보고서
 
 
+SAMSUNG_CORP = "00126380"  # 삼성전자(주) DART 고유번호
+
+
 def fetch_hynix_inventory():
-    # SK하이닉스 분기 매출·매출원가·재고자산(OpenDART 연결재무제표) → D램 칸 재고일수. 이미 받은 분기는 건너뜀
+    # SK하이닉스(D램 칸 재고일수 + ISM 칸 영업이익률)·삼성전자(영업이익률) 분기 실적. DART 분기 자료는 2016년부터
+    for corp, name in [(HYNIX_CORP, "hynix"), (SAMSUNG_CORP, "samsung")]:
+        _dart_quarterly(corp, os.path.join(DATA, f"{name}_quarterly.csv"))
+
+
+def _dart_quarterly(corp, path):
+    # 분기 매출·매출원가·영업이익·재고자산(OpenDART 연결재무제표). 이미 받은 분기는 건너뜀(영업이익 칸이 없던 옛 기록은 다시 받음)
     key = os.environ.get("DART_API_KEY", "").strip()
     if not key:
         raise RuntimeError("DART_API_KEY 가 .env 에 없음")
-    path = os.path.join(DATA, "hynix_quarterly.csv")
     old = pd.read_csv(path, dtype={"quarter": str, "rcept_no": str}) if os.path.exists(path) else None
-    have = {} if old is None else {r["quarter"]: r for r in old.to_dict("records")}
+    have = {} if old is None or "op_income" not in old else {r["quarter"]: r for r in old.dropna(subset=["op_income"]).to_dict("records")}
     rows = []
-    for y in range(2019, datetime.now(KST).year + 1):
+    for y in range(2016, datetime.now(KST).year + 1):
         for q, code in DART_REPRT:
             qk = f"{y}{q}"
             if qk in have:
                 continue
             r = get("https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json", params={
-                "crtfc_key": key, "corp_code": HYNIX_CORP, "bsns_year": y, "reprt_code": code, "fs_div": "CFS"}).json()
+                "crtfc_key": key, "corp_code": corp, "bsns_year": y, "reprt_code": code, "fs_div": "CFS"}).json()
             if r.get("status") == "013":  # 아직 안 나온 보고서
                 break
             if r.get("status") != "000":
@@ -1435,12 +1498,12 @@ def fetch_hynix_inventory():
             for it in r["list"]:
                 aid = it["account_id"].replace("ifrs_", "ifrs-full_")  # 2019년 보고서는 옛 이름(ifrs_)
                 ok = it["sj_div"] == "BS" if aid == "ifrs-full_Inventories" else it["sj_div"] in ("IS", "CIS")
-                if ok and aid not in acc:
+                if ok and aid not in acc and it["thstrm_amount"].strip():  # 옛 보고서엔 빈 칸 줄이 섞여 있음
                     acc[aid] = float(it["thstrm_amount"].replace(",", ""))
-            o = {"quarter": qk, "revenue": acc["ifrs-full_Revenue"], "cogs": acc["ifrs-full_CostOfSales"],
+            o = {"quarter": qk, "revenue": acc["ifrs-full_Revenue"], "cogs": acc["ifrs-full_CostOfSales"], "op_income": acc["dart_OperatingIncomeLoss"],
                  "inventory": acc["ifrs-full_Inventories"], "rcept_no": r["list"][0]["rcept_no"]}
             if q == "Q4":  # 사업보고서는 1년치 → 4분기 = 1년 − 1~3분기
-                for k in ("revenue", "cogs"):
+                for k in ("revenue", "cogs", "op_income"):
                     o[k] -= sum(float(have[f"{y}Q{i}"][k]) for i in (1, 2, 3))
             have[qk] = o
             rows.append(o)
@@ -1450,7 +1513,7 @@ def fetch_hynix_inventory():
     if rows:
         df = pd.DataFrame(rows)
         if old is not None:
-            df = pd.concat([old, df])
+            df = pd.concat([old, df]).drop_duplicates("quarter", keep="last")
         df.sort_values("quarter").to_csv(path, index=False)
 
 
@@ -2293,12 +2356,35 @@ def build_ma200():
     return {"x": list(d.index[keep]), "idx": idx}
 
 
+def build_ism():
+    # ISM 제조업지수 달마다 + SK하이닉스·삼성전자 분기 영업이익률(= 영업이익 ÷ 매출, DART 연결) 같은 날짜축에
+    p = os.path.join(DATA, "ism_mfg.csv")
+    if not os.path.exists(p):
+        return None
+    d = pd.read_csv(p, dtype={"month": str}).sort_values("month")
+    nz = lambda v: [None if pd.isna(a) else float(a) for a in v]
+    last = d.iloc[-1]
+    out = {"x": [m + "-01" for m in d["month"]], "url": list(d["source_url"]), **{k: nz(d[k]) for k, _ in ISM_COLS},
+           "dir": last.get("pmi_dir"), "rate": last.get("pmi_rate"), "trend": None if pd.isna(last.get("pmi_trend")) else int(last["pmi_trend"]),
+           "prev": None if pd.isna(last.get("pmi_prev")) else float(last["pmi_prev"])}
+    mid = {"Q1": "02-15", "Q2": "05-15", "Q3": "08-15", "Q4": "11-15"}  # 분기 가운데 달에 점
+    for k in ("hynix", "samsung"):
+        qp = os.path.join(DATA, f"{k}_quarterly.csv")
+        if os.path.exists(qp):
+            q = pd.read_csv(qp, dtype={"quarter": str, "rcept_no": str}).dropna(subset=["op_income"]).sort_values("quarter")
+            out[k] = {"x": [f"{s[:4]}-{mid[s[4:]]}" for s in q["quarter"]], "q": [f"{s[2:4]}년 {s[5]}분기" for s in q["quarter"]],
+                      "y": [round(o / r * 100, 1) for o, r in zip(q["op_income"], q["revenue"])],
+                      "url": [f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={n}" for n in q["rcept_no"]]}
+    return out
+
+
 def build_hynix_inv():
     # 재고일수(주) = 분기 말 재고자산 ÷ 그 분기 매출 × 13주 (하나증권 'SK하이닉스 재고일수 추이'와 같은 방식, README)
     path = os.path.join(DATA, "hynix_quarterly.csv")
     if not os.path.exists(path):
         return None
     d = pd.read_csv(path, dtype={"quarter": str, "rcept_no": str}).sort_values("quarter")
+    d = d[d["quarter"] >= "2019"]  # 영업이익률용으로 2016년부터 받지만 재고일수 차트는 전처럼 2019년~
     jo = lambda c: [round(v / 1e12, 2) for v in d[c]]
     return {"q": [f"{s[2:4]}.{s[5]}Q" for s in d["quarter"]], "revenue": jo("revenue"), "inventory": jo("inventory"),
             "weeks": [round(i / r * 13, 1) for i, r in zip(d["inventory"], d["revenue"])],
@@ -2833,6 +2919,7 @@ def build():
     out["wti"] = build_wti()
     out["usmkt"] = build_usmkt()
     out["ma200"] = build_ma200()
+    out["ism"] = build_ism()
     out["us_today"] = build_us_today()
     out["policy"] = build_policy()
     out["hynix_inv"] = build_hynix_inv()
@@ -2867,7 +2954,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("200일선: 나스닥100·S&P500·반도체·다우(Yahoo)", fetch_ma200),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스 재고자산(OpenDART)", fetch_hynix_inventory), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("200일선: 나스닥100·S&P500·반도체·다우(Yahoo)", fetch_ma200),("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]

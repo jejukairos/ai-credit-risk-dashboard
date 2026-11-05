@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-ma200">200일선</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-ma200">200일선</a><a href="#sec-sp500">S&amp;P500</a><a href="#sec-etf">QQQ·SOXX</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-sage">고수의견</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -749,6 +749,26 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
   </div>
 
+  <h2 id="sec-ism">🏭 미국 ISM 제조업지수 — 꺾이면 반도체도 꺾일까</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>ISM 제조업지수</b> 미국 공장의 물건 사는 담당자들에게 "지난달보다 좋아졌나?"를 묻는 점수예요. <b>50보다 크면</b> 공장 경기가 커지는 중, 작으면 줄어드는 중이에요. 매달 첫 영업일에 나와요.</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="ismscore">–</div><div><div class="fgrating" id="ismrating"></div><div class="small" id="ismprev"></div></div></div>
+    <div class="fgchips" id="ismchips"></div>
+    <div id="ismplot" class="plot" style="height:430px"></div>
+    <div class="memo" style="margin:8px 0"><details class="more"><summary>🎙 <b>KB증권 이은택</b> — ISM이 <b>꺾이면</b> 하이닉스 영업이익률도 꺾이는 흐름이라 그때 반도체 정리를 생각. 지금은 안 꺾인 모양</summary>
+      <div>· 50을 넘는지보다 <b>꺾이는지(방향)</b>가 주식시장엔 더 중요해요. 10월 55.5는 예상(54.5)보다 높았어요.</div>
+      <div>· 걱정거리: <b>신규주문은 제자리, 재고는 크게 늘어남</b> — 좋을 때 나오는 '주문↑ 재고↓'의 반대예요. AI 업종이 전체를 끌어올렸다는 해석.</div>
+      <div>· 이란 사태로 <b>유가가 오르면 ISM이 꺾일 수 있어요</b>. 가격지수는 물가보다 3~5개월 먼저 움직여요.</div>
+      <div>· 다음 확인: 12월 첫 영업일 11월 ISM 발표.</div>
+      <div class="src">출처: user: 사용자 제공 영상 요약 — <a href="https://www.youtube.com/watch?v=ElmIbcpmGcc" target="_blank" rel="noopener">깨비증권 마블TV(KB증권) 이은택 이사</a></div>
+    </details></div>
+    <details class="fold" style="margin:4px 0"><summary><b>세부 항목 11개</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+      <div class="tablebox" style="border:0"><table id="ismtable"><thead></thead><tbody></tbody></table></div></details>
+    <p class="note" style="margin:6px 4px 2px" id="ismnote"></p>
+  </div>
+
   <h2 id="sec-dram">D램 가격 — 추세와 기울기</h2>
   <p class="note">위 = 가격, 아래 막대 = <b>4주 전 대비 변화율(%)</b>. 가격이 계속 올라도 막대가 점점 짧아지면 상승 <b>기울기가 완만</b>해지는 것이고, 막대가 0 아래로 내려가면 가격이 <b>꺾인</b> 것입니다. 초록 점선 = <b>고정가(계약가)</b>: TrendForce 무료 표는 약 두 달 늦게 바뀌어서(10/30 현재 8월 하반기 값) 자동 기록은 늦게 들어오고, 최신 달은 증권사 글·뉴스 숫자로 채워요.</p>
   <div class="memo" style="margin:0 0 10px">
@@ -1103,7 +1123,7 @@ const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
 const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-etf': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-ma200': 'us','sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-sage': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
-                'sec-dram': 'kr', 'sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
+                'sec-dram': 'kr', 'sec-ism': 'kr','sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
   for (const el of document.querySelector('.wrap').children) {
@@ -1422,6 +1442,53 @@ function renderSupply() {
     yaxis2: axis({domain: [0, 0.44], range: vr(I)}),
     annotations: [lbl(0.94, `순발행 (분기, 억 달러) ${sq('--bad')} 늘어남 ${sq('--good')} 줄어듦`), lbl(0.45, '미국 IPO 공모 금액 (월, 억 달러)')],
   }), CFG);
+}
+
+// ISM 제조업지수(달마다) + SK하이닉스·삼성전자 영업이익률(분기) — 세 칸, 날짜축 공유
+const ISM_KO = {Growing: '확장', Contracting: '위축', Unchanged: '제자리', Faster: '빨라짐', Slower: '느려짐', Same: '같은 속도',
+  'From Contracting': '위축에서 확장으로 바뀜', 'From Growing': '확장에서 위축으로 바뀜', 'From Unchanged': '제자리에서 바뀜'};
+const ISM_ROWS = [['pmi', '<b>종합 지수</b>'], ['new_orders', '신규주문'], ['production', '생산'], ['employment', '고용'], ['supplier_deliveries', '납품 지연<br><span class="small">높을수록 배송 느림</span>'],
+  ['inventories', '재고'], ['customers_inventories', '고객 재고<br><span class="small">50 아래 = 고객 창고 빔</span>'], ['prices', '가격'], ['backlog', '밀린 주문'], ['export_orders', '수출 주문'], ['imports', '수입']];
+function renderIsm() {
+  const I = DATA.ism;
+  if (!I) { document.getElementById('sec-ism').style.display = 'none'; return; }
+  const n = I.x.length - 1, ym = s => `${s.slice(0, 4)}년 ${+s.slice(5, 7)}월`, sg = v => (v >= 0 ? '+' : '') + v.toFixed(1), ko = s => ISM_KO[s] || s;
+  const ch = I.prev != null ? I.pmi[n] - I.prev : null, rt = document.getElementById('ismrating');
+  document.getElementById('ismscore').textContent = I.pmi[n].toFixed(1);
+  rt.textContent = ch == null ? '' : `${ch >= 0 ? '📈' : '📉'} 전달보다 ${sg(ch)}`;
+  rt.style.color = css(ch >= 0 ? '--good' : '--bad');
+  document.getElementById('ismprev').innerHTML = `${ym(I.x[n])} · 전달 ${I.prev}` + (I.dir ? `<br>ISM 표현: ${ko(I.dir)} · 속도 ${ko(I.rate)} · ${I.trend}개월째 ${ko(I.dir)}` : '');
+  // 몇 달 전 = 같은 달 자료가 없으면(보도자료가 없는 달) 빈칸
+  const ago = m => { const t = new Date(I.x[n]); t.setMonth(t.getMonth() - m); return I.x.indexOf(t.toISOString().slice(0, 7) + '-01'); };
+  const p1 = ago(1);
+  document.getElementById('ismchips').innerHTML = [['new_orders', '신규주문'], ['inventories', '재고'], ['prices', '가격']].map(([k, l]) =>
+    `<span class="chip">${l} <b>${I[k][n].toFixed(1)}</b>${p1 >= 0 ? ` <span class="small">(${sg(I[k][n] - I[k][p1])})</span>` : ''}</span>`).join('');
+  const cols = [[0, '이번 달'], [1, '전달'], [3, '3달 전'], [12, '1년 전']].map(([m, l]) => [ago(m), l]);
+  document.querySelector('#ismtable thead').innerHTML = `<tr><th style="text-align:left">항목</th>${cols.map(([i, l]) =>
+    `<th>${l}<br>${i < 0 ? '' : `<a class="small" href="${I.url[i]}" target="_blank" rel="noopener">${I.x[i].slice(2, 7).replace('-', '.')}</a>`}</th>`).join('')}</tr>`;
+  document.querySelector('#ismtable tbody').innerHTML = ISM_ROWS.map(([k, l]) => `<tr><td style="text-align:left">${l}</td>${cols.map(([i], j) =>
+    `<td>${i < 0 || I[k][i] == null ? '–' : j ? I[k][i].toFixed(1) : `<b>${I[k][i].toFixed(1)}</b>`}</td>`).join('')}</tr>`).join('');
+  const H = I.hynix, S = I.samsung, lastQ = (o, i = o.x.length - 1) => `<a href="${o.url[i]}" target="_blank" rel="noopener">${o.q[i]}</a>`;
+  document.getElementById('ismnote').innerHTML = `자료: ISM 제조업 보고서 — ISM이 PR Newswire에 올리는 매달 보도자료의 'Manufacturing at a Glance' 표(<a href="${I.url[n]}" target="_blank" rel="noopener">최신 ${ym(I.x[n])}</a>, 2012년 10월~, 위 표의 달 글자를 누르면 그달 보도자료). 보도자료를 찾을 수 없는 2013년 2월·2014년 4월·2015년 7월·2016년 10월은 빠져 있어요. 매달 첫 발표값이라 ISM이 다음 해 고친 값과 조금 다를 수 있어요. 영업이익률 = 분기 영업이익 ÷ 매출(DART 연결, 2016년~, 4분기 = 1년 − 1~3분기${H ? `, 최신 하이닉스 ${lastQ(H)}` : ''}${S ? ` · 삼성전자 ${lastQ(S)}` : ''}). 삼성전자는 반도체 말고 스마트폰·TV 등도 합친 회사 전체 숫자예요. 위 기간 버튼을 따라 바뀌어요(전체 = 2012년~). 매일 16시·20시 확인해서 새 발표가 나오면 들어가요.`;
+  const last = [I.x[n], H && H.x[H.x.length - 1], S && S.x[S.x.length - 1]].filter(Boolean).sort().pop(), xs = xStartFor(last, I.x[0]);
+  const vis = (o, k = 'y') => o ? o[k].filter((v, i) => v != null && o.x[i] >= xs) : [];
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text, font: {size: 11, color: css('--ink2')}});
+  const dot = (c, t) => `<span style="color:${css(c)}">━</span> ${t}`;
+  const qline = (o, nm, c) => ({x: o.x, y: o.y, text: o.q, yaxis: 'y', type: 'scatter', mode: 'lines+markers', marker: {size: 4}, line: {color: css(c), width: 1.8}, hovertemplate: `${nm} %{text} %{y:.1f}%<extra></extra>`});
+  const mline = (k, nm, c, ya, w = 1.6) => ({x: I.x, y: I[k], yaxis: ya, type: 'scatter', mode: 'lines', connectgaps: false, line: {color: css(c), width: w}, hovertemplate: `${nm} %{y:.1f}<extra></extra>`});
+  const opm = vis(H).concat(vis(S));
+  Plotly.react('ismplot', [mline('pmi', 'ISM', '--price', 'y3', 2), mline('new_orders', '신규주문', '--g3', 'y2'), mline('inventories', '재고', '--g4', 'y2')]
+    .concat(H ? [qline(H, '하이닉스', '--g2')] : [], S ? [qline(S, '삼성전자', '--g1')] : []),
+    tagLast(Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y', range: [xs, last], tickformat: TF()}),
+      yaxis: axis({domain: [0, 0.27], range: padRange(opm, false), ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
+      yaxis2: axis({domain: [0.38, 0.6], range: padRange(vis(I, 'new_orders').concat(vis(I, 'inventories'), [50]), false)}),
+      yaxis3: axis({domain: [0.71, 0.94], range: padRange(vis(I, 'pmi').concat([50]), false)}),
+      shapes: ['y2', 'y3'].map(y => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref: y, y0: 50, y1: 50, line: {color: css('--muted'), width: 1, dash: 'dot'}})),
+      annotations: [lbl(0.95, '<b>ISM 제조업지수</b> · 점선 50(확장/위축 경계)'), lbl(0.61, `<b>세부</b> ${dot('--g3', '신규주문')} ${dot('--g4', '재고')}`),
+        lbl(0.28, `<b>영업이익률</b> ${dot('--g2', 'SK하이닉스')} ${dot('--g1', '삼성전자')}`)],
+    }), [[I.pmi, 'y3', v => v.toFixed(1), css('--price')], [I.new_orders, 'y2', v => v.toFixed(1), css('--g3')], [I.inventories, 'y2', v => v.toFixed(1), css('--g4')]]
+      .concat(H ? [[H.y, 'y', v => v.toFixed(0) + '%', css('--g2')]] : [], S ? [[S.y, 'y', v => v.toFixed(0) + '%', css('--g1')]] : [])), CFG);
 }
 
 function renderDram() {
@@ -3046,14 +3113,14 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu();renderDram(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)
