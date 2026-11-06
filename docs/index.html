@@ -142,16 +142,6 @@ footer a{color:var(--ink2)}
 .bands div{border:1px solid var(--line);border-radius:6px;padding:3px 1px;color:var(--ink2);line-height:1.3;overflow-wrap:anywhere}
 .bands div.on{border:2px solid var(--ink);color:var(--ink);font-weight:700}
 .bands b{display:block;font-size:11px}
-.it{display:grid;grid-template-columns:50px 1fr 100px;column-gap:6px;align-items:center}
-.it .nm{font-weight:800;font-size:13px;text-align:right;color:var(--ink)}
-.it .tr{position:relative;height:46px}
-.it .tr i{position:absolute;top:0;bottom:0;border-left:1px dashed var(--line)}
-.it .tr i.z{border-left:2px solid var(--muted);margin-left:-1px}
-.it .tr span{position:absolute;top:12px;height:22px;border-radius:4px}
-.it .vl{font-size:10.5px;color:var(--ink2);line-height:1.35}
-.it .vl b{display:block;font-size:14px;color:var(--ink)}
-.it .ax{position:relative;height:30px;font-size:9.5px;color:var(--muted)}
-.it .ax span{position:absolute;top:3px;transform:translateX(-50%);text-align:center;line-height:1.25;white-space:nowrap}
 /* 🚦 시장 탭 (밸류 신호등에서 옮김, market.js) — 그쪽 style.css 를 #mktv 안에서만 쓰도록 */
 .tabs button[data-tab=mkt]{grid-column:span 2}
 #mktv{--surface-2:#f0efec;--good-bg:#e6f6e6;--warn-bg:#fff4dc;--bad-bg:#fbe7e7;--na-bg:#f0efec;--good-ink:#006300;--warn-ink:#8a5a00;--bad-ink:#a32020;word-break:keep-all;overflow-wrap:break-word}
@@ -639,7 +629,7 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-thermo">🎢 광기·외면 곡선 — 한국</h2>
   <div class="card" id="krcurve-card"></div>
-  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100 — '🚦 시장' 탭 맨 위 '지수 온도'와 같은 값이에요(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 같은 카드가 '🚦 시장' 탭 미국 곡선 아래에도 있어요. 자료: 네이버 금융(지수 일별 종가)</p>
+  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 같은 카드가 '🚦 시장' 탭 미국 곡선 아래에도 있어요. 자료: 네이버 금융(지수 일별 종가)</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
@@ -887,7 +877,6 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-valmkt">🚦 시장 — 금리 · 지수는 비싼가?</h2>
   <div id="mktv">
-    <div class="card" id="idxtemp"></div>
     <div class="card" id="vm-seasons">
       <h3 style="margin-top:0">🔄 우라가미 구니오의 주식 4계 — 지금은 어느 계절?</h3>
       <div class="note" style="margin:2px 0 6px">주식시장은 <b>금리·실적·주가</b>가 엇갈리며 봄 → 여름 → 가을 → 겨울을 돌아요. 일본 증권사 출신 우라가미 구니오가 『주식시장 흐름 읽는 법』에서 정리한 틀이에요.</div>
@@ -975,6 +964,18 @@ footer a{color:var(--ink2)}
     </div>
     <div class="card" id="curve-card"></div>
     <div class="card" id="krcurve-mkt"></div>
+    <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
+      <div class="small" style="margin:2px 4px 6px">시장이 크게 무너지면 사람들은 "○○ 사건 때문"이라고 말해요. 이 그림은 <b>사건(이벤트)은 불을 붙인 성냥(촉매)</b>일 뿐이고, <b>진짜 원인은 그 전부터 약해진 기초 체력(펀더멘털)</b>이라고 봐요. 위 가로선 = 시장이 느낀 것, 파란 선 = 실제로 나빠지던 펀더멘털.</div>
+      <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/event_catalyst.png" width="966" height="1673" loading="lazy" alt="이벤트는 촉매, 원인은 펀더멘털 — 2007~08 금융위기와 지금 AI capex 비교 손그림"></div>
+      <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요(옆으로 밀어서 보기). 한 번 더 누르면 원래대로.</div>
+      <div class="memo" style="margin-top:8px"><details class="more"><summary>📝 <b>글 내용 요약</b> — 2008년 vs 지금</summary>
+        · <b>2008 금융위기</b>: 집값 하락 → 07년 1월 서브프라임 신용지수 하락 → 베어스턴스 펀드 파산·07년 8월 머니마켓 마비. 1년 넘게 경고가 나왔지만 주식시장은 "일부 신용시장 문제"라며 넘겼고, <b>08년 9월 리먼 파산</b> 때 한꺼번에 무너졌어요. 리먼은 원인이 아니라 <b>촉매</b>였다는 거예요.
+        <br>· <b>지금 AI capex</b>: 몇 달 전부터 "AI 투자만큼 매출이 금방 나오긴 어렵다"는 리서치, <b>코어위브 CDS 급등</b> 같은 경고가 많았어요. 펀더멘털이 이미 약해져서 중간선거·헤지펀드 같은 작은 사건에도 AI 하드웨어주가 연일 크게 빠진다고 봐요(어디까지 빠질지는 말하지 않음).
+        <br>· 세미애널리시스 쪽도 "지금은 칩이 남고, <b>2028년 데이터센터 과잉</b>이 더 큰 위험"이라고 본다고 소개해요.
+        <br>· 1차 세계대전이 황태자 암살로 시작됐다고 해도 그게 근본 원인은 아닌 것과 같아요.
+        <br><span style="color:var(--ink)">📌 <b>글쓴이 결론</b>: 2008과 분명히 다르지만 비슷한 면도 많다. 사건이라는 소음보다 <b>데이터센터 수요와 공급(펀더멘털)</b>을 봐야 한다.</span>
+        <br>· 이 대시보드에서 같이 볼 곳: 미국 탭 '위험 기업 요약'(코어위브 CDS) · 'AI 회사 매출(ARR)'
+        <div class="src">출처: user: 사용자가 보내 준 네이버 블로그 '주식하는하루키' 글 캡처(그림·글, 26.11.06 받음 — '헤지펀드 시장의 마법사들' 콤 오셔 인터뷰 인용). 그림은 글쓴이 것 그대로, 요약은 이 대시보드가 줄인 것. 자동 갱신 안 됨.</div></details></div></div>
     <div class="card" id="bubblecard"></div>
     <div class="card" id="epsmomcard"><h3><span>📈 코스피 이익 모멘텀 — 2006년부터 (다올투자증권 그림)</span></h3>
       <div class="small" style="margin:2px 4px 6px">회사들이 버는 돈(이익)이 늘어나는 기세와 주가 상승을 같이 그린 그림이에요. <b>남색 선 = 코스피 이익 모멘텀</b>, 회색 = 코스피 상승률, 하늘색 = S&amp;P500 이익 모멘텀. 남색 선이 높을수록 이익이 빠르게 늘고 있다는 뜻이에요. 그림 기준 남색 선은 <b>26년 9월 279.9 → 10월 238.1</b>로 꺾였어요.</div>
@@ -1441,7 +1442,7 @@ document.querySelectorAll('#invmk button, #invbar button').forEach(b => b.onclic
   renderInvestors();
 });
 
-// 한국 광기·외면 곡선. 온도계 카드는 뺐고(사용자 요청 26.11.04) 온도(update.py build_kr_thermo)만 단계로 씀
+// 한국 광기·외면 곡선. 온도계 카드는 뺐고(사용자 요청 26.11.04·11.06) 지수 온도(update.py build_idx_temp)만 단계로 씀
 function renderKrCurve() {
   const mk = curveMk(['kospi', 'kosdaq']);
   if (!mk.length) return;
@@ -1476,31 +1477,8 @@ function renderKrCurve() {
 }
 // 곡선에 쓸 시장 줄(지수 온도, update.py build_idx_temp)과 설명 첫 줄
 const curveMk = ks => ((DATA.idx_temp || {}).rows || []).filter(r => ks.includes(r.k)).map(r => [r.name, r]);
-const curveIntro = mk => `${mk.map(a => a[0]).join('·')} <b>지수 온도</b>('🚦 시장' 탭 맨 위: ${mk.map(([nm, r]) => `${nm} ${tempDeg(r.temp)}`).join(' · ')})와 <b>한 달(20거래일) 전 온도</b>(${mk.map(([, r]) => tempDeg(r.ref)).join(' · ')})를 견줘서 지금 단계를 정해요.`;
+const curveIntro = mk => `${mk.map(a => a[0]).join('·')} <b>지수 온도</b>(지수가 최근 50일 평균보다 비싸면 높고 싸면 낮아요, 평균과 같으면 40도: ${mk.map(([nm, r]) => `${nm} ${tempDeg(r.temp)}`).join(' · ')})와 <b>한 달(20거래일) 전 온도</b>(${mk.map(([, r]) => tempDeg(r.ref)).join(' · ')})를 견줘서 지금 단계를 정해요.`;
 const tempDeg = t => (Math.round(t) < 0 ? '−' : '') + Math.abs(Math.round(t)) + '도';
-
-// 🌡️ 지수 온도 — 사용자가 받은 그림(26.11.06)을 그대로 따라 그림. 값 = update.py build_idx_temp
-function renderIdxTemp() {
-  const D = DATA.idx_temp, el = document.getElementById('idxtemp');
-  if (!D || !el) return;
-  const word = t => t >= 95 ? '과열' : t >= 80 ? '뜨거움' : t >= 20 ? '보통' : t >= 0 ? '차가움' : t >= -20 ? '급락' : t >= -60 ? '투매' : '공황';
-  const P = t => (Math.max(-100, Math.min(100, t)) + 100) / 2;  // −100~100도 → 0~100%
-  const lines = [[0, ''], [30, ''], [50, 'z'], [90, ''], [100, '']].map(([x, c]) => `<i class="${c}" style="left:${x}%"></i>`).join('');
-  const ym = m => m.slice(2).replace('-', '.');
-  el.innerHTML = `<h3 style="margin-bottom:2px"><span>🌡️ 지수 온도</span></h3>
-    <div class="small" style="margin:0 4px 8px">${D.made.slice(5, 16).replace('-', '/')} · 50일 이격 → 온도 (110 = 80도 · 90 = 0도 · 70 = −80도) · ${D.rows.some(r => r.est) ? '미국은 지수선물로 환산' : '미국은 장 마감 종가'}</div>
-    <div class="it">${D.rows.map(r => { const a = Math.min(P(r.temp), 50), b = Math.max(P(r.temp), 50);
-      return `<div class="nm">${r.name}</div><div class="tr">${lines}<span style="left:${a}%;width:${b - a}%;background:var(${r.temp < 0 ? '--g1' : '--bad'})"></span></div>
-        <div class="vl"><b>${tempDeg(r.temp)} ${word(Math.round(r.temp))}</b>이격 ${r.disp.toFixed(1)} · ${r.pct >= 0 ? '▲' : '▼'}${Math.abs(r.pct).toFixed(2)}%</div>`; }).join('')}
-      <div></div><div class="ax"><span style="left:0">−100</span><span style="left:30%">−40<br>영하 경고</span><span style="left:50%">0</span><span style="left:90%">80<br>경고</span><span style="left:100%">100</span></div><div></div></div>
-    <div class="memo"><b>온도 읽는 법</b>
-      <div>지수가 최근 50일 평균보다 얼마나 높은지·낮은지를 온도로 바꾼 거예요. 영하일수록 최근 크게 빠졌다는 뜻이에요.</div>
-      <div>온도 = 50일 이격(지수 ÷ 50일 평균 × 100)을 −100~100도로 바꾼 것. 이격 100 = 40도, 110 = 80도, 90 = 0도, 80 = −40도, 70 = −80도</div>
-      <div>🔥 95도↑ 과열 · 🔴 80도↑ 뜨거움(빚 크기 점검선) · 🟡 20도↑ 보통 · 🔵 0~20도 차가움</div>
-      <div>🧊 0~−20도 급락 · −20~−60도 투매 · 🥶 −60도↓ 공황${D.lows.length ? ` — 역대 코스피: ${D.lows.map(([n, m, v]) => `${n ? `${n}(${ym(m)})` : ym(m)} ${tempDeg(v)}`).join(' · ')}` : ''}</div>
-      <div>예언이 아니다 — 뜨겁다고 떨어지는 것도, 영하가 깊다고 바닥인 것도 아니다. '떨어지면 아픈 크기'를 볼 때 쓴다</div></div>
-    <p class="note" style="margin:6px 4px 2px">자료: 코스피·코스닥 = 네이버 금융 일별 종가, 나스닥(^IXIC)·S&amp;P500(^GSPC)·다우(^DJI) = Yahoo Finance, 지수선물 = Yahoo(NQ=F·ES=F·YM=F — 미국 장이 닫혀 있고 다음 날 선물이 거래 중이면 '종가 × (1 + 선물 변화율)'). 지금 값 = 오늘 지수 ÷ 어제까지 50거래일 평균, 역대 값 = 그날 종가 ÷ 그날까지 50거래일 평균. 매일 16시·20시 + 미국 장 마감 뒤 자동 갱신. 그림·단계 이름: user: 사용자가 받은 '지수 온도' 그림(26.11.06) — 그림 속 15:40 숫자(−45·−42·10·23·32도)와 역대 숫자(−92·−82·−72도)가 이 식으로 똑같이 나와요.</p>`;
-}
 
 // SK하이닉스 분기 재고일수 (OpenDART, 2019년~ 고정 — 분기 자료라 위 기간 버튼과 무관)
 function renderHynixInv() {
@@ -3363,7 +3341,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderIdxTemp(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

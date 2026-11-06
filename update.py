@@ -1065,10 +1065,9 @@ def build_kr_thermo():
     return out
 
 
-# 지수 온도(🚦 시장 탭 맨 위, 사용자가 받은 그림 '지수 온도' 26.11.06을 그대로 따름) + 광기·외면 곡선 단계(미국·한국 같은 규칙)
+# 지수 온도(사용자가 받은 그림 '지수 온도' 26.11.06 식. 화면 카드는 같은 날 사용자 요청으로 뺌 — 곡선 단계에만 씀) + 광기·외면 곡선 단계(미국·한국 같은 규칙)
 IDX_TEMP = [("kospi", "코스피", "kospi_long.csv", None), ("kosdaq", "코스닥", "kosdaq_long.csv", None),
             ("nasdaq", "나스닥", "nasdaq.csv", "nq"), ("sp500", "S&P500", "sp500.csv", "es"), ("dow", "다우", "dow.csv", "ym")]
-TEMP_LOWS = [("금융위기", "2008-10"), ("코로나", "2020-03"), ("", "2026-07")]  # 그림에 적힌 코스피 역대 영하(숫자는 여기서 다시 셈)
 
 
 def idx_temp(disp):
@@ -1101,7 +1100,7 @@ def build_idx_temp():
     # 미국은 마지막 종가 다음 날 지수선물(Yahoo NQ=F·ES=F·YM=F, fetch_us_today)이 거래 중이면 '종가 × (1 + 선물 변화율)'을 오늘 값으로 씀
     tp = os.path.join(DATA, "us_today.json")
     fut = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else {}
-    rows, lows = [], []
+    rows = []
     for k, name, f, fk in IDX_TEMP:
         p = os.path.join(DATA, f)
         if not os.path.exists(p):
@@ -1117,9 +1116,7 @@ def build_idx_temp():
         tt = idx_temp(disp)
         rows.append({"k": k, "name": name, "date": date, "est": date != s.index[-1], "disp": round(float(disp), 1), "temp": round(float(tt), 2), "pct": round(float(pct), 2),
                      "ref": round(float(ref), 1), "up": bool(tt >= ref), "stage": curve_stage(tt, tt >= ref)})
-        if k == "kospi":
-            lows = [[n, m, round(float(hist[hist.index.str.startswith(m)].min()), 2)] for n, m in TEMP_LOWS if hist.index.str.startswith(m).any()]
-    return {"made": now_kst(), "rows": rows, "lows": lows} if rows else None
+    return {"made": now_kst(), "rows": rows} if rows else None
 
 
 WISE = "https://navercomp.wisereport.co.kr/v2/company"
