@@ -2811,7 +2811,7 @@ const RD = {
     desc: '미국 개인투자자에게 "6개월 뒤 주가가 오를까?" 물어서 <b>오른다(%) − 내린다(%)</b>를 낸 값이에요. 클수록 다들 낙관적이에요.',
     src: [['AAII 투자자 심리 설문', 'https://www.aaii.com/sentimentsurvey']]},
   putcall: {name: '풋/콜 비율 (5일 평균)', sub: '매일 · 단기', unit: '', d: 2,
-    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요. CNN 공포·탐욕 지수에 들어가는 값(CBOE 전체 풋/콜의 5일 평균)이고, 점수도 CNN 판정을 그대로 따라요.',
+    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요. 검은 선 <b>5일 평균값</b> = CNN 공포·탐욕 지수에 들어가는 값(CBOE 전체 풋/콜의 5일 평균)이고, 점수는 이 값의 CNN 판정을 따라요. 파란 선 <b>주식만</b>·주황 선 <b>전체</b>(CBOE 표 맨 위 줄)는 하루치 값으로, 비교용이에요(점수엔 안 들어가요).',
     src: [['CNN 공포·탐욕 지수 (Put and Call Options)', 'https://edition.cnn.com/markets/fear-and-greed'], ['CBOE 일별 옵션 통계', 'https://www.cboe.com/us/options/market_statistics/daily/']]},
   vix: {name: 'VIX (공포지수)', sub: '매일 · 단기', unit: '', d: 2,
     desc: '앞으로 한 달 증시가 얼마나 출렁일지에 거는 보험료예요. <b>낮을수록</b> 다들 마음을 놓고 있어요.',
@@ -2929,15 +2929,18 @@ function readerPlot(it) {
   if (it.value == null || !document.getElementById('rd-' + it.key)) return;
   // P/E 밴드는 맨 위 기간 버튼이 없는 '시장' 탭에 있어서 늘 처음부터(FactSet 주간 보고서, 1년쯤 쌓임)
   const m = RD[it.key], last = it.x[it.x.length - 1], xs = it.key === 'pe' ? it.x[0] : xStartFor(last, it.x[0]);
-  const vis = it.y.filter((_, i) => it.x[i] >= xs);
+  const vis = it.y.filter((_, i) => it.x[i] >= xs), more = it.lines || [];  // 풋/콜: 비교용 CBOE 주식만·전체 선
+  more.forEach(l => vis.push(...l.y.filter((v, i) => v != null && it.lx[i] >= xs)));
   const c = it.cuts, big = 1e6, shapes = [];
   if (c.length === 4) {  // 점수 구간을 옅은 색 띠로 (5점 광기 ~ 1점 공포)
     const edges = it.low ? [-big, ...c, big] : [big, ...c, -big];
     for (let i = 0; i < 5; i++) shapes.push({type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: edges[i], y1: edges[i + 1], fillcolor: css(`--lv${5 - i}`), opacity: 0.13, line: {width: 0}, layer: 'below'});
   }
   c.forEach(v => shapes.push({type: 'line', xref: 'paper', x0: 0, x1: 1, y0: v, y1: v, line: {color: css('--muted'), width: 1, dash: 'dot'}}));
-  Plotly.react('rd-' + it.key, [{x: it.x, y: it.y, type: 'scatter', mode: it.x.length - it.x.indexOf(xs) < 30 ? 'lines+markers' : 'lines', name: m.name,
-    line: {color: css('--ink'), width: 1.8}, marker: {size: 5}, hovertemplate: `%{y:.${m.d}f}${m.unit}<extra></extra>`}],
+  Plotly.react('rd-' + it.key, [...more.map(l => ({x: it.lx, y: l.y, type: 'scatter', mode: 'lines', name: l.name, line: {color: css(l.c), width: 1}, opacity: 0.8,
+      hovertemplate: `${l.name} %{y:.2f}<extra></extra>`})),
+    {x: it.x, y: it.y, type: 'scatter', mode: it.x.length - it.x.indexOf(xs) < 30 ? 'lines+markers' : 'lines', name: m.name,
+    line: {color: css('--ink'), width: 1.8}, marker: {size: 5}, hovertemplate: `${more.length ? '5일 평균값 ' : ''}%{y:.${m.d}f}${m.unit}<extra></extra>`}],
     Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
       yaxis: axis({range: padRange(vis.concat(c))}),
@@ -3075,7 +3078,10 @@ function renderReaders() {
   const fg = DATA.fg && DATA.fg.now;
   readerTop('contra-top', '종합 — 역발상 판독기', R.contra, fg && fg.score != null ? `<div class="small" style="margin:8px 4px 2px">참고: CNN 공포·탐욕 지수 <b>${Math.round(fg.score)}</b> (0 극단적 공포 ~ 100 극단적 탐욕, '미국' 탭)</div>` : '');
   document.getElementById('contra-cards').innerHTML = R.contra.items.map(it =>
-    readerCard(it, it.key === 'margin' && it.debit_b ? ` · 잔고 ${fmtNum(it.debit_b, 1)}십억 달러` : '')).join('');
+    readerCard(it, it.key === 'margin' && it.debit_b ? ` · 잔고 ${fmtNum(it.debit_b, 1)}십억 달러` :
+      it.lines ? `<br><span style="color:var(--ink)">●</span> 5일 평균값 <b>${it.value.toFixed(2)}</b> <span class="small">(CNN)</span>` +
+        it.lines.map(l => ` · <span style="color:var(${l.c})">●</span> ${l.name} <b>${l.v == null ? '–' : l.v.toFixed(2)}</b>`).join('') +
+        ` <span class="small">(CBOE ${rdDate({date: it.ldate})})</span>` : '')).join('');
   R.contra.items.forEach(readerPlot);
   renderMarginPeak(R.contra.items.find(it => it.key === 'margin'));
   const cc = R.contra.summary ? lvOf(R.contra.summary.label) : 0;
