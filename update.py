@@ -798,6 +798,45 @@ def fetch_us_etfs():
     df.rename_axis("date").to_csv(os.path.join(DATA, "us_etfs.csv"))
 
 
+FUTS = ["NQ=F", "ES=F"]
+
+
+def fetch_futures():
+    # 나스닥100·S&P500 지수선물 일봉(Yahoo NQ=F·ES=F, 근월물을 이어 붙인 값): 이동평균선·RSI 차트(사용자 그림 26.11.06)
+    import yfinance as yf
+    d = yf.download(FUTS, start="2019-01-01", progress=False, auto_adjust=False, threads=False)
+    miss = [t for t in FUTS if d["Close"][t].dropna().empty]
+    if miss:
+        raise RuntimeError("지수선물 일봉 없음: " + ", ".join(miss))
+    df = pd.DataFrame({f"{t}_{k}": d[c][t] for t in FUTS for k, c in (("o", "Open"), ("h", "High"), ("l", "Low"), ("c", "Close"), ("v", "Volume"))})
+    df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
+    df.dropna(how="all").round(2).rename_axis("date").to_csv(os.path.join(DATA, "futures_daily.csv"))
+
+
+def wilder_rsi(s, n):
+    # 와일더 방식 RSI: 오른 폭·내린 폭의 지수평균 비율
+    ch = s.diff()
+    up = ch.clip(lower=0).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+    dn = (-ch.clip(upper=0)).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
+    return 100 - 100 / (1 + up / dn)
+
+
+def build_futures():
+    # 선물 일봉 + RSI(14, 와일더). 이동평균선은 화면에서 계산(2019년부터 보내서 2020년부터 240일선까지 그려짐)
+    p = os.path.join(DATA, "futures_daily.csv")
+    if not os.path.exists(p):
+        return None
+    f = pd.read_csv(p, dtype={"date": str}).set_index("date").sort_index()
+    nz = lambda v, d=2: None if pd.isna(v) else round(float(v), d)
+    out = {}
+    for t in FUTS:
+        g = f[[f"{t}_{k}" for k in "ohlcv"]].dropna(subset=[f"{t}_c"])
+        rsi = wilder_rsi(g[f"{t}_c"], config.RSI_DAYS)
+        out[t[:2].lower()] = {"x": list(g.index), **{k: [nz(v) for v in g[f"{t}_{k}"]] for k in "ohlc"},
+                              "v": [0 if pd.isna(v) else int(v) for v in g[f"{t}_v"]], "rsi": [nz(v) for v in rsi]}
+    return out
+
+
 def build_us_today():
     # 올해 수익률 = 마지막 종가 ÷ 작년 마지막 종가 − 1 (올해 상장이면 상장 첫날 종가)
     # 고점 대비 하락률 = 마지막 종가 ÷ 2020년(또는 상장) 이후 장중 최고가 − 1
@@ -1663,11 +1702,11 @@ def fetch_aaii():
 
 
 def fetch_putcall():
-    # CBOE 일별 옵션 통계의 '주식(EQUITY) 풋/콜 비율'. 하루치씩 주므로 없는 날짜만 받아 쌓음(처음엔 1년치)
+    # CBOE 일별 옵션 통계의 '주식(EQUITY) 풋/콜 비율'. 하루치씩 주므로 없는 날짜만 받아 쌓음(처음엔 2023년부터 — 풋/콜 역발상 그림이 23.03부터)
     path = os.path.join(DATA, "putcall.csv")
     old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "equity", "total"])
     today = datetime.now(timezone(timedelta(hours=-5))).date()  # 미국 동부 기준
-    d = today - timedelta(days=365)
+    d = datetime(2023, 1, 1).date()
     if len(old):
         d = max(d, datetime.strptime(old["date"].max(), "%Y-%m-%d").date() + timedelta(days=1))
     rows, errs = [], 0
@@ -1688,7 +1727,7 @@ def fetch_putcall():
     allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date")
     if allr.empty or (today - datetime.strptime(allr["date"].max(), "%Y-%m-%d").date()).days > 7:
         raise RuntimeError(f"최근 풋/콜 비율을 못 받음 (오류 {errs}건)")
-    allr.to_csv(path, index=False)
+    allr[allr["equity"] > 0].to_csv(path, index=False)  # 장이 쉰 날(25.01.09 등)은 0으로 나옴
 
 
 def xlsx_rows(content):
@@ -2820,11 +2859,7 @@ def build_readers():
     if sp is not None and len(sp) > 260:
         ma200, ma50 = sp.rolling(200).mean(), sp.rolling(50).mean()
         gap200, gap50 = ((sp / ma200 - 1) * 100).dropna(), ((sp / ma50 - 1) * 100).dropna()
-        ch = sp.diff()
-        n = config.RSI_DAYS  # 와일더 방식 RSI: 오른 폭·내린 폭의 지수평균 비율
-        up = ch.clip(lower=0).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
-        dn = (-ch.clip(upper=0)).ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
-        rsi = (100 - 100 / (1 + up / dn)).dropna()
+        rsi = wilder_rsi(sp, config.RSI_DAYS).dropna()
         chart += [_item("gap200", gap200, config.CHART_RULES["gap200"], 2),
                   _item("rsi", rsi, config.CHART_RULES["rsi"], 2),
                   _item("gap50", gap50, config.CHART_RULES["gap50"], 2, {"in_score": False})]
@@ -3035,6 +3070,7 @@ def build():
     out["supply"] = build_equity_supply()
     out["kr_thermo"] = build_kr_thermo()
     out["idx_temp"] = build_idx_temp()
+    out["fut"] = build_futures()
     tp = os.path.join(DATA, "kr_today.json")
     out["kr_today"] = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else None
     out["kr_investors"] = build_kr_investors()
@@ -3064,7 +3100,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("지수선물 일봉: 나스닥100·S&P500(Yahoo NQ=F·ES=F)", fetch_futures), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
