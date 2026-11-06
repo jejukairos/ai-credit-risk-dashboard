@@ -507,15 +507,15 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> 코스피·코스닥 일별 종가(장중에 받으면 그때 값), 매일 16시·20시 자동 갱신. 미국 지수와 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 코스피 1990년~, 코스닥 1996년~).</p>
   </div>
   <div class="card" id="mmcard"><h3><span>매물대 — 어느 가격대에서 얼마나 샀나</span></h3>
-    <div class="small" style="margin:2px 4px 6px"><b>매물대</b> = 지수가 어느 가격대에 있던 날 얼마나 사고팔았는지를 가격대마다 더한 거예요. 지금보다 <b>비싼 가격대에서 많이 산</b> 사람들은 본전이 오면 팔고 싶어 해서, 지수가 그 가격대로 다시 올라가면 <b>파는 물량(저항)</b>이 나오기 쉬워요. 왼쪽 막대 = 가격대별 순매수 합(<b style="color:var(--good)">초록 = 산 돈</b>, <b style="color:var(--bad)">빨강 = 판 돈</b>), 오른쪽 = 지수, 점선 = 지금 지수.</div>
+    <div class="small" style="margin:2px 4px 6px"><b>매물대</b> = 지수가 어느 가격대에 있던 날 얼마나 사고팔았는지를 가격대마다 더한 거예요. 지금보다 <b>비싼 가격대에서 많이 산</b> 사람들은 본전이 오면 팔고 싶어 해서, 지수가 그 가격대로 다시 올라가면 <b>파는 물량(저항)</b>이 나오기 쉬워요. 가로 막대 = 그 가격대에서 순매수한 돈의 합(숫자 = 조원, <b style="color:var(--good)">초록 = 산 돈</b>, <b style="color:var(--bad)">빨강 = 판 돈</b>), 검은 선 = 지수, 점선 = 지금 지수. 막대가 긴 가격대일수록 그 값에 사고판 사람이 많아요.</div>
     <div class="bar own" role="group" aria-label="매물대 시장" style="position:static"><button data-mm="mk:kospi" class="on">코스피</button><button data-mm="mk:kosdaq">코스닥</button></div>
     <div class="bar own" role="group" aria-label="매물대 투자자" style="position:static"><button data-mm="who:indiv" class="on">개인</button><button data-mm="who:foreign">외국인</button><button data-mm="who:inst">기관계</button></div>
-    <div class="bar own" role="group" aria-label="매물대 기간" style="position:static"><button data-mm="p:ytd" class="on">올해</button><button data-mm="p:1y">1년</button><button data-mm="p:2y">2년</button></div>
+    <div class="bar own" role="group" aria-label="매물대 기간" style="position:static"><button data-mm="p:ytd" class="on">올해</button><button data-mm="p:1y">1년</button><button data-mm="p:2y">2년</button><button data-mm="p:5y">5년</button><button data-mm="p:all">전체</button></div>
     <div class="small" id="mmsum" style="margin:4px 4px 6px;color:var(--ink)"></div>
-    <div id="mmplot" class="plot" style="height:380px"></div>
+    <div id="mmplot" class="plot" style="height:440px"></div>
     <details class="fold"><summary><b>📋 가격대별 숫자</b> <span class="small">(▶ 누르면 펼쳐져요 · 조원)</span></summary>
       <div class="tablebox" style="border:0"><table id="mmtable"><thead><tr><th>가격대</th><th>순매수</th><th>거래일</th></tr></thead><tbody></tbody></table></div></details>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a> 중 <b>거래소(KRX)만</b>(넥스트레이드 빼고 — FnGuide·증권사 보고서와 같은 기준) · 그날 지수 종가(네이버 금융)가 속한 가격대(코스피 400pt, 코스닥 50pt)마다 그날 순매수를 더한 값. 올해 = 1월 첫 거래일부터. 매일 16시·20시 자동(2024-05부터 쌓임). 비교: 한화투자증권 '개인 매물대' 그림(user: 사용자 제공, FnGuide 자료 26.01~11월 초)과 7,200 위 합계 89.2조, 6,800~7,200 −30.3조 등 같은 숫자예요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a> 중 <b>거래소(KRX)만</b>(넥스트레이드 빼고 — FnGuide·증권사 보고서와 같은 기준) · 그날 지수 종가(네이버 금융)가 속한 가격대(코스피 400pt, 코스닥 50pt)마다 그날 순매수를 더한 값. 올해 = 1월 첫 거래일부터, 전체 = 2005-01부터(네이버가 주는 끝, 2008 금융위기·2020 코로나 포함). 매일 16시·20시 자동. 비교: 한화투자증권 '개인 매물대' 그림(user: 사용자 제공, FnGuide 자료 26.01~11월 초)과 7,200 위 합계 89.2조, 6,800~7,200 −30.3조 등 같은 숫자예요.</p>
   </div>
 
   <h2 id="sec-adr">ADR (등락비율) — 시장 쏠림 지표</h2>
@@ -1342,38 +1342,38 @@ function renderInvestors() {
     <div class="small">${o.x[0].slice(0, 4)}년~ 우리 자료로 자동 계산 · 20거래일이 지난 ${done.length}번 중 <b>${done.filter(i => aft(i, 20) > 0).length}번</b> 지수가 올랐어요. 횟수가 적어서 참고만 해요.</div>
   </div>`;
 }
-// 매물대(사용자 요청 26.11.06): 거래소만 일별 순매수를 그날 종가가 속한 가격대마다 더함. 왼쪽 = 가격대별 합(조원), 오른쪽 = 지수 (가격 축 공유)
+// 매물대(사용자 요청 26.11.06): 거래소만 순매수를 그날 종가가 속한 가격대마다 더한 값(update.py가 기간마다 미리 계산, 조원).
+// 한화 그림처럼 한 칸에 막대(가격대별 합)와 지수 선을 겹침(사용자 요청) — 막대 길이 축은 숨기고 숫자를 막대 끝에 적음
 let MM = {mk: 'kospi', who: 'indiv', p: 'ytd'};
 function renderMaemul() {
-  const A = DATA.kr_investors, o = A && A[MM.mk] && A[MM.mk].krx;
-  if (!o || !o.x.length) { document.getElementById('mmcard').style.display = 'none'; return; }
-  const n = o.x.length, last = o.x[n - 1], W = MM.mk === 'kospi' ? 400 : 50, md = s => s.slice(2).replace(/-/g, '.');
-  const from = MM.p === 'ytd' ? last.slice(0, 4) + '-01-01' : new Date(new Date(last) - (MM.p === '1y' ? 365 : 730) * 864e5).toISOString().slice(0, 10);
-  const i0 = Math.max(0, o.x.findIndex(d => d >= from)), B = {};
-  for (let i = i0; i < n; i++) { const b = Math.floor(o.close[i] / W) * W; B[b] = B[b] || [0, 0]; B[b][0] += o[MM.who][i] / 1e4; B[b][1]++; }
-  const bs = Object.keys(B).map(Number).sort((a, b) => a - b), cur = o.close[n - 1], f = v => fmtNum(v, 0);
-  const rng = b => `${f(b)}~${f(b + W)}`, sg = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '조';
+  const A = DATA.kr_investors, M = A && A[MM.mk] && A[MM.mk].mm, P = M && M.p[MM.p];
+  if (!P) { document.getElementById('mmcard').style.display = 'none'; return; }
+  const W = M.W, cur = M.cur, last = M.last, bs = P.b, v = P[MM.who], md = s => s.slice(2).replace(/-/g, '.'), f = x => fmtNum(x, 0);
+  const rng = b => `${f(b)}~${f(b + W)}`, sg = x => { const r = Math.abs(x).toFixed(1); return (r === '0.0' ? '' : x >= 0 ? '+' : '−') + r; };
   const nm = MM.mk === 'kospi' ? '코스피' : '코스닥', who = {indiv: '개인', foreign: '외국인', inst: '기관계'}[MM.who];
-  const up = bs.filter(b => b > cur), upSum = up.reduce((s, b) => s + B[b][0], 0);
-  const hi = bs.reduce((a, b) => B[b][0] > B[a][0] ? b : a), lo = bs.reduce((a, b) => B[b][0] < B[a][0] ? b : a);
-  document.getElementById('mmsum').innerHTML = `${nm} · <b>${who}</b> · ${md(o.x[i0])}~${md(last)} (${n - i0}거래일)<br>` +
-    (up.length ? `지금 지수(${fmtNum(cur, 2)}) <b>위 가격대(${f(up[0])}~)</b>에서 ${who} 순매수 합 <b class="${upSum >= 0 ? 'up' : 'down'}">${sg(upSum)}</b> · ` : `지금 지수(${fmtNum(cur, 2)})가 이 기간 가장 높은 가격대예요 · `) +
-    `가장 많이 산 가격대 <b>${rng(hi)}</b>(${sg(B[hi][0])})` + (B[lo][0] < 0 ? ` · 가장 많이 판 가격대 <b>${rng(lo)}</b>(${sg(B[lo][0])})` : '');
-  const xs = o.x.slice(i0), ys = o.close.slice(i0), mx = Math.max(...bs.map(b => Math.abs(B[b][0]))) * 1.15;
+  const iu = bs.map((b, i) => b > cur ? i : -1).filter(i => i >= 0), upSum = iu.reduce((s, i) => s + v[i], 0);
+  const hi = v.indexOf(Math.max(...v)), lo = v.indexOf(Math.min(...v));
+  document.getElementById('mmsum').innerHTML = `${nm} · <b>${who}</b> · ${md(P.from)}~${md(last)} (${fmtNum(P.days)}거래일)<br>` +
+    (iu.length ? `지금 지수(${fmtNum(cur, 2)}) <b>위 가격대(${f(bs[iu[0]])}~)</b>에서 ${who} 순매수 합 <b class="${upSum >= 0 ? 'up' : 'down'}">${sg(upSum)}조</b> · ` : `지금 지수(${fmtNum(cur, 2)})가 이 기간 가장 높은 가격대예요 · `) +
+    `가장 많이 산 가격대 <b>${rng(bs[hi])}</b>(${sg(v[hi])}조)` + (v[lo] < 0 ? ` · 가장 많이 판 가격대 <b>${rng(bs[lo])}</b>(${sg(v[lo])}조)` : '');
+  const I = DATA.usmkt && DATA.usmkt[MM.mk], ii = I ? I.x.map((d, i) => d >= P.from && d <= last ? i : -1).filter(i => i >= 0) : [];
+  const mx = Math.max(...v.map(Math.abs)) || 1;
   Plotly.react('mmplot', [
-    {type: 'bar', orientation: 'h', x: bs.map(b => B[b][0]), y: bs.map(b => b + W / 2), width: W * 0.85, xaxis: 'x', yaxis: 'y',
-      marker: {color: bs.map(b => css(B[b][0] >= 0 ? '--good' : '--bad')), opacity: 0.6}, customdata: bs.map(b => [rng(b), B[b][1]]),
-      hovertemplate: '%{customdata[0]}: %{x:+.1f}조 (%{customdata[1]}거래일)<extra></extra>'},
-    {type: 'scatter', mode: 'lines', x: xs, y: ys, xaxis: 'x2', yaxis: 'y', line: {color: css('--ink'), width: 1.4}, hovertemplate: `${nm} %{y:,.2f}<extra></extra>`},
-  ], Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 8, t: 22, b: 26},
-    xaxis: axis({domain: [0, 0.4], range: [-mx, mx], zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '조', nticks: 4}),
-    xaxis2: axis({domain: [0.45, 1], type: 'date', anchor: 'y', tickformat: '%y.%m', hoverformat: '%Y-%m-%d', nticks: 4}),
-    yaxis: axis({range: [bs[0], bs[bs.length - 1] + W], tickformat: ',d', dtick: MM.mk === 'kospi' ? 800 : 100}),
+    {type: 'bar', orientation: 'h', x: v.map(Math.abs), y: bs.map(b => b + W / 2), width: W * 0.86, xaxis: 'x', yaxis: 'y',
+      marker: {color: v.map(x => css(x >= 0 ? '--good' : '--bad')), opacity: 0.4}, text: v.map(sg), textposition: 'outside', cliponaxis: false,
+      textfont: {size: 10, color: css('--ink2')}, customdata: bs.map((b, i) => `${rng(b)}: ${sg(v[i])}조 (${P.n[i]}거래일)`), hovertemplate: '%{customdata}<extra></extra>'},
+    {type: 'scatter', mode: 'lines', x: ii.map(i => I.x[i]), y: ii.map(i => I.y[i]), xaxis: 'x2', yaxis: 'y', line: {color: css('--ink'), width: 1.4},
+      hovertemplate: `${nm} %{y:,.2f}<extra></extra>`},
+  ], Object.assign(baseLayout(), {showlegend: false, hovermode: 'closest', margin: {l: 44, r: 10, t: 22, b: 26},
+    xaxis: {visible: false, range: [0, mx * 2.3], fixedrange: true},
+    xaxis2: axis({type: 'date', overlaying: 'x', side: 'bottom', range: [P.from, last], tickformat: P.days > 1000 ? '%Y' : '%y.%m', hoverformat: '%Y-%m-%d', nticks: 5}),
+    yaxis: axis({range: [bs[0], bs[bs.length - 1] + W], tickformat: ',d'}),
     shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: cur, y1: cur, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
-    annotations: [{xref: 'paper', yref: 'paper', x: 0, y: 1, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `<b>가격대별 ${who} 순매수</b>`, font: {size: 11, color: css('--ink2')}},
-                  {xref: 'paper', yref: 'paper', x: 0.45, y: 1, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `<b>${nm}</b> (지금 ${f(cur)})`, font: {size: 11, color: css('--ink2')}}],
+    annotations: [{xref: 'paper', yref: 'paper', x: 0, y: 1, yanchor: 'bottom', xanchor: 'left', showarrow: false, text: `<b>${who} 매물대</b> (막대 숫자 = 조원) · <b>${nm}</b>`, font: {size: 11, color: css('--ink2')}},
+                  {xref: 'paper', x: 1, xanchor: 'right', yref: 'y', y: cur, yanchor: 'top', showarrow: false, text: `지금 ${f(cur)}`, font: {size: 10, color: css('--ink2')}}],
   }), CFG);
-  document.querySelector('#mmtable tbody').innerHTML = bs.slice().reverse().map(b => `<tr${b <= cur && cur < b + W ? ' style="font-weight:700"' : ''}><td>${rng(b)}${b <= cur && cur < b + W ? ' ← 지금' : ''}</td><td class="${B[b][0] >= 0 ? 'up' : 'down'}">${sg(B[b][0])}</td><td>${B[b][1]}</td></tr>`).join('');
+  document.querySelector('#mmtable tbody').innerHTML = bs.map((b, i) => i).reverse().map(i => { const now = bs[i] <= cur && cur < bs[i] + W;
+    return `<tr${now ? ' style="font-weight:700"' : ''}><td>${rng(bs[i])}${now ? ' ← 지금' : ''}</td><td class="${v[i] >= 0 ? 'up' : 'down'}">${sg(v[i])}조</td><td>${fmtNum(P.n[i])}</td></tr>`; }).join('');
 }
 document.querySelectorAll('[data-mm]').forEach(b => b.onclick = () => {
   const [k, v] = b.dataset.mm.split(':');

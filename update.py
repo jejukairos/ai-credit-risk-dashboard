@@ -952,20 +952,27 @@ def fetch_kr_investors():
     # 투자자별 매매동향(네이버 증권 stock.naver.com/market/stock/kr/trend/trader): 일별 순매수(억원) = 한국거래소(KRX) + 넥스트레이드(NXT)
     # 합계(증권사 HTS '통합' 화면과 같음, 26.10.30 연기금 8,929 + 36 = 8,965억 ≈ HTS 8,966억 확인). NXT는 2025-03부터라 그 전은 KRX만.
     # 평소엔 최근 100거래일, 저장된 게 2년(500일)이 안 되면 600거래일을 받아 쌓음(같은 날은 나중 값으로). 장 마감 전 오늘 값은 움직이는 중이라 뺌
-    # + 매물대용으로 거래소(KRX)만 따로 kr_investors_krx.csv 에(FnGuide·증권사 보고서 기준. 26.11.06 한화투자증권 '개인 매물대' 그림과 같은 숫자 확인)
+    # + 매물대용으로 거래소(KRX)만 따로 kr_investors_krx.csv 에(FnGuide·증권사 보고서 기준. 26.11.06 한화투자증권 '개인 매물대' 그림과 같은 숫자 확인).
+    #   이 파일이 4,000거래일이 안 되면 네이버가 주는 끝(2005년쯤)까지 받음(한 번만, 약 110번)
     now = datetime.now(KST)
     accs = {"kr_investors.csv": {}, "kr_investors_krx.csv": {}}
     olds = {f: pd.read_csv(os.path.join(DATA, f), dtype={"date": str}) if os.path.exists(os.path.join(DATA, f)) else None for f in accs}
-    pages = range(6) if any(o is None or (o["market"] == "kospi").sum() < 500 for o in olds.values()) else [0]
+    pages = range(6) if any(o is None or (o["market"] == "kospi").sum() < 500 for o in olds.values()) else range(1)
+    ko = olds["kr_investors_krx.csv"]
+    deep = ko is None or (ko["market"] == "kospi").sum() < 4000
     for mk in ("KOSPI", "KOSDAQ"):
         for tt in ("KRX", "NXT"):
-            for st in pages:
+            for st in range(80) if tt == "KRX" and deep else pages:
                 j = get("https://stock.naver.com/api/domestic/market/trend/daily", timeout=30,
                         params={"tradeType": tt, "marketType": mk, "bizdate": now.strftime("%Y%m%d"), "startIdx": st, "pageSize": 100}).json()
+                if not j["content"]:
+                    break
+                # 평소 범위 밖(깊게 받은 옛날 쪽)은 거래소만 파일에만
+                to = ["kr_investors_krx.csv"] if st not in pages else list(accs) if tt == "KRX" else ["kr_investors.csv"]
                 for d in j["content"]:
                     if d["bizdate"] == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
                         continue
-                    for f in accs if tt == "KRX" else ["kr_investors.csv"]:
+                    for f in to:
                         v = accs[f].setdefault((d["bizdate"], mk.lower()), {})
                         for a in d["netAmounts"]:
                             v[a["investorGubun"]] = v.get(a["investorGubun"], 0) + int(a["diffValue"])
@@ -1000,10 +1007,21 @@ def build_kr_investors():
                    "big": {k: [int(v >= t) for v, t in zip(m[k], th[k].shift(1))] for k in BIG_BUY},
                    "big_th": {k: round(float(th[k].iloc[-2]), 0) for k in BIG_BUY}}
         kp = os.path.join(DATA, "kr_investors_krx.csv")
-        if os.path.exists(kp):  # 매물대(거래소만 순매수, 억원) — 화면에서 그날 종가 가격대마다 더함
+        if os.path.exists(kp):  # 매물대: 거래소만 순매수(억원)를 그날 종가가 속한 가격대(코스피 400pt·코스닥 50pt)마다 더함 → 조원, 기간마다 미리 계산
             k = pd.read_csv(kp, dtype={"date": str})
             k = k[(k["market"] == mk) & k["date"].isin(idx.index)].sort_values("date")
-            out[mk]["krx"] = {"x": list(k["date"]), "close": [float(idx[d]) for d in k["date"]], **{c: [round(float(v), 1) for v in k[c]] for c in ("indiv", "foreign", "inst")}}
+            W, last = (400 if mk == "kospi" else 50), k["date"].iloc[-1]
+            k["b"] = (idx[k["date"]].to_numpy() // W * W).astype(int)
+            lt = pd.Timestamp(last)
+            starts = {"ytd": f"{lt.year}-01-01", "all": k["date"].iloc[0],
+                      **{p: (lt - pd.Timedelta(days=dd)).strftime("%Y-%m-%d") for p, dd in (("1y", 365), ("2y", 730), ("5y", 1826))}}
+            mm = {"W": W, "last": last, "cur": float(idx[last]), "p": {}}
+            for p, s in starts.items():
+                q = k[k["date"] >= s]
+                g = q.groupby("b")
+                mm["p"][p] = {"from": q["date"].iloc[0], "days": len(q), "b": [int(b) for b in g.size().index], "n": g.size().astype(int).tolist(),
+                              **{c: [round(float(v) / 1e4, 1) for v in g[c].sum()] for c in ("indiv", "foreign", "inst")}}
+            out[mk]["mm"] = mm
     return out
 
 
