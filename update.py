@@ -827,8 +827,10 @@ def fetch_kr_breadth(back=70):
     # 시장 온도계의 '폭' 지표: 코스피·코스닥 보통주(우선주·ETF·스팩 제외, 네이버 시총 목록) 중
     # 20일선(종가 20일 평균) 아래 종목 비율, 60일 신고가 − 신저가 종목 수(그날 고가 ≥ 60일 최고 고가 / 저가 ≤ 60일 최저 저가).
     # + ADR 섹션 50일 신고가·신저가 종목 수(그날 고가 > 직전 50거래일 최고 고가 / 저가 < 직전 50거래일 최저 저가 — 거래정지 종목이 안 잡히게 '보다 큼')
-    # 네이버 일별 시세를 종목마다 1번(최근 back+60거래일, 약 2,600번 · 10~20초) 받아 최근 back거래일치를 다시 계산해 합침. 과거 채우기는 한 번만 fetch_kr_breadth(260)
+    # + 200일선 위 종목 비율(종가 > 종가 200일 평균, 사용자 요청 26.11.06) → kr_above200.csv. 과거(2015년~)는 26.11.06 한 번 같은 식으로 채움(네이버가 종목마다 최근 3,000거래일까지만 줌)
+    # 네이버 일별 시세를 종목마다 1번(최근 back+200거래일, 약 2,600번 · 10~20초) 받아 최근 back거래일치를 다시 계산해 합침. 과거 채우기는 한 번만 fetch_kr_breadth(260)
     # shortcut: 지금 상장된 종목으로 과거도 계산(그사이 상장폐지된 종목 빠짐), 과거를 길게 볼 땐 날마다 쌓인 값을 씀
+    import itertools
     from concurrent.futures import ThreadPoolExecutor
     now = datetime.now(KST)
     s = requests.Session()
@@ -837,12 +839,12 @@ def fetch_kr_breadth(back=70):
     def one(code):
         for _ in range(3):
             try:
-                r = s.get(f"https://fchart.stock.naver.com/sise.nhn?symbol={code}&timeframe=day&count={back + 60}&requestType=0", timeout=20)
+                r = s.get(f"https://fchart.stock.naver.com/sise.nhn?symbol={code}&timeframe=day&count={back + 200}&requestType=0", timeout=20)
                 return [x.split("|") for x in re.findall(r'data="([^"]+)"', r.text)]
             except Exception:  # noqa: BLE001
                 time.sleep(1)
         return []
-    out = []
+    out, out200 = [], []
     for mk in ("KOSPI", "KOSDAQ"):
         codes = []
         for page in range(1, 60):
@@ -858,10 +860,11 @@ def fetch_kr_breadth(back=70):
         days = sorted({r[0] for rs in rows for r in rs})[-back:]
         if now.strftime("%H%M") < "1540":  # 장 마감 전엔 오늘 값이 아직 움직이는 중
             days = [d for d in days if d < now.strftime("%Y%m%d")]
-        acc = {d: [0] * 8 for d in days}  # 20일 대상, 20일선 아래, 60일 대상, 신고가, 신저가, 50일 대상, 50일 신고가, 50일 신저가
+        acc = {d: [0] * 10 for d in days}  # 20일 대상, 20일선 아래, 60일 대상, 신고가, 신저가, 50일 대상, 50일 신고가, 50일 신저가, 200일 대상, 200일선 위
         for rs in rows:
             pos = {r[0]: i for i, r in enumerate(rs)}
             cl, hi, lo = [float(r[4]) for r in rs], [float(r[2]) for r in rs], [float(r[3]) for r in rs]
+            cs = list(itertools.accumulate(cl, initial=0))  # 누적합 → 200일 평균을 한 번에
             for d in days:
                 i = pos.get(d)
                 if i is None or i < 19:
@@ -877,15 +880,20 @@ def fetch_kr_breadth(back=70):
                     a[5] += 1
                     a[6] += hi[i] > max(hi[i - 50:i])
                     a[7] += lo[i] < min(lo[i - 50:i])
+                if i >= 199:
+                    a[8] += 1
+                    a[9] += cl[i] > (cs[i + 1] - cs[i - 199]) / 200
         out += [{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "market": mk.lower(), "n20": a[0], "below20": a[1], "n60": a[2], "highs": a[3], "lows": a[4],
                  "n50": a[5], "highs50": a[6], "lows50": a[7]}
                 for d, a in acc.items() if a[0]]
-    path = os.path.join(DATA, "kr_breadth.csv")
-    df = pd.DataFrame(out)
-    if os.path.exists(path):
-        old = pd.read_csv(path, dtype={"date": str})
-        df = pd.concat([old, df]).drop_duplicates(["date", "market"], keep="last")
-    df.sort_values(["date", "market"]).to_csv(path, index=False)
+        out200 += [{"date": f"{d[:4]}-{d[4:6]}-{d[6:]}", "market": mk.lower(), "n200": a[8], "above200": a[9]} for d, a in acc.items() if a[8]]
+    for name, rows_ in (("kr_breadth.csv", out), ("kr_above200.csv", out200)):
+        path = os.path.join(DATA, name)
+        df = pd.DataFrame(rows_)
+        if os.path.exists(path):
+            old = pd.read_csv(path, dtype={"date": str})
+            df = pd.concat([old, df]).drop_duplicates(["date", "market"], keep="last")
+        df.sort_values(["date", "market"]).to_csv(path, index=False)
 
 
 def fetch_kr_flows():
@@ -1002,6 +1010,8 @@ def build_kr_thermo():
     b = pd.read_csv(bp, dtype={"date": str}) if os.path.exists(bp) else None
     fp = os.path.join(DATA, "kr_flows.csv")
     f = pd.read_csv(fp, dtype={"date": str}) if os.path.exists(fp) else None
+    ap = os.path.join(DATA, "kr_above200.csv")
+    a2 = pd.read_csv(ap, dtype={"date": str}) if os.path.exists(ap) else None
     out = {}
     for c in ("kospi", "kosdaq"):
         idx = t[c + "_idx"].dropna()
@@ -1017,6 +1027,11 @@ def build_kr_thermo():
                             "net": (m["highs"] - m["lows"]).astype(int).tolist(), "n60": m["n60"].astype(int).tolist()}
             if "highs50" in m:  # ADR 섹션 50일 신고가·신저가(옛 줄은 빈칸)
                 o["breadth"].update({k: [None if pd.isna(v) else int(v) for v in m[c2]] for k, c2 in (("hi50", "highs50"), ("lo50", "lows50"))})
+        if a2 is not None and (a2["market"] == c).any():
+            m = a2[a2["market"] == c].sort_values("date")
+            m = m[m["n200"] >= m["n200"].max() * 0.4]  # 거래정지가 길던 몇 종목만 기록이 더 길어서 생긴 옛날 날짜(종목 수 몇 개)는 뺌
+            o["above200"] = {"x": list(m["date"]), "pct": [round(v, 1) for v in m["above200"] / m["n200"] * 100],
+                             "above": m["above200"].astype(int).tolist(), "n": m["n200"].astype(int).tolist()}
         if f is not None and (f["market"] == c).any():
             r = f[f["market"] == c].sort_values("date").iloc[-1]
             o["flow"] = {"date": r["date"], **{k: int(r[k]) for k in ("foreign", "inst", "indiv")}}

@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -534,6 +534,16 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">신고가 = 그날 고가가 직전 50거래일 최고 고가보다 높은 종목, 신저가 = 그날 저가가 직전 50거래일 최저 저가보다 낮은 종목. 보통주만(우선주·ETF·스팩 제외), 지금 상장된 종목으로 계산. 위 ADR 기간 버튼을 따라가요(자료는 2025-10부터). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세(장 끝난 뒤 넥스트레이드 거래도 섞여 있어요). 다른 곳과 몇 % 다를 수 있어요(11/05 user: 사용자 제공 캡처 코스피 27·116, 코스닥 19·364 vs 여기 29·116, 18·405).</p>
   </div>
 
+  <h2 id="sec-ma200">📊 200일선 위 종목 비율</h2>
+  <div class="card">
+    <div class="small" style="margin:2px 4px 6px">종가가 <b>200일선</b>(최근 200거래일, 약 10달 동안의 평균 가격)보다 높은 종목이 몇 %인지예요. 높을수록 많은 종목이 길게 오르는 중이고, 낮을수록 많은 종목이 길게 빠져 있어요. 위 = 지수, 아래 = 비율(점선 50%).</div>
+    <div class="nowline" id="ma200kospiday"></div>
+    <div id="ma200kospi" class="plot" style="height:320px"></div>
+    <div class="nowline" id="ma200kosdaqday"></div>
+    <div id="ma200kosdaq" class="plot" style="height:320px"></div>
+    <p class="note" style="margin:6px 4px 2px">보통주만(우선주·ETF·스팩 제외), <b>지금 상장된 종목</b>으로 계산해요(그사이 상장폐지된 종목은 빠져서 옛날 값은 실제와 조금 다를 수 있어요). 200거래일이 안 된 새 종목은 빼요. 위 ADR 기간 버튼을 따라가요(전체 = 2015-06~, 네이버가 종목마다 최근 3,000거래일까지만 줘요). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세 · 지수 = 네이버 금융 일별 종가. 비교: 한화투자증권 그림(user: 사용자 제공, 블룸버그 자료)도 2018·2022년 저점 부근이라고 봤고, 여기서도 그때 바닥은 코스피 7.3%(18.10.29)·8.0%(22.06.23)예요.</p>
+  </div>
+
   <h2 id="sec-investor">👥 투자자별 매매동향 — 누가 사고 누가 팔았나</h2>
   <div class="glossary">
     <div><b>순매수</b> = 산 돈 − 판 돈이에요. <b>+면 더 많이 산 것</b>, −면 더 많이 판 것. 주식은 누가 사면 반드시 누가 팔아서, <b>모두 더하면 0</b>이에요. 그래서 "외국인이 1조 팔았다"는 "다른 누군가가 1조를 받아 샀다"는 말과 같아요. 지수가 오른 날 누가 사서 올렸는지, 빠진 날 누가 받쳐 줬는지를 보는 거예요.</div>
@@ -553,6 +563,10 @@ footer a{color:var(--ink2)}
     <div id="invbighist"></div>
     <details class="fold"><summary><b>📋 날짜별 숫자</b> <span class="small">(▶ 누르면 펼쳐져요 · 억원)</span></summary>
       <div class="tablebox" style="border:0"><table id="invtable"><thead></thead><tbody></tbody></table></div></details>
+    <div class="memo" style="margin:8px 0"><b>📝 기억할 메모</b> <span class="small">(26.11.06)</span>
+      <div>· 지금 코스피는 <b>최고점보다 약 −40%</b>, 외국인은 <b>10개월 넘게 계속 팔았고</b> 판 돈이 <b>210조 원을 넘었어요</b>.</div>
+      <div>· 과거에 이와 비슷한 조건(지금보다는 덜 심한 조건)이었던 때는 <b>3번(2002·2008·2020년)</b>이었어요. 평균적으로 바로 튀어 오르는 <b>V자 반등이 아니라</b>, 한동안 바닥을 다지다가 오르는 <b>J자 모양</b>이었대요.</div>
+      <div class="small" style="color:var(--muted)">출처: user: 사용자가 보내 준 메모(26.11.06)</div></div>
     <div class="memo" style="margin:8px 0"><details class="more"><summary><b>👥 누가 누구예요?</b> — 개인 · 외국인 · 기관 · 기타법인</summary>
       <div><b>개인</b> 우리 같은 보통 사람들이에요. 주가가 빠지면 싸다고 사서 <b>받쳐 주는</b> 일이 많고, 오르면 차익을 내고 파는 일이 많아요.</div>
       <div><b>외국인</b> 해외 연기금·펀드·헤지펀드 등 외국 돈이에요. 삼성전자·SK하이닉스 같은 큰 회사 주식을 많이 갖고 있어서 <b>지수를 가장 크게 움직여요</b>. 원화 가치(환율)가 떨어질 것 같으면 팔고 나가기도 해요.</div>
@@ -2717,6 +2731,29 @@ function renderAdr() {
     document.getElementById('hl50' + c + 'day').innerHTML =
       `<span><i style="color:${css('--bad')}">●</i>${nm} 신고가 <b>${hi[n]}종목</b> <span class="small">(전일 ${hi[n - 1]})</span></span>` +
       `<span><i style="color:${css('--g1')}">●</i>신저가 <b>${lo[n]}종목</b> <span class="small">(전일 ${lo[n - 1]})</span></span><span class="nowdt">${last.slice(2).replace(/-/g, '.')} 기준</span>`;
+  });
+  // 200일선 위 종목 비율(사용자 요청 26.11.06) — 시장마다 위 = 지수, 아래 = 비율 (날짜축 공유)
+  [['kospi', '코스피'], ['kosdaq', '코스닥']].forEach(([c, nm]) => {
+    const a = T[c] && T[c].above200, I = DATA.usmkt && DATA.usmkt[c];
+    if (!a || !a.x.length) return;
+    const x = a.x, last = x[x.length - 1], d = new Date(last), n = x.length - 1;
+    if (PM[ADR_PERIOD]) d.setMonth(d.getMonth() - PM[ADR_PERIOD]);
+    const xs = PM[ADR_PERIOD] && d.toISOString().slice(0, 10) > x[0] ? d.toISOString().slice(0, 10) : x[0];
+    // 지수는 비율과 같은 날짜까지만(장중 오늘 값은 빼서 마지막 숫자 표시가 맞게)
+    const ii = I ? I.x.map((v, i) => v >= x[0] && v <= last ? i : -1).filter(i => i >= 0) : [], ix = ii.map(i => I.x[i]), iy = ii.map(i => I.y[i]);
+    Plotly.react('ma200' + c, [
+      {x: ix, y: iy, type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: 1.6}, hovertemplate: `${nm} %{y:,.2f}<extra></extra>`},
+      {x, y: a.pct, type: 'scatter', mode: 'lines', yaxis: 'y2', fill: 'tozeroy', fillcolor: css('--line'), line: {color: css('--muted'), width: 1},
+        customdata: a.above.map((v, i) => [v, a.n[i]]), hovertemplate: '200일선 위 %{y:.1f}% (%{customdata[0]}/%{customdata[1]}종목)<extra></extra>'},
+    ], tagLast(Object.assign(baseLayout(), {
+      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({domain: [0.56, 0.92], range: padRange(iy.filter((_, i) => ix[i] >= xs), false)}),
+      yaxis2: axis({domain: [0, 0.4], range: [0, 100], ticksuffix: '%', tickvals: [0, 50, 100]}),
+      shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: 50, y1: 50, line: {color: css('--ink2'), width: 1, dash: 'dot'}}],
+      annotations: [lbl(0.93, `${nm} 지수`), lbl(0.41, `${nm} 200일선 위 종목 비율`)],
+    }), [[iy, 'y', v => fmtNum(v, 0), css('--bad')], [a.pct, 'y2', v => v.toFixed(1) + '%', css('--ink')]]), CFG);
+    document.getElementById('ma200' + c + 'day').innerHTML =
+      `<span>${nm} 200일선 위 <b>${a.pct[n].toFixed(1)}%</b> <span class="small">(${a.above[n]}/${a.n[n]}종목 · 전일 ${a.pct[n - 1].toFixed(1)}%)</span></span><span class="nowdt">${last.slice(2).replace(/-/g, '.')} 기준</span>`;
   });
 }
 document.querySelectorAll('#adrbar button').forEach(b => b.onclick = () => {
