@@ -142,6 +142,16 @@ footer a{color:var(--ink2)}
 .bands div{border:1px solid var(--line);border-radius:6px;padding:3px 1px;color:var(--ink2);line-height:1.3;overflow-wrap:anywhere}
 .bands div.on{border:2px solid var(--ink);color:var(--ink);font-weight:700}
 .bands b{display:block;font-size:11px}
+.it{display:grid;grid-template-columns:50px 1fr 100px;column-gap:6px;align-items:center}
+.it .nm{font-weight:800;font-size:13px;text-align:right;color:var(--ink)}
+.it .tr{position:relative;height:46px}
+.it .tr i{position:absolute;top:0;bottom:0;border-left:1px dashed var(--line)}
+.it .tr i.z{border-left:2px solid var(--muted);margin-left:-1px}
+.it .tr span{position:absolute;top:12px;height:22px;border-radius:4px}
+.it .vl{font-size:10.5px;color:var(--ink2);line-height:1.35}
+.it .vl b{display:block;font-size:14px;color:var(--ink)}
+.it .ax{position:relative;height:30px;font-size:9.5px;color:var(--muted)}
+.it .ax span{position:absolute;top:3px;transform:translateX(-50%);text-align:center;line-height:1.25;white-space:nowrap}
 /* 🚦 시장 탭 (밸류 신호등에서 옮김, market.js) — 그쪽 style.css 를 #mktv 안에서만 쓰도록 */
 .tabs button[data-tab=mkt]{grid-column:span 2}
 #mktv{--surface-2:#f0efec;--good-bg:#e6f6e6;--warn-bg:#fff4dc;--bad-bg:#fbe7e7;--na-bg:#f0efec;--good-ink:#006300;--warn-ink:#8a5a00;--bad-ink:#a32020;word-break:keep-all;overflow-wrap:break-word}
@@ -629,7 +639,7 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-thermo">🎢 광기·외면 곡선 — 한국</h2>
   <div class="card" id="krcurve-card"></div>
-  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (0~100도), 50일 이격 = 지수 ÷ 최근 50거래일 평균 × 100. 사용자가 보내 준 다른 채널 '시장 온도계'(10/28)와 같은 식이에요. 장 마감 종가 기준. 자료: <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a>(지수)</p>
+  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100 — '🚦 시장' 탭 맨 위 '지수 온도'와 같은 값이에요(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 같은 카드가 '🚦 시장' 탭 미국 곡선 아래에도 있어요. 자료: 네이버 금융(지수 일별 종가)</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
@@ -877,6 +887,7 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-valmkt">🚦 시장 — 금리 · 지수는 비싼가?</h2>
   <div id="mktv">
+    <div class="card" id="idxtemp"></div>
     <div class="card" id="vm-seasons">
       <h3 style="margin-top:0">🔄 우라가미 구니오의 주식 4계 — 지금은 어느 계절?</h3>
       <div class="note" style="margin:2px 0 6px">주식시장은 <b>금리·실적·주가</b>가 엇갈리며 봄 → 여름 → 가을 → 겨울을 돌아요. 일본 증권사 출신 우라가미 구니오가 『주식시장 흐름 읽는 법』에서 정리한 틀이에요.</div>
@@ -963,6 +974,7 @@ footer a{color:var(--ink2)}
         <div class="src">출처: user: 사용자 메모(26.11.01)</div></details></div>
     </div>
     <div class="card" id="curve-card"></div>
+    <div class="card" id="krcurve-mkt"></div>
     <div class="card" id="bubblecard"></div>
     <div class="card" id="epsmomcard"><h3><span>📈 코스피 이익 모멘텀 — 2006년부터 (다올투자증권 그림)</span></h3>
       <div class="small" style="margin:2px 4px 6px">회사들이 버는 돈(이익)이 늘어나는 기세와 주가 상승을 같이 그린 그림이에요. <b>남색 선 = 코스피 이익 모멘텀</b>, 회색 = 코스피 상승률, 하늘색 = S&amp;P500 이익 모멘텀. 남색 선이 높을수록 이익이 빠르게 늘고 있다는 뜻이에요. 그림 기준 남색 선은 <b>26년 9월 279.9 → 10월 238.1</b>로 꺾였어요.</div>
@@ -1431,12 +1443,8 @@ document.querySelectorAll('#invmk button, #invbar button').forEach(b => b.onclic
 
 // 한국 광기·외면 곡선. 온도계 카드는 뺐고(사용자 요청 26.11.04) 온도(update.py build_kr_thermo)만 단계로 씀
 function renderKrCurve() {
-  const T = DATA.kr_thermo;
-  if (!T) return;
-  const mk = [['kospi', '코스피'], ['kosdaq', '코스닥']].filter(([c]) => T[c]);
-  // 광기·외면 곡선(한국): 온도 20도 칸마다 한 단계 — 80도~ 광기 5 · 60~ 스릴 4 · 40~ 낙관~흥분 3 · 20~ 희망~안정 2 · 그 아래 외면 1
-  const kc = mk.map(([c, nm]) => { const t = T[c].temp[T[c].temp.length - 1]; return [nm, t >= 80 ? 5 : t >= 60 ? 4 : t >= 40 ? 3 : t >= 20 ? 2 : 1]; });
-  const same = kc.length > 1 && kc[0][1] === kc[1][1];
+  const mk = curveMk(['kospi', 'kosdaq']);
+  if (!mk.length) return;
   // 외면 신호 자동 줄: 금투협 예탁금·신용융자(조원) 지금 vs 최근 1년 고점, 신용 30조(사용자 메모 26.11.03 기준선) 아래로 내려온 날
   const KF = DATA.kofia, md2 = s => s.slice(5).replace('-', '/');
   let kfLine = '';
@@ -1455,17 +1463,43 @@ function renderKrCurve() {
     const word = v >= 0 ? '순매수' : '순매도';
     sbLine = `<div>· <b>🛫 서학개미(자동)</b>: ${mo(M)}에 국내 투자자가 미국 주식을 <b class="${v >= 0 ? 'up' : 'down'}">${amt(v)} ${word}</b>했어요${top ? ' — <b>올해 한 달 최대</b>' : ''}${nf > k ? ` · <b>${mo(SB.m[k])}~${mo(M)} ${nf - k + 1}달 연속 ${word}</b>` : ''}.${part ? ` ${mo(SB.m[nf + 1])}은 지금까지(${md2(SB.last)}) ${SB.net[nf + 1] >= 0 ? '+' : '−'}${amt(SB.net[nf + 1])}.` : ''} 돈이 한국 주식 대신 미국으로 가면 '외면' 쪽 신호예요. <span class="small">한국예탁결제원(공공데이터포털) · 결제일 기준 · 26년 10월 54.2억 달러는 <a href="https://www.mk.co.kr/news/economy/1219330" target="_blank" rel="noopener">매일경제</a>(26.11.02, 이유: 국내 증시 약세·원/달러 환율 하락) 기사와 같아요</span></div>`;
   }
-  renderCurve('krcurve-card', {cur: kc.map(a => a[1]), title: '광기·외면 곡선 <span style="white-space:nowrap">— 한국 주식 기준</span>', band: s => ['20도 아래', '20~40도', '40~60도', '60~80도', '80도~'][s - 1],
-    chip: (same ? [[kc.map(a => a[0]).join('·'), kc[0][1]]] : kc).map(([nm, s]) => curveChip(s, nm)).join(' '),
-    intro: `코스피·코스닥 <b>온도</b>(지수가 최근 50거래일 평균보다 얼마나 높은지를 0~100도로 바꾼 값: ${mk.map(([c, nm]) => `${nm} ${Math.round(T[c].temp[T[c].temp.length - 1])}도`).join(' · ')})를 곡선 단계로 옮겨서 지금 어디쯤인지 보여줘요.`,
+  ['krcurve-card', 'krcurve-mkt'].forEach(id => renderCurve(id, {mk, title: '광기·외면 곡선 <span style="white-space:nowrap">— 한국 주식 기준</span>',
+    intro: `${curveIntro(mk)} 미국 곡선과 같은 규칙이에요.`,
     fold: '💡 <b>보는 법 · 지금 외면 신호</b> — 예탁금 · 빚투 · 서학개미 숫자',
-    memo: `<div>· 같은 온도라도 <b>올라가는 길</b>인지 <b>내려가는 길</b>인지는 온도만으로는 몰라요. 지수가 어느 쪽으로 움직이는지 함께 보세요. 0도(급락)는 막 크게 빠진 상태라 <b>패닉~외면</b> 사이일 수도 있어요.</div>
+    memo: `<div>· <b>오르는 중/내리는 중</b> = 오늘 온도가 20거래일 전 온도보다 높은지예요. 온도가 칸 경계나 한 달 전 온도 근처면 날마다 단계가 바뀔 수 있어요.</div>
       <div>· <b>외면 단계 신호</b>: "개인 증권계좌가 확 줄었다", "증시 떠나는 개인… 예탁금 감소" 같은 뉴스가 나와요. 아래 <b>주변자금</b> 섹션의 <b>고객예탁금</b> 그래프로 확인할 수 있어요.</div>
       ${kfLine}
       ${sbLine}
       <div>· <b>실제 예</b>: 아래 '📜 2019년부터 돈의 흐름' 상자에서 <b>코로나 충격(폭락)</b> → <b>동학개미 광기장</b> 때 예탁금·빚이 어떻게 움직였는지 볼 수 있어요.</div>
       <div>· 관심 종목도 종목토론방·댓글 분위기를 이 곡선에 맞춰 보면 지금 어느 단계인지 가늠하는 데 도움이 돼요.</div>
-      <div class="small" style="color:var(--muted)">단계 나누기(온도 20도 칸)는 이 대시보드가 정한 거예요. 곡선 그림은 미국 곡선과 같아요(사용자 엑셀).</div>`});
+      <div class="small" style="color:var(--muted)">단계 나누기(온도 칸 + 오르는/내리는 중, 26.11.06)는 이 대시보드가 정한 거예요. 곡선 그림은 미국 곡선과 같아요(사용자 엑셀).</div>`}));
+}
+// 곡선에 쓸 시장 줄(지수 온도, update.py build_idx_temp)과 설명 첫 줄
+const curveMk = ks => ((DATA.idx_temp || {}).rows || []).filter(r => ks.includes(r.k)).map(r => [r.name, r]);
+const curveIntro = mk => `${mk.map(a => a[0]).join('·')} <b>지수 온도</b>('🚦 시장' 탭 맨 위: ${mk.map(([nm, r]) => `${nm} ${tempDeg(r.temp)}`).join(' · ')})와 <b>한 달(20거래일) 전 온도</b>(${mk.map(([, r]) => tempDeg(r.ref)).join(' · ')})를 견줘서 지금 단계를 정해요.`;
+const tempDeg = t => (Math.round(t) < 0 ? '−' : '') + Math.abs(Math.round(t)) + '도';
+
+// 🌡️ 지수 온도 — 사용자가 받은 그림(26.11.06)을 그대로 따라 그림. 값 = update.py build_idx_temp
+function renderIdxTemp() {
+  const D = DATA.idx_temp, el = document.getElementById('idxtemp');
+  if (!D || !el) return;
+  const word = t => t >= 95 ? '과열' : t >= 80 ? '뜨거움' : t >= 20 ? '보통' : t >= 0 ? '차가움' : t >= -20 ? '급락' : t >= -60 ? '투매' : '공황';
+  const P = t => (Math.max(-100, Math.min(100, t)) + 100) / 2;  // −100~100도 → 0~100%
+  const lines = [[0, ''], [30, ''], [50, 'z'], [90, ''], [100, '']].map(([x, c]) => `<i class="${c}" style="left:${x}%"></i>`).join('');
+  const ym = m => m.slice(2).replace('-', '.');
+  el.innerHTML = `<h3 style="margin-bottom:2px"><span>🌡️ 지수 온도</span></h3>
+    <div class="small" style="margin:0 4px 8px">${D.made.slice(5, 16).replace('-', '/')} · 50일 이격 → 온도 (110 = 80도 · 90 = 0도 · 70 = −80도) · ${D.rows.some(r => r.est) ? '미국은 지수선물로 환산' : '미국은 장 마감 종가'}</div>
+    <div class="it">${D.rows.map(r => { const a = Math.min(P(r.temp), 50), b = Math.max(P(r.temp), 50);
+      return `<div class="nm">${r.name}</div><div class="tr">${lines}<span style="left:${a}%;width:${b - a}%;background:var(${r.temp < 0 ? '--g1' : '--bad'})"></span></div>
+        <div class="vl"><b>${tempDeg(r.temp)} ${word(Math.round(r.temp))}</b>이격 ${r.disp.toFixed(1)} · ${r.pct >= 0 ? '▲' : '▼'}${Math.abs(r.pct).toFixed(2)}%</div>`; }).join('')}
+      <div></div><div class="ax"><span style="left:0">−100</span><span style="left:30%">−40<br>영하 경고</span><span style="left:50%">0</span><span style="left:90%">80<br>경고</span><span style="left:100%">100</span></div><div></div></div>
+    <div class="memo"><b>온도 읽는 법</b>
+      <div>지수가 최근 50일 평균보다 얼마나 높은지·낮은지를 온도로 바꾼 거예요. 영하일수록 최근 크게 빠졌다는 뜻이에요.</div>
+      <div>온도 = 50일 이격(지수 ÷ 50일 평균 × 100)을 −100~100도로 바꾼 것. 이격 100 = 40도, 110 = 80도, 90 = 0도, 80 = −40도, 70 = −80도</div>
+      <div>🔥 95도↑ 과열 · 🔴 80도↑ 뜨거움(빚 크기 점검선) · 🟡 20도↑ 보통 · 🔵 0~20도 차가움</div>
+      <div>🧊 0~−20도 급락 · −20~−60도 투매 · 🥶 −60도↓ 공황${D.lows.length ? ` — 역대 코스피: ${D.lows.map(([n, m, v]) => `${n ? `${n}(${ym(m)})` : ym(m)} ${tempDeg(v)}`).join(' · ')}` : ''}</div>
+      <div>예언이 아니다 — 뜨겁다고 떨어지는 것도, 영하가 깊다고 바닥인 것도 아니다. '떨어지면 아픈 크기'를 볼 때 쓴다</div></div>
+    <p class="note" style="margin:6px 4px 2px">자료: 코스피·코스닥 = 네이버 금융 일별 종가, 나스닥(^IXIC)·S&amp;P500(^GSPC)·다우(^DJI) = Yahoo Finance, 지수선물 = Yahoo(NQ=F·ES=F·YM=F — 미국 장이 닫혀 있고 다음 날 선물이 거래 중이면 '종가 × (1 + 선물 변화율)'). 지금 값 = 오늘 지수 ÷ 어제까지 50거래일 평균, 역대 값 = 그날 종가 ÷ 그날까지 50거래일 평균. 매일 16시·20시 + 미국 장 마감 뒤 자동 갱신. 그림·단계 이름: user: 사용자가 받은 '지수 온도' 그림(26.11.06) — 그림 속 15:40 숫자(−45·−42·10·23·32도)와 역대 숫자(−92·−82·−72도)가 이 식으로 똑같이 나와요.</p>`;
 }
 
 // SK하이닉스 분기 재고일수 (OpenDART, 2019년~ 고정 — 분기 자료라 위 기간 버튼과 무관)
@@ -3053,32 +3087,38 @@ function gaugeSvg(v) {
     `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="var(--ink)"/></svg>`;
 }
 
-// 광기·외면 곡선: 사람들 마음이 오르내리는 순서. 점수(1~5)마다 곡선의 어느 단계인지 표시
+// 광기·외면 곡선: 사람들 마음이 오르내리는 순서. 단계 = update.py curve_stage(지수 온도 + 한 달 전 온도보다 오르는 중/내리는 중, 26.11.06)
 const CURVE = [  // [이름, x, y, 점수(내려가는 길은 0), 글자 위치]
   ['낙관', 22, 136, 3, 'b'], ['흥분', 52, 118, 3, 'l'], ['스릴', 84, 80, 4, 'l'], ['광기', 125, 21, 5, 't'],
   ['부정', 147, 34, 0, 'r'], ['짜증', 157, 62, 0, 'r'], ['공포', 165, 88, 0, 'r'], ['패닉', 176, 113, 0, 'r'], ['분노', 193, 133, 0, 'r'],
   ['외면', 235, 150, 1, 'b'], ['희망', 285, 140, 2, 'b'], ['안정', 322, 112, 2, 'l']];
-const CURVE_OF = {5: '광기', 4: '스릴', 3: '낙관~흥분', 2: '희망~안정', 1: '외면'};
+const STAGE_LV = {광기: 5, 스릴: 4, '낙관~흥분': 3, '희망~안정': 2, 외면: 1, 분노: 1, 패닉: 1, 공포: 2, 짜증: 3, 부정: 4};  // 칩·점 색
+const STAGE_UP = [['−20↓', '분노'], ['−20~0', '외면'], ['0~40', '희망~안정'], ['40~80', '낙관~흥분'], ['80~95', '스릴'], ['95↑', '광기']];  // 숫자 = 온도(도)
+const STAGE_DN = [['95↑', '광기'], ['40~95', '부정'], ['0~40', '짜증'], ['−20~0', '공포'], ['−20↓', '패닉']];
+const stagePts = s => ({'낙관~흥분': ['낙관', '흥분'], '희망~안정': ['희망', '안정']})[s] || [s];
 
-// o: cur(지금 단계 점수 목록 — 시장이 둘이면 둘), chip(오른쪽 위 표시), title, intro, band(점수 → 칸 이름), memo
+// o: mk([[시장 이름, idx_temp 줄], …]), title, intro, fold, memo
 function renderCurve(id, o) {
-  const el = document.getElementById(id), cur = o.cur;
+  const el = document.getElementById(id), st = o.mk.map(([, r]) => r.stage);
   const pts = CURVE.map(([n, x, y, s, pos]) => {
-    const on = s && cur.includes(s), col = s ? css(`--lv${s}`) : css('--muted');
+    const hit = st.find(v => stagePts(v).includes(n)), on = !!hit, col = hit ? css(`--lv${STAGE_LV[hit]}`) : s ? css(`--lv${s}`) : css('--muted');
     const [dx, dy, anc] = {t: [0, -9, 'middle'], b: [0, 16, 'middle'], l: [-8, 4, 'end'], r: [8, 4, 'start']}[pos];
     return `<circle cx="${x}" cy="${y}" r="${on ? 7 : 4.5}" fill="${col}" stroke="${on ? css('--ink') : css('--surface')}" stroke-width="${on ? 2.5 : 1.5}"/>` +
       `<text x="${x + dx}" y="${y + dy}" text-anchor="${anc}" font-size="${on ? 12 : 10.5}" font-weight="${on ? 800 : 500}" fill="${s ? css('--ink') : css('--muted')}">${n}</text>`;
   }).join('');
-  el.innerHTML = `<h3><span>${o.title}</span>${o.chip ? `<span>${o.chip}</span>` : ''}</h3>
+  const same = o.mk.length > 1 && st[0] === st[1];
+  const chip = (same ? [[o.mk.map(a => a[0]).join('·'), st[0]]] : o.mk.map(([nm, r]) => [nm, r.stage])).map(([nm, s]) => `<span class="lv lv${STAGE_LV[s]}">${nm}: ${s}</span>`).join(' ');
+  const row = (L, up) => `<div class="small" style="margin:6px 4px 0">${up ? '↗ <b>오르는 중</b> (온도가 한 달 전보다 높음 · 숫자 = 온도)' : '↘ <b>내리는 중</b> (한 달 전보다 낮음)'}</div>
+    <div class="bands" style="grid-template-columns:repeat(${L.length},1fr);margin-top:3px">${L.map(([b, s]) => `<div class="${o.mk.some(([, r]) => r.stage === s && r.up === up) ? 'on' : ''}"><b>${b}</b>${s}</div>`).join('')}</div>`;
+  el.innerHTML = `<h3><span>${o.title}</span><span>${chip}</span></h3>
     <div class="small" style="margin:2px 4px 4px">사람들 마음은 <b>낙관 → 흥분 → 스릴 → 광기</b>로 달아올랐다가, <b>부정 → 짜증 → 공포 → 패닉 → 분노 → 외면</b>으로 식고, 다시 <b>희망 → 안정</b>으로 돌아와요. ${o.intro}</div>
     <svg viewBox="0 0 340 186" role="img" aria-label="광기 외면 곡선" style="width:100%;max-width:440px;display:block;margin:0 auto">
       <path d="M8 142 C60 128 98 20 125 20 C152 20 160 134 235 150 C272 158 300 140 334 100" fill="none" stroke="${css('--line')}" stroke-width="3"/>
       <text x="100" y="32" text-anchor="end" font-size="9.5" fill="${css('--bad')}">위험이 가장 큰 구간 →</text>
       <text x="235" y="183" text-anchor="middle" font-size="9.5" fill="${css('--g1')}">↑ 기회가 가장 큰 구간</text>${pts}</svg>
-    <div class="bands">${[5, 4, 3, 2, 1].map(s => `<div class="${cur.includes(s) ? 'on' : ''}"><b>${o.band(s)}</b>${CURVE_OF[s]}</div>`).join('')}</div>
+    ${row(STAGE_UP, true)}${row(STAGE_DN, false)}
     <div class="memo">${o.fold ? `<details class="more"><summary>${o.fold}</summary>${o.memo}</details>` : o.memo}</div>`;
 }
-const curveChip = (s, nm) => `<span class="lv lv${s}">${nm}: ${CURVE_OF[s]}</span>`;
 
 function readerTop(id, title, R, extra) {
   const el = document.getElementById(id), sum = R.summary;
@@ -3283,11 +3323,11 @@ function renderReaders() {
         ` <span class="small">(CBOE ${rdDate({date: it.ldate})})</span>` : '')).join('');
   R.contra.items.forEach(readerPlot);
   renderMarginPeak(R.contra.items.find(it => it.key === 'margin'));
-  const cc = R.contra.summary ? lvOf(R.contra.summary.label) : 0;
-  renderCurve('curve-card', {cur: [cc], chip: cc ? curveChip(cc, '지금') : '', title: '광기·외면 곡선 <span style="white-space:nowrap">— 미국 주식 기준</span>', band: s => s + '점',
-    intro: "'🔄 역발상 판독기' 탭의 <b>미국 투자자 심리 종합 점수</b>(지표 5개 평균)가 곡선의 어디쯤인지 보여줘요.",
+  const umk = curveMk(['nasdaq', 'sp500']), cs = R.contra.summary;
+  if (umk.length) renderCurve('curve-card', {mk: umk, title: '광기·외면 곡선 <span style="white-space:nowrap">— 미국 주식 기준</span>',
+    intro: `${curveIntro(umk)} 한국 곡선과 같은 규칙이에요.${cs ? `<br><span style="color:var(--muted)">참고: 26.11.05까지는 '🔄 역발상 판독기' <b>심리 점수</b>(설문·풋콜·VIX·빚투·하이일드 5개 평균, 지금 ${cs.score.toFixed(1)}점 ${cs.label})로 정했어요. 설문·빚투(한 달 늦게 나옴)는 천천히 바뀌어서, 지수가 크게 빠져도 '스릴'에 머물렀어요.</span>` : ''}`,
     fold: '💡 <b>보는 법 · 역사 사례</b> — 1800년대 미국 철도주',
-    memo: `<div>· 같은 점수라도 <b>올라가는 길</b>인지 <b>내려가는 길</b>인지는 점수만으로는 몰라요. 역발상 판독기 탭 지표 그래프가 어느 쪽으로 움직이는지 함께 보세요.</div>
+    memo: `<div>· <b>오르는 중/내리는 중</b> = 오늘 온도가 20거래일 전 온도보다 높은지예요. 온도가 칸 경계나 한 달 전 온도 근처면 날마다 단계가 바뀔 수 있어요.</div>
       <div>· <b>외면 단계 신호</b>: 미국 개인투자자 설문에서 "내린다"가 "오른다"보다 훨씬 많아지고, 빚투(신용잔고)가 1년 전보다 줄어요. 역발상 판독기 탭의 <b>Bull/Bear 스프레드</b>·<b>신용잔고</b> 카드가 1점 쪽으로 가는지 보세요.</div>
       <div>· 관심 종목도 게시판·댓글 분위기를 이 곡선에 맞춰 보면 지금 어느 단계인지 가늠하는 데 도움이 돼요.</div>
       <div style="margin-top:6px">· <b>🚂 역사 사례: 1800년대 미국 철도주</b> — 철도는 정말로 세상을 바꾼 산업이었고 주가도 길게 올랐어요. 그래도 그 사이에 <b>+200% 뒤 −50%, +150% 뒤 −45%, +170% 뒤 −30%</b> 같은 큰 하락이 세 번 있었어요. 산업이 진짜 커지는 <b>슈퍼사이클에서도 고점에서 반 토막</b>은 올 수 있어요. "내가 매일 쓰는 AI니까 계속 오르겠지"라는 믿음이 가장 강할 때가 곡선의 '광기' 쪽일 수 있어요.</div>
@@ -3323,7 +3363,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderIdxTemp(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

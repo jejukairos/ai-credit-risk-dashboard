@@ -623,7 +623,7 @@ def fetch_usmkt():
     # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB)·원/달러 환율(KRW=X)·나스닥100(^NDX)·필라델피아 반도체 지수(^SOX). S&P500은 fetch_prices가 sp500.csv로 받음
     import yfinance as yf
     for sym, name, start in [("^TNX", "us10y", "1962-01-01"), ("DX-Y.NYB", "dxy", "2020-01-01"), ("KRW=X", "usdkrw", "2020-01-01"),
-                             ("^NDX", "ndx", "1985-01-01"), ("^SOX", "sox", "1994-01-01")]:
+                             ("^NDX", "ndx", "1985-01-01"), ("^SOX", "sox", "1994-01-01"), ("^IXIC", "nasdaq", "2020-01-01")]:
         v = yf.download(sym, start=start, progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if v.empty:
             raise RuntimeError(f"{sym} 데이터가 비어 있음")
@@ -697,7 +697,8 @@ def _yahoo_chart(sym, interval, rng):
     return r.json()["chart"]["result"][0]
 
 
-US_TODAY = [("^GSPC", "sp500"), ("^IXIC", "nasdaq"), ("^DJI", "dow"), ("IWM", "iwm"), ("CL=F", "oil"), ("GC=F", "gold"), ("BTC-USD", "btc")]
+US_TODAY = [("^GSPC", "sp500"), ("^IXIC", "nasdaq"), ("^DJI", "dow"), ("IWM", "iwm"), ("CL=F", "oil"), ("GC=F", "gold"), ("BTC-USD", "btc"),
+            ("NQ=F", "nq"), ("ES=F", "es"), ("YM=F", "ym")]  # 지수선물 3개 = 지수 온도용
 
 
 def fetch_us_today():
@@ -709,7 +710,8 @@ def fetch_us_today():
         m, cl = d["meta"], [c for c in d["indicators"]["quote"][0]["close"] if c is not None]
         close, prev = float(m["regularMarketPrice"]), float(cl[-2])
         o = {"close": round(close, 2), "prev": round(prev, 2), "chg": round(close - prev, 2), "pct": round((close / prev - 1) * 100, 2),
-             "kst": datetime.fromtimestamp(m["regularMarketTime"], KST).strftime("%m/%d %H:%M")}
+             "kst": datetime.fromtimestamp(m["regularMarketTime"], KST).strftime("%m/%d %H:%M"),
+             "day": datetime.fromtimestamp(d["timestamp"][-1] + m["gmtoffset"], timezone.utc).strftime("%Y-%m-%d")}  # 마지막 일봉 날짜(거래소 시간)
         if k in ("sp500", "nasdaq", "dow", "iwm"):
             i = _yahoo_chart(sym, "5m", "1d")
             off, reg = i["meta"]["gmtoffset"], i["meta"]["currentTradingPeriod"]["regular"]
@@ -1027,8 +1029,7 @@ def build_kr_investors():
 
 
 def build_kr_thermo():
-    # 시장 온도계: 온도 = (지수 ÷ 50일 평균 × 100 − 90) × 4 를 0~100도로 자름 → 50일 이격 110 = 80도(과열 경고선), 90 이하 = 0도.
-    # 사용자가 보내 준 다른 채널 '시장 온도계'(10/28·10/29 값)와 같은 식임을 확인(README)
+    # 한국 시장 폭·수급·200일선 위 비율(ADR·200일선 섹션용). 온도는 build_idx_temp로 옮김(26.11.06, −100~100도)
     tvp, bp = os.path.join(DATA, "trading_value.csv"), os.path.join(DATA, "kr_breadth.csv")
     if not os.path.exists(tvp):
         return None
@@ -1043,8 +1044,7 @@ def build_kr_thermo():
         idx = t[c + "_idx"].dropna()
         ma = idx.rolling(50).mean()
         disp = (idx / ma * 100).dropna()
-        temp = ((disp - 90) * 4).clip(0, 100)
-        o = {"x": list(disp.index), "temp": [round(float(v), 1) for v in temp], "disp": [round(float(v), 2) for v in disp],
+        o = {"x": list(disp.index),
              "last": round(float(idx.iloc[-1]), 2), "chg": round(float(idx.iloc[-1] / idx.iloc[-2] - 1) * 100, 2), "ma50": round(float(ma.iloc[-1]), 1)}
         if b is not None:
             m = b[b["market"] == c].sort_values("date")
@@ -1063,6 +1063,63 @@ def build_kr_thermo():
             o["flow"] = {"date": r["date"], **{k: int(r[k]) for k in ("foreign", "inst", "indiv")}}
         out[c] = o
     return out
+
+
+# 지수 온도(🚦 시장 탭 맨 위, 사용자가 받은 그림 '지수 온도' 26.11.06을 그대로 따름) + 광기·외면 곡선 단계(미국·한국 같은 규칙)
+IDX_TEMP = [("kospi", "코스피", "kospi_long.csv", None), ("kosdaq", "코스닥", "kosdaq_long.csv", None),
+            ("nasdaq", "나스닥", "nasdaq.csv", "nq"), ("sp500", "S&P500", "sp500.csv", "es"), ("dow", "다우", "dow.csv", "ym")]
+TEMP_LOWS = [("금융위기", "2008-10"), ("코로나", "2020-03"), ("", "2026-07")]  # 그림에 적힌 코스피 역대 영하(숫자는 여기서 다시 셈)
+
+
+def idx_temp(disp):
+    # 50일 이격 → 온도: 110 = 80도 · 100 = 40도 · 90 = 0도 · 70 = −80도, −100~100도에서 자름
+    return max(-100.0, min(100.0, (disp - 90) * 4))
+
+
+def curve_stage(t, up):
+    # 광기·외면 곡선 단계(이 대시보드 규칙, 26.11.06): 온도 + 한 달(20거래일) 전 온도보다 오르는 중(up)인지 내리는 중인지
+    if up:
+        for lim, n in ((-20, "분노"), (0, "외면"), (40, "희망~안정"), (80, "낙관~흥분"), (95, "스릴")):
+            if t < lim:
+                return n
+        return "광기"
+    if t >= 95:
+        return "광기"
+    for lim, n in ((-20, "패닉"), (0, "공포"), (40, "짜증")):
+        if t < lim:
+            return n
+    return "부정"
+
+
+assert idx_temp(110) == 80 and idx_temp(70) == -80 and idx_temp(60) == -100
+assert [curve_stage(x, True) for x in (-50, -5, 10, 50, 90, 99)] == ["분노", "외면", "희망~안정", "낙관~흥분", "스릴", "광기"]
+assert [curve_stage(x, False) for x in (99, 60, 10, -5, -50)] == ["광기", "부정", "짜증", "공포", "패닉"]
+
+
+def build_idx_temp():
+    # 지금 값 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100 (그림 15:40 숫자와 같아지는 식), 지난 날 = 그날 종가 ÷ 그날까지 50거래일 평균.
+    # 미국은 마지막 종가 다음 날 지수선물(Yahoo NQ=F·ES=F·YM=F, fetch_us_today)이 거래 중이면 '종가 × (1 + 선물 변화율)'을 오늘 값으로 씀
+    tp = os.path.join(DATA, "us_today.json")
+    fut = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else {}
+    rows, lows = [], []
+    for k, name, f, fk in IDX_TEMP:
+        p = os.path.join(DATA, f)
+        if not os.path.exists(p):
+            continue
+        s = pd.read_csv(p, dtype={"date": str}).set_index("date").sort_index()[k].dropna()
+        hist = ((s / s.rolling(50).mean() * 100 - 90) * 4).clip(-100, 100)
+        F = fut.get(fk) if fk else None
+        if F and F.get("day", "") > s.index[-1]:
+            v, pct, date, ma, ref = float(s.iloc[-1]) * (1 + F["pct"] / 100), F["pct"], F["day"], s.iloc[-50:].mean(), hist.iloc[-20]
+        else:
+            v, pct, date, ma, ref = float(s.iloc[-1]), (s.iloc[-1] / s.iloc[-2] - 1) * 100, s.index[-1], s.iloc[-51:-1].mean(), hist.iloc[-21]
+        disp = v / ma * 100
+        tt = idx_temp(disp)
+        rows.append({"k": k, "name": name, "date": date, "est": date != s.index[-1], "disp": round(float(disp), 1), "temp": round(float(tt), 2), "pct": round(float(pct), 2),
+                     "ref": round(float(ref), 1), "up": bool(tt >= ref), "stage": curve_stage(tt, tt >= ref)})
+        if k == "kospi":
+            lows = [[n, m, round(float(hist[hist.index.str.startswith(m)].min()), 2)] for n, m in TEMP_LOWS if hist.index.str.startswith(m).any()]
+    return {"made": now_kst(), "rows": rows, "lows": lows} if rows else None
 
 
 WISE = "https://navercomp.wisereport.co.kr/v2/company"
@@ -2980,6 +3037,7 @@ def build():
     out["hynix_inv"] = build_hynix_inv()
     out["supply"] = build_equity_supply()
     out["kr_thermo"] = build_kr_thermo()
+    out["idx_temp"] = build_idx_temp()
     tp = os.path.join(DATA, "kr_today.json")
     out["kr_today"] = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else None
     out["kr_investors"] = build_kr_investors()
