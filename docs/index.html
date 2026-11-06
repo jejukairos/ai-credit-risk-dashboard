@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-liq">MMF·M2</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-adr">ADR</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -216,7 +216,7 @@ footer a{color:var(--ink2)}
   <div id="ustoday"></div>
   <p class="note" style="margin:6px 4px 2px">자료: 지수 — Yahoo Finance(^GSPC·^IXIC·^DJI, 러셀2000은 ETF IWM) 5분 단위, 미국 동부 시간, 점선 = 전날 종가 · 종목 수 — <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz</a> 첫 화면(NYSE·Nasdaq·AMEX 전체, 괄호 = 종목 수, %는 Finviz 값 그대로). 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신. 종목 수는 미국 장 마감 뒤 값만 날마다 쌓여요(2026-10-30부터). 🌤·🌧 한 줄 판정 = S&amp;P500 방향과 '오른 종목 수 vs 내린 종목 수'를 비교한 이 대시보드의 규칙이에요.</p>
 
-  <h2 id="sec-sp500">📈 미국 지수 — S&amp;P500 · 다우 · QQQ · SOXX</h2>
+  <h2 id="sec-sp500">📈 미국 지수 — S&amp;P500 · QQQ · SOXX · 다우</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>S&amp;P500</b>은 미국 대표 회사 500곳, <b>다우</b>는 30곳의 주가를 모은 지수예요. <b>QQQ</b>(나스닥 큰 회사 100곳)·<b>SOXX</b>(미국 반도체 회사들)는 여러 주식을 한 바구니에 담아 사고파는 <b>ETF</b>예요.</div>
@@ -251,23 +251,6 @@ footer a{color:var(--ink2)}
     <div id="yieldplot" class="plot" style="height:250px"></div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 재무부 자료가 시작된 1990년부터 쌓여 있고(30년물은 2002~2006년에 발행을 쉬어서 빈칸), 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1990년~).</p>
   </div>
-
-  <h2 id="sec-liq">💧 미국 MMF · M2 — 돈이 어디에 쌓였나</h2>
-  <div class="glossary">
-    <div><b>MMF</b>(머니마켓펀드) 안전한 곳에 굴리며 이자를 받는 <b>대기 자금 통장</b>이에요. MMF에 돈이 <b>들어오면</b> 사람들이 현금을 쌓아 두는 거고, <b>빠지면</b> 그 돈이 주식 같은 곳으로 나갔거나 쓰였을 수 있어요.</div>
-    <div><b>M2</b> 미국에 풀린 돈의 총량이에요(현금 + 예금 + 개인용 MMF 등). 계속 늘면 시장에 돈이 많아진다는 뜻이고, 줄면 돈이 마르는 거예요.</div>
-  </div>
-  <div class="card"><h3><span>MMF — 돈이 들어왔나, 빠졌나</span><span class="small">ICI · 매주</span></h3>
-    <div class="fgchips" id="mmfchips"></div>
-    <div id="mmfplot" class="plot" style="height:330px"></div></div>
-  <div class="card" id="mmfqcard"><h3><span>MMF 긴 흐름 — 1974년부터</span><span class="small">연준 · 3개월마다</span></h3>
-    <p class="note" style="margin:0 0 6px">연준이 3개월마다 내는 기록이라 아주 옛날부터 볼 수 있어요. 세는 범위가 더 넓어서 위 ICI 숫자보다 조금 커요. 발표가 늦어 최근 몇 달은 아직 없어요. 기간 버튼과 상관없이 늘 처음부터 보여요.</p>
-    <div class="fgchips" id="mmfqchips"></div>
-    <div id="mmfqplot" class="plot" style="height:330px"></div></div>
-  <div class="card"><h3><span>M2 — 미국에 풀린 돈</span><span class="small">매달</span></h3>
-    <div class="fgchips" id="m2chips"></div>
-    <div id="m2plot" class="plot" style="height:330px"></div></div>
-  <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · MMF 긴 흐름 — FRED <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 Z.1 금융계정, MMF 총금융자산, 3개월마다, 1974년 1분기~. 날짜는 분기 첫날, 값은 분기 말 잔고. 증감 = 바로 전 분기 대비) · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
 
   <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
   <div class="card">
@@ -363,14 +346,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </details></div>
 
-  <h2 id="sec-usmargin">💳 미국 신용잔고 증가율 — 빚투가 꺾이면 주가도?</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px"><div><b>신용잔고 증가율</b> = 미국 투자자들이 증권사에서 <b>돈을 빌려 산 주식</b> 금액이 1년 전보다 몇 % 늘었는지예요. 빚투가 빠르게 늘다가(점선 40% 위) 꺾이면, 그 무렵이나 몇 달 뒤 주가도 고점이었던 때가 많았어요.</div></div>
-    <div class="fgchips" id="usmgchips"></div>
-    <div id="usmgplot" class="plot" style="height:320px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noopener">FINRA 신용잔고</a>(Debit Balances, 월말, 약 3주 뒤 발표) · S&amp;P500 월말 종가 Yahoo Finance(^GSPC, 이번 달은 지금까지, 고른 기간 최고점 = 100으로 맞춰 겹침). 증가율 = 그 달 잔고 ÷ 1년 전 같은 달 잔고 − 1. 점선 40%와 '고점이 같거나 2·3·9개월 먼저 왔다'는 설명 = 사용자 제공 그림 [표1](미국 금융감독청·블룸버그, 2026년 9월 말 기준). 동그라미 = 40%를 넘은 구간마다 가장 높은 달. 위 기간 버튼을 따라 바뀌어요(전체 = 1998년~). 매일 확인해서 새 달 숫자가 나오면 바로 들어가요.</p>
-  </div>
-
   <h2 id="sec-dxy">달러인덱스 (달러 가치)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -390,6 +365,31 @@ footer a{color:var(--ink2)}
     <div id="wtiplot" class="plot" style="height:240px"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(WTI 원유 근월물 선물, CL=F), 매일 갱신. 2020년 4월엔 코로나로 기름이 남아돌아 하루 동안 마이너스(−37.63달러)가 된 적도 있어요. 위 기간 버튼으로 길게 볼 수 있어요(전체 = Yahoo에 자료가 있는 2000년 8월~).</p>
   </div>
+
+  <h2 id="sec-usmargin">💳 미국 신용잔고 증가율 — 빚투가 꺾이면 주가도?</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div><b>신용잔고 증가율</b> = 미국 투자자들이 증권사에서 <b>돈을 빌려 산 주식</b> 금액이 1년 전보다 몇 % 늘었는지예요. 빚투가 빠르게 늘다가(점선 40% 위) 꺾이면, 그 무렵이나 몇 달 뒤 주가도 고점이었던 때가 많았어요.</div></div>
+    <div class="fgchips" id="usmgchips"></div>
+    <div id="usmgplot" class="plot" style="height:320px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noopener">FINRA 신용잔고</a>(Debit Balances, 월말, 약 3주 뒤 발표) · S&amp;P500 월말 종가 Yahoo Finance(^GSPC, 이번 달은 지금까지, 고른 기간 최고점 = 100으로 맞춰 겹침). 증가율 = 그 달 잔고 ÷ 1년 전 같은 달 잔고 − 1. 점선 40%와 '고점이 같거나 2·3·9개월 먼저 왔다'는 설명 = 사용자 제공 그림 [표1](미국 금융감독청·블룸버그, 2026년 9월 말 기준). 동그라미 = 40%를 넘은 구간마다 가장 높은 달. 위 기간 버튼을 따라 바뀌어요(전체 = 1998년~). 매일 확인해서 새 달 숫자가 나오면 바로 들어가요.</p>
+  </div>
+
+  <h2 id="sec-liq">💧 미국 MMF · M2 — 돈이 어디에 쌓였나</h2>
+  <div class="glossary">
+    <div><b>MMF</b>(머니마켓펀드) 안전한 곳에 굴리며 이자를 받는 <b>대기 자금 통장</b>이에요. MMF에 돈이 <b>들어오면</b> 사람들이 현금을 쌓아 두는 거고, <b>빠지면</b> 그 돈이 주식 같은 곳으로 나갔거나 쓰였을 수 있어요.</div>
+    <div><b>M2</b> 미국에 풀린 돈의 총량이에요(현금 + 예금 + 개인용 MMF 등). 계속 늘면 시장에 돈이 많아진다는 뜻이고, 줄면 돈이 마르는 거예요.</div>
+  </div>
+  <div class="card"><h3><span>MMF — 돈이 들어왔나, 빠졌나</span><span class="small">ICI · 매주</span></h3>
+    <div class="fgchips" id="mmfchips"></div>
+    <div id="mmfplot" class="plot" style="height:330px"></div></div>
+  <div class="card" id="mmfqcard"><h3><span>MMF 긴 흐름 — 1974년부터</span><span class="small">연준 · 3개월마다</span></h3>
+    <p class="note" style="margin:0 0 6px">연준이 3개월마다 내는 기록이라 아주 옛날부터 볼 수 있어요. 세는 범위가 더 넓어서 위 ICI 숫자보다 조금 커요. 발표가 늦어 최근 몇 달은 아직 없어요. 기간 버튼과 상관없이 늘 처음부터 보여요.</p>
+    <div class="fgchips" id="mmfqchips"></div>
+    <div id="mmfqplot" class="plot" style="height:330px"></div></div>
+  <div class="card"><h3><span>M2 — 미국에 풀린 돈</span><span class="small">매달</span></h3>
+    <div class="fgchips" id="m2chips"></div>
+    <div id="m2plot" class="plot" style="height:330px"></div></div>
+  <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · MMF 긴 흐름 — FRED <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 Z.1 금융계정, MMF 총금융자산, 3개월마다, 1974년 1분기~. 날짜는 분기 첫날, 값은 분기 말 잔고. 증감 = 바로 전 분기 대비) · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
   <div class="card" id="cdsboard"></div>
@@ -955,7 +955,7 @@ footer a{color:var(--ink2)}
     D램 — <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce/DRAMeXchange</a> 공개 시세·주간 기사 ·
     VIX — Yahoo Finance(CBOE) · 하이일드 스프레드 — FRED(ICE BofA US High Yield OAS) ·
     미수금·반대매매 — 금융투자협회 · 코스피 MDD — <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> · 거래대금 — <a href="https://finance.daum.net/domestic/kospi" target="_blank" rel="noopener">다음 금융</a> · 국민연금 —<a href="https://fund.nps.or.kr" target="_blank" rel="noopener">기금운용본부</a> ·
-    판독기 — AAII · CBOE · FINRA · FactSet · 위키백과(S&amp;P500 종목 목록) · Yahoo Finance · 시장 탭 — 밸류 신호등(사용자의 다른 대시보드)이 모은 숫자(출처는 탭 아래).
+    판독기 — AAII · CNN(풋/콜 5일 평균) · FINRA ·FactSet · 위키백과(S&amp;P500 종목 목록) · Yahoo Finance · 시장 탭 — 밸류 신호등(사용자의 다른 대시보드)이 모은 숫자(출처는 탭 아래).
     투자 권유가 아닌 참고용 정보입니다. 신용등급은 S&amp;P 기준 참고용(2026-10)이며, 스프레드는 그 회사 채권이 아니라 같은 등급 회사들의 평균입니다. 소프트뱅크그룹 주가는 도쿄증시(엔화)입니다.
   </footer>
 </div>
@@ -2493,7 +2493,7 @@ function renderLiquidity() {
 function renderUsmkt() {
   renderLiquidity();
   [['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
-  mktBlock('mkt-etf', [['sp500', 'S&amp;P500', 'pt', 2], ['dow', '다우', 'pt', 2], ['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2]]);
+  mktBlock('mkt-etf', [['sp500', 'S&amp;P500', 'pt', 2], ['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2], ['dow', '다우', 'pt', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
   renderUsToday();
   const G = DATA.credit_growth && DATA.credit_growth.us;
@@ -2810,9 +2810,9 @@ const RD = {
   aaii: {name: 'Bull/Bear 스프레드', sub: '매주 · 단기', unit: '%p', d: 1, sign: true,
     desc: '미국 개인투자자에게 "6개월 뒤 주가가 오를까?" 물어서 <b>오른다(%) − 내린다(%)</b>를 낸 값이에요. 클수록 다들 낙관적이에요.',
     src: [['AAII 투자자 심리 설문', 'https://www.aaii.com/sentimentsurvey']]},
-  putcall: {name: '풋/콜 비율 (주식)', sub: '매일 · 단기', unit: '', d: 2,
-    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요.',
-    src: [['CBOE 일별 옵션 통계', 'https://www.cboe.com/us/options/market_statistics/daily/']]},
+  putcall: {name: '풋/콜 비율 (5일 평균)', sub: '매일 · 단기', unit: '', d: 2,
+    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요. CNN 공포·탐욕 지수에 들어가는 값(CBOE 전체 풋/콜의 5일 평균)이고, 점수도 CNN 판정을 그대로 따라요.',
+    src: [['CNN 공포·탐욕 지수 (Put and Call Options)', 'https://edition.cnn.com/markets/fear-and-greed'], ['CBOE 일별 옵션 통계', 'https://www.cboe.com/us/options/market_statistics/daily/']]},
   vix: {name: 'VIX (공포지수)', sub: '매일 · 단기', unit: '', d: 2,
     desc: '앞으로 한 달 증시가 얼마나 출렁일지에 거는 보험료예요. <b>낮을수록</b> 다들 마음을 놓고 있어요.',
     src: [['Yahoo Finance (^VIX)', 'https://finance.yahoo.com/quote/%5EVIX/']]},
@@ -2901,8 +2901,28 @@ function readerCard(it, extraMeta) {
     <div class="small" style="margin:0 4px">${m.desc}</div>
     <div class="bands">${it.bands.map((b, i) => `<div class="${5 - i === it.score ? 'on' : ''}"><b>${5 - i}점</b>${b}</div>`).join('')}</div>
     <div id="rd-${it.key}" class="plot" style="height:200px"></div>
-    ${m.memo ? `<div class="small" style="margin:2px 4px">${m.memo}</div>` : ''}
+    ${it.hist ? aaiiMore(it) : ''}
+    ${m.memo ?`<div class="small" style="margin:2px 4px">${m.memo}</div>` : ''}
     ${m.src ? `<div class="small" style="margin:4px">자료: ${m.src.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ')}</div>` : ''}</div>`;
+}
+
+// AAII 자세히: 이번 주 강세·중립·약세(전체 평균과 비교) + 1987년~ 주마다 기록 표(펼칠 때 그림)
+function aaiiMore(it) {
+  const h = it.hist, L = h.d.length - 1;
+  const box = [['강세', 'b', '--good'], ['중립', 'n', '--warn'], ['약세', 'r', '--bad']].map(([nm, k, c], i) => `<div style="flex:1;min-width:0">
+    <div class="small" style="color:var(${c});font-weight:700">${nm}</div><div style="font-size:20px;font-weight:800;color:var(${c})">${h[k][L].toFixed(1)}%</div>
+    <div class="small">평균 ${it.avg[i].toFixed(1)}%</div><div style="height:6px;border-radius:3px;background:var(--line);margin-top:4px"><div style="height:6px;border-radius:3px;width:${h[k][L]}%;background:var(${c})"></div></div></div>`).join('');
+  return `<details class="fold" ontoggle="aaiiTable(this)"><summary><b>자세히 — 이번 주 결과 · 1987년부터 전체 기록</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+    <div class="small" style="margin:6px 4px">${h.d[L]} 발표 (그 주 설문)</div>
+    <div style="display:flex;gap:10px;margin:0 4px">${box}</div>
+    <div class="small" style="margin:8px 4px">Bull−Bear 스프레드 <b>${rdVal(it)}</b> · 평균 = 1987년 7월부터 모든 주의 평균(이 대시보드 계산이라 AAII 화면과 0.1 정도 다를 수 있어요)</div>
+    <div class="tablebox" style="max-height:360px;overflow-y:auto"><table><thead><tr><th>발표일</th><th>강세</th><th>중립</th><th>약세</th><th>스프레드</th></tr></thead><tbody></tbody></table></div></details>`;
+}
+function aaiiTable(el) {
+  const tb = el.querySelector('tbody');
+  if (!el.open || tb.children.length) return;
+  const h = DATA.readers.contra.items.find(i => i.key === 'aaii').hist, p = v => v.toFixed(1) + '%';
+  tb.innerHTML = h.d.map((d, i) => `<tr><td>${d}</td><td>${p(h.b[i])}</td><td>${p(h.n[i])}</td><td>${p(h.r[i])}</td><td>${(h.s[i] > 0 ? '+' : '') + h.s[i].toFixed(1)}</td></tr>`).reverse().join('');
 }
 
 function readerPlot(it) {

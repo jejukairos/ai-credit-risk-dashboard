@@ -305,10 +305,19 @@ def fetch_fear_greed():
     if old is not None:
         new = pd.concat([old, new])
     new.drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
+    # 역발상 판독기 풋/콜 = CNN의 '5일 평균 풋/콜 비율'(CBOE 전체 풋/콜의 5일 평균) 기록 + CNN이 이 지표에 매긴 점수·단계
+    pc = j["put_call_options"]
+    pp = os.path.join(DATA, "putcall_cnn.csv")
+    prow = pd.DataFrame([{"date": datetime.fromtimestamp(p["x"] / 1000, timezone.utc).strftime("%Y-%m-%d"),
+                          "ratio5": round(float(p["y"]), 3)} for p in pc["data"]])
+    if os.path.exists(pp):
+        prow = pd.concat([pd.read_csv(pp, dtype={"date": str}), prow])
+    prow.drop_duplicates("date", keep="last").sort_values("date").to_csv(pp, index=False)
     with open(os.path.join(DATA, "fear_greed_now.json"), "w", encoding="utf-8") as f:
         json.dump({"score": round(float(now["score"]), 1), "rating": now["rating"], "timestamp": now["timestamp"],
                    "previous_close": now.get("previous_close"), "previous_1_week": now.get("previous_1_week"),
-                   "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
+                   "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year"),
+                   "putcall": {"score": round(float(pc["score"]), 1), "rating": pc["rating"]}}, f)
 
 
 # ---------- Silicon Data 지수 (GPU 임대·LLM 토큰 가격, 공개 페이지에 실린 최근 30일치를 매일 저장) ----------
@@ -768,11 +777,21 @@ US_ETFS = ["SPY", "QQQ", "SOXX", "DIA", "MAGS", "DRAM", "AIPO", "LYTE", "NCLD"]
 def fetch_us_etfs():
     # 미국 ETF 일별 종가·장중 최고가(Yahoo, 1999년 또는 상장 뒤부터): QQQ·SOXX 섹션(전체 기간), 고점 대비 하락률(2020년~만)에 씀
     import yfinance as yf
-    d = yf.download(US_ETFS, start="1999-01-01", progress=False, auto_adjust=False, threads=False)
+    d = yf.download(US_ETFS, start="1999-01-01", progress=False, auto_adjust=False, threads=False, actions=True)
     miss = [t for t in US_ETFS if d["Close"][t].dropna().empty]
     if miss:
         raise RuntimeError("ETF 주가 없음: " + ", ".join(miss))
     df = pd.concat([d["Close"][US_ETFS], d["High"][US_ETFS].add_suffix("_high")], axis=1).round(2)
+    # Yahoo가 분할 직전 며칠을 분할 전 가격 그대로 줄 때가 있음(26.11.05 SOXX 3:1 → 11/02~04만 3배) → 분할 직전 10일 안에서
+    # 하루 만에 분할 비율만큼 뛴 날부터 분할 전날까지만 비율로 나눔. Yahoo가 고치면 뛴 날이 없어져 저절로 안 함
+    for t in US_ETFS:
+        for s, r in d["Stock Splits"][t][lambda x: x > 0].items():
+            pre = df[t][df.index < s].dropna().tail(10)
+            j = pre / pre.shift(1)
+            jump = j[(j > r * 0.85) & (j < r * 1.15)]
+            if len(jump):
+                bad = (df.index >= jump.index[-1]) & (df.index < s)
+                df.loc[bad, [t, t + "_high"]] = (df.loc[bad, [t, t + "_high"]] / r).round(2)
     df.index = pd.to_datetime(df.index).strftime("%Y-%m-%d")
     df.rename_axis("date").to_csv(os.path.join(DATA, "us_etfs.csv"))
 
@@ -1547,35 +1566,6 @@ def fetch_aaii():
                         "neutral": df[2].astype(float) * 100, "bearish": df[3].astype(float) * 100,
                         "spread": df[6].astype(float) * 100})
     out.drop_duplicates("date", keep="last").round(1).to_csv(os.path.join(DATA, "aaii.csv"), index=False)
-
-
-def fetch_putcall():
-    # CBOE 일별 옵션 통계의 '주식(EQUITY) 풋/콜 비율'. 하루치씩 주므로 없는 날짜만 받아 쌓음(처음엔 1년치)
-    path = os.path.join(DATA, "putcall.csv")
-    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else pd.DataFrame(columns=["date", "equity", "total"])
-    today = datetime.now(timezone(timedelta(hours=-5))).date()  # 미국 동부 기준
-    d = today - timedelta(days=365)
-    if len(old):
-        d = max(d, datetime.strptime(old["date"].max(), "%Y-%m-%d").date() + timedelta(days=1))
-    rows, errs = [], 0
-    while d <= today:
-        if d.weekday() < 5:
-            r = requests.get(f"https://cdn.cboe.com/data/us/options/market_statistics/daily/{d.isoformat()}_daily_options",
-                             headers=UA, timeout=30)
-            if r.status_code == 200:  # 휴장일·아직 안 나온 날은 403
-                ratios = {x.get("name"): x.get("value") for x in r.json().get("ratios", [])}
-                try:
-                    rows.append({"date": d.isoformat(), "equity": float(ratios["EQUITY PUT/CALL RATIO"]),
-                                 "total": float(ratios.get("TOTAL PUT/CALL RATIO") or "nan")})
-                except (KeyError, ValueError):
-                    errs += 1
-            elif r.status_code not in (403, 404):
-                errs += 1
-        d += timedelta(days=1)
-    allr = pd.concat([old, pd.DataFrame(rows)]).drop_duplicates("date", keep="last").sort_values("date")
-    if allr.empty or (today - datetime.strptime(allr["date"].max(), "%Y-%m-%d").date()).days > 7:
-        raise RuntimeError(f"최근 풋/콜 비율을 못 받음 (오류 {errs}건)")
-    allr.to_csv(path, index=False)
 
 
 def xlsx_rows(content):
@@ -2621,6 +2611,26 @@ def _item(key, s, rule, digits=2, extra=None):
             "x": list(s.index), "y": [round(float(a), digits) for a in s.values], **(extra or {})}
 
 
+def _pc_item():
+    # 풋/콜: 값 = CNN 5일 평균 풋/콜 비율, 점수 = CNN이 이 지표에 매긴 단계 그대로(극단적 공포 1 ~ 극단적 탐욕 5)
+    s = _csv_series("putcall_cnn.csv", "ratio5")
+    now = json.load(open(os.path.join(DATA, "fear_greed_now.json"), encoding="utf-8")).get("putcall")
+    if s is None or s.empty or not now:
+        return {"key": "putcall", "value": None}
+    sc = config.CNN_RATING_SCORE[now["rating"]]
+    bands = ["CNN 극단적 탐욕", "CNN 탐욕", "CNN 중립", "CNN 공포", "CNN 극단적 공포"]
+    return {"key": "putcall", "value": round(float(s.iloc[-1]), 2), "date": s.index[-1], "score": sc,
+            "label": config.READER_LABELS[sc - 1], "why": f"CNN 판정 '{bands[5 - sc][4:]}' (CNN 지표 점수 {now['score']:.0f}/100)",
+            "bands": bands, "cuts": [], "x": list(s.index), "y": [round(float(a), 3) for a in s.values]}
+
+
+def _aaii_hist():
+    # AAII 자세히 보기: 1987년~ 주마다 강세·중립·약세(%)와 전체 평균
+    d = pd.read_csv(os.path.join(DATA, "aaii.csv"), dtype={"date": str}).sort_values("date")
+    return {"hist": {"d": d["date"].tolist(), **{k: d[c].round(1).tolist() for k, c in (("b", "bullish"), ("n", "neutral"), ("r", "bearish"), ("s", "spread"))}},
+            "avg": [round(float(d[c].mean()), 1) for c in ("bullish", "neutral", "bearish")]}
+
+
 def _hy_item():
     s = _csv_series("hy_spread.csv", "hy")
     if s is None or s.empty:
@@ -2665,8 +2675,8 @@ def build_readers():
         last_debit = float(m["debit"].iloc[-1])
         debits = [round(float(a) / 1000, 1) for a in m["debit"][ok]]  # 표용, 십억 달러
     contra = [
-        _item("aaii", _csv_series("aaii.csv", "spread", since="2015-01-01"), config.CONTRA_RULES["aaii"], 1),
-        _item("putcall", _csv_series("putcall.csv", "equity"), config.CONTRA_RULES["putcall"], 2),
+        _item("aaii", _csv_series("aaii.csv", "spread", since="2015-01-01"), config.CONTRA_RULES["aaii"], 1, _aaii_hist()),
+        _pc_item(),
         _item("vix", _csv_series("vix.csv", "vix"), config.CONTRA_RULES["vix"], 2),
         _item("margin", margin, config.CONTRA_RULES["margin"], 1,
               {"debit_b": round(last_debit / 1000, 1), "debits": debits} if margin is not None else None),
@@ -2928,7 +2938,7 @@ def main():
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
              ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
-             ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
+             ("투자자 심리 설문(AAII)", fetch_aaii), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
     for name, fn in steps:
