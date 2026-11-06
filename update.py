@@ -620,9 +620,10 @@ def fetch_wti():
 
 
 def fetch_usmkt():
-    # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB)·원/달러 환율(KRW=X). S&P500은 fetch_prices가 sp500.csv로 받음
+    # 미국채 10년물 금리(%, ^TNX)·달러인덱스(DX-Y.NYB)·원/달러 환율(KRW=X)·나스닥100(^NDX)·필라델피아 반도체 지수(^SOX). S&P500은 fetch_prices가 sp500.csv로 받음
     import yfinance as yf
-    for sym, name, start in [("^TNX", "us10y", "1962-01-01"), ("DX-Y.NYB", "dxy", "2020-01-01"), ("KRW=X", "usdkrw", "2020-01-01")]:
+    for sym, name, start in [("^TNX", "us10y", "1962-01-01"), ("DX-Y.NYB", "dxy", "2020-01-01"), ("KRW=X", "usdkrw", "2020-01-01"),
+                             ("^NDX", "ndx", "1985-01-01"), ("^SOX", "sox", "1994-01-01")]:
         v = yf.download(sym, start=start, progress=False, auto_adjust=False)["Close"].squeeze().dropna()
         if v.empty:
             raise RuntimeError(f"{sym} 데이터가 비어 있음")
@@ -2366,7 +2367,7 @@ def build_usmkt():
     # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), 환율은 최고점 대비 하락률
     out = {}
     for fname, col in [("sp500.csv", "sp500"), ("dow.csv", "dow"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX"),
-                      ("kospi_long.csv", "kospi"), ("kosdaq_long.csv", "kosdaq")]:  # 코스피·코스닥 = 네이버 금융 일별 종가(1990·1996년~)
+                      ("kospi_long.csv", "kospi"), ("kosdaq_long.csv", "kosdaq"), ("ndx.csv", "ndx"), ("sox.csv", "sox")]:  # 코스피·코스닥 = 네이버 금융 일별 종가(1990·1996년~)
         path = os.path.join(DATA, fname)
         if not os.path.exists(path):
             continue

@@ -202,7 +202,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -226,6 +226,21 @@ footer a{color:var(--ink2)}
     <div class="memo" id="seasonmemo" style="margin:8px 0"></div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC·다우 ^DJI 지수, QQQ·SOXX 종가는 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = S&amp;P500·다우 2020년~, QQQ 1999년~, SOXX 2001년~).</p>
   </div>
+
+  <h2 id="sec-usdrop">📉 나스닥100 · 반도체 지수 — 하루에 얼마나 빠졌나</h2>
+  <div class="glossary">
+    <div><b>일간 변동률</b> = 하루 동안 지수가 몇 % 오르고 내렸는지예요. 아래 칸 빨간 막대가 길게 내려갈수록 그날 사람들이 겁을 먹고 많이 팔았다는 뜻이에요. <b>파란 선(200일선)</b> = 최근 200거래일(약 10달) 종가 평균이에요. 지수가 이 선 아래로 내려가면 긴 흐름도 약해졌다는 뜻이에요.</div>
+  </div>
+  <div class="bar own p7" role="group" aria-label="나스닥100·반도체 기간" id="dropbar" style="position:static">
+    <button data-d="3m">3개월</button><button data-d="6m">6개월</button><button data-d="1y" class="on">1년</button><button data-d="3y">3년</button><button data-d="5y">5년</button><button data-d="10y">10년</button><button data-d="all">전체</button>
+  </div>
+  <div class="card"><h3><span>나스닥100 지수 (^NDX)</span><span class="small" id="dropdate-ndx"></span></h3>
+    <div class="nowline" id="dropsig-ndx"></div>
+    <div id="drop-ndx" class="plot" style="height:380px"></div></div>
+  <div class="card"><h3><span>반도체 지수 (^SOX)</span><span class="small" id="dropdate-sox"></span></h3>
+    <div class="nowline" id="dropsig-sox"></div>
+    <div id="drop-sox" class="plot" style="height:380px"></div></div>
+  <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance 매일 종가(나스닥100 ^NDX 1985-10~, 필라델피아 반도체 지수 ^SOX 1994-05~). 하루 변동률 = 그날 종가 ÷ 전날 종가 − 1, 200일선 = 최근 200거래일 종가 평균(둘 다 이 화면에서 계산). 동그라미 = 보이는 기간에서 가장 크게 빠진 날과 마지막 날. 🚨·⚠️ 단계 = 이 대시보드의 규칙: 최근 20거래일 중 가장 크게 빠진 날이 그 지수의 모든 날 가운데 하락 폭 하위 0.5% 안이면 🚨 엄청난 공포, 2% 안이면 ⚠️ 큰 공포. 맨 위 기간 버튼을 누르면 같이 바뀌고, 10년은 여기 버튼에만 있어요. 비교: 사용자 제공 그림(26.11.06, user:)의 −6.4%·−12.3%(11/5), 코로나 −12.2%·−15.9%(20.03.16), 파란 선 27,976·10,824와 같은 숫자예요(여기는 소수 둘째 자리까지: −6.36%·−12.25%).</p>
 
   <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
   <div class="glossary">
@@ -2655,6 +2670,62 @@ function mktBlock(boxId, list) {
   });
 }
 
+// 나스닥100·반도체 지수: 위 = 지수 + 200일선, 아래 = 하루 변동률(사용자 요청 26.11.06). 변동률·200일선은 종가로 여기서 계산
+let DROP_PERIOD = '1y';
+function renderUsDrop() {
+  const U = DATA.usmkt;
+  if (!U) return;
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  const sg = (v, d = 2) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(d) + '%', md = s => s.slice(2).replace(/-/g, '.');
+  [['ndx', '나스닥100'], ['sox', '반도체 지수']].forEach(([k, nm]) => {
+    const o = U[k];
+    if (!o) return;
+    const n = o.x.length, last = o.x[n - 1], y = o.y;
+    const pct = y.map((v, i) => i ? (v / y[i - 1] - 1) * 100 : null);
+    let s = 0;
+    const ma = y.map((v, i) => { s += v - (i >= 200 ? y[i - 200] : 0); return i >= 199 ? s / 200 : null; });
+    // 최근 20거래일 중 가장 크게 빠진 날 → 모든 날 중 몇 번째인지, 그보다 더 빠진 마지막 날
+    let r = n - 1;
+    for (let i = Math.max(1, n - 20); i < n; i++) if (pct[i] < pct[r]) r = i;
+    const all = pct.slice(1), rank = all.filter(v => v <= pct[r]).length, share = rank / all.length * 100;
+    let j = r - 1;
+    while (j >= 1 && pct[j] > pct[r]) j--;
+    const lv = pct[r] >= 0 ? null : share <= 0.5 ? ['🚨', '엄청난 공포', '--bad'] : share <= 2 ? ['⚠️', '큰 공포', '--g2'] : ['😐', '평소에 있는 하락', '--ink2'];
+    const gap = (y[n - 1] / ma[n - 1] - 1) * 100;
+    document.getElementById('dropdate-' + k).textContent = md(last) + ' 미국 장 마감';
+    document.getElementById('dropsig-' + k).innerHTML = (lv ? `<span><b style="color:${css(lv[2])}">${lv[0]} ${lv[1]}</b> — 최근 한 달 가장 크게 빠진 날 ${md(o.x[r])} <b style="color:${css('--bad')}">${sg(pct[r])}</b>: ${j >= 1 ? `${o.x[j]}(${sg(pct[j])}) 이후 가장 큰 하락` : `${o.x[0].slice(0, 4)}년 이후 가장 큰 하락`} · ${o.x[0].slice(0, 4)}년 이후 ${fmtNum(all.length, 0)}일 중 ${fmtNum(rank, 0)}번째</span>`
+      : '<span>😊 최근 한 달 동안 빠진 날이 없어요</span>') +
+      `<span>마지막 날 <b>${sg(pct[n - 1])}</b> · 200일선 ${fmtNum(ma[n - 1], 0)}보다 <b style="color:${css(gap >= 0 ? '--good' : '--bad')}">${sg(gap, 1).replace('%', '% ' + (gap >= 0 ? '위' : '아래'))}</b></span>`;
+    const mo = Object.assign({'10y': 120}, PM)[DROP_PERIOD], d = new Date(last);
+    if (mo) d.setMonth(d.getMonth() - mo);
+    const i0 = Math.max(1, o.x.findIndex(x => x >= (mo ? d.toISOString().slice(0, 10) : '')));  // 화면에 보이는 기간만 그림(폰에서 가볍게)
+    const X = o.x.slice(i0), Y = y.slice(i0), M = ma.slice(i0), P = pct.slice(i0);
+    let w = 0;
+    P.forEach((v, i) => { if (v < P[w]) w = i; });
+    const marks = [w, P.length - 1].filter((v, i, a) => a.indexOf(v) === i && P[v] < 0);
+    const ann = marks.filter(i => i < P.length - 1).map(i => ({x: X[i], y: P[i], xref: 'x', yref: 'y2', text: `${md(X[i])} <b>${sg(P[i])}</b>`, showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--bad'),
+      ax: i / P.length > 0.6 ? -30 : 30, ay: 0, xanchor: i / P.length > 0.6 ? 'right' : 'left', font: {size: 11, color: css('--bad')}, bgcolor: css('--surface'), borderpad: 1}));
+    const pr = [Math.min(...P), Math.max(...P)];
+    Plotly.react('drop-' + k, [
+      {x: X, y: Y, type: 'scatter', mode: 'lines', line: {color: css('--ink'), width: mo && mo <= 12 ? 1.6 : 1.1}, hovertemplate: `${nm} %{y:,.2f}<extra></extra>`},
+      {x: X, y: M, type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.4}, hovertemplate: '200일선 %{y:,.0f}<extra></extra>'},
+      {x: X, y: P, type: 'bar', yaxis: 'y2', marker: {color: P.map(v => css(v >= 0 ? '--good' : '--bad')), line: {width: 0}}, hovertemplate: '하루 %{y:+.2f}%<extra></extra>'},
+      {x: marks.map(i => X[i]), y: marks.map(i => P[i]), yaxis: 'y2', type: 'scatter', mode: 'markers', marker: {symbol: 'circle-open', size: 18, color: css('--bad'), line: {width: 2}}, hoverinfo: 'skip'},
+    ], tagLast(Object.assign(baseLayout(), {
+      bargap: 0,
+      xaxis: axis({type: 'date', anchor: 'y2', range: [X[0], last], tickformat: !mo || mo > 36 ? '%Y' : '%y.%m'}),
+      yaxis: axis({domain: [0.44, 0.92], range: padRange(Y.concat(M.filter(v => v != null)), false)}),
+      yaxis2: axis({domain: [0, 0.36], range: [pr[0] * 1.3, Math.max(pr[1] * 1.15, 1)], ticksuffix: '%', zeroline: true, zerolinecolor: css('--line')}),
+      annotations: [lbl(0.93, `${nm} <span style="color:${css('--g1')}">━ 200일선</span>`), lbl(0.37, '하루 변동률')].concat(ann),
+    }), [[Y, 'y', v => fmtNum(v, 0), css('--ink')], [M, 'y', v => fmtNum(v, 0), css('--g1')], [P, 'y2', sg, css(P[P.length - 1] >= 0 ? '--good' : '--bad')]]), CFG);
+  });
+}
+document.querySelectorAll('#dropbar button').forEach(b => b.onclick = () => {
+  DROP_PERIOD = b.dataset.d;
+  document.querySelectorAll('#dropbar button').forEach(x => x.classList.toggle('on', x === b));
+  renderUsDrop();
+});
+
 function renderWti() {
   const w = DATA.wti;
   if (!w) return;
@@ -3252,19 +3323,20 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)
 function syncOwnBars() {
-  KOFIA_PERIOD = PERIOD; ADR_PERIOD = PERIOD;
+  KOFIA_PERIOD = PERIOD; ADR_PERIOD = PERIOD; DROP_PERIOD = PERIOD;
+  document.querySelectorAll('#dropbar button').forEach(x => x.classList.toggle('on', x.dataset.d === DROP_PERIOD));
   document.querySelectorAll('#kofiabar button').forEach(x => x.classList.toggle('on', x.dataset.k === KOFIA_PERIOD));
   document.querySelectorAll('#adrbar button').forEach(x => x.classList.toggle('on', x.dataset.a === ADR_PERIOD));
 }
