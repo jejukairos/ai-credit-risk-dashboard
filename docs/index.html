@@ -2811,7 +2811,7 @@ const RD = {
     desc: '미국 개인투자자에게 "6개월 뒤 주가가 오를까?" 물어서 <b>오른다(%) − 내린다(%)</b>를 낸 값이에요. 클수록 다들 낙관적이에요.',
     src: [['AAII 투자자 심리 설문', 'https://www.aaii.com/sentimentsurvey']]},
   putcall: {name: '풋/콜 비율 (5일 평균)', sub: '매일 · 단기', unit: '', d: 2,
-    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요. 검은 선 <b>5일 평균값</b> = CNN 공포·탐욕 지수에 들어가는 값(CBOE 전체 풋/콜의 5일 평균)이고, 점수는 이 값의 CNN 판정을 따라요. 파란 선 <b>주식만</b>·주황 선 <b>전체</b>(CBOE 표 맨 위 줄)는 하루치 값으로, 비교용이에요(점수엔 안 들어가요).',
+    desc: '"떨어진다"에 거는 옵션(풋) 거래량 ÷ "오른다"에 거는 옵션(콜) 거래량이에요. <b>낮을수록</b> 다들 오른다에 걸고 있어요. 검은 선 <b>5일 평균값</b> = CNN 공포·탐욕 지수에 들어가는 값(CBOE 전체 풋/콜의 5일 평균)이고, 점수는 이 값을 아래 기준에 대서 매겨요. 파란 선 <b>주식만</b>·주황 선 <b>전체</b>(CBOE 표 맨 위 줄)는 하루치 값으로, 비교용이에요(점수엔 안 들어가요).',
     src: [['CNN 공포·탐욕 지수 (Put and Call Options)', 'https://edition.cnn.com/markets/fear-and-greed'], ['CBOE 일별 옵션 통계', 'https://www.cboe.com/us/options/market_statistics/daily/']]},
   vix: {name: 'VIX (공포지수)', sub: '매일 · 단기', unit: '', d: 2,
     desc: '앞으로 한 달 증시가 얼마나 출렁일지에 거는 보험료예요. <b>낮을수록</b> 다들 마음을 놓고 있어요.',
@@ -2912,10 +2912,10 @@ function aaiiMore(it) {
   const box = [['강세', 'b', '--good'], ['중립', 'n', '--warn'], ['약세', 'r', '--bad']].map(([nm, k, c], i) => `<div style="flex:1;min-width:0">
     <div class="small" style="color:var(${c});font-weight:700">${nm}</div><div style="font-size:20px;font-weight:800;color:var(${c})">${h[k][L].toFixed(1)}%</div>
     <div class="small">평균 ${it.avg[i].toFixed(1)}%</div><div style="height:6px;border-radius:3px;background:var(--line);margin-top:4px"><div style="height:6px;border-radius:3px;width:${h[k][L]}%;background:var(${c})"></div></div></div>`).join('');
-  return `<details class="fold" ontoggle="aaiiTable(this)"><summary><b>자세히 — 이번 주 결과 · 1987년부터 전체 기록</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
-    <div class="small" style="margin:6px 4px">${h.d[L]} 발표 (그 주 설문)</div>
+  return `<div style="margin:6px 4px 4px"><b>이번 주 결과</b> <span class="small">${h.d[L]} 발표 (그 주 설문)</span></div>
     <div style="display:flex;gap:10px;margin:0 4px">${box}</div>
     <div class="small" style="margin:8px 4px">Bull−Bear 스프레드 <b>${rdVal(it)}</b> · 평균 = 1987년 7월부터 모든 주의 평균(이 대시보드 계산이라 AAII 화면과 0.1 정도 다를 수 있어요)</div>
+    <details class="fold" ontoggle="aaiiTable(this)"><summary><b>1987년부터 전체 기록</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
     <div class="tablebox" style="max-height:360px;overflow-y:auto"><table><thead><tr><th>발표일</th><th>강세</th><th>중립</th><th>약세</th><th>스프레드</th></tr></thead><tbody></tbody></table></div></details>`;
 }
 function aaiiTable(el) {

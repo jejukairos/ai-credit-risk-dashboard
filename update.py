@@ -305,7 +305,7 @@ def fetch_fear_greed():
     if old is not None:
         new = pd.concat([old, new])
     new.drop_duplicates("date", keep="last").sort_values("date").to_csv(path, index=False)
-    # 역발상 판독기 풋/콜 = CNN의 '5일 평균 풋/콜 비율'(CBOE 전체 풋/콜의 5일 평균) 기록 + CNN이 이 지표에 매긴 점수·단계
+    # 역발상 판독기 풋/콜 = CNN의 '5일 평균 풋/콜 비율'(CBOE 전체 풋/콜의 5일 평균) 기록
     pc = j["put_call_options"]
     pp = os.path.join(DATA, "putcall_cnn.csv")
     prow = pd.DataFrame([{"date": datetime.fromtimestamp(p["x"] / 1000, timezone.utc).strftime("%Y-%m-%d"),
@@ -316,8 +316,7 @@ def fetch_fear_greed():
     with open(os.path.join(DATA, "fear_greed_now.json"), "w", encoding="utf-8") as f:
         json.dump({"score": round(float(now["score"]), 1), "rating": now["rating"], "timestamp": now["timestamp"],
                    "previous_close": now.get("previous_close"), "previous_1_week": now.get("previous_1_week"),
-                   "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year"),
-                   "putcall": {"score": round(float(pc["score"]), 1), "rating": pc["rating"]}}, f)
+                   "previous_1_month": now.get("previous_1_month"), "previous_1_year": now.get("previous_1_year")}, f)
 
 
 # ---------- Silicon Data 지수 (GPU 임대·LLM 토큰 가격, 공개 페이지에 실린 최근 30일치를 매일 저장) ----------
@@ -2641,24 +2640,16 @@ def _item(key, s, rule, digits=2, extra=None):
 
 
 def _pc_item():
-    # 풋/콜: 값 = CNN 5일 평균 풋/콜 비율, 점수 = CNN이 이 지표에 매긴 단계 그대로(극단적 공포 1 ~ 극단적 탐욕 5)
-    s = _csv_series("putcall_cnn.csv", "ratio5")
-    now = json.load(open(os.path.join(DATA, "fear_greed_now.json"), encoding="utf-8")).get("putcall")
-    if s is None or s.empty or not now:
-        return {"key": "putcall", "value": None}
-    sc = config.CNN_RATING_SCORE[now["rating"]]
-    bands = ["CNN 극단적 탐욕", "CNN 탐욕", "CNN 중립", "CNN 공포", "CNN 극단적 공포"]
-    out = {"key": "putcall", "value": round(float(s.iloc[-1]), 2), "date": s.index[-1], "score": sc,
-           "label": config.READER_LABELS[sc - 1], "why": f"점수는 5일 평균값의 CNN 판정 '{bands[5 - sc][4:]}' (CNN 지표 점수 {now['score']:.0f}/100)",
-           "bands": bands, "cuts": [], "x": list(s.index), "y": [round(float(a), 3) for a in s.values]}
-    cb = _csv_series("putcall.csv", "equity")  # 비교용(점수엔 안 씀): CBOE 하루치 '주식만'·'전체(맨 위 줄)'
+    # 풋/콜: 점수 = CNN 5일 평균 풋/콜 비율을 엑셀 점수표(CONTRA_RULES)에 댐. CBOE 하루치 '주식만'·'전체(맨 위 줄)'는 비교용 선
+    extra = None
+    cb = _csv_series("putcall.csv", "equity")
     if cb is not None and len(cb):
         tot = _csv_series("putcall.csv", "total").reindex(cb.index)
-        out.update({"lx": list(cb.index), "ldate": cb.index[-1], "lines": [
+        extra = {"lx": list(cb.index), "ldate": cb.index[-1], "lines": [
             {"name": "주식만", "c": "--g1", "v": float(cb.iloc[-1]), "y": cb.round(2).tolist()},
             {"name": "전체", "c": "--g2", "v": None if pd.isna(tot.iloc[-1]) else float(tot.iloc[-1]),
-             "y": [None if pd.isna(a) else round(float(a), 2) for a in tot]}]})
-    return out
+             "y": [None if pd.isna(a) else round(float(a), 2) for a in tot]}]}
+    return _item("putcall", _csv_series("putcall_cnn.csv", "ratio5"), config.CONTRA_RULES["putcall"], 2, extra)
 
 
 def _aaii_hist():
