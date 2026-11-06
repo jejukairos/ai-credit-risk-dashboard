@@ -2323,7 +2323,8 @@ def build_wti():
 def build_usmkt():
     # 2020년~ 차트(화면 기간 버튼으로 자름) + 지금 값, 전일·1주 전·1달 전 대비 변화(금리는 %p 차이, 나머지는 %), 환율은 최고점 대비 하락률
     out = {}
-    for fname, col in [("sp500.csv", "sp500"), ("dow.csv", "dow"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX")]:
+    for fname, col in [("sp500.csv", "sp500"), ("dow.csv", "dow"), ("us10y.csv", "us10y"), ("dxy.csv", "dxy"), ("usdkrw.csv", "usdkrw"), ("us_etfs.csv", "QQQ"), ("us_etfs.csv", "SOXX"),
+                      ("kospi_long.csv", "kospi"), ("kosdaq_long.csv", "kosdaq")]:  # 코스피·코스닥 = 네이버 금융 일별 종가(1990·1996년~)
         path = os.path.join(DATA, fname)
         if not os.path.exists(path):
             continue
@@ -2338,7 +2339,7 @@ def build_usmkt():
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
         o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
-        if col in ("sp500", "dow", "QQQ", "SOXX"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
+        if col in ("sp500", "dow", "QQQ", "SOXX", "kospi", "kosdaq"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
             today = pd.Timestamp(datetime.now(KST).date())
             o.update(d5=chg(pd.to_datetime(s.index[-6])), m1=chg(today - pd.Timedelta(days=30)), m3=chg(today - pd.Timedelta(days=90)))
         if col == "usdkrw":
