@@ -952,11 +952,11 @@ def fetch_kr_investors():
     # 투자자별 매매동향(네이버 증권 stock.naver.com/market/stock/kr/trend/trader): 일별 순매수(억원) = 한국거래소(KRX) + 넥스트레이드(NXT)
     # 합계(증권사 HTS '통합' 화면과 같음, 26.10.30 연기금 8,929 + 36 = 8,965억 ≈ HTS 8,966억 확인). NXT는 2025-03부터라 그 전은 KRX만.
     # 평소엔 최근 100거래일, 저장된 게 2년(500일)이 안 되면 600거래일을 받아 쌓음(같은 날은 나중 값으로). 장 마감 전 오늘 값은 움직이는 중이라 뺌
+    # + 매물대용으로 거래소(KRX)만 따로 kr_investors_krx.csv 에(FnGuide·증권사 보고서 기준. 26.11.06 한화투자증권 '개인 매물대' 그림과 같은 숫자 확인)
     now = datetime.now(KST)
-    path = os.path.join(DATA, "kr_investors.csv")
-    old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
-    pages = range(6) if old is None or (old["market"] == "kospi").sum() < 500 else [0]
-    acc = {}
+    accs = {"kr_investors.csv": {}, "kr_investors_krx.csv": {}}
+    olds = {f: pd.read_csv(os.path.join(DATA, f), dtype={"date": str}) if os.path.exists(os.path.join(DATA, f)) else None for f in accs}
+    pages = range(6) if any(o is None or (o["market"] == "kospi").sum() < 500 for o in olds.values()) else [0]
     for mk in ("KOSPI", "KOSDAQ"):
         for tt in ("KRX", "NXT"):
             for st in pages:
@@ -965,20 +965,22 @@ def fetch_kr_investors():
                 for d in j["content"]:
                     if d["bizdate"] == now.strftime("%Y%m%d") and now.strftime("%H%M") < "1540":
                         continue
-                    v = acc.setdefault((d["bizdate"], mk.lower()), {})
-                    for a in d["netAmounts"]:
-                        v[a["investorGubun"]] = v.get(a["investorGubun"], 0) + int(a["diffValue"])
-    rows = []
-    for (bd, mk), v in acc.items():
-        r = {k: round(sum(v.get(c, 0) for c in cs) / 1e8, 2) for k, cs in INVESTORS.items()}
-        r["inst"] = round(sum(r[k] for k in ("fin", "ins", "trust", "bank", "otherfin", "pension")), 2)
-        rows.append({"date": f"{bd[:4]}-{bd[4:6]}-{bd[6:]}", "market": mk, **r})
-    if len(rows) < 100:
-        raise RuntimeError(f"투자자별 매매동향을 너무 적게 받음 ({len(rows)}행)")
-    df = pd.DataFrame(rows)
-    if old is not None:
-        df = pd.concat([old, df]).drop_duplicates(["date", "market"], keep="last")
-    df.sort_values(["date", "market"]).to_csv(path, index=False)
+                    for f in accs if tt == "KRX" else ["kr_investors.csv"]:
+                        v = accs[f].setdefault((d["bizdate"], mk.lower()), {})
+                        for a in d["netAmounts"]:
+                            v[a["investorGubun"]] = v.get(a["investorGubun"], 0) + int(a["diffValue"])
+    for f, acc in accs.items():
+        rows = []
+        for (bd, mk), v in acc.items():
+            r = {k: round(sum(v.get(c, 0) for c in cs) / 1e8, 2) for k, cs in INVESTORS.items()}
+            r["inst"] = round(sum(r[k] for k in ("fin", "ins", "trust", "bank", "otherfin", "pension")), 2)
+            rows.append({"date": f"{bd[:4]}-{bd[4:6]}-{bd[6:]}", "market": mk, **r})
+        if len(rows) < 100:
+            raise RuntimeError(f"투자자별 매매동향을 너무 적게 받음 ({f}, {len(rows)}행)")
+        df = pd.DataFrame(rows)
+        if olds[f] is not None:
+            df = pd.concat([olds[f], df]).drop_duplicates(["date", "market"], keep="last")
+        df.sort_values(["date", "market"]).to_csv(os.path.join(DATA, f), index=False)
 
 
 def build_kr_investors():
@@ -997,6 +999,11 @@ def build_kr_investors():
                    "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]],
                    "big": {k: [int(v >= t) for v, t in zip(m[k], th[k].shift(1))] for k in BIG_BUY},
                    "big_th": {k: round(float(th[k].iloc[-2]), 0) for k in BIG_BUY}}
+        kp = os.path.join(DATA, "kr_investors_krx.csv")
+        if os.path.exists(kp):  # 매물대(거래소만 순매수, 억원) — 화면에서 그날 종가 가격대마다 더함
+            k = pd.read_csv(kp, dtype={"date": str})
+            k = k[(k["market"] == mk) & k["date"].isin(idx.index)].sort_values("date")
+            out[mk]["krx"] = {"x": list(k["date"]), "close": [float(idx[d]) for d in k["date"]], **{c: [round(float(v), 1) for v in k[c]] for c in ("indiv", "foreign", "inst")}}
     return out
 
 
