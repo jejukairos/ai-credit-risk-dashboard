@@ -35,3 +35,6 @@ date,ticker,bp,source_url,note
 2026-10-30,SPACEX,283,user:사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 5년 CDS 표,"그림 날짜 10/31, 표의 최고점 날짜가 10/30까지라 10/30 값으로 기록. 표의 최고점 날짜 26.10.30 (= 지금이 최고). 원본 이미지는 user_sources 폴더에만 보관"
 2026-10-30,INTC,137,user:사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 5년 CDS 표,"그림 날짜 10/31, 표의 최고점 날짜가 10/30까지라 10/30 값으로 기록. 표의 최고점 날짜 26.10.30 (= 지금이 최고). 원본 이미지는 user_sources 폴더에만 보관"
 2026-11-05,CRWV,1164,user:사용자 제공 글 '코어위브 신용부도스왑 사상 최고'(데이터센터 크레딧 파이낸싱 현황 기반 AI 해석 26.11.06),"5년 CDS 1,164bp 사상 최대(종가 기준으로 보임 - 10/15 장중 1,194.5bp와 다름). 글에 날짜 없음 - 받은 날 직전 미국 거래일 11/05로 기록. 2031년 만기 회사채 가산금리 약 1,000bp(금리 15% 안팎)도 함께 적혀 있음"
+2026-10-30,AVGO,175.4,https://cryptobriefing.com/intel-credit-default-swap-record-high/,Crypto Briefing(26.10.30) — 약 10bp 올라 사상 최고. 기사에 만기(5년) 표기 없음
+2026-11-05,SPACEX,284.3,https://panews.io/articles/01a1ac8a-a5b6-7017-8dd0-d5a44d33b1f3,"PANews(26.11.06) — ICE Data Services(블룸버그 인용) 5년 CDS, 하루 최대 14.6bp 올라 사상 최고"
+2026-11-06,9984.T,466,https://www.whalesbook.com/news/English/bankingfinance/SoftBank-Credit-Risk-Hits-4-Year-High-as-Stock-Drops-9percent/6aed502b4fc30694db606714,Whalesbook(26.11.06) — 5년 CDS 22bp 올라 2022년 10월 이후 최고. 데이터 제공처 표기 없음

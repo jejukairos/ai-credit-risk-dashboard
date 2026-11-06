@@ -395,6 +395,12 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
   <div class="card" id="cdsboard"></div>
+  <div class="card" id="cdscmpcard"><h3><span>📈 회사별 CDS 비교 — 5년 안에 부도날 걱정</span></h3>
+    <div class="small" style="margin:2px 4px 6px">회사마다 CDS(부도 보험료) 기록을 한 그림에 모았어요. 선이 위로 갈수록 "빚을 못 갚을까 봐" 걱정이 커진 거예요. 코어위브처럼 아주 높은 회사(600bp 이상)는 다른 회사가 납작해 보이지 않게 위 칸에 따로 그렸어요. 아래 칸 점선 = 300bp(위험)·100bp(경계).</div>
+    <div id="cdscmp" class="plot" style="height:420px"></div>
+    <div class="small" id="cdscmpkey" style="margin:4px 4px 0;line-height:1.7"></div>
+    <p class="note" style="margin:6px 4px 2px">점 = 기록이 있는 날(뉴스·사용자 제공 화면, 날마다 있진 않아요), 선 = 그 사이를 이은 것. 위 기간 버튼을 따라가요. 자료: cds_log.csv(출처는 아래 표의 CDS 숫자를 누르면 보여요). 비교: 사용자 제공 그림 '데이터센터 규제 우려, 신용리스크 ▲'(26.11.06, user:)과 회사 순서·높이가 같아요(코어위브 &gt; 소프트뱅크 &gt; 오라클 &gt; 스페이스X &gt; 브로드컴 …).</p>
+  </div>
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
     <tbody></tbody></table></div>
@@ -1058,11 +1064,32 @@ function renderCdsBoard() {
   el.innerHTML = `<h3><span>🚦 CDS 단계 — 부실 · 위험 · 경계</span></h3>
     <div class="small" style="margin:2px 4px 6px">CDS(회사가 망할 때를 대비한 보험료)가 얼마나 높은지로 회사를 나눴어요. 위로 갈수록 "돈을 못 갚을까 봐" 걱정이 커요.</div>
     ${T.map(([, t], i) => `<div style="margin:3px 4px"><b style="color:var(${TIER_COL[t]})">${TIER_EMO[t]} ${t}</b> <span class="small">(${range(i)})</span> : ${B.rows.filter(r => r.tier === t).map(r => r.name).join(', ') || '<span class="small">없음</span>'}</div>`).join('')}
-    <p class="note" style="margin:6px 4px 2px">아래 표 CDS 칸 색 = 이 단계. 단계 기준(600·300·100bp)은 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트의 부실·위험·경계 표시와 같게 맞췄어요. 그 그림 글은 스페이스X(283bp)를 '위험'에 넣었지만, 여기선 숫자 기준이라 '경계'예요. 표의 CDS는 회사마다 가장 최근 기록이고, 기준일이 오래된 숫자는 지금과 다를 수 있어요. 자료: cds_log.csv(뉴스 기사 링크 · user: 사용자 제공 화면), 매주 월요일 자동 검색으로 추가돼요.</p>`;
+    <p class="note" style="margin:6px 4px 2px">아래 표 CDS 칸 색 = 이 단계(바로 아래 비교 그림에서 흐름도 볼 수 있어요). 단계 기준(600·300·100bp)은 사용자 제공 그림 '신용 리스크 위험 지속 상승세'(26.10.31) 차트의 부실·위험·경계 표시와 같게 맞췄어요. 그 그림 글은 스페이스X(283bp)를 '위험'에 넣었지만, 여기선 숫자 기준이라 '경계'예요. 표의 CDS는 회사마다 가장 최근 기록이고, 기준일이 오래된 숫자는 지금과 다를 수 있어요. 자료: cds_log.csv(뉴스 기사 링크 · user: 사용자 제공 화면), 매주 월요일 자동 검색으로 추가돼요.</p>`;
+}
+
+// 회사별 CDS 비교(사용자 요청 26.11.06) — 이중 y축 대신 두 칸: 위 = 부실 구간(600bp↑) 회사, 아래 = 나머지 (날짜축 공유)
+const CDS_COL = {CRWV: '#7b3fbf', ORCL: '#e0201b', SPACEX: '#f0a500', AVGO: '#8b1a1a', NVDA: '#3aa845', INTC: '#3b7dd8', META: '#e05fb4', GOOGL: '#17a2b8', MSFT: '#8a8a8a'};
+function renderCdsCmp() {
+  const B = DATA.cds_board, el = document.getElementById('cdscmpcard');
+  if (!B || !B.rows.length || !B.rows[0].x) { el.style.display = 'none'; return; }
+  const hiCut = B.tiers[0][0], col = r => CDS_COL[r.ticker] || css('--ink'), md = s => s.slice(2).replace(/-/g, '.');
+  const last = B.rows.map(r => r.x[r.x.length - 1]).sort().pop(), first = B.rows.map(r => r.x[0]).sort()[0], xs = xStartFor(last, first);
+  const top = r => r.bp >= hiCut, vis = r => r.y.filter((_, i) => r.x[i] >= xs);
+  const ys = rs => rs.flatMap(vis), tr = B.rows.filter(top), br = B.rows.filter(r => !top(r));
+  Plotly.react('cdscmp', B.rows.map(r => ({x: r.x, y: r.y, type: 'scatter', mode: 'lines+markers', yaxis: top(r) ? 'y' : 'y2', connectgaps: true,
+      line: {color: col(r), width: 2}, marker: {size: 5, color: col(r)}, hovertemplate: `${r.name} %{y:,.0f}bp<extra></extra>`})),
+    Object.assign(baseLayout(), {showlegend: false, hovermode: 'closest', margin: {l: 44, r: 10, t: 18, b: 26},
+      xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
+      yaxis: axis({domain: [0.66, 1], range: padRange(ys(tr).length ? ys(tr) : [hiCut], false)}),
+      yaxis2: axis({domain: [0, 0.58], range: [0, Math.max(350, ...ys(br)) * 1.08]}),
+      shapes: [300, 100].map(v => ({type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: v, y1: v, line: {color: css('--muted'), width: 1, dash: 'dot'}})),
+      annotations: [[1.01, `${hiCut}bp 이상 (부실 구간)`], [0.59, '나머지 회사']].map(([y, t]) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${t}</b>`, font: {size: 11, color: css('--ink2')}})),
+    }), CFG);
+  document.getElementById('cdscmpkey').innerHTML = B.rows.map(r => `<span style="white-space:nowrap;margin-right:8px"><b style="color:${col(r)}">●</b> ${r.name} <b>${fmtNum(r.bp)}</b><span class="small">bp (${md(r.date)})</span></span>`).join(' ');
 }
 
 function renderSummary() {
-  renderCdsBoard();
+  renderCdsBoard(); renderCdsCmp();
   renderPd();
   // 종목 카드 회사 + CDS만 기록하는 회사(cds_board)를 한 표로, CDS 높은 순. CDS 칸 색 = CDS 단계
   const board = (DATA.cds_board && DATA.cds_board.rows) || [], tier = Object.fromEntries(board.map(r => [r.ticker, r.tier]));
@@ -3232,7 +3259,7 @@ document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () =
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
+  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 맨 위 기간 버튼을 누르면 자체 기간 버튼이 있는 섹션(주변자금·ADR)도 같은 기간으로 맞춤(그 섹션 버튼으로 따로 바꿀 수도 있음)

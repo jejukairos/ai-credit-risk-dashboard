@@ -1878,7 +1878,9 @@ def build_cds_board(cds):
         last, mx = c.iloc[-1], c.loc[c["bp"].idxmax()]
         rows.append({"ticker": tk, "name": nm, "bp": float(last["bp"]), "date": last["date"], "src": last["source_url"],
                      "tier": next(n for lo, n in config.CDS_TIERS if last["bp"] >= lo), "max": float(mx["bp"]), "max_date": mx["date"],
-                     "risk": risk_level(float(last["bp"]), last["date"], None, None)[0]})  # 종목 카드 없는 회사는 CDS만으로 색
+                     "risk": risk_level(float(last["bp"]), last["date"], None, None)[0],  # 종목 카드 없는 회사는 CDS만으로 색
+                     # 비교 차트용 기록 전체(날짜당 1개, 같은 날 여러 기사면 마지막 줄)
+                     "x": list(c.drop_duplicates("date", keep="last")["date"]), "y": [float(v) for v in c.drop_duplicates("date", keep="last")["bp"]]})
     return {"tiers": config.CDS_TIERS, "rows": sorted(rows, key=lambda r: -r["bp"])}
 
 
