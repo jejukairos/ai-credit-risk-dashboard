@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI 신용위험 대시보드</title>
-<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-finance-dist-min@2.35.2/plotly-finance.min.js"></script>
 <style>
 :root{
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984; --line:#e4e3de;
@@ -2754,18 +2754,18 @@ function renderFut(k, nm) {
   // 초록 동그라미: RSI가 32 아래로 내려간 날들(10거래일 안이면 한 묶음) 가운데 가장 낮은 날 — 이 대시보드 표시
   const lows = [];
   R.forEach((v, i) => { if (v == null || v > 32) return; const g = lows[lows.length - 1]; if (g && i - g.end <= 10) { g.end = i; if (v < R[g.i]) g.i = i; } else lows.push({i, end: i}); });
-  const rl = R[R.length - 1], pv = sl(F.h).concat(Lo, ...FUT_MA.map(([p]) => sl(ma[p]))).filter(v => v != null);
+  const rl = R[R.length - 1], pv = sl(F.h).concat(Lo, sl(ma[200])).filter(v => v != null);  // 흐린 이평선은 벗어나면 잘려도 됨
   const ring = {type: 'scatter', mode: 'markers', cliponaxis: false, hoverinfo: 'skip', marker: {symbol: 'circle-open', size: 22, color: '#22c55e', line: {width: 3}}};
   el.innerHTML = `<h3><span style="color:#3b2fd1">${nm}</span><span class="small">${k === 'nq' ? 'NQ=F' : 'ES=F'} · ${md(last)}</span></h3>
     <div class="small" style="margin:0 4px">${md(last)} 시 <b>${K(F.o[n - 1])}</b> 고 <b>${K(F.h[n - 1])}</b> 저 <b>${K(F.l[n - 1])}</b> 종 <b>${K(F.c[n - 1])}</b></div>
     <div class="small" style="margin:2px 4px 0;line-height:1.5">${FUT_MA.map(([p, c]) => `<span style="color:${col(c)};white-space:nowrap">SMA ${p} · ${kv(ma[p][n - 1])}</span>`).join(' &nbsp;')}</div>
     <div id="futplot-${k}" class="plot" style="height:480px"></div>
-    <div class="small" style="margin:4px">막대(캔들) 하나 = 하루예요(초록 = 오른 날, 빨강 = 내린 날). <b>선</b> = 최근 N거래일 평균 가격(SMA 200 = 200일 평균, 파란 선). 맨 아래 <b>RSI</b>는 14일 동안 오른 힘과 내린 힘을 0~100으로 비교한 값으로, 30 아래면 '짧은 기간에 많이 내렸다', 70 위(보라색)면 '많이 올랐다'예요. <b style="color:#22c55e">초록 동그라미</b> = RSI가 32 아래로 내려간 바닥(이 대시보드 표시).</div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance 지수선물 일봉(${k === 'nq' ? '나스닥100 NQ=F' : 'S&amp;P500 ES=F'}, 만기가 오면 다음 것으로 바꿔 이어 붙인 값). 이동평균선·RSI(14일, 와일더 방식 — 위 카드와 같은 계산)는 이 대시보드가 계산. 매일 16시·20시 + 미국 장 마감 뒤 갱신(선물은 갱신 시각 값). 위 기간 버튼으로 기간이 바뀌어요(전체 = 2020년~). 그림 모양: user: 사용자가 보낸 '@NQ 나스닥100지수(선물)' 차트 캡처(26.11.06)${k === 'nq' ? ' — 그림 RSI 31.43·SMA20 29.26K·SMA200 28.13K, 여기(26.11.06 밤 값 27,096) RSI 30.98·SMA20 29.26K·SMA200 28.11K. 그림의 보라색 추세선은 글쓴이가 손으로 그은 선이라 넣지 않았어요' : ''}.</p>`;
+    <div class="small" style="margin:4px">막대(캔들) 하나 = 하루예요(초록 = 오른 날, 빨강 = 내린 날). <b style="color:#2f3fd0">연한 굵은 파란 선</b> = 200일선(최근 200거래일 평균), 흐린 선 = 5·20·50·100·240일선. 맨 아래 <b>RSI</b>는 14일 동안 오른 힘과 내린 힘을 0~100으로 비교한 값으로, 30 아래면 '짧은 기간에 많이 내렸다', 70 위(보라색)면 '많이 올랐다'예요. <b style="color:#22c55e">초록 동그라미</b> = RSI가 32 아래로 내려간 바닥(이 대시보드 표시).</div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance 지수선물 일봉(${k === 'nq' ? '나스닥100 NQ=F' : 'S&amp;P500 ES=F'}, 만기가 오면 다음 것으로 바꿔 이어 붙인 값). 이동평균선·RSI(14일, 와일더 방식 — 야후·트레이딩뷰 차트 기본 RSI와 같은 계산, 위 카드와도 같음)는 이 대시보드가 계산. 매일 16시·20시 + 미국 장 마감 뒤 갱신(선물은 갱신 시각 값). 위 기간 버튼으로 기간이 바뀌어요(전체 = 2020년~). 그림 모양: user: 사용자가 보낸 '@NQ 나스닥100지수(선물)' 차트 캡처(26.11.06)${k === 'nq' ? ' — 그림 RSI 31.43·SMA20 29.26K·SMA200 28.13K, 여기(26.11.06 밤 값 27,096) RSI 30.98·SMA20 29.26K·SMA200 28.11K, 그림 시각 가격 27,149를 넣어 계산하면 RSI 31.59(받는 곳이 달라 0.2 차이). 그림의 보라색 추세선은 글쓴이가 손으로 그은 선이라 넣지 않았어요' : ''}.</p>`;
   Plotly.react('futplot-' + k, [
-    {x: X, open: sl(F.o), high: sl(F.h), low: Lo, close: C, type: 'candlestick', increasing: {line: {color: '#26a65b', width: 1}}, decreasing: {line: {color: '#e0201b', width: 1}},
-      hoverinfo: 'text', hovertext: X.map((d, i) => `시 ${K(F.o[i0 + i])} · 고 ${K(F.h[i0 + i])}<br>저 ${K(Lo[i])} · 종 ${K(C[i])}`)},
-    ...FUT_MA.map(([p, c]) => ({x: X, y: sl(ma[p]), type: 'scatter', mode: 'lines', line: {color: col(c), width: 1.1}, hoverinfo: 'skip'})),
+    ...FUT_MA.map(([p, c]) => ({x: X, y: sl(ma[p]), type: 'scatter', mode: 'lines', line: {color: col(c), width: p === 200 ? 2.4 : 1}, opacity: p === 200 ? 0.5 : 0.3, hoverinfo: 'skip'})),
+    {x: X, open: sl(F.o), high: sl(F.h), low: Lo, close: C, type: 'candlestick', increasing: {line: {color: '#26a65b', width: 1}, fillcolor: '#26a65b'}, decreasing: {line: {color: '#e0201b', width: 1}, fillcolor: '#e0201b'},
+      hoverinfo: 'text', hovertext: X.map((d, i) => `시 ${K(F.o[i0 + i])} · 고 ${K(F.h[i0 + i])}<br>저 ${K(Lo[i])} · 종 ${K(C[i])}<br>200일선 ${K(ma[200][i0 + i])}`)},
     {x: X, y: sl(F.v), type: 'bar', yaxis: 'y2', marker: {color: X.map((_, i) => C[i] >= F.o[i0 + i] ? 'rgba(38,166,91,.5)' : 'rgba(224,32,27,.5)')}, hoverinfo: 'skip'},
     {x: X, y: X.map(() => 70), yaxis: 'y3', type: 'scatter', mode: 'lines', line: {width: 0}, hoverinfo: 'skip'},
     {x: X, y: R.map(v => v == null ? 70 : Math.max(v, 70)), yaxis: 'y3', type: 'scatter', mode: 'lines', line: {width: 0}, fill: 'tonexty', fillcolor: 'rgba(186,104,200,.5)', hoverinfo: 'skip'},
