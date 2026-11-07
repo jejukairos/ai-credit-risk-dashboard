@@ -525,9 +525,10 @@ footer a{color:var(--ink2)}
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>코스피</b>는 한국 큰 회사들(삼성전자·SK하이닉스 등), <b>코스닥</b>은 작은 회사·기술 회사들의 주가를 모은 지수예요. 위 '오늘'이 하루 움직임이라면, 여기는 며칠·몇 달·몇 년 흐름이에요.</div>
+      <div>차트의 <b>연한 회색 선</b> = 200일선(최근 200거래일 평균 가격)이에요. <b style="color:var(--bad)">빨간 구간</b> = 최근 1년 중 가장 비쌌던 날보다 20% 넘게 빠진 때예요. 200일선과 10% 넘게 벌어지면 ⚠️로 알려 줘요.</div>
     </div>
     <div id="mkt-kr"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> 코스피·코스닥 일별 종가(장중에 받으면 그때 값), 매일 16시·20시 자동 갱신. 미국 지수와 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 코스피 1990년~, 코스닥 1996년~).</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융</a> 코스피·코스닥 일별 종가(장중에 받으면 그때 값), 매일 16시·20시 자동 갱신. 미국 지수와 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = 코스피 1990년~, 코스닥 1996년~). 200일선 = 최근 200거래일 종가 평균, 이격도 = 종가 ÷ 200일선 − 1, 1년 고점 대비 = 종가 ÷ 최근 252거래일 최고 종가 − 1(이 화면에서 계산, 미국 지수 차트와 같은 방식이고 빨간 기준만 −20%·1년 고점). ⚠️ 기준(이격도 ±10%)은 이 대시보드가 정했어요.</p>
   </div>
   <div class="card" id="mmcard"><h3><span>매물대 — 어느 가격대에서 얼마나 샀나</span></h3>
     <div class="small" style="margin:2px 4px 6px"><b>매물대</b> = 지수가 어느 가격대에 있던 날 얼마나 사고팔았는지를 가격대마다 더한 거예요. 지금보다 <b>비싼 가격대에서 많이 산</b> 사람들은 본전이 오면 팔고 싶어 해서, 지수가 그 가격대로 다시 올라가면 <b>파는 물량(저항)</b>이 나오기 쉬워요. 가로 막대 = 그 가격대에서 순매수한 돈의 합(숫자 = 조원, <b style="color:var(--good)">초록 = 산 돈</b>, <b style="color:var(--bad)">빨강 = 판 돈</b>), 검은 선 = 지수, 점선 = 지금 지수. 막대가 긴 가격대일수록 그 값에 사고판 사람이 많아요.</div>
@@ -565,7 +566,7 @@ footer a{color:var(--ink2)}
     <div id="hl50kospi" class="plot" style="height:300px"></div>
     <div class="nowline" id="hl50kosdaqday"></div>
     <div id="hl50kosdaq" class="plot" style="height:300px"></div>
-    <p class="note" style="margin:6px 4px 2px">신고가 = 그날 고가가 직전 50거래일 최고 고가보다 높은 종목, 신저가 = 그날 저가가 직전 50거래일 최저 저가보다 낮은 종목. 보통주만(우선주·ETF·스팩 제외), 지금 상장된 종목으로 계산. 위 ADR 기간 버튼을 따라가요(자료는 2025-10부터). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세(장 끝난 뒤 넥스트레이드 거래도 섞여 있어요). 다른 곳과 몇 % 다를 수 있어요(11/05 user: 사용자 제공 캡처 코스피 27·116, 코스닥 19·364 vs 여기 29·116, 18·405).</p>
+    <p class="note" style="margin:6px 4px 2px">신고가 = 그날 고가가 직전 50거래일 최고 고가보다 높은 종목, 신저가 = 그날 저가가 직전 50거래일 최저 저가보다 낮은 종목. 보통주만(우선주·ETF·스팩 제외), 지금 상장된 종목으로 계산. 위 ADR 기간 버튼을 따라가요(자료는 2021-07부터 — 26.11.07에 한 번 채움. 지금 상장된 종목으로 계산해서, 옛날로 갈수록 그사이 상장폐지된 종목은 빠져요). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세(장 끝난 뒤 넥스트레이드 거래도 섞여 있어요). 다른 곳과 몇 % 다를 수 있어요(11/05 user: 사용자 제공 캡처 코스피 27·116, 코스닥 19·364 vs 여기 29·116, 18·405).</p>
   </div>
 
   <h2 id="sec-ma200">📊 200일선 위 종목 비율</h2>
@@ -2641,11 +2642,13 @@ function fxTrend(o) {
   return segs;
 }
 // 200일선·고점 대비(사용자 요청 26.11.07, 미국 지수 4개): 종가로 화면에서 계산
-const MA_DD = ['sp500', 'qqq', 'soxx', 'dow'];
-function maDd(y) {
+const MA_DD = ['sp500', 'qqq', 'soxx', 'dow', 'kospi', 'kosdaq'];
+// 한국(26.11.07 사용자 요청): 빨간 구간 = −20% 아래, 고점 = 최근 1년(252거래일) 최고 종가(코스닥은 2000년 고점이 너무 높아 '자료 기간 최고'로 하면 26년 내내 빨강)
+const DD_CUT = {kospi: -20, kosdaq: -20}, DD_WIN = {kospi: 252, kosdaq: 252};
+function maDd(y, win) {
   let s = 0, pk = -Infinity;
   return {ma: y.map((v, i) => { s += v - (i >= 200 ? y[i - 200] : 0); return i >= 199 ? s / 200 : null; }),
-    dd: y.map(v => { pk = Math.max(pk, v); return (v / pk - 1) * 100; })};
+    dd: y.map((v, i) => { pk = win ? Math.max(...y.slice(Math.max(0, i - win + 1), i + 1)) : Math.max(pk, v); return (v / pk - 1) * 100; })};
 }
 function mktBlock(boxId, list) {
   const U = DATA.usmkt, box = document.getElementById(boxId);
@@ -2664,15 +2667,17 @@ function mktBlock(boxId, list) {
       <div class="fgchips">${(o.d5 !== undefined ? [['전일', o.d1], ['5일', o.d5], ['1개월', o.m1], ['3개월', o.m3]] : [['전일', o.d1], ['1주 전', o.w1], ['1달 전', o.m1]])
         .map(([l, v]) => `<span class="chip">${l} ${o.d5 !== undefined && v != null ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>` : ch(k, v)}</span>`).join('')}</div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
-      ${MA_DD.includes(k) ? (() => { const T = maDd(o.y), n = o.y.length - 1, g = (o.y[n] / T.ma[n] - 1) * 100, pi = o.y.indexOf(Math.max(...o.y)), dp = unit === 'pt' ? 0 : 2;
-        return `<div class="small" style="margin:-4px 4px 4px;font-size:12px;color:var(--ink)"><span style="white-space:nowrap">200일선(${fmtNum(T.ma[n], dp)})보다 <b class="${g >= 0 ? 'up' : 'down'}">${g >= 0 ? '+' : '−'}${Math.abs(g).toFixed(1)}% ${g >= 0 ? '위' : '아래'}</b></span> · <span style="white-space:nowrap">고점(${md(o.x[pi])} ${fmtNum(o.y[pi], dp)}) 대비 <b${T.dd[n] <= -10 ? ' class="down"' : ''}>${T.dd[n] > -0.05 ? '고점이에요' : '−' + Math.abs(T.dd[n]).toFixed(1) + '%'}</b></span></div>`; })() : ''}
+      ${MA_DD.includes(k) ? (() => { const W = DD_WIN[k], T = maDd(o.y, W), n = o.y.length - 1, g = (o.y[n] / T.ma[n] - 1) * 100, dp = unit === 'pt' ? 0 : 2, cut = DD_CUT[k] || -10;
+        let pi = W ? Math.max(0, n - W + 1) : 0;
+        for (let i = pi; i <= n; i++) if (o.y[i] > o.y[pi]) pi = i;
+        return `<div class="small" style="margin:-4px 4px 4px;font-size:12px;color:var(--ink)"><span style="white-space:nowrap">200일선(${fmtNum(T.ma[n], dp)})보다 <b class="${g >= 0 ? 'up' : 'down'}">${g >= 0 ? '+' : '−'}${Math.abs(g).toFixed(1)}% ${g >= 0 ? '위' : '아래'}</b>${Math.abs(g) >= 10 ? ' <b class="down">⚠️ 많이 벌어졌어요</b>' : ''}</span> · <span style="white-space:nowrap">${W ? '1년 고점' : '고점'}(${md(o.x[pi])} ${fmtNum(o.y[pi], dp)}) 대비 <b${T.dd[n] <= cut ? ' class="down"' : ''}>${T.dd[n] > -0.05 ? '고점이에요' : '−' + Math.abs(T.dd[n]).toFixed(1) + '%'}</b></span></div>`; })() : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
       <div id="usmkt-${k}" class="plot" style="height:170px"></div>
       ${T ? `<div class="small" style="margin:2px 4px 0;font-size:11px">배경 ${sq('--g2')} 올라가는 추세 ${sq('--g1')} 내려가는 추세 · 색이 바뀌는 날 = 추세가 꺾인 날(20일 평균과 60일 평균이 엇갈린 날)</div>` : ''}</div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
     const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]), T = k === 'usdkrw' ? fxTrend(o) : null;
-    const M = MA_DD.includes(k) ? maDd(o.y) : null;
+    const M = MA_DD.includes(k) ? maDd(o.y, DD_WIN[k]) : null, cut = DD_CUT[k] || -10;
     const vis = o.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), yr = padRange(vis.map(i => o.y[i]).concat(M ? vis.map(i => M.ma[i]).filter(v => v != null) : []), false);
     let shapes = [], annotations = [];
     if (T) {
@@ -2689,7 +2694,7 @@ function mktBlock(boxId, list) {
     Plotly.react('usmkt-' + k, (M ? [{x: o.x, y: M.ma, type: 'scatter', mode: 'lines', line: {color: css('--muted'), width: 1.3}, opacity: 0.6,
         customdata: M.ma.map(v => v == null ? '' : fmtNum(v, 2)), hovertemplate: '200일선 %{customdata}<extra></extra>'}] : []).concat([{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--g1', dow: '--g1', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--g1', kospi: '--g1', kosdaq: '--g1'}[k] || '--ink2'), width: lw},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
-      M ? [{x: o.x, y: o.y.map((v, i) => M.dd[i] <= -10 || M.dd[i + 1] <= -10 ? v : null), type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: lw}, hoverinfo: 'skip'}] : []),
+      M ? [{x: o.x, y: o.y.map((v, i) => M.dd[i] <= cut || M.dd[i + 1] <= cut ? v : null), type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: lw}, hoverinfo: 'skip'}] : []),
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
@@ -2701,7 +2706,7 @@ function mktBlock(boxId, list) {
 function renderPcWarn(it) {
   const el = document.getElementById('pcwarn'), sp = DATA.usmkt && DATA.usmkt.sp500, eq = it && it.lines && it.lines.find(l => l.name === '주식만');
   if (!el || !eq || !sp) return;
-  const x0 = '2023-03-01', X = it.lx, Y = eq.y, n = X.length - 1, v = Y[n];
+  const X = it.lx, Y = eq.y, n = X.length - 1, v = Y[n], x0 = xStartFor(X[n], X[0]);  // 위 기간 버튼(사용자 요청 26.11.07, 전에는 23.03부터 고정)
   const i0 = Math.max(0, X.findIndex(d => d >= x0)), xv = X.slice(i0), yv = Y.slice(i0);
   const ys = Y.filter((y, i) => y != null && X[i].slice(0, 4) === X[n].slice(0, 4)), share = ys.filter(y => y >= v).length / ys.length * 100;
   // 0.8 넘은 날을 묶어(40거래일 안이면 한 묶음) 묶음마다 가장 높은 날에 동그라미
@@ -2722,13 +2727,13 @@ function renderPcWarn(it) {
       <div>· 쉽게 말해 <b>지금 모두가 인버스 몰빵 베팅 = 시장은 아이러니하게도 반대로 움직이려는 경향</b>.</div>
       <div>· 🐒 시장이 참 무서운 게, 개인들 심리와 행동을 다 알고 있다는 듯이 <b>공포에 떨면서 인버스 베팅하면 기가 막히게 반대로 반등</b>하고(저점), <b>확신을 가지고 풀베팅하면 기가 막히게 떨어지기 시작</b>해요(고점).</div>
       <div class="small" style="color:var(--muted)">출처: user: 사용자가 보내 준 글(26.11.06). 투자 권유가 아닌 글쓴이 의견이에요.</div></details></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.cboe.com/us/options/market_statistics/daily/" target="_blank" rel="noopener">CBOE 일별 옵션 통계</a> 'EQUITY PUT/CALL RATIO'(하루치, 위 카드 파란 선과 같은 값, 2023년부터) · S&amp;P500 = Yahoo Finance(^GSPC). 매일 갱신. 기간은 그림처럼 23.03부터(위 기간 버튼과 상관없음). 그림 모양: user: 사용자가 보낸 '풋/콜 올해 상위 1%, 역발상 구간 진입' 그림(11/6, 마스터클래스 역발상 판독기) — 그림의 0.89(11/05)와 '올해 상위 1%'(올해 213거래일 중 2번째)는 이 자료와 같아요. 그림의 지난 선은 더 매끈해서(주 단위이거나 다른 자료로 보여요) 동그라미 수가 달라요 — 여기는 CBOE 하루치 그대로예요.</p>`;
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.cboe.com/us/options/market_statistics/daily/" target="_blank" rel="noopener">CBOE 일별 옵션 통계</a> 'EQUITY PUT/CALL RATIO'(하루치, 위 카드 파란 선과 같은 값, 2023년부터) · S&amp;P500 = Yahoo Finance(^GSPC). 매일 갱신. 위 기간 버튼으로 기간이 바뀌어요(전체 = 2023년~). 그림 모양: user: 사용자가 보낸 '풋/콜 올해 상위 1%, 역발상 구간 진입' 그림(11/6, 마스터클래스 역발상 판독기) — 그림의 0.89(11/05)와 '올해 상위 1%'(올해 213거래일 중 2번째)는 이 자료와 같아요. 그림의 지난 선은 더 매끈해서(주 단위이거나 다른 자료로 보여요) 동그라미 수가 달라요 — 여기는 CBOE 하루치 그대로예요.</p>`;
   Plotly.react('pcwarnplot', [
     {x: sx, y: sy, type: 'scatter', mode: 'lines', line: {color: css('--ink'), width: 2.4}, customdata: sy.map(a => fmtNum(a, 2)), hovertemplate: 'S&P500 %{customdata}<extra></extra>'},
     {x: xv, y: yv, yaxis: 'y2', type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: 1.5}, customdata: yv.map(a => a == null ? '' : a.toFixed(2)), hovertemplate: '풋/콜 %{customdata}<extra></extra>'},
     {x: pk.map(g => xv[g.i]), y: pk.map(g => yv[g.i]), yaxis: 'y2', type: 'scatter', mode: 'markers', cliponaxis: false, hoverinfo: 'skip', marker: {symbol: 'circle-open', size: 26, color: css('--ink'), line: {width: 2.5}}},
   ], Object.assign(baseLayout(), {margin: {l: 40, r: 10, t: 20, b: 26},
-    xaxis: axis({type: 'date', anchor: 'y2', range: [x0, X[n]], tickformat: '%y.%m', dtick: 'M6', tick0: '2023-03-01'}),
+    xaxis: axis({type: 'date', anchor: 'y2', range: [x0, X[n]], tickformat: '%y.%m'}),
     yaxis: axis({domain: [0.56, 1], range: padRange(sy, false)}),
     yaxis2: axis({domain: [0, 0.5], range: [Math.min(0.4, ...yy) - 0.03, 1.3], dtick: 0.1}),  // 그림처럼 1.3까지(드물게 더 튄 날은 잘림)
     shapes: [{type: 'rect', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: 0.8, y1: 0.9, fillcolor: css('--good'), opacity: 0.18, line: {width: 0}, layer: 'below'},
