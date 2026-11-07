@@ -221,11 +221,12 @@ footer a{color:var(--ink2)}
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>S&amp;P500</b>은 미국 대표 회사 500곳, <b>다우</b>는 30곳의 주가를 모은 지수예요. <b>QQQ</b>(나스닥 큰 회사 100곳)·<b>SOXX</b>(미국 반도체 회사들)는 여러 주식을 한 바구니에 담아 사고파는 <b>ETF</b>예요.</div>
+      <div>차트의 <b>연한 회색 선</b> = 200일선(최근 200거래일 평균 가격)이에요. 가격이 이 선 위면 긴 흐름이 오르는 중이에요. <b style="color:var(--bad)">빨간 구간</b> = 가장 비쌌던 날보다 10% 넘게 빠진 때예요.</div>
     </div>
     <div id="mkt-etf"></div>
     <div class="memo" id="midterm" style="margin:8px 0"></div>
     <div class="memo" id="seasonmemo" style="margin:8px 0"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC·다우 ^DJI 지수, QQQ·SOXX 종가는 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = S&amp;P500·다우 2020년~, QQQ 1999년~, SOXX 2001년~).</p>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(S&amp;P500 ^GSPC·다우 ^DJI 지수, QQQ·SOXX 종가는 배당 빼고 가격만), 매일 갱신. 토스증권과 같은 방식: 5일 = 5거래일 전 종가, 1개월·3개월 = 오늘(한국 날짜)에서 30일·90일 전(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 차트 기간을 바꿀 수 있어요(전체 = S&amp;P500·다우 2020년~, QQQ 1999년~, SOXX 2001년~). 200일선 = 최근 200거래일 종가 평균, 이격도 = 종가 ÷ 200일선 − 1, 고점 대비 = 종가 ÷ 자료 기간 중 가장 높은 종가 − 1(둘 다 이 화면에서 계산). 아이디어: user: 사용자가 보낸 '시장지수 상승 추세 판단' 그림(26.11.6).</p>
   </div>
 
   <h2 id="sec-usdrop">📉 나스닥100 · 반도체 지수 — 하루에 얼마나 빠졌나</h2>
@@ -241,7 +242,7 @@ footer a{color:var(--ink2)}
   <div class="card"><h3><span>반도체 지수 (^SOX)</span><span class="small" id="dropdate-sox"></span></h3>
     <div class="nowline" id="dropsig-sox"></div>
     <div id="drop-sox" class="plot" style="height:380px"></div></div>
-  <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance 매일 종가(나스닥100 ^NDX 1985-10~, 필라델피아 반도체 지수 ^SOX 1994-05~). 하루 변동률 = 그날 종가 ÷ 전날 종가 − 1, 200일선 = 최근 200거래일 종가 평균(둘 다 이 화면에서 계산). 동그라미 = 보이는 기간에서 가장 크게 빠진 날과 마지막 날. 🚨·⚠️ 단계 = 이 대시보드의 규칙: 최근 20거래일 중 가장 크게 빠진 날이 그 지수의 모든 날 가운데 하락 폭 하위 0.5% 안이면 🚨 엄청난 공포, 2% 안이면 ⚠️ 큰 공포. 맨 위 기간 버튼을 누르면 같이 바뀌고, 10년은 여기 버튼에만 있어요. 비교: 사용자 제공 그림(26.11.06, user:)의 −6.4%·−12.3%(11/5), 코로나 −12.2%·−15.9%(20.03.16), 파란 선 27,976·10,824와 같은 숫자예요(여기는 소수 둘째 자리까지: −6.36%·−12.25%).</p>
+  <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance 매일 종가(나스닥100 ^NDX 1985-10~, 필라델피아 반도체 지수 ^SOX 1994-05~). 하루 변동률 = 그날 종가 ÷ 전날 종가 − 1, 200일선 = 최근 200거래일 종가 평균(둘 다 이 화면에서 계산). 빨간 점선 = 보이는 기간에서 가장 크게 빠진 날(마지막 날도 내렸으면 그날도). 🚨·⚠️ 단계 = 이 대시보드의 규칙: 최근 20거래일 중 가장 크게 빠진 날이 그 지수의 모든 날 가운데 하락 폭 하위 0.5% 안이면 🚨 엄청난 공포, 2% 안이면 ⚠️ 큰 공포. 맨 위 기간 버튼을 누르면 같이 바뀌고, 10년은 여기 버튼에만 있어요. 비교: 사용자 제공 그림(26.11.06, user:)의 −6.4%·−12.3%(11/5), 코로나 −12.2%·−15.9%(20.03.16), 파란 선 27,976·10,824와 같은 숫자예요(여기는 소수 둘째 자리까지: −6.36%·−12.25%).</p>
 
   <h2 id="sec-etfdd">📉 고점 대비 하락률 — AI 인프라 · 주요 지수 ETF</h2>
   <div class="glossary">
@@ -2639,6 +2640,13 @@ function fxTrend(o) {
   }
   return segs;
 }
+// 200일선·고점 대비(사용자 요청 26.11.07, 미국 지수 4개): 종가로 화면에서 계산
+const MA_DD = ['sp500', 'qqq', 'soxx', 'dow'];
+function maDd(y) {
+  let s = 0, pk = -Infinity;
+  return {ma: y.map((v, i) => { s += v - (i >= 200 ? y[i - 200] : 0); return i >= 199 ? s / 200 : null; }),
+    dd: y.map(v => { pk = Math.max(pk, v); return (v / pk - 1) * 100; })};
+}
 function mktBlock(boxId, list) {
   const U = DATA.usmkt, box = document.getElementById(boxId);
   if (!U) return;
@@ -2656,13 +2664,16 @@ function mktBlock(boxId, list) {
       <div class="fgchips">${(o.d5 !== undefined ? [['전일', o.d1], ['5일', o.d5], ['1개월', o.m1], ['3개월', o.m3]] : [['전일', o.d1], ['1주 전', o.w1], ['1달 전', o.m1]])
         .map(([l, v]) => `<span class="chip">${l} ${o.d5 !== undefined && v != null ? `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>` : ch(k, v)}</span>`).join('')}</div>
       ${o.peak ? `<div class="small" style="margin:-6px 4px 6px;font-size:11px">최고점 ${fmtNum(o.peak.value, 2)} (${md(o.peak.date)}) 대비 ${o.mdd >= 0 ? '최고점이에요' : fmtPct(o.mdd)}</div>` : ''}
+      ${MA_DD.includes(k) ? (() => { const T = maDd(o.y), n = o.y.length - 1, g = (o.y[n] / T.ma[n] - 1) * 100, pi = o.y.indexOf(Math.max(...o.y)), dp = unit === 'pt' ? 0 : 2;
+        return `<div class="small" style="margin:-4px 4px 4px;font-size:12px;color:var(--ink)"><span style="white-space:nowrap">200일선(${fmtNum(T.ma[n], dp)})보다 <b class="${g >= 0 ? 'up' : 'down'}">${g >= 0 ? '+' : '−'}${Math.abs(g).toFixed(1)}% ${g >= 0 ? '위' : '아래'}</b></span> · <span style="white-space:nowrap">고점(${md(o.x[pi])} ${fmtNum(o.y[pi], dp)}) 대비 <b${T.dd[n] <= -10 ? ' class="down"' : ''}>${T.dd[n] > -0.05 ? '고점이에요' : '−' + Math.abs(T.dd[n]).toFixed(1) + '%'}</b></span></div>`; })() : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
       <div id="usmkt-${k}" class="plot" style="height:170px"></div>
       ${T ? `<div class="small" style="margin:2px 4px 0;font-size:11px">배경 ${sq('--g2')} 올라가는 추세 ${sq('--g1')} 내려가는 추세 · 색이 바뀌는 날 = 추세가 꺾인 날(20일 평균과 60일 평균이 엇갈린 날)</div>` : ''}</div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
     const o = U[k], last = o.x[o.x.length - 1], xs = xStartFor(last, o.x[0]), T = k === 'usdkrw' ? fxTrend(o) : null;
-    const vis = o.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), yr = padRange(vis.map(i => o.y[i]), false);
+    const M = MA_DD.includes(k) ? maDd(o.y) : null;
+    const vis = o.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), yr = padRange(vis.map(i => o.y[i]).concat(M ? vis.map(i => M.ma[i]).filter(v => v != null) : []), false);
     let shapes = [], annotations = [];
     if (T) {
       shapes = T.map((g, j) => ({type: 'rect', xref: 'x', yref: 'paper', x0: g.x0, x1: T[j + 1] ? T[j + 1].x0 : last, y0: 0, y1: 1,
@@ -2674,8 +2685,11 @@ function mktBlock(boxId, list) {
         showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--muted'), font: {size: 10, color: css('--ink2')}}));
       yr[0] -= pad; yr[1] += pad;
     }
-    Plotly.react('usmkt-' + k, [{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--g1', dow: '--g1', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--cds', kospi: '--g1', kosdaq: '--g1'}[k] || '--ink2'), width: PM[PERIOD] <= 3 ? 2 : 1.5},
+    const lw = PM[PERIOD] <= 3 ? 2 : 1.5;  // SOXX도 파란 선(빨간 구간이 보이게, 26.11.07)
+    Plotly.react('usmkt-' + k, (M ? [{x: o.x, y: M.ma, type: 'scatter', mode: 'lines', line: {color: css('--muted'), width: 1.3}, opacity: 0.6,
+        customdata: M.ma.map(v => v == null ? '' : fmtNum(v, 2)), hovertemplate: '200일선 %{customdata}<extra></extra>'}] : []).concat([{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--g1', dow: '--g1', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--g1', kospi: '--g1', kosdaq: '--g1'}[k] || '--ink2'), width: lw},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
+      M ? [{x: o.x, y: o.y.map((v, i) => M.dd[i] <= -10 || M.dd[i + 1] <= -10 ? v : null), type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: lw}, hoverinfo: 'skip'}] : []),
       tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
         xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),
         yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
@@ -2798,16 +2812,17 @@ function renderUsDrop() {
     let w = 0;
     P.forEach((v, i) => { if (v < P[w]) w = i; });
     const marks = [w, P.length - 1].filter((v, i, a) => a.indexOf(v) === i && P[v] < 0);
-    const ann = marks.filter(i => i < P.length - 1).map(i => ({x: X[i], y: P[i], xref: 'x', yref: 'y2', text: `${md(X[i])} <b>${sg(P[i])}</b>`, showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css('--bad'),
-      ax: i / P.length > 0.6 ? -30 : 30, ay: 0, xanchor: i / P.length > 0.6 ? 'right' : 'left', font: {size: 11, color: css('--bad')}, bgcolor: css('--surface'), borderpad: 1}));
+    // 크게 빠진 날 = 빨간 점선(두 칸 모두) + 작은 글자(상자 없이, 막대 끝 바로 아래) — 사용자 요청 26.11.07
+    const ann = marks.filter(i => i < P.length - 1).map(i => ({x: X[i], y: P[i], xref: 'x', yref: 'y2', yanchor: 'top', yshift: -1, showarrow: false, text: `${md(X[i])} ${sg(P[i])}`,
+      xanchor: i / P.length > 0.6 ? 'right' : 'left', xshift: i / P.length > 0.6 ? -3 : 3, font: {size: 9.5, color: css('--bad')}}));
+    const vline = marks.map(i => ({type: 'line', xref: 'x', yref: 'paper', x0: X[i], x1: X[i], y0: 0, y1: 0.92, line: {color: css('--bad'), width: 1, dash: 'dot'}}));
     const pr = [Math.min(...P), Math.max(...P)];
     Plotly.react('drop-' + k, [
       {x: X, y: Y, type: 'scatter', mode: 'lines', line: {color: css('--ink'), width: mo && mo <= 12 ? 1.6 : 1.1}, hovertemplate: `${nm} %{y:,.2f}<extra></extra>`},
       {x: X, y: M, type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.4}, hovertemplate: '200일선 %{y:,.0f}<extra></extra>'},
-      {x: X, y: P, type: 'bar', yaxis: 'y2', marker: {color: P.map(v => css(v >= 0 ? '--good' : '--bad')), line: {width: 0}}, hovertemplate: '하루 %{y:+.2f}%<extra></extra>'},
-      {x: marks.map(i => X[i]), y: marks.map(i => P[i]), yaxis: 'y2', type: 'scatter', mode: 'markers', marker: {symbol: 'circle-open', size: 18, color: css('--bad'), line: {width: 2}}, hoverinfo: 'skip'},
+      {x: X, y: P, type: 'bar', yaxis: 'y2', marker: {color: P.map(v => css(v >= 0 ? '--good' : '--bad')), line: {width: 0}}, customdata: P.map(v => v == null ? '' : sg(v)), hovertemplate: '하루 %{customdata}<extra></extra>'},  // 소수 둘째 자리까지
     ], tagLast(Object.assign(baseLayout(), {
-      bargap: 0,
+      bargap: 0, shapes: vline,
       xaxis: axis({type: 'date', anchor: 'y2', range: [X[0], last], tickformat: !mo || mo > 36 ? '%Y' : '%y.%m'}),
       yaxis: axis({domain: [0.44, 0.92], range: padRange(Y.concat(M.filter(v => v != null)), false)}),
       yaxis2: axis({domain: [0, 0.36], range: [pr[0] * 1.3, Math.max(pr[1] * 1.15, 1)], ticksuffix: '%', zeroline: true, zerolinecolor: css('--line')}),
