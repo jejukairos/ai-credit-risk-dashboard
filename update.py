@@ -1052,8 +1052,8 @@ def build_kr_investors():
                    "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]],
                    "big": {k: [int(v >= t) for v, t in zip(m[k], th[k].shift(1))] for k in BIG_BUY},
                    "big_th": {k: round(float(th[k].iloc[-2]), 0) for k in BIG_BUY}}
-        if krx is not None:  # 외국인 월별 순매수(억원, 거래소만 — 사용자 그림 '외국인 월별 코스피 순매수' 26.11.08(자료 한국거래소)과 같은 기준), 2025-05~
-            q = krx[(krx["market"] == mk) & (krx["date"] >= "2025-05-01")]
+        if krx is not None:  # 외국인 월별 순매수(억원, 거래소만 — 사용자 그림 '외국인 월별 코스피 순매수' 26.11.08(자료 한국거래소)과 같은 기준), 거래소 파일 처음(2005-01)부터 — 화면이 맨 위 기간 버튼만큼 잘라 씀
+            q = krx[krx["market"] == mk]
             g = q.groupby(q["date"].str[:7])["foreign"].sum()
             out[mk]["mon"] = {"m": list(g.index), "foreign": [round(float(v)) for v in g], "last": q["date"].max()}
         if os.path.exists(kp):  # 매물대: 거래소만 순매수(억원)를 그날 종가가 속한 가격대(코스피 400pt·코스닥 50pt)마다 더함 → 조원, 기간마다 미리 계산

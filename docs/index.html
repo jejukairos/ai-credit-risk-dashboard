@@ -1390,14 +1390,14 @@ function renderInvestors() {
     yaxis2: axis({domain: [0, 0.5], showgrid: false}),
     annotations: [lbl(0.95, '개인 · 외국인 · 기관 · 기타법인'), lbl(0.51, '기관 안에서는 누가? (칸마다 길이 기준이 달라요)')],
   }), CFG);
-  renderInvMon(o, mkn, md);
-  // 연기금 순매수 추이: 최근 40거래일 하루 값(억원), 점선 = 대량매수 기준선(update.py big_th: 지난 1년 상위 5%)
-  const k0 = Math.max(0, n - 40), PX = o.x.slice(k0), PY = o.pension.slice(k0), pth = o.big_th.pension, pl = PX.length - 1;
-  const pk = PY.reduce((b, v, i) => Math.abs(v) > Math.abs(PY[b]) ? i : b, 0), tk = PX.filter((_, i) => (pl - i) % 8 === 0);
-  document.getElementById('invpentitle').innerHTML = `<b>🏦 ${mkn} 연기금 순매수 추이</b> — 최근 ${PX.length}거래일(억원)<br><span class="small">초록 = 그날 더 많이 삼, 빨강 = 더 많이 팖 · 점선 = 대량매수 기준(${fmtNum(pth)}억)</span>`;
+  renderInvMon(o, mkn, md, from);
+  // 연기금 순매수 추이: 맨 위 기간 버튼 기간의 하루 값(억원, 26.11.09 사용자 요청 — 전엔 최근 40거래일 고정), 점선 = 대량매수 기준선(update.py big_th: 지난 1년 상위 5%)
+  const PX = o.x.slice(i0), PY = o.pension.slice(i0), pth = o.big_th.pension, pl = PX.length - 1, lng = PX.length > 130, st = Math.max(1, Math.ceil(PX.length / 5));
+  const pk = PY.reduce((b, v, i) => Math.abs(v) > Math.abs(PY[b]) ? i : b, 0), tk = PX.filter((_, i) => (pl - i) % st === 0), ymd = d => d.slice(2).replace(/-/g, '.');
+  document.getElementById('invpentitle').innerHTML = `<b>🏦 ${mkn} 연기금 순매수 추이</b> — ${ymd(PX[0])}~${ymd(last)} · ${PX.length}거래일(억원)<br><span class="small">초록 = 그날 더 많이 삼, 빨강 = 더 많이 팖 · 점선 = 대량매수 기준(${fmtNum(pth)}억)</span>`;
   Plotly.react('invpension', [{type: 'bar', x: PX, y: PY, marker: {color: PY.map(v => css(v >= 0 ? '--good' : '--bad'))}, hovertemplate: '%{x} 연기금 %{y:+,.0f}억<extra></extra>'}],
     Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 44, r: 18, t: 16, b: 24}, bargap: 0.25,
-      xaxis: axis({type: 'category', tickvals: tk, ticktext: tk.map(md), showgrid: false}),
+      xaxis: axis({type: 'category', tickvals: tk, ticktext: tk.map(d => lng ? ymd(d).slice(0, 5) : md(d)), showgrid: false}),
       yaxis: axis({zeroline: true, zerolinecolor: css('--ink2'), tickformat: ',.0f'}),
       shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: pth, y1: pth, line: {color: css('--muted'), width: 1, dash: 'dot'}}],
       annotations: [...new Set([pk, pl])].map(i => ({x: PX[i], y: PY[i], text: `<b>${won(PY[i])}</b>`, showarrow: false, xanchor: i === pl ? 'right' : 'center',
@@ -1488,19 +1488,22 @@ function renderKrFwd() {
     `12개월 선행 = 올해 남은 달 수 ÷ 12 × 올해 예상 + 나머지 × 내년 예상(11월이면 1/12 : 11/12 — 그림 숫자로 거꾸로 확인한 그림과 같은 방식). 그림 쪽과는 넣은 종목 수가 달라서 몇 % 차이 날 수 있어요. 지주회사와 자회사 이익이 겹쳐 더해질 수 있어요. 그림 속 코스닥 'EPS'도 단위가 조원이라 순이익 합으로 봤어요.`;
 }
 // 외국인 월별 순매수(사용자 그림 26.11.08을 따라 함): 빨강 = 순매수, 파랑 = 순매도(한국 증시 색), 거래소만
-function renderInvMon(o, mkn, md) {
-  const M = o.mon, el = document.getElementById('invmon');
-  if (!M || !el) return;
+function renderInvMon(o, mkn, md, from) {
+  const A = o.mon, el = document.getElementById('invmon');
+  if (!A || !el) return;
+  // 맨 위 기간 버튼 기간의 달만(26.11.09 사용자 요청). 24달 넘으면 막대 숫자·달 번호 대신 해마다 눈금(폰에서 글자가 겹쳐서)
+  const s = Math.max(0, A.m.findIndex(m => m >= from.slice(0, 7))), M = {m: A.m.slice(s), foreign: A.foreign.slice(s), last: A.last}, few = M.m.length <= 24;
   const jo = v => (v < 0 ? '−' : '') + (Math.abs(v) / 1e4).toFixed(1), col = v => v >= 0 ? '#e5322d' : '#2f6fe0', y = M.foreign.map(v => v / 1e4);
-  const yr = [...new Set(M.m.map(m => m.slice(0, 4)))], b = M.m.findIndex(m => m.endsWith('-01'));
-  document.getElementById('invmontitle').innerHTML = `<b>🌏 외국인 월별 ${mkn} 순매수·순매도</b> — 조원<br><span class="small">빨강 = 더 많이 삼, 파랑 = 더 많이 팖 · 이번 달은 ${md(M.last)}까지 · 거래소(KRX) 기준</span>`;
-  Plotly.react('invmon', [{type: 'bar', x: M.m, y, marker: {color: M.foreign.map(col)}, text: M.foreign.map(jo), textposition: 'outside', textangle: -90, cliponaxis: false, constraintext: 'none',
+  const yr = [...new Set(M.m.map(m => m.slice(0, 4)))], jan = M.m.map((m, i) => m.endsWith('-01') && i > 0 ? i : -1).filter(i => i > 0), ys = Math.ceil(yr.length / 7);
+  const yt = M.m.filter(m => m.endsWith('-01') && (yr[yr.length - 1] - m.slice(0, 4)) % ys === 0);
+  document.getElementById('invmontitle').innerHTML = `<b>🌏 외국인 월별 ${mkn} 순매수·순매도</b> — 조원<br><span class="small">빨강 = 더 많이 삼, 파랑 = 더 많이 팖 · ${M.m[0].slice(0, 4)}년 ${+M.m[0].slice(5)}월~이번 달(${md(M.last)}까지) · 거래소(KRX) 기준</span>`;
+  Plotly.react('invmon', [{type: 'bar', x: M.m, y, marker: {color: M.foreign.map(col)}, text: few ? M.foreign.map(jo) : null, textposition: 'outside', textangle: -90, cliponaxis: false, constraintext: 'none',
     textfont: {size: 9.5, color: M.foreign.map(col)}, customdata: M.m.map((m, i) => `${m.slice(0, 4)}년 ${+m.slice(5)}월 ${M.foreign[i] >= 0 ? '+' : ''}${fmtNum(M.foreign[i])}억`), hovertemplate: '%{customdata}<extra></extra>'}],
     Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 34, r: 6, t: 22, b: 24}, bargap: 0.22,
-      xaxis: axis({type: 'category', tickvals: M.m, ticktext: M.m.map(m => +m.slice(5)), showgrid: false, tickfont: {size: 10}}),
-      yaxis: axis({range: [Math.min(...y, 0) * 1.4 - 1, Math.max(...y, 0) * 1.6 + 1], zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '조'}),
-      shapes: b > 0 ? [{type: 'line', xref: 'x', yref: 'paper', x0: b - 0.5, x1: b - 0.5, y0: 0, y1: 1, line: {color: css('--muted'), width: 1}}] : [],
-      annotations: yr.map((Y, k) => { const ix = M.m.map((m, i) => m.startsWith(Y) ? i : -1).filter(i => i >= 0);
+      xaxis: axis(Object.assign({type: 'category', showgrid: false, tickfont: {size: 10}}, few ? {tickvals: M.m, ticktext: M.m.map(m => +m.slice(5))} : {tickvals: yt, ticktext: yt.map(m => m.slice(0, 4))})),
+      yaxis: axis({range: few ? [Math.min(...y, 0) * 1.4 - 1, Math.max(...y, 0) * 1.6 + 1] : [Math.min(...y, 0) * 1.1 - 1, Math.max(...y, 0) * 1.1 + 1], zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '조'}),
+      shapes: few ? jan.map(b => ({type: 'line', xref: 'x', yref: 'paper', x0: b - 0.5, x1: b - 0.5, y0: 0, y1: 1, line: {color: css('--muted'), width: 1}})) : [],
+      annotations: (few ? yr : []).map((Y, k) => { const ix = M.m.map((m, i) => m.startsWith(Y) ? i : -1).filter(i => i >= 0);
         return {xref: 'x', yref: 'paper', x: (ix[0] + ix[ix.length - 1]) / 2, y: 1.02, yanchor: 'bottom', showarrow: false, text: `<b>${Y}</b>`, font: {size: 13, color: k % 2 ? '#2f6fe0' : '#e5322d'}}; })}), CFG);
 }
 
