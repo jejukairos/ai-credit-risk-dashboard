@@ -1037,9 +1037,13 @@ def build_kr_investors():
     if not os.path.exists(path):
         return None
     df = pd.read_csv(path, dtype={"date": str})
+    kp = os.path.join(DATA, "kr_investors_krx.csv")
+    krx = pd.read_csv(kp, dtype={"date": str}) if os.path.exists(kp) else None
+    if krx is not None:  # 넥스트레이드(2025-03~) 전엔 거래소만 = 통합 → 기간 버튼 3년·5년용으로 그 앞 날짜는 거래소 파일에서(사용자 요청 26.11.08)
+        df = pd.concat([krx[krx["date"] < df["date"].min()], df])
     out = {}
     for mk in ("kospi", "kosdaq"):
-        m = df[df["market"] == mk].sort_values("date").tail(520)
+        m = df[df["market"] == mk].sort_values("date").tail(1300)  # 약 5년
         lp = os.path.join(DATA, f"{mk}_long.csv")
         idx = pd.read_csv(lp, dtype={"date": str}).set_index("date")[mk] if os.path.exists(lp) else pd.Series(dtype=float)
         # 대량매수 = 그날 순매수가 그 전 1년(250거래일, 최소 120일) 하루 값 중 상위 5% 이상. th = 다음 날 기준선
@@ -1048,7 +1052,10 @@ def build_kr_investors():
                    "idx": [None if pd.isna(idx.get(d)) else float(idx.get(d)) for d in m["date"]],
                    "big": {k: [int(v >= t) for v, t in zip(m[k], th[k].shift(1))] for k in BIG_BUY},
                    "big_th": {k: round(float(th[k].iloc[-2]), 0) for k in BIG_BUY}}
-        kp = os.path.join(DATA, "kr_investors_krx.csv")
+        if krx is not None:  # 외국인 월별 순매수(억원, 거래소만 — 사용자 그림 '외국인 월별 코스피 순매수' 26.11.08(자료 한국거래소)과 같은 기준), 2025-05~
+            q = krx[(krx["market"] == mk) & (krx["date"] >= "2025-05-01")]
+            g = q.groupby(q["date"].str[:7])["foreign"].sum()
+            out[mk]["mon"] = {"m": list(g.index), "foreign": [round(float(v)) for v in g], "last": q["date"].max()}
         if os.path.exists(kp):  # 매물대: 거래소만 순매수(억원)를 그날 종가가 속한 가격대(코스피 400pt·코스닥 50pt)마다 더함 → 조원, 기간마다 미리 계산
             k = pd.read_csv(kp, dtype={"date": str})
             k = k[(k["market"] == mk) & k["date"].isin(idx.index)].sort_values("date")

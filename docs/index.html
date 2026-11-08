@@ -586,13 +586,15 @@ footer a{color:var(--ink2)}
   <div class="bar own" role="group" aria-label="투자자 시장" id="invmk" style="position:static">
     <button data-m="kospi" class="on">코스피</button><button data-m="kosdaq">코스닥</button>
   </div>
-  <div class="bar own" role="group" aria-label="투자자 기간" id="invbar" style="position:static">
-    <button data-i="1d" class="on">1일</button><button data-i="1w">1주</button><button data-i="1m">1개월</button><button data-i="3m">3개월</button>
+  <div class="bar own p7" role="group" aria-label="투자자 기간" id="invbar" style="position:static">
+    <button data-i="1d" class="on">1일</button><button data-i="1w">1주</button><button data-i="1m">1개월</button><button data-i="3m">3개월</button><button data-i="6m">6개월</button><button data-i="1y">1년</button><button data-i="3y">3년</button><button data-i="5y">5년</button>
   </div>
   <div class="card"><h3><span id="invtitle"></span></h3>
     <div class="small" id="invsum" style="margin:0 4px 6px;color:var(--ink)"></div>
     <div class="fgchips" id="invbig"></div>
     <div id="invplot" class="plot" style="height:400px"></div>
+    <div class="small" id="invmontitle" style="margin:10px 4px 0;color:var(--ink)"></div>
+    <div id="invmon" class="plot" style="height:300px"></div>
     <div class="small" id="invpentitle" style="margin:10px 4px 0;color:var(--ink)"></div>
     <div id="invpension" class="plot" style="height:230px"></div>
     <div id="invbighist"></div>
@@ -612,7 +614,7 @@ footer a{color:var(--ink2)}
       <div>· <b>보험·은행·기타금융기관</b> 보험회사(보험료를 길게 굴림)·은행·저축은행·캐피털 등이에요. 금액이 작은 편이에요.</div>
       <div><b>기타법인</b> 금융회사가 아닌 일반 회사예요. 자기 회사 주식을 사들이는 <b>자사주 매입</b>도 여기 잡혀요.</div>
     </details></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a>(한국거래소 KRX + 넥스트레이드 NXT 합계 = 증권사 HTS '통합' 화면과 같음, 순매수 억원, 매일 16시·20시 자동 갱신, 2024-05-14부터 · 마감 직후엔 잠정치라 다음 갱신 때 확정치로 바뀌어요). 1주·1개월·3개월 = 마지막 날부터 7일·1달·3달 안 거래일 합계. 묶음은 네이버 화면과 같아요: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모, 연기금등 = 연기금+국가·지자체, 기관계 = 금융투자~연기금등 합. 지수 변화 = 네이버 금융 종가(기간 시작 전날 → 마지막 날). 한 줄 요약은 숫자로 자동으로 만든 거예요.</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a>(한국거래소 KRX + 넥스트레이드 NXT 합계 = 증권사 HTS '통합' 화면과 같음, 순매수 억원, 매일 16시·20시 자동 갱신, 2024-05-14부터 · 마감 직후엔 잠정치라 다음 갱신 때 확정치로 바뀌어요). 1주~5년 = 마지막 날부터 7일·1달·3달·6달·1년·3년·5년 안 거래일 합계(넥스트레이드가 생기기 전 2024-05 앞은 거래소 자료 — 그때는 거래소 = 통합). 외국인 월별 그림은 그림(자료 한국거래소)과 같은 <b>거래소(KRX)만</b> 기준이라 위 합계(통합)와 조금 달라요 — 그림과 비교하면 19달 모두 방향(+/−)이 같고 크기는 대부분 몇 % 차이(그림 쪽 최근 달은 반올림된 값). 그림 모양: user: 사용자가 보낸 '외국인 월별 코스피 순매수,순매도액' 그림(26.11.08, @going_tothe_moon, 자료 한국거래소). 묶음은 네이버 화면과 같아요: 외국인 = 외국인+기타외국인, 투신(사모) = 투신+사모, 연기금등 = 연기금+국가·지자체, 기관계 = 금융투자~연기금등 합. 지수 변화 = 네이버 금융 종가(기간 시작 전날 → 마지막 날). 한 줄 요약은 숫자로 자동으로 만든 거예요.</p>
   </div>
 
   <h2 id="sec-fx">원/달러 환율</h2>
@@ -621,6 +623,7 @@ footer a{color:var(--ink2)}
       <div><b>원/달러 환율</b> 1달러를 사려면 원화가 <b>얼마</b> 필요한지예요. 오르면 원화 값이 떨어진 거예요(원화 약세). 외국인이 한국 주식을 팔고 달러로 바꿔 나갈 때 자주 올라요.</div>
     </div>
     <div id="fx"></div>
+    <div id="fxfc"></div>
     <div class="memo"><details class="more"><summary>💡 <b>환율이 수출주에 주는 영향</b> — 환율이 내려가면 수출주가 약해지기 쉬워요</summary>
       환율이 <b>내려가면</b>(원화 강세) 수출 회사는 물건을 똑같이 1달러에 팔아도 원화로 바꾸면 받는 돈이 줄어요 → 이익이 줄 거란 걱정에 <b>수출주 주가가 약해지기 쉬워요.</b> 환율이 <b>오르면</b> 반대로 수출주엔 도움이 돼요.
       <br><b>이번에 생긴 일</b> 환율이 1,500원대에서 1,300원대로 내려오면서 <b>화장품·자동차·반도체</b> 같은 수출주가 크게 타격을 받았어요.
@@ -632,6 +635,7 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-thermo">🎢 광기·외면 곡선 — 한국</h2>
   <div class="card" id="krcurve-card"></div>
+  <div class="card" id="kwpath-kr"></div>
   <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 같은 카드가 '🚦 시장' 탭 미국 곡선 아래에도 있어요. 자료: 네이버 금융(지수 일별 종가)</p>
 
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
@@ -967,6 +971,7 @@ footer a{color:var(--ink2)}
     </div>
     <div class="card" id="curve-card"></div>
     <div class="card" id="krcurve-mkt"></div>
+    <div class="card" id="kwpath-mkt"></div>
     <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
       <div class="small" style="margin:2px 4px 6px">시장이 크게 무너지면 사람들은 "○○ 사건 때문"이라고 말해요. 이 그림은 <b>사건(이벤트)은 불을 붙인 성냥(촉매)</b>일 뿐이고, <b>진짜 원인은 그 전부터 약해진 기초 체력(펀더멘털)</b>이라고 봐요. 위 가로선 = 시장이 느낀 것, 파란 선 = 실제로 나빠지던 펀더멘털.</div>
       <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/event_catalyst.png" width="966" height="1673" loading="lazy" alt="이벤트는 촉매, 원인은 펀더멘털 — 2007~08 금융위기와 지금 AI capex 비교 손그림"></div>
@@ -1336,7 +1341,7 @@ function renderInvestors() {
   const A = DATA.kr_investors, o = A && A[INV_MK];
   if (!o || !o.x.length) { document.getElementById('sec-investor').style.display = 'none'; return; }
   const n = o.x.length, last = o.x[n - 1], md = s => s.slice(5).replace('-', '/');
-  const back = {'1w': 7, '1m': 30.4, '3m': 91.3}[INV_P];
+  const back = {'1w': 7, '1m': 30.4, '3m': 91.3, '6m': 182.6, '1y': 365.25, '3y': 1095.75, '5y': 1826.25}[INV_P];
   const from = back ? new Date(new Date(last) - back * 864e5).toISOString().slice(0, 10) : last;
   let i0 = o.x.findIndex(d => d > from); if (INV_P === '1d' || i0 < 0) i0 = n - 1;
   const sum = k => o[k].slice(i0).reduce((a, b) => a + b, 0), S = Object.fromEntries(INV_COLS.map(([k]) => [k, sum(k)]));
@@ -1364,6 +1369,7 @@ function renderInvestors() {
     yaxis2: axis({domain: [0, 0.5], showgrid: false}),
     annotations: [lbl(0.95, '개인 · 외국인 · 기관 · 기타법인'), lbl(0.51, '기관 안에서는 누가? (칸마다 길이 기준이 달라요)')],
   }), CFG);
+  renderInvMon(o, mkn, md);
   // 연기금 순매수 추이: 최근 40거래일 하루 값(억원), 점선 = 대량매수 기준선(update.py big_th: 지난 1년 상위 5%)
   const k0 = Math.max(0, n - 40), PX = o.x.slice(k0), PY = o.pension.slice(k0), pth = o.big_th.pension, pl = PX.length - 1;
   const pk = PY.reduce((b, v, i) => Math.abs(v) > Math.abs(PY[b]) ? i : b, 0), tk = PX.filter((_, i) => (pl - i) % 8 === 0);
@@ -1376,7 +1382,8 @@ function renderInvestors() {
       annotations: [...new Set([pk, pl])].map(i => ({x: PX[i], y: PY[i], text: `<b>${won(PY[i])}</b>`, showarrow: false, xanchor: i === pl ? 'right' : 'center',
         yanchor: PY[i] >= 0 ? 'bottom' : 'top', font: {size: 11, color: css('--ink')}}))}), CFG);
   // 날짜별 표(접힘): 고른 기간의 날짜, 1일이면 최근 10거래일
-  const t0 = Math.min(i0, n - 10 < 0 ? 0 : n - 10), cell = v => `<td class="${v >= 0 ? 'up' : 'down'}">${fmtNum(v)}</td>`;
+  const t0 = Math.max(Math.min(i0, n - 10 < 0 ? 0 : n - 10), n - 250), cell =  // 표는 최근 250거래일까지
+    v => `<td class="${v >= 0 ? 'up' : 'down'}">${fmtNum(v)}</td>`;
   const tb = document.getElementById('invtable');
   tb.tHead.innerHTML = `<tr><th>날짜</th>${INV_COLS.map(([, l]) => `<th>${l}</th>`).join('')}</tr>`;
   tb.tBodies[0].innerHTML = o.x.slice(t0).map((d, j) => `<tr><td>${md(d)}</td>${INV_COLS.map(([k]) => cell(o[k][t0 + j])).join('')}</tr>`).reverse().join('');
@@ -1399,6 +1406,60 @@ function renderInvestors() {
       `<tr><td>${o.x[i].slice(2).replace(/-/g, '.')}</td><td>${o.idx[i] ? fmtNum(o.idx[i], 0) : '–'}</td><td>${pc(aft(i, 5))}</td><td>${pc(aft(i, 20))}</td></tr>`).join('')}</tbody></table></div>
     <div class="small">${o.x[0].slice(0, 4)}년~ 우리 자료로 자동 계산 · 20거래일이 지난 ${done.length}번 중 <b>${done.filter(i => aft(i, 20) > 0).length}번</b> 지수가 올랐어요. 횟수가 적어서 참고만 해요.</div>
   </div>`;
+}
+// 달러/원 환율 전망(우리은행 2026~27 분기 평균, 사용자 그림 '달러/원 환율 전망 2027년은 상저 하고' 26.11.08) — 새 전망이 나오면 이 숫자만 바꿈
+const FX_FC = {q: ['26.3Q', '26.4Q', '27.1Q', '27.2Q', '27.3Q', '27.4Q'], d: ['2026-08-15', '2026-11-15', '2027-02-15', '2027-05-15', '2027-08-15', '2027-11-15'],
+  avg: [1430, 1390, 1390, 1410, 1430, 1460], hi: [1560, 1450, 1450, 1460, 1480, 1520], lo: [1370, 1340, 1340, 1360, 1380, 1390]};
+function renderFxFc() {
+  const U = DATA.usmkt && DATA.usmkt.usdkrw, el = document.getElementById('fxfc');
+  if (!U || !el) return;
+  const i0 = U.x.findIndex(d => d >= '2026-01-01'), X = U.x.slice(i0), Y = U.y.slice(i0), last = U.x[U.x.length - 1];
+  // 실제 분기 평균(이 화면에서 계산): 전망이 있는 분기 중 자료가 있는 것만
+  const qs = FX_FC.q.map((q, j) => { const y = '20' + q.slice(0, 2), k = +q[3], a = `${y}-${String(k * 3 - 2).padStart(2, '0')}-01`, b = `${k === 4 ? +y + 1 : y}-${String(k === 4 ? 1 : k * 3 + 1).padStart(2, '0')}-01`;
+    const v = U.y.filter((_, i) => U.x[i] >= a && U.x[i] < b); return v.length ? {j, avg: v.reduce((s, x) => s + x, 0) / v.length, done: last >= b} : null; }).filter(Boolean);
+  const w = v => fmtNum(v, 0) + '원';
+  el.innerHTML = `<div class="small" style="margin:10px 4px 2px;color:var(--ink)"><b>📈 달러/원 환율 전망 — 2027년은 '상저하고'</b> <span class="small">(우리은행 2026~27 전망)</span></div>
+    <div class="small" style="margin:0 4px">은행이 "앞으로 1달러가 몇 원일까"를 <b>3달(분기)마다 평균</b>으로 예상한 거예요. <b style="color:#f07c1a">주황 점</b> = 예상 평균, 회색 띠 = 예상 범위(가장 높게~가장 낮게), 검은 선 = 실제 환율. '상저하고' = 상반기엔 낮고 하반기엔 높다는 뜻이에요.</div>
+    <div id="fxfcplot" class="plot" style="height:300px"></div>
+    <div class="small" style="margin:2px 4px;color:var(--ink)">${qs.map(r => `${FX_FC.q[r.j]} 실제 평균 <b>${w(r.avg)}</b>${r.done ? '' : '(지금까지)'} ↔ 전망 ${w(FX_FC.avg[r.j])}`).join(' · ')} · 지금 <b>${w(U.last)}</b>(${last.slice(5).replace('-', '/')})</div>
+    <p class="note" style="margin:6px 4px 2px">자료: 전망 = user: 사용자가 보내 준 그림 '달러/원 환율 전망 2027년은 상저 하고'(우리은행 2026-2027 달러/원 전망 평균값, 26.11.08 받음) — 새 전망이 나오면 바꿔요(자동으로 받을 곳이 없어요). 실제 환율 = Yahoo Finance(KRW=X), 분기 평균은 이 화면에서 계산(그날 값들의 평균).</p>`;
+  Plotly.react('fxfcplot', [
+    {x: FX_FC.d, y: FX_FC.lo, type: 'scatter', mode: 'lines', line: {width: 0}, hoverinfo: 'skip'},
+    {x: FX_FC.d, y: FX_FC.hi, type: 'scatter', mode: 'lines', line: {width: 0}, fill: 'tonexty', fillcolor: 'rgba(150,150,160,.22)', customdata: FX_FC.q.map((q, j) => `${q} 예상 범위 ${w(FX_FC.lo[j])}~${w(FX_FC.hi[j])}`), hovertemplate: '%{customdata}<extra></extra>'},
+    {x: X, y: Y, type: 'scatter', mode: 'lines', line: {color: css('--ink'), width: 1.4}, customdata: Y.map(v => fmtNum(v, 1)), hovertemplate: '실제 %{customdata}원<extra></extra>'},
+    {x: FX_FC.d, y: FX_FC.avg, type: 'scatter', mode: 'lines+markers+text', line: {color: '#f07c1a', width: 3}, marker: {size: 9, color: '#f07c1a', line: {color: '#fff', width: 1.5}},
+      text: FX_FC.avg.map(v => fmtNum(v)), textposition: 'top center', textfont: {size: 10, color: css('--ink')}, customdata: FX_FC.q, hovertemplate: '%{customdata} 예상 평균 %{y:,}원<extra></extra>'},
+  ], Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 44, r: 10, t: 10, b: 26},
+    xaxis: axis({type: 'date', range: ['2026-01-01', '2027-12-31'], tickvals: ['2026-01-01', ...FX_FC.d], ticktext: ['26.1', ...FX_FC.q.map((q, j) => j && q[1] === FX_FC.q[j - 1][1] ? q.slice(3) : q)], showgrid: false, tickfont: {size: 10}}),  // 같은 해는 '4Q'처럼 줄임
+    yaxis: axis({range: [Math.min(1320, ...Y) - 10, Math.max(1570, ...Y) + 10], tickformat: ',d'})}), CFG);
+}
+
+// 외국인 월별 순매수(사용자 그림 26.11.08을 따라 함): 빨강 = 순매수, 파랑 = 순매도(한국 증시 색), 거래소만
+function renderInvMon(o, mkn, md) {
+  const M = o.mon, el = document.getElementById('invmon');
+  if (!M || !el) return;
+  const jo = v => (v < 0 ? '−' : '') + (Math.abs(v) / 1e4).toFixed(1), col = v => v >= 0 ? '#e5322d' : '#2f6fe0', y = M.foreign.map(v => v / 1e4);
+  const yr = [...new Set(M.m.map(m => m.slice(0, 4)))], b = M.m.findIndex(m => m.endsWith('-01'));
+  document.getElementById('invmontitle').innerHTML = `<b>🌏 외국인 월별 ${mkn} 순매수·순매도</b> — 조원<br><span class="small">빨강 = 더 많이 삼, 파랑 = 더 많이 팖 · 이번 달은 ${md(M.last)}까지 · 거래소(KRX) 기준</span>`;
+  Plotly.react('invmon', [{type: 'bar', x: M.m, y, marker: {color: M.foreign.map(col)}, text: M.foreign.map(jo), textposition: 'outside', textangle: -90, cliponaxis: false, constraintext: 'none',
+    textfont: {size: 9.5, color: M.foreign.map(col)}, customdata: M.m.map((m, i) => `${m.slice(0, 4)}년 ${+m.slice(5)}월 ${M.foreign[i] >= 0 ? '+' : ''}${fmtNum(M.foreign[i])}억`), hovertemplate: '%{customdata}<extra></extra>'}],
+    Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 34, r: 6, t: 22, b: 24}, bargap: 0.22,
+      xaxis: axis({type: 'category', tickvals: M.m, ticktext: M.m.map(m => +m.slice(5)), showgrid: false, tickfont: {size: 10}}),
+      yaxis: axis({range: [Math.min(...y, 0) * 1.4 - 1, Math.max(...y, 0) * 1.6 + 1], zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '조'}),
+      shapes: b > 0 ? [{type: 'line', xref: 'x', yref: 'paper', x0: b - 0.5, x1: b - 0.5, y0: 0, y1: 1, line: {color: css('--muted'), width: 1}}] : [],
+      annotations: yr.map((Y, k) => { const ix = M.m.map((m, i) => m.startsWith(Y) ? i : -1).filter(i => i >= 0);
+        return {xref: 'x', yref: 'paper', x: (ix[0] + ix[ix.length - 1]) / 2, y: 1.02, yanchor: 'bottom', showarrow: false, text: `<b>${Y}</b>`, font: {size: 13, color: k % 2 ? '#2f6fe0' : '#e5322d'}}; })}), CFG);
+}
+
+// 코스피 경로 전망(키움증권 그림, 사용자 요청 26.11.08) — 한국 광기·외면 곡선 아래(한국 탭·시장 탭 두 곳)
+function renderKwPath() {
+  const K = DATA.usmkt && DATA.usmkt.kospi;
+  const now = K ? `<div class="small" style="margin:4px;color:var(--ink)">📍 지금 코스피 <b>${fmtNum(K.last, 0)}</b>(${K.last_date.slice(5).replace('-', '/')}) — 그림의 전고점 9,114p(6/22)보다 <b class="down">${(K.last / 9114 * 100 - 100).toFixed(1)}%</b>. 그림의 점선은 전망이고, 실제 길은 매일 바뀌어요.</div>` : '';
+  ['kwpath-kr', 'kwpath-mkt'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = `<h3><span>🧭 코스피 경로 전망 — 키움증권 그림</span></h3>
+    <div class="small" style="margin:2px 4px 6px">증권사(키움증권)가 그린 코스피의 <b>앞으로의 길</b>이에요. 지금은 <b>W자 바닥을 찾는 중</b>이고, 1분기 실적 시즌 전후 'AI 수익성 걱정'을 한 번 더 지나면, 2027년엔 금리·유가 같은 불안이 줄고 이익이 보이면서 다시 오를 거라고 봐요. 반도체 혼자 끌던 장에서 <b>여러 업종이 같이 오르는 장</b>으로 바뀔 거래요.</div>
+    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_path_kiwoom.png" width="966" height="966" loading="lazy" alt="코스피 경로 전망 — 2026년 1월~2027년, 전고점 6/22 9,114p, W자 바닥 탐색 뒤 2027년 상승 전망 (키움증권)"></div>
+    <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요. 한 번 더 누르면 원래대로.</div>${now}
+    <p class="note" style="margin:6px 4px 2px">자료: user: 사용자가 보내 준 키움증권 리서치센터 그림 '코스피 경로 전망'(그림 속 자료: FnGuide, 키움증권 · 26.11.08 받음). 증권사 전망이고 투자 권유가 아니에요. 그림은 자동으로 안 바뀌어요(지금 코스피 숫자만 매일 바뀜).</p>`; });
 }
 // 매물대(사용자 요청 26.11.06): 거래소만 순매수를 그날 종가가 속한 가격대마다 더한 값(update.py가 기간마다 미리 계산, 조원).
 // 한화 그림처럼 한 칸에 막대(가격대별 합)와 지수 선을 겹침(사용자 요청) — 막대 길이 축은 숨기고 숫자를 막대 끝에 적음
@@ -3445,7 +3506,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
