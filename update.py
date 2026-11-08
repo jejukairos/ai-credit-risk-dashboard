@@ -1168,47 +1168,86 @@ def build_idx_temp():
 WISE = "https://navercomp.wisereport.co.kr/v2/company"
 
 
+def _naver_caps(s, market, pages):
+    # 네이버 시총 순위 → [(종목코드, 시총 억원)]. 우선주·ETF 빼고 보통주만 (밸류 신호등과 같은 기준)
+    out = []
+    for page in range(1, pages + 1):
+        j = s.get(f"https://m.stock.naver.com/api/stocks/marketValue/{market}?page={page}&pageSize=60", timeout=30).json()
+        for x in j.get("stocks", []):
+            if x.get("stockEndType") == "stock" and not re.search(r"우[A-Z]?$|우\(", x.get("stockName", "")) and x["itemCode"].endswith("0"):
+                out.append((x["itemCode"], float(str(x["marketValue"]).replace(",", ""))))
+    return out
+
+
+WISE_ROWS = {"sales": "매출액", "op": "영업이익(발표기준)", "ni": "당기순이익(지배)", "eq": "자본총계(지배)"}
+
+
+def _wise_fin(s, code):
+    # 와이즈리포트 연간 주요재무(억원, 컨센서스 포함) → ({sales/op/ni/eq: {연도: 값}}, 추정(E) 연도 집합). 없는 항목은 빈 칸(NaN)
+    page = f"{WISE}/c1010001.aspx?cmp_cd={code}"
+    enc = re.search(r"encparam\s*:\s*'([^']+)'", s.get(page, timeout=30).text).group(1)
+    r = s.get(f"{WISE}/ajax/cF1001.aspx", headers={"Referer": page}, timeout=30,
+              params={"cmp_cd": code, "fin_typ": "0", "freq_typ": "Y", "extY": "0", "extQ": "0", "encparam": enc})
+    r.encoding = "utf-8"
+    tb = pd.read_html(io.StringIO(r.text))[-1]
+    cols = [c[1] if isinstance(c, tuple) else c for c in tb.columns]
+    names = list(tb.iloc[:, 0].astype(str).str.replace(r"\s+", "", regex=True))
+    yc = {int(str(c)[:4]): i for i, c in enumerate(cols) if re.match(r"\d{4}/\d\d", str(c))}
+    num = lambda v: float(str(v).replace(",", ""))  # noqa: E731
+    fin = {k: ({y: num(tb.iloc[names.index(lab), i]) for y, i in yc.items()} if lab in names else {}) for k, lab in WISE_ROWS.items()}
+    return fin, {int(str(c)[:4]) for c in cols if "(E)" in str(c)}
+
+
+def _fwd_w0(now):
+    return max(0.0, (12 - (now.month - 1) - now.day / 31) / 12)  # 올해 남은 비중 (12개월 선행 = 올해·내년 가중 평균)
+
+
+EARN_CSV = os.path.join(DATA, "kr_fwd_earn.csv")
+
+
+def _earn_append(market, now, used, total, sums):
+    # 코스피·코스닥 이익 컨센서스 합(조원) 하루 한 줄 기록 — 올해·내년 매출액·영업이익·순이익(지배) + 12개월 선행 순이익
+    # 12개월 선행 순이익은 달로 섞음(11월 = 올해 1/12 + 내년 11/12) — 사용자 그림(26.11.06) 숫자 791.0·1,132.6 → 1,103.7 과 같은 방식
+    y0, w0, jo = now.year, (12 - now.month) / 12, (lambda v: round(v / 1e4, 1))
+    row = {"date": now.strftime("%Y-%m-%d"), "market": market, "used": used, "total": total, "y0": y0,
+           **{f"{k}_y{i}": jo(sums[k][y0 + i]) for i in (0, 1) for k in ("sales", "op", "ni")},
+           "ni_fwd": jo(w0 * sums["ni"][y0] + (1 - w0) * sums["ni"][y0 + 1])}
+    old = pd.read_csv(EARN_CSV, dtype={"date": str}) if os.path.exists(EARN_CSV) else None
+    pd.concat([old, pd.DataFrame([row])]).to_csv(EARN_CSV, index=False)
+
+
+def _earn_done(market, today):
+    if not os.path.exists(EARN_CSV):
+        return False
+    d = pd.read_csv(EARN_CSV, dtype={"date": str})
+    return bool(((d["date"] == today) & (d["market"] == market)).any())
+
+
 def fetch_kospi_bps():
     # 코스피 선행 BPS를 키움·FnGuide처럼 넓은 범위(시총 상위 약 350개 중 컨센서스 있는 종목)로 직접 계산, 하루 한 번.
     # 밸류 신호등은 상위 150개만 써서 대형주(PBR 높음) 쏠림으로 BPS가 약 3% 낮게 나옴 (2026-10-28: 4,907 vs 넓게 5,055, 키움 1배≈5,060~5,100)
+    # 같은 종목들로 올해·내년 매출액·영업이익·순이익 합도 kr_fwd_earn.csv 에 (26.11.09 사용자 요청: 이익 전망 트래킹)
     path = os.path.join(DATA, "kospi_fwd_bps.csv")
     old = pd.read_csv(path, dtype={"date": str}) if os.path.exists(path) else None
     now = datetime.now(KST)
     today = now.strftime("%Y-%m-%d")
-    if old is not None and today in set(old["date"]):
+    bps_done = old is not None and today in set(old["date"])
+    if bps_done and _earn_done("kospi", today):
         return
     s = requests.Session()
     s.headers.update(BROWSER_UA)
-    stocks = []
-    for page in range(1, 11):
-        j = s.get(f"https://m.stock.naver.com/api/stocks/marketValue/KOSPI?page={page}&pageSize=60", timeout=30).json()
-        for x in j.get("stocks", []):  # 우선주·ETF 빼고 보통주만 (밸류 신호등과 같은 기준)
-            if x.get("stockEndType") == "stock" and not re.search(r"우[A-Z]?$|우\(", x.get("stockName", "")) and x["itemCode"].endswith("0"):
-                stocks.append((x["itemCode"], float(str(x["marketValue"]).replace(",", ""))))
+    stocks = _naver_caps(s, "KOSPI", 10)
     y0 = now.year
     ys = [y0, y0 + 1, y0 + 2]
-    w0 = max(0.0, (12 - (now.month - 1) - now.day / 31) / 12)  # 올해 남은 비중 (12개월 선행 = 올해·내년 가중 평균)
-    cap, eq, ni, used, t0 = 0.0, {y: 0.0 for y in ys}, {y: 0.0 for y in ys}, 0, time.time()
+    w0 = _fwd_w0(now)
+    cap, used, t0 = 0.0, 0, time.time()
+    sums = {k: {y: 0.0 for y in ys} for k in WISE_ROWS}
     for code, mcap in stocks:
         if time.time() - t0 > 1500:
             break
         try:
-            page = f"{WISE}/c1010001.aspx?cmp_cd={code}"
-            enc = re.search(r"encparam\s*:\s*'([^']+)'", s.get(page, timeout=30).text).group(1)
-            r = s.get(f"{WISE}/ajax/cF1001.aspx", headers={"Referer": page}, timeout=30,
-                      params={"cmp_cd": code, "fin_typ": "0", "freq_typ": "Y", "extY": "0", "extQ": "0", "encparam": enc})
-            r.encoding = "utf-8"
-            tb = pd.read_html(io.StringIO(r.text))[-1]
-            cols = [c[1] if isinstance(c, tuple) else c for c in tb.columns]
-            names = tb.iloc[:, 0].astype(str).str.replace(r"\s+", "", regex=True)
-            line = lambda label: tb.iloc[names[names == label].index[0]]  # noqa: E731
-            e_row, n_row = line("자본총계(지배)"), line("당기순이익(지배)")
-            yc = {int(str(c)[:4]): (i, "(E)" in str(c)) for i, c in enumerate(cols) if re.match(r"\d{4}/\d\d", str(c))}
-            if any(y not in yc for y in ys) or not yc[y0 + 1][1]:
-                continue
-            e = [float(str(e_row.iloc[yc[y][0]]).replace(",", "")) for y in ys]
-            n = [float(str(n_row.iloc[yc[y][0]]).replace(",", "")) for y in ys]
-            if any(v != v for v in e + n):  # NaN
+            fin, est = _wise_fin(s, code)
+            if y0 + 1 not in est or any(v != v for k in ("eq", "ni") for v in [fin[k][y] for y in ys]):  # 연도 없음(KeyError)·NaN 은 뺌
                 continue
         except Exception:  # noqa: BLE001
             continue
@@ -1216,11 +1255,17 @@ def fetch_kospi_bps():
             time.sleep(0.3)
         cap += mcap
         used += 1
-        for y, a, b in zip(ys, e, n):
-            eq[y] += a
-            ni[y] += b
+        for k in WISE_ROWS:
+            for y in ys:
+                v = fin[k].get(y, float("nan"))
+                sums[k][y] += v if v == v else 0.0  # 금융사 등 매출액 칸이 비면 0
     if used < 200:
         raise RuntimeError(f"컨센서스 있는 종목이 너무 적음 ({used}/{len(stocks)})")
+    if not _earn_done("kospi", today):
+        _earn_append("kospi", now, used, len(stocks), sums)
+    if bps_done:
+        return
+    eq, ni = sums["eq"], sums["ni"]
     kospi = float(pd.read_csv(os.path.join(DATA, "kospi.csv"))["kospi"].iloc[-1])
     fwd_eq = w0 * eq[y0] + (1 - w0) * eq[y0 + 1]
     row = {"date": today, "used": used, "total": len(stocks), "kospi": kospi, "y0": y0,
@@ -1228,6 +1273,46 @@ def fetch_kospi_bps():
            "bps_fwd": round(kospi * fwd_eq / cap, 1),
            "fwd_roe": round((w0 * ni[y0] + (1 - w0) * ni[y0 + 1]) / fwd_eq * 100, 1)}
     pd.concat([old, pd.DataFrame([row])]).to_csv(path, index=False)
+
+
+def fetch_kosdaq_earn():
+    # 코스닥 시총 상위 720개 중 올해·내년 컨센서스 있는 종목의 매출액·영업이익·순이익(지배) 합, 하루 한 번 (26.11.09 사용자 요청)
+    # 큰 회사 중에도 예상치 없는 곳이 많아(에코프로·HLB 등) 300개면 그림보다 18% 낮고, 720개면 3% 안쪽 (26.11.09 확인)
+    now = datetime.now(KST)
+    if _earn_done("kosdaq", now.strftime("%Y-%m-%d")):
+        return
+    s = requests.Session()
+    s.headers.update(BROWSER_UA)
+    stocks = _naver_caps(s, "KOSDAQ", 12)
+    y0, used, t0 = now.year, 0, time.time()
+    sums = {k: {y0: 0.0, y0 + 1: 0.0} for k in WISE_ROWS}
+    for code, _ in stocks:
+        if time.time() - t0 > 900:
+            break
+        try:
+            fin, est = _wise_fin(s, code)
+            if y0 + 1 not in est or any(fin["ni"][y] != fin["ni"][y] for y in (y0, y0 + 1)):
+                continue
+        except Exception:  # noqa: BLE001
+            continue
+        finally:
+            time.sleep(0.3)
+        used += 1
+        for k in sums:
+            for y in (y0, y0 + 1):
+                v = fin[k].get(y, float("nan"))
+                sums[k][y] += v if v == v else 0.0
+    if used < 50:
+        raise RuntimeError(f"코스닥 컨센서스 있는 종목이 너무 적음 ({used}/{len(stocks)})")
+    _earn_append("kosdaq", now, used, len(stocks), sums)
+
+
+def build_kr_fwd():
+    if not os.path.exists(EARN_CSV):
+        return None
+    d = pd.read_csv(EARN_CSV, dtype={"date": str})
+    return {mk: {"d": g["date"].tolist(), "ni_fwd": g["ni_fwd"].tolist(), "first": g.iloc[0].to_dict(), "last": g.iloc[-1].to_dict()}
+            for mk, g in d.groupby("market")}
 
 
 def _kospi_bps_override(m):
@@ -3078,6 +3163,7 @@ def build():
     out["kr_thermo"] = build_kr_thermo()
     out["idx_temp"] = build_idx_temp()
     out["fut"] = build_futures()
+    out["kr_fwd"] = build_kr_fwd()
     tp = os.path.join(DATA, "kr_today.json")
     out["kr_today"] = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else None
     out["kr_investors"] = build_kr_investors()
@@ -3107,7 +3193,7 @@ def main():
              ("GPU 임대가격(Price of Compute)", fetch_gpu), ("GPU·LLM 토큰 지수(Silicon Data)", fetch_silicon),
              ("GPU 현물가격(네비우스)", fetch_nebius), ("D램 현물가격(TrendForce)", fetch_dram),
              ("미수금·반대매매(금융투자협회)", fetch_kofia), ("ADR 등락비율(adrinfo)", fetch_adr), ("공포·탐욕 지수(CNN)", fetch_fear_greed),
-             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("지수선물 일봉: 나스닥100·S&P500(Yahoo NQ=F·ES=F)", fetch_futures), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
+             ("내부자 매수·매도(Yahoo/SEC)", fetch_insiders), ("VIX 지수(Yahoo)", fetch_vix), ("VKOSPI(한국거래소 Open API)", fetch_vkospi_krx), ("VKOSPI(인베스팅닷컴)", fetch_vkospi),("코스피 1990년~(네이버 금융)", fetch_kospi_long), ("거래대금(다음 금융)", fetch_trading_value),("MOVE 지수(Yahoo)", fetch_move), ("WTI 유가(Yahoo)", fetch_wti), ("미국채 10년물·달러인덱스·원달러 환율(Yahoo)", fetch_usmkt), ("오늘의 미국 증시: 지수·원유·금·비트코인(Yahoo)", fetch_us_today), ("미국 전체 종목 상승/하락·신고가/신저가·이평선(Finviz)", fetch_us_breadth), ("미국 국채 만기별 금리(미 재무부)", fetch_us_yields), ("미국 ETF: QQQ·SOXX·AI 인프라 등(Yahoo)", fetch_us_etfs), ("지수선물 일봉: 나스닥100·S&P500(Yahoo NQ=F·ES=F)", fetch_futures), ("연방기금 선물(Yahoo, 기준금리 시장 예상)", fetch_fed_futures), ("한국 기준금리(한국은행)", fetch_kr_base), ("SK하이닉스·삼성전자 분기 실적(OpenDART)", fetch_hynix_inventory), ("ISM 제조업지수(PR Newswire 보도자료)", fetch_ism), ("주식 공급: 미국 순발행(FRED)·IPO(나스닥)", fetch_equity_supply),("시장 온도계 폭(네이버 전종목 일별 시세)", fetch_kr_breadth), ("시장 온도계 수급(네이버 증권)", fetch_kr_flows), ("오늘의 지수·상승/하락 종목 수(네이버 증권)", fetch_kr_today), ("투자자별 매매동향(네이버 증권)", fetch_kr_investors),("코스피 선행 BPS·이익 전망(와이즈리포트, 상위 약 350개)", fetch_kospi_bps), ("코스닥 이익 전망(와이즈리포트, 상위 720개)", fetch_kosdaq_earn), ("시장 탭(밸류 신호등)", fetch_valmarket),("하이일드 스프레드(FRED)", fetch_hy), ("미국 M2(FRED)", fetch_liquidity), ("버블 비교: 나스닥·반도체(Yahoo)·1920년대 다우(FRED)", fetch_bubble), ("반도체 두 회사 코스피 시총 비중(한국거래소 Open API)", fetch_kr_semi_share), ("서학개미 미국 주식 매수·매도(공공데이터포털·예탁결제원)", fetch_seibro_us),("중간선거 메모용 S&P500 1950~(Yahoo, 한 번만)", fetch_sp500_1950), ("미국 MMF 주간(ICI)", fetch_ici_mmf), ("국민연금 자산배분(기금운용본부)", fetch_nps), ("국민연금 지분율 변동(OpenDART)", fetch_nps_stakes), ("품목별 수출(관세청, 공공데이터포털)", fetch_hs_exports),
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
