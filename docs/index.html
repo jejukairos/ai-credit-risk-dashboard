@@ -203,7 +203,7 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-thermo">광기곡선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
+    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-investor">투자자</a><a href="#sec-fx">환율</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -633,11 +633,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
-  <h2 id="sec-thermo">🎢 광기·외면 곡선 — 한국</h2>
-  <div class="card" id="krcurve-card"></div>
-  <div class="card" id="kwpath-kr"></div>
-  <p class="note" style="margin:6px 4px 2px">온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 같은 카드가 '🚦 시장' 탭 미국 곡선 아래에도 있어요. 자료: 네이버 금융(지수 일별 종가)</p>
-
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -971,6 +966,7 @@ footer a{color:var(--ink2)}
     </div>
     <div class="card" id="curve-card"></div>
     <div class="card" id="krcurve-mkt"></div>
+    <p class="note" style="margin:6px 4px 2px">한국 곡선: 온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 자료: 네이버 금융(지수 일별 종가)</p>
     <div class="card" id="kwpath-mkt"></div>
     <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
       <div class="small" style="margin:2px 4px 6px">시장이 크게 무너지면 사람들은 "○○ 사건 때문"이라고 말해요. 이 그림은 <b>사건(이벤트)은 불을 붙인 성냥(촉매)</b>일 뿐이고, <b>진짜 원인은 그 전부터 약해진 기초 체력(펀더멘털)</b>이라고 봐요. 위 가로선 = 시장이 느낀 것, 파란 선 = 실제로 나빠지던 펀더멘털.</div>
@@ -1199,7 +1195,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-month': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr', 'sec-thermo': 'kr',
+const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-month': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr',
                 'sec-dram': 'kr', 'sec-ism': 'kr','sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -1465,7 +1461,7 @@ function renderInvMon(o, mkn, md) {
 function renderKwPath() {
   const K = DATA.usmkt && DATA.usmkt.kospi;
   const now = K ? `<div class="small" style="margin:4px;color:var(--ink)">📍 지금 코스피 <b>${fmtNum(K.last, 0)}</b>(${K.last_date.slice(5).replace('-', '/')}) — 그림의 전고점 9,114p(6/22)보다 <b class="down">${(K.last / 9114 * 100 - 100).toFixed(1)}%</b>. 그림의 점선은 전망이고, 실제 길은 매일 바뀌어요.</div>` : '';
-  ['kwpath-kr', 'kwpath-mkt'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = `<h3><span>🧭 코스피 경로 전망 — 키움증권 그림</span></h3>
+  ['kwpath-mkt'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = `<h3><span>🧭 코스피 경로 전망 — 키움증권 그림</span></h3>
     <div class="small" style="margin:2px 4px 6px">증권사(키움증권)가 그린 코스피의 <b>앞으로의 길</b>이에요. 지금은 <b>W자 바닥을 찾는 중</b>이고, 1분기 실적 시즌 전후 'AI 수익성 걱정'을 한 번 더 지나면, 2027년엔 금리·유가 같은 불안이 줄고 이익이 보이면서 다시 오를 거라고 봐요. 반도체 혼자 끌던 장에서 <b>여러 업종이 같이 오르는 장</b>으로 바뀔 거래요.</div>
     <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_path_kiwoom.png" width="966" height="966" loading="lazy" alt="코스피 경로 전망 — 2026년 1월~2027년, 전고점 6/22 9,114p, W자 바닥 탐색 뒤 2027년 상승 전망 (키움증권)"></div>
     <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요. 한 번 더 누르면 원래대로.</div>${now}
@@ -1539,7 +1535,7 @@ function renderKrCurve() {
     const word = v >= 0 ? '순매수' : '순매도';
     sbLine = `<div>· <b>🛫 서학개미(자동)</b>: ${mo(M)}에 국내 투자자가 미국 주식을 <b class="${v >= 0 ? 'up' : 'down'}">${amt(v)} ${word}</b>했어요${top ? ' — <b>올해 한 달 최대</b>' : ''}${nf > k ? ` · <b>${mo(SB.m[k])}~${mo(M)} ${nf - k + 1}달 연속 ${word}</b>` : ''}.${part ? ` ${mo(SB.m[nf + 1])}은 지금까지(${md2(SB.last)}) ${SB.net[nf + 1] >= 0 ? '+' : '−'}${amt(SB.net[nf + 1])}.` : ''} 돈이 한국 주식 대신 미국으로 가면 '외면' 쪽 신호예요. <span class="small">한국예탁결제원(공공데이터포털) · 결제일 기준 · 26년 10월 54.2억 달러는 <a href="https://www.mk.co.kr/news/economy/1219330" target="_blank" rel="noopener">매일경제</a>(26.11.02, 이유: 국내 증시 약세·원/달러 환율 하락) 기사와 같아요</span></div>`;
   }
-  ['krcurve-card', 'krcurve-mkt'].forEach(id => renderCurve(id, {mk, title: '광기·외면 곡선 <span style="white-space:nowrap">— 한국 주식 기준</span>',
+  ['krcurve-mkt'].forEach(id => renderCurve(id, {mk, title: '광기·외면 곡선 <span style="white-space:nowrap">— 한국 주식 기준</span>',
     intro: `${curveIntro(mk)} 미국 곡선과 같은 규칙이에요.`,
     fold: '💡 <b>보는 법 · 지금 외면 신호</b> — 예탁금 · 빚투 · 서학개미 숫자',
     memo: `<div>· <b>오르는 중/내리는 중</b> = 오늘 온도가 20거래일 전 온도보다 높은지예요. 온도가 칸 경계나 한 달 전 온도 근처면 날마다 단계가 바뀔 수 있어요.</div>
