@@ -1141,6 +1141,30 @@ assert [curve_stage(x, True) for x in (-50, -5, 10, 50, 90, 99)] == ["분노", "
 assert [curve_stage(x, False) for x in (99, 60, 10, -5, -50)] == ["광기", "부정", "짜증", "공포", "패닉"]
 
 
+def cycle_stage(t, up, dd, hot):
+    # 월가 '마켓 사이클 심리' 그림(Wall St. Cheat Sheet, 사용자 26.11.09) 단계 — 이 대시보드 규칙: 온도 + 오르는 중(up) + 1년(250거래일) 최고점보다 몇 % 아래(dd ≤ 0)
+    # hot = 지난 120거래일 안에 온도가 −20도 밑(패닉)을 겪음 → 깊이 빠진 뒤 미지근하면 '우울', 아니면 아직 '부정'
+    if up:
+        if dd <= -20:
+            return "분노" if t < 40 else "불신"
+        if dd <= -10:
+            return "희망"
+        if dd <= -5:
+            return "낙관"
+        return "광기" if t >= 95 else "스릴" if t >= 80 else "믿음"
+    if t >= 95:
+        return "광기"
+    for lim, n in ((-5, "자만"), (-10, "불안"), (-20, "부정")):
+        if dd > lim:
+            return n
+    return "항복" if t < -60 else "패닉" if t < -20 else "우울" if hot else "부정"
+
+
+assert [cycle_stage(t, True, d, False) for t, d in ((0, -30), (50, -30), (0, -15), (0, -7), (50, -1), (90, -1), (99, 0))] == ["분노", "불신", "희망", "낙관", "믿음", "스릴", "광기"]
+assert [cycle_stage(t, False, d, h) for t, d, h in ((99, 0, False), (50, -2, False), (30, -7, False), (0, -15, False), (-70, -30, True), (-30, -30, True), (0, -30, True), (0, -30, False))] == \
+    ["광기", "자만", "불안", "부정", "항복", "패닉", "우울", "부정"]
+
+
 def build_idx_temp():
     # 지금 값 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100 (그림 15:40 숫자와 같아지는 식), 지난 날 = 그날 종가 ÷ 그날까지 50거래일 평균.
     # 미국은 마지막 종가 다음 날 지수선물(Yahoo NQ=F·ES=F·YM=F, fetch_us_today)이 거래 중이면 '종가 × (1 + 선물 변화율)'을 오늘 값으로 씀
@@ -1160,8 +1184,27 @@ def build_idx_temp():
             v, pct, date, ma, ref = float(s.iloc[-1]), (s.iloc[-1] / s.iloc[-2] - 1) * 100, s.index[-1], s.iloc[-51:-1].mean(), hist.iloc[-21]
         disp = v / ma * 100
         tt = idx_temp(disp)
+        # 마켓 사이클 단계: 지난 250거래일은 그날 종가로, 마지막 날은 위 '지금 값'으로. 2거래일 넘게 머문 단계만 '바뀐 순서'에 남김(하루 이틀 깜빡임 빼기)
+        est = date != s.index[-1]
+        hi_s = s.iloc[-250:] if est else s.iloc[-251:-1]
+        hi, hi_d = (v, date) if v >= hi_s.max() else (float(hi_s.max()), hi_s.idxmax())
+        dds = (s / s.rolling(250, min_periods=1).max() - 1) * 100
+        days = [(s.index[i], cycle_stage(hist.iloc[i], hist.iloc[i] >= hist.iloc[i - 20], dds.iloc[i], hist.iloc[max(0, i - 119):i + 1].min() < -20))
+                for i in range(max(20, len(s) - 250), len(s) if est else len(s) - 1)]
+        dd = (v / hi - 1) * 100
+        cyc = cycle_stage(tt, tt >= ref, dd, min(hist.iloc[-119:].min(), tt) < -20)
+        days.append((date, cyc))
+        segs = []
+        for d, c in days:
+            if segs and segs[-1][1] == c:
+                segs[-1][2] += 1
+            else:
+                segs.append([d, c, 1])
+        keep = [g for g in segs[:-1] if g[2] >= 2] + segs[-1:]
+        hist_c = [g[:2] for i, g in enumerate(keep) if i == 0 or g[1] != keep[i - 1][1]][-8:]
         rows.append({"k": k, "name": name, "date": date, "est": date != s.index[-1], "disp": round(float(disp), 1), "temp": round(float(tt), 2), "pct": round(float(pct), 2),
-                     "ref": round(float(ref), 1), "up": bool(tt >= ref), "stage": curve_stage(tt, tt >= ref)})
+                     "ref": round(float(ref), 1), "up": bool(tt >= ref), "stage": curve_stage(tt, tt >= ref),
+                     "dd": round(float(dd), 1), "hi": round(float(hi), 2), "hi_d": hi_d, "cyc": cyc, "cyc_hist": hist_c})
     return {"made": now_kst(), "rows": rows} if rows else None
 
 

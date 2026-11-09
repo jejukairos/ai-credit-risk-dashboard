@@ -980,7 +980,9 @@ footer a{color:var(--ink2)}
         <div class="src">출처: user: 사용자 메모(26.11.01)</div></details></div>
     </div>
     <div class="card" id="curve-card"></div>
+    <div class="card" id="cyc-us"></div>
     <div class="card" id="krcurve-mkt"></div>
+    <div class="card" id="cyc-kr"></div>
     <p class="note" style="margin:6px 4px 2px">한국 곡선: 온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 자료: 네이버 금융(지수 일별 종가)</p>
     <div class="card" id="kwpath-mkt"></div>
     <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
@@ -1595,6 +1597,63 @@ function renderKrCurve() {
       <div>· <b>실제 예</b>: 아래 '📜 2019년부터 돈의 흐름' 상자에서 <b>코로나 충격(폭락)</b> → <b>동학개미 광기장</b> 때 예탁금·빚이 어떻게 움직였는지 볼 수 있어요.</div>
       <div>· 관심 종목도 종목토론방·댓글 분위기를 이 곡선에 맞춰 보면 지금 어느 단계인지 가늠하는 데 도움이 돼요.</div>
       <div class="small" style="color:var(--muted)">단계 나누기(온도 칸 + 오르는/내리는 중, 26.11.06)는 이 대시보드가 정한 거예요. 곡선 그림은 미국 곡선과 같아요(사용자 엑셀).</div>`}));
+  // 월가 그림 버전 + 사용자 판단(26.11.09) + 개미 항복 신호(자동: 코스피 최근 20거래일 개인·외국인 순매수 합)
+  const IV = DATA.kr_investors && DATA.kr_investors.kospi;
+  let ant = '';
+  if (IV && IV.x.length > 20) {
+    const k0 = IV.x.length - 20, sm = key => IV[key].slice(k0).reduce((a, b) => a + b, 0) / 1e4, jo = v => `<b class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}조</b>`, a = sm('indiv'), f = sm('foreign');
+    ant = `<div class="memo">· <b>🐜 개미 항복 신호(자동)</b>: 코스피 최근 20거래일(${md2(IV.x[k0])}~${md2(IV.x[IV.x.length - 1])}) 개인 ${jo(a)} · 외국인 ${jo(f)}. ${a > 0 && f < 0 ? '개인은 계속 사고 외국인만 파는 중 — 아직 개미 <b>항복 전</b>이에요.' : a < 0 ? '개인도 팔고 있어요 — 개미 <b>항복</b> 쪽 신호예요.' : '외국인이 팔지 않아요.'} <span class="small">개인이 다 팔고 나가는 때가 그림의 '항복'(사용자 메모 26.11.09 기준) · 네이버 증권</span></div>`;
+  }
+  renderCycle('cyc-kr', mk, '한국 주식', ant + `<div class="memo"><b>💬 사용자 판단 — 국장은 어디쯤? (26.11.09)</b>
+    <div>· 국장을 대만과 비교하며 정부 욕하는 글이 종종 보이는 <b>분노</b> 단계</div>
+    <div>· 하지만 개미들의 항복은 아직 안 나왔고 외국인만 줄곧 파는 단계. 유튜브 렉카·금융투자 업계 방송인들도 현금 있으면 계속 사라고 부추기는 중 → <b>부정</b></div>
+    <div>· 심정은 <b>우울</b>이지만 냉정하게 보면 지금은 <b>부정~분노 어디쯤</b>. 아니었으면 좋겠지만 1~2번 정도 큰 조정이 더 남았을 수도 있겠다 싶음</div>
+    <div>· 아무것도 안 할지, 물리는 걸 감수하고 나눠 살지, 현금 쥐고 기다릴지는 선택의 영역</div>
+    <div class="src">user: 사용자 메모(26.11.09)</div></div>`);
+}
+// 마켓 사이클 심리(월가 Wall St. Cheat Sheet 그림을 한국어로, 사용자 26.11.09) — 우리 광기·외면 곡선과 단계가 달라 따로 그림. 단계 = update.py cycle_stage
+const CYC = [  // [이름, x, y, 색 단계, 글자 위치, 그림 속 말(번역)]
+  ['불신', 14, 150, 2, 'b', '이번 반등도 다른 때처럼 실패할 거야.'], ['희망', 40, 132, 2, 'l', '회복할 수도 있겠는데.'],
+  ['낙관', 64, 112, 3, 'l', '이번 상승은 진짜야.'], ['믿음', 86, 88, 3, 'l', '이제 돈을 다 넣을 때야.'],
+  ['스릴', 106, 58, 4, 'l', '빚내서 더 살 거야. 다들 사라고 알려야지!'], ['광기', 128, 20, 5, 't', '난 천재야! 우리 모두 부자 될 거야!'],
+  ['자만', 152, 38, 4, 'r', '다음 상승 전에 잠깐 쉬어 가는 것뿐이야.'], ['불안', 166, 66, 3, 'r', '왜 증거금이 모자라다는 연락(마진콜)이 오지? 이번 하락은 생각보다 오래 가네.'],
+  ['부정', 176, 94, 3, 'r', '내가 산 건 좋은 회사들이야. 다시 오를 거야.'], ['패닉', 186, 122, 1, 'l', '젠장! 다들 팔고 있어. 빨리 빠져나가야 해!'],
+  ['항복', 200, 160, 1, 'b', '주식 전부 정리할래. 더는 잃을 여유가 없어.'], ['분노', 222, 140, 1, 't', '누가 공매도 친 거야?? 정부는 왜 이걸 내버려 뒀어??'],
+  ['우울', 264, 164, 1, 'b', '노후 자금이 날아갔어. 새로 산 것들 값은 어떻게 내지? 난 바보야.'], ['불신', 322, 126, 2, 't', '이건 개미 꼬시는 가짜 반등이야.']];
+function renderCycle(id, mk, where, extra) {
+  const el = document.getElementById(id);
+  if (!el || !mk.length || !mk[0][1].cyc) return;
+  const st = mk.map(([, r]) => r.cyc), lv = n => CYC.find(c => c[0] === n)[3], say = n => CYC.filter(c => c[0] === n).pop()[5], ymd = s => s.slice(2).replace(/-/g, '.');
+  const P = CYC.map(c => [c[1], c[2]]);
+  let d = `M${P[0]}`;  // 점들을 부드럽게 잇는 곡선(Catmull-Rom → 베지어)
+  for (let i = 0; i < P.length - 1; i++) { const a = P[i - 1] || P[i], b = P[i], c = P[i + 1], e = P[i + 2] || c;
+    d += ` C${b[0] + (c[0] - a[0]) / 6},${b[1] + (c[1] - a[1]) / 6} ${c[0] - (e[0] - b[0]) / 6},${c[1] - (e[1] - b[1]) / 6} ${c}`; }
+  const pts = CYC.map(([n, x, y, s, pos]) => { const on = st.includes(n);
+    const [dx, dy, anc] = {t: [0, -9, 'middle'], b: [0, 16, 'middle'], l: [-8, 4, 'end'], r: [8, 4, 'start']}[pos];
+    return `<circle cx="${x}" cy="${y}" r="${on ? 7 : 4.5}" fill="${css(`--lv${s}`)}" stroke="${on ? css('--ink') : css('--surface')}" stroke-width="${on ? 2.5 : 1.5}"/>` +
+      `<text x="${x + dx}" y="${y + dy}" text-anchor="${anc}" font-size="${on ? 12 : 10.5}" font-weight="${on ? 800 : 500}" fill="${css('--ink')}">${n}</text>`; }).join('');
+  const same = mk.length > 1 && st.every(v => v === st[0]);
+  const chip = (same ? [[mk.map(a => a[0]).join('·'), st[0]]] : mk.map(([nm, r]) => [nm, r.cyc])).map(([nm, s]) => `<span class="lv lv${lv(s)}">${nm}: ${s}</span>`).join(' ');
+  const now = mk.map(([nm, r]) => `<div>· <b>${nm}</b>: 1년 최고점(${ymd(r.hi_d)} ${fmtNum(r.hi, 2)})보다 <b>${fmtPct(r.dd)}</b> · 온도 ${tempDeg(r.temp)}(한 달 전 ${tempDeg(r.ref)}보다 ${r.up ? '오르는 중' : '내리는 중'}) → <b>${r.cyc}</b> <span class="small">"${say(r.cyc)}"</span>
+    <br><span class="small">최근 바뀐 순서: ${r.cyc_hist.map(([d, s]) => `${ymd(d)} ${s}`).join(' → ')}</span></div>`).join('');
+  const rows = CYC.map(([n, , , s, , q], i) => `<tr><td><span class="lv lv${s}">${n}</span></td><td style="white-space:normal;text-align:left">${q}</td></tr>`).join('');
+  el.innerHTML = `<h3><span>마켓 사이클 심리 <span style="white-space:nowrap">— 월가 그림 · ${where}</span></span><span>${chip}</span></h3>
+    <div class="small" style="margin:2px 4px 4px">월가에서 유명한 그림('마켓 사이클 심리')을 한국어로 옮겼어요. 위 우리 곡선과 비슷하지만 단계가 달라요 — 꼭대기 뒤 <b>자만 → 불안</b>, 바닥 근처 <b>항복 → 분노 → 우울</b>, 다시 오를 땐 <b>불신</b>이 있어요. 크게 칠한 점 = 지금 위치(매일 자동으로 바뀜).</div>
+    <svg viewBox="0 0 340 190" role="img" aria-label="마켓 사이클 심리 곡선" style="width:100%;max-width:440px;display:block;margin:0 auto">
+      <path d="${d}" fill="none" stroke="${css('--line')}" stroke-width="3"/>
+      <text x="112" y="16" text-anchor="end" font-size="9.5" fill="${css('--bad')}">위험이 가장 큰 곳 →</text>
+      <text x="186" y="178" text-anchor="end" font-size="9.5" fill="${css('--g1')}">기회가 가장 큰 곳 →</text>${pts}</svg>
+    <div class="memo"><b>📍 지금 위치(자동)</b>${now}</div>${extra || ''}
+    <div class="memo"><details class="more"><summary>📖 <b>그림 번역 · 단계 정하는 규칙 · 우리 곡선과 비교</b></summary>
+      <div class="tbl-wrap"><table class="compact"><thead><tr><th>단계</th><th>그때 사람들 말 (그림 번역)</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div>· 그림 오른쪽 위 작은 그림: <b>꼭대기 = 돈을 잃을 위험이 가장 큰 곳</b>, <b>바닥 = 돈을 벌 기회가 가장 큰 곳</b>. 꼭대기 → 바닥은 '줄어드는 때(수축)', 바닥 → 다시 위는 '늘어나는 때(확장)' → 회복 → 번영.</div>
+      <div>· <b>단계 정하는 규칙(이 대시보드가 정함)</b> — 온도(위 곡선과 같음) + 한 달 전보다 오르는/내리는 중 + <b>1년 최고점보다 몇 % 아래인지</b>:
+        <br>↗ 오르는 중: 최고점 −20%보다 아래면 온도 40도 밑 <b>분노</b>·위 <b>불신</b> · −10~−20% <b>희망</b> · −5~−10% <b>낙관</b> · −5% 안쪽이면 온도 80도 밑 <b>믿음</b>·80~95 <b>스릴</b>·95 위 <b>광기</b>
+        <br>↘ 내리는 중: 온도 95 위 <b>광기</b> · −5% 안쪽 <b>자만</b> · −5~−10% <b>불안</b> · −10~−20% <b>부정</b> · −20%보다 아래면 온도 −60도 밑 <b>항복</b>, −20도 밑 <b>패닉</b>, 그 위는 최근 120거래일 안에 패닉(−20도 밑)을 겪었으면 <b>우울</b>, 아니면 아직 <b>부정</b>
+        <br>지난 날로 맞춰 보면: 2020년 코로나 때 S&P500은 3/20에 '항복'(실제 바닥 3/23), 26년 코스피는 6월 '광기' → 7/29 '항복' → 8월 '분노' → 9월 '불신' → 10월부터 다시 '우울·패닉'이었어요. 경계 근처에선 날마다 바뀔 수 있어서, '바뀐 순서'엔 이틀 이상 머문 단계만 적어요(마지막 단계는 하루라도 적음).</div>
+      <div>· <b>우리 광기·외면 곡선과 비교</b>: 같은 단계 = 낙관·스릴·광기·부정·패닉·분노·희망 / 이 그림에만 = 불신·믿음·자만·불안·항복·우울 / 우리 곡선에만 = 흥분·짜증·공포·외면·안정. 순서도 달라요 — 우리 곡선은 꼭대기 바로 뒤가 '부정'인데 이 그림은 자만 → 불안을 지나 부정, 패닉 뒤에 <b>항복</b>(다 팔고 나감)이 있고 바닥 뒤가 '외면' 대신 <b>분노 → 우울</b>이에요.</div>
+    </details></div>
+    <p class="note" style="margin:6px 4px 2px">그림: user: 사용자가 보내 준 'Psychology of a Market Cycle'(Wall St. Cheat Sheet, wallstcheatsheet.com · 26.11.09 받음)을 한국어로 다시 그림(원본 그림은 안 넣음). 단계 나누기는 이 대시보드 규칙이고 투자 권유가 아니에요. 자료: 위 곡선과 같은 지수 일별 종가</p>`;
 }
 // 곡선에 쓸 시장 줄(지수 온도, update.py build_idx_temp)과 설명 첫 줄
 const curveMk = ks => ((DATA.idx_temp || {}).rows || []).filter(r => ks.includes(r.k)).map(r => [r.name, r]);
@@ -3526,6 +3585,7 @@ function renderReaders() {
   renderPcWarn(R.contra.items.find(it => it.key === 'putcall'));
   renderMarginPeak(R.contra.items.find(it => it.key === 'margin'));
   const umk = curveMk(['nasdaq', 'sp500']), cs = R.contra.summary;
+  renderCycle('cyc-us', umk, '미국 주식');
   if (umk.length) renderCurve('curve-card', {mk: umk, title: '광기·외면 곡선 <span style="white-space:nowrap">— 미국 주식 기준</span>',
     intro: `${curveIntro(umk)} 한국 곡선과 같은 규칙이에요.${cs ? `<br><span style="color:var(--muted)">참고: 26.11.05까지는 '🔄 역발상 판독기' <b>심리 점수</b>(설문·풋콜·VIX·빚투·하이일드 5개 평균, 지금 ${cs.score.toFixed(1)}점 ${cs.label})로 정했어요. 설문·빚투(한 달 늦게 나옴)는 천천히 바뀌어서, 지수가 크게 빠져도 '스릴'에 머물렀어요.</span>` : ''}`,
     fold: '💡 <b>보는 법 · 역사 사례</b> — 1800년대 미국 철도주',
