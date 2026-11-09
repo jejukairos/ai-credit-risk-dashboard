@@ -247,8 +247,8 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card"><h3><span>AI 인프라 ETF — 올해 수익률 · 고점 대비</span><span class="small" id="etfdate"></span></h3>
     <div id="etfai" class="plot" style="height:340px"></div></div>
-  <div class="card"><h3><span>주요 지수 ETF — 고점 대비 하락률</span></h3>
-    <div id="etfidx" class="plot" style="height:200px"></div>
+  <div class="card"><h3><span>주요 지수 ETF — 올해 수익률 · 고점 대비</span></h3>
+    <div id="etfidx" class="plot" style="height:340px"></div>
     <p class="note" style="margin:6px 4px 2px" id="etfnote"></p></div>
 
   <h2 id="sec-usprice">💵 원유 · 금 · 비트코인</h2>
@@ -2677,13 +2677,14 @@ function renderUsToday() {
     const rng = v => { const lo = Math.min(0, ...v), hi = Math.max(0, ...v), p = (hi - lo) * 0.28 || 5; return [lo < 0 ? lo - p : 0, hi > 0 ? hi + p : p * 0.3]; };
     const zl = {zeroline: true, zerolinecolor: css('--ink2'), ticksuffix: '%'};
     const BL = () => Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 40, r: 6, t: 8, b: 40}, bargap: 0.35});
-    Plotly.react('etfai', [bars(AI, 'ytd', 'y'), bars(AI, 'dd', 'y2', '--bad')], Object.assign(BL(), {
+    // 위 칸 올해 수익률, 아래 칸 고점 대비 하락률 (AI 인프라·주요 지수 같은 모양)
+    const two = (id, L) => Plotly.react(id, [bars(L, 'ytd', 'y'), bars(L, 'dd', 'y2', '--bad')], Object.assign(BL(), {
       xaxis: axis({type: 'category', anchor: 'y2', tickfont: {size: 10}}),
-      yaxis: axis(Object.assign({domain: [0.56, 0.92], range: rng(AI.map(([t]) => E[t].ytd))}, zl)),
-      yaxis2: axis(Object.assign({domain: [0, 0.42], range: rng(AI.map(([t]) => E[t].dd))}, zl)),
+      yaxis: axis(Object.assign({domain: [0.56, 0.92], range: rng(L.map(([t]) => E[t].ytd))}, zl)),
+      yaxis2: axis(Object.assign({domain: [0, 0.42], range: rng(L.map(([t]) => E[t].dd))}, zl)),
       annotations: [lbl(0.93, '<span style="color:' + css('--good') + '">■</span> 올해 수익률'), lbl(0.43, '<span style="color:' + css('--bad') + '">■</span> 고점 대비 하락률')]}), CFG);
-    Plotly.react('etfidx', [bars(IDX, 'dd', 'y', '--bad')], Object.assign(BL(), {
-      xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis(Object.assign({range: rng(IDX.map(([t]) => E[t].dd))}, zl))}), CFG);
+    two('etfai', AI);
+    two('etfidx', IDX);
     document.getElementById('etfdate').textContent = `${md(E.date)} 미국 마감 · 매일 갱신`;
     document.getElementById('etfnote').innerHTML = `자료: Yahoo Finance 일별 종가·장중 최고가(${E.date} 기준, 배당 빼고 가격만), 매일 자동 갱신. 올해 수익률 = 종가 ÷ 작년 마지막 종가 − 1(* 올해 상장 = 상장 첫날 종가부터). 고점 = 2020년(또는 상장) 이후 장중 최고가. 막대를 누르면 고점 날짜·가격이 보여요. 묶음 이름(메모리·전력·광통신·데이터센터·빅7)은 사용자 제공 그림 기준이에요.`;
   }
