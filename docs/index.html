@@ -183,8 +183,6 @@ footer a{color:var(--ink2)}
 #mktv .s-spring{background:rgba(120,190,90,.2)} #mktv .s-summer{background:rgba(40,150,170,.2)} #mktv .s-autumn{background:rgba(230,130,40,.22)} #mktv .s-winter{background:rgba(120,140,190,.2)}
 #mktv table.seasons-t td:first-child{white-space:normal;min-width:0} #mktv table.seasons-t td{font-size:18px;text-align:center;vertical-align:middle} #mktv table.seasons-t td:first-child{font-size:13px;text-align:left}
 #mktv table.seasons-ev td,#mktv table.seasons-ev th{white-space:normal;text-align:left;vertical-align:top}
-#mktv table.fw{font-size:11px} #mktv table.fw th,#mktv table.fw td{padding:5px 2px;text-align:center} #mktv table.fw td:first-child{min-width:0}
-#mktv td.fw-top{background:rgba(245,166,35,.5);font-weight:700} #mktv td.fw-mid{background:rgba(245,166,35,.16)}
 .horizon{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .horizon div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;color:var(--ink2);text-align:center}
 .horizon b{display:block;font-size:14px;color:var(--ink)}
@@ -1016,12 +1014,7 @@ footer a{color:var(--ink2)}
     <div class="card" id="leadcard"></div>
     <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
     <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
-    <div class="vm-sec">1. 금리</div>
-    <div class="glossary"><div>나라가 돈을 빌릴 때 주는 <b>이자</b>예요. 금리가 오르면 회사들이 돈 빌리는 비용도 오르고, 주식이 상대적으로 덜 매력적으로 보여요.</div>
-      <div><b>기준금리</b> 중앙은행(미국 연준·한국은행)이 정하는 <b>금리의 기준</b>이에요. 이게 오르면 은행 이자·국채 금리도 따라 오르는 경우가 많아요.</div></div>
-    <div class="grid" id="vm-signals"></div>
-    <div class="card" id="vm-fedwatch" style="margin-top:12px"></div>
-    <div class="vm-sec">2. 지수 밸류에이션</div>
+    <div class="vm-sec">1. 지수 밸류에이션</div>
     <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>
     <h3 style="margin:14px 4px 0">🇰🇷 코스피</h3><div class="card" id="vm-kospiBand"></div>
     <div class="memo" style="margin:8px 0 0">
@@ -1044,7 +1037,7 @@ footer a{color:var(--ink2)}
     </div>
     <div class="card" id="vm-spBand"></div>
     <div class="card" id="pe-card"></div>
-    <div class="vm-sec">3. 크로스체크 <span class="sub">우산(NNN) 텔레그램 채널 숫자와 비교</span></div>
+    <div class="vm-sec">2. 크로스체크 <span class="sub">우산(NNN) 텔레그램 채널 숫자와 비교</span></div>
     <div class="glossary"><div>위 숫자를 다른 곳에서 낸 숫자와 맞춰 봐요. <b>5% 넘게 다르면 ⚠</b> 표시가 붙어요.</div></div>
     <div class="card" id="vm-crossCheck"></div>
     <p class="note" style="margin:8px 4px">이 탭은 사용자의 다른 대시보드 <b>밸류 신호등</b>의 시장 탭을 옮겨 온 거예요. 밸류 신호등이 평일 07:30·18:30에 모은 숫자를 이 대시보드가 16:00·20:00 갱신 때 가져와요. 투자 판단 참고용이며 매수·매도 추천이 아니에요.<br>데이터 출처: <span id="vm-srcs"></span></p>
