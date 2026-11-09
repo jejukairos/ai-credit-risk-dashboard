@@ -289,6 +289,11 @@ function kospiCard() {
       <div class="tile"><div class="tl">PBR (지난 실적)</div><div class="tv">${times(hasBand ? t.pbr : k.pbr_now, 2)}</div><div class="src">${hasBand ? "KRX · " + esc(t.date) : "직접 계산"}</div></div>
     </div>
     ${(M.settings.kospi_notes || []).length ? `<div class="memo">📝 <b>증권사 코멘트 메모</b>${M.settings.kospi_notes.map((x) => `<br>· ${esc(x.text)} <span class="src">(${esc(x.source)}, ${esc(x.date)})</span>`).join("")}</div>` : ""}
+    <div class="memo">📌 <b>PBR 바닥 메모</b> — 예전엔 어디까지 싸졌나<br><span class="src">PBR 1배 = 회사들이 가진 재산만큼의 값. 1배보다 낮으면 재산보다 싸게 팔린다는 뜻이에요.</span>
+      <br>· 지금 코스피: <b>내년 기준 PBR 약 1배</b> <span class="src">(이 화면 ${ys[1]} PBR ${times(Y.pbr[ys[1]], 2)})</span>
+      ${[["2020년 코로나 때", "0.6", "2020-03"], ["2024년 12월 계엄 때", "0.8", "2024-12"]].map(([nm, v, p]) => { const lo = (t.pbr_hist || []).filter((x) => x[0].startsWith(p)).reduce((a, x) => (!a || x[1] < a[1] ? x : a), null);
+        return `<br>· ${nm}: <b>PBR ${v}배</b>${lo ? ` <span class="src">(KRX 지난 실적 PBR ${esc(lo[0])} ${times(lo[1], 2)})</span>` : ""}`; }).join("")}
+      <div class="src">메모 출처: user: 사용자 메모(26.11.09) · 괄호 = 이 화면 자료로 확인한 값</div></div>
     ${M.market.kospi_fwd_bands ? `<h3>12개월 선행 PBR 밴드</h3>${bandHTML("vm-kfpbr")}<h3>12개월 선행 PER 밴드</h3>${bandHTML("vm-kfper")}` : ""}
     ${hasBand ? kospiMarksTable() : ""}
     <h3>연도별 EPS·BPS·PER·PBR <span class="src">코스피 ${n(lvl, 2)} 기준</span></h3>
