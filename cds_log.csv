@@ -38,3 +38,7 @@ date,ticker,bp,source_url,note
 2026-10-30,AVGO,175.4,https://cryptobriefing.com/intel-credit-default-swap-record-high/,Crypto Briefing(26.10.30) — 약 10bp 올라 사상 최고. 기사에 만기(5년) 표기 없음
 2026-11-05,SPACEX,284.3,https://panews.io/articles/01a1ac8a-a5b6-7017-8dd0-d5a44d33b1f3,"PANews(26.11.06) — ICE Data Services(블룸버그 인용) 5년 CDS, 하루 최대 14.6bp 올라 사상 최고"
 2026-11-06,9984.T,466,https://www.whalesbook.com/news/English/bankingfinance/SoftBank-Credit-Risk-Hits-4-Year-High-as-Stock-Drops-9percent/6aed502b4fc30694db606714,Whalesbook(26.11.06) — 5년 CDS 22bp 올라 2022년 10월 이후 최고. 데이터 제공처 표기 없음
+2026-11-05,CRWV,1289,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 5년물 '1,289bp 넘게' 급등(10월 고점 돌파, 장중 고점으로 보임). 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
+2026-11-06,CRWV,1155,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 5년물 약 1,155bp(금요일 8% 하락). 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
+2026-11-06,NVDA,139,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 약 139bp(한 달 새 76% 상승). 날짜는 기사 발행일. 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
+2026-11-06,ORCL,298,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 약 298bp. 날짜는 기사 발행일. 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
