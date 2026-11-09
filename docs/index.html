@@ -3290,6 +3290,13 @@ const STAGE_UP = [['−20↓', '분노'], ['−20~0', '외면'], ['0~40', '희�
 const STAGE_DN = [['95↑', '광기'], ['40~95', '부정'], ['0~40', '짜증'], ['−20~0', '공포'], ['−20↓', '패닉']];
 const stagePts = s => ({'낙관~흥분': ['낙관', '흥분'], '희망~안정': ['희망', '안정']})[s] || [s];
 
+// 변곡점 메모(user: 사용자 메모 26.11.09) — 한국·미국 곡선 둘 다에 붙임
+const TURN_MEMO = `<b>🔄 변곡점은 모든 게 '아다리'가 맞아떨어질 때 나와요</b>
+  <div>· <b>고점</b> = 모든 게 이뤄지고 미래가 유리알처럼 훤히 보이면서 주가도 오를 때 (곡선 맨 위 '광기' 쪽)</div>
+  <div>· <b>저점</b> = 모든 게 다 망해 간 것으로 확인되면서 주가가 무너졌을 때 (곡선 아래 '패닉~외면' 쪽)</div>
+  <div>· 그쯤 되면 사람들이 성공한 자기 포지션을 다 밝혀요 — "나 현금 얼마 있다", "나 무슨 주식 가지고 있다"</div>
+  <div>· 그러고 보통 한두 달 지나 보면…</div>
+  <div class="src">사용자 메모(26.11.09)</div>`;
 // o: mk([[시장 이름, idx_temp 줄], …]), title, intro, fold, memo
 function renderCurve(id, o) {
   const el = document.getElementById(id), st = o.mk.map(([, r]) => r.stage);
@@ -3310,7 +3317,8 @@ function renderCurve(id, o) {
       <text x="100" y="32" text-anchor="end" font-size="9.5" fill="${css('--bad')}">위험이 가장 큰 구간 →</text>
       <text x="235" y="183" text-anchor="middle" font-size="9.5" fill="${css('--g1')}">↑ 기회가 가장 큰 구간</text>${pts}</svg>
     ${row(STAGE_UP, true)}${row(STAGE_DN, false)}
-    <div class="memo">${o.fold ? `<details class="more"><summary>${o.fold}</summary>${o.memo}</details>` : o.memo}</div>`;
+    <div class="memo">${o.fold ? `<details class="more"><summary>${o.fold}</summary>${o.memo}</details>` : o.memo}</div>
+    <div class="memo">${TURN_MEMO}</div>`;
 }
 
 function readerTop(id, title, R, extra) {
