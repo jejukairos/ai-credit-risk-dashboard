@@ -391,7 +391,7 @@ function render() {
 window.renderValMarket = () => {
   if (!document.getElementById("mktv")) return;
   if (M) { render(); return; }
-  loading = loading || fetch("market.json?t=" + Date.now()).then((r) => r.json()).then((d) => { M = d; render(); })
+  loading = loading || (typeof getMkt === "function" ? getMkt() : fetch("market.json?t=" + Date.now()).then((r) => r.json())).then((d) => { M = d; render(); })
     .catch(() => { $("#vm-updated").textContent = "시장 탭 데이터(market.json)를 불러오지 못했어요."; });
 };
 })();
