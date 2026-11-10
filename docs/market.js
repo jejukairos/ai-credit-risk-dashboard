@@ -52,6 +52,67 @@ function sliceP(dates) {
   const i = dates.findIndex((d) => d >= c);
   return Math.min(i < 0 ? 0 : i, Math.max(0, dates.length - 2));
 }
+/* 2027 코스피 경로 전망 — 미래에셋증권 그림(사용자 26.11.10). 점 = 그림 속 PER × EPS, 날짜는 그림에서 읽은 대략의 시점.
+   실제 코스피(네이버 일별 종가)와 이 탭 27E EPS(매일)로 지금 어느 길에 가까운지 봄 (README) */
+const MA_D = ["2026-12-15", "2027-05-15", "2027-11-15"], MA_END = "2027-12-31";
+const MA_STEP = ["바닥권 탐색 (26년 말)", "2분기 PER 회복 (27년 2분기)", "하반기 완만한 상승 (27년 하반기)"];
+const MA = [  // [이름, 그림 속 [PER, EPS] 3개(없으면 null)]
+  ["중심 경로(27F 이익 유지)", [[3.7, 1463], [4.3, 1463], [4.7, 1463]]],
+  ["이익 하향 시", [[3.7, 1327], [4.3, 1327], [4.7, 1304]]],
+  ["범위 위쪽", [null, [5.1, 1536], [5.6, 1536]]],
+];
+function miraePath() {
+  const el = $("#mapath-mkt"), K = typeof DATA !== "undefined" && DATA?.usmkt?.kospi;
+  if (!el) return;
+  const lv = MA.map(([, ps]) => ps.map((p) => (p ? Math.round(p[0] * p[1]) : null))), [mid, low, top] = lv;
+  const md = (s) => s.slice(2).replace(/-/g, "."), e27 = M.market.kospi_forward?.years?.eps?.["27E"];
+  const C = themeColors(), ink = css("--ink"), cols = [css("--spread"), C.s1, css("--cds")];  // 그림과 같은 색: 중심 주황 · 이익 하향 파랑 · 위쪽 빨강
+  let now = "";
+  if (K) {
+    let i = MA_D.findIndex((d) => d >= K.last_date);
+    if (i < 0) i = MA_D.length - 1;  // 마지막 시점이 지나면 마지막 목표와 비교
+    const v = K.last, m = mid[i], l = low[i], t = top[i], vs = (x) => `${n(x, 0)}(${pct((x / v - 1) * 100, 1, true)})`;
+    const where = t && v >= t ? "범위 위쪽보다도 높아요" : v >= m ? "중심 경로보다 위예요" : v >= l ? "중심 경로와 이익 하향 경로 사이예요" : "이익 하향 경로보다도 아래예요";
+    const earn = e27 == null ? "" : `<br>· 이익 점검: 이 탭 코스피 <b>27E EPS ${n(e27, 1)}</b> → ${e27 >= 1536 ? "그림의 범위 위쪽 이익(1,536) 이상이에요"
+      : e27 >= 1463 ? "그림의 중심(1,463)과 위쪽(1,536) 사이 — 아직 '이익 하향' 쪽은 아니에요" : e27 >= 1327 ? "그림의 중심(1,463)보다 낮아져 '이익 하향'(1,327) 쪽으로 가는 중이에요" : "그림의 '이익 하향' 이익(1,327)보다도 낮아요"}`;
+    now = `<div class="memo" style="margin:8px 0 0">📍 <b>지금 위치(자동)</b> — 코스피 <b>${n(v, 2)}</b>(${md(K.last_date)}) = 그림 이익(EPS 1,463) 기준 PER <b>${n(v / 1463, 2)}배</b>
+      <br>· 다음 목표 '${MA_STEP[i]}': 중심 ${vs(m)} · 이익 하향 ${vs(l)}${t ? ` · 범위 위쪽 ${vs(t)}` : ""} → <b>${where}</b>${earn}
+      <div class="src">코스피 = 네이버 금융 일별 종가 · 27E EPS = 아래 '코스피' 칸 연도별 표(시총 상위 종목 컨센서스 합산 — 그림의 FnGuide 숫자와 종목 범위가 달라 조금 차이 날 수 있어요) · 목표값 = 그림의 PER × EPS · 괄호 = 지금보다 몇 % · 매일 자동</div></div>`;
+  }
+  el.innerHTML = `<h3><span>🧭 2027년 코스피 경로 전망 — 미래에셋증권 그림</span></h3>
+    <div class="small" style="margin:2px 4px 6px">증권사(미래에셋)가 <b>코스피가 버는 돈(EPS) × 몇 배를 쳐주나(PER)</b>로 그린 2027년 길이에요. 지금은 <b>바닥을 찾는 중</b>이고, 2분기에 PER이 회복되고 하반기에 천천히 오를 거라고 봐요(주황 점선). 이익이 줄면 파란 점선 길이에요.</div>
+    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_path_mirae.jpg" width="1039" height="672" loading="lazy" alt="2027년 코스피 EPS·PER 경로 — 중심 경로·이익 하향 시·범위(미래에셋증권, 자료 FnGuide)"></div>
+    <div class="small" style="margin:4px">👆 그림을 누르면 크게 보여요. 한 번 더 누르면 원래대로.</div>
+    <div class="chart-title">그림의 길 위에 실제 코스피 겹쳐 보기 (매일 바뀜)</div>
+    <div class="chart-box tall" id="vm-mapath"></div>${legend([["실제 코스피", ink], [MA[0][0], cols[0], true], [MA[1][0], cols[1], true], [MA[2][0], cols[2], true], ["주황 음영 = 범위", cols[0]]])}
+    ${now}
+    <details class="fold"><summary><b>📋 그림 숫자 표</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+      <div class="tbl-wrap"><table><thead><tr><th>그림 시점</th>${MA.map(([nm]) => `<th>${nm.split("(")[0]}</th>`).join("")}</tr></thead><tbody>
+      ${MA_STEP.map((s, i) => `<tr><td style="white-space:normal;text-align:left">${s}</td>${MA.map(([, ps]) => `<td>${ps[i] ? `<b>${n(ps[i][0] * ps[i][1], 0)}</b><br><span class="src">${ps[i][0]}배×${n(ps[i][1])}</span>` : "–"}</td>`).join("")}</tr>`).join("")}
+      </tbody></table></div>
+      <div class="note">칸 = 코스피 = PER × EPS(그림 숫자로 계산). 그림의 PER이 소수 첫째 자리까지라 그림 점과 몇십 포인트 다를 수 있어요. 차트의 점 날짜(26.12.15 · 27.05.15 · 27.11.15)는 그림 위치로 읽은 대략의 시점이에요.</div></details>
+    <div class="memo" style="margin:8px 0 0">📌 <b>미래에셋 2027년 선호 업종</b>: 헬스케어 · 2차전지 · 화장품 · 인터넷 · 호텔/레저 · 유틸리티 · 반도체
+      <br><b>Top Picks</b>: 삼성바이오로직스 · 셀트리온 · SK바이오팜 · 삼성SDI · LG에너지솔루션 · 에이피알 · 코스맥스 · NAVER · 삼성에스디에스 · 파라다이스 · GS피앤엘 · 대한항공 · 한국전력 · 삼성전자 · SK하이닉스 · SK스퀘어 · DB하이텍
+      <div class="src">출처: user: 사용자가 보내 준 미래에셋증권 글(<a href="https://t.me/eqmirae" target="_blank" rel="noopener">텔레그램 eqmirae</a>, 26.11.10)</div></div>
+    <p class="note" style="margin:6px 4px 2px">자료: user: 사용자가 보내 준 미래에셋증권 리서치센터 그림 '2027년 코스피 EPS, PER'(그림 속 자료: FnGuide, 미래에셋증권 · 26.11.10 받음). 증권사 전망이고 투자 권유가 아니에요. 그림·길은 자동으로 안 바뀌고, 실제 코스피와 27E EPS만 매일 바뀌어요.</p>`;
+  // 그림의 길(점 3개 + 끝까지 평평) + 범위 음영 + 실제 코스피
+  const xs = [...MA_D, MA_END], ext = (a) => [...a, a[a.length - 1]];
+  const path = (k, dash) => { const ys = ext(lv[k]);
+    return { x: xs, y: ys, type: "scatter", mode: "lines+markers", line: { color: cols[k], width: 2, dash }, marker: { size: ys.map((_, j) => (j < 3 ? 8 : 0.1)), color: cols[k] },
+      text: ys.map((v, j) => (v == null ? "" : j < 3 ? `${MA_STEP[j]}<br>${MA[k][0]}: PER ${MA[k][1][j][0]}배 × EPS ${n(MA[k][1][j][1])} = ${n(v, 0)}` : `${MA[k][0]} ${n(v, 0)}`)),
+      hovertemplate: "%{x|%Y-%m-%d}<br>%{text}<extra></extra>" }; };
+  const tr = [{ x: [MA_D[0], MA_D[1], MA_D[2], MA_END, MA_END, MA_D[2], MA_D[1], MA_D[0]], y: [mid[0], top[1], top[2], top[2], low[2], low[2], low[1], low[0]],
+    type: "scatter", mode: "lines", fill: "toself", fillcolor: cols[0], opacity: 0.18, line: { width: 0 }, hoverinfo: "skip" }, path(2, "dash"), path(1, "dot"), path(0, "dash")];
+  const ks = K ? K.x.findIndex((d) => d >= "2026-01-01") : -1;
+  if (ks >= 0) tr.push({ x: K.x.slice(ks), y: K.y.slice(ks), type: "scatter", mode: "lines", line: { color: ink, width: 1.6 }, hovertemplate: "%{x|%Y-%m-%d}<br>코스피 %{y:,.2f}<extra></extra>" });
+  Plotly.react("vm-mapath", tr, Object.assign(baseLayout(), {
+    margin: { l: 48, r: 8, t: 8, b: 28 }, showlegend: false, hovermode: "closest",
+    xaxis: axis({ type: "date", range: ["2026-01-01", "2028-01-10"], tickformat: "%y.%m", dtick: "M6", hoverformat: "%Y-%m-%d", showgrid: false }),
+    yaxis: axis({ nticks: 7, tickformat: "," }),
+    shapes: K ? [{ type: "line", xref: "x", x0: K.last_date, x1: K.last_date, yref: "paper", y0: 0, y1: 1, line: { color: C.muted, width: 1, dash: "dot" } }] : [],
+  }), CFG);
+}
+
 /* 주식 4계 카드의 '우리 데이터로 대 보기': 미국·한국을 따로, 각자의 금리·실적·주가 방향만 표의 줄과 맞춰 봄 (README) */
 const SEASON_ROW = { "↓↘↗": "① 금융장세(봄)", "↑↗↗": "③ 실적장세(여름)", "↑↗↓": "④ 역금융장세(가을)", "↓↘↓": "⑥ 역실적장세(겨울)" };
 const SEASON_PT = { "①": [61, 99], "③": [158, 52], "④": [221, 75], "⑥": [307, 123] };  // 산 모양 그림의 선 위 자리
@@ -315,6 +376,7 @@ function render() {
   };
   DRAWS = [];
   seasonsNow();
+  miraePath();
   kospiCard();
   spBand();
   crossCheck();
