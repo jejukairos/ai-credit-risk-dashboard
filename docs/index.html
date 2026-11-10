@@ -748,6 +748,11 @@ footer a{color:var(--ink2)}
     <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div>
     <div id="mddwhy"></div>
     <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
+    <div class="small" style="margin:14px 4px 4px;color:var(--ink)"><b>🏆 고점 대비 낙폭 역대 순위</b> <span class="small">(2026년 줄은 매일 자동 갱신)</span></div>
+    <div id="mddrankmemo"></div>
+    <div class="tablebox" style="border:0"><table id="mddrank" class="mt"><thead><tr><th style="text-align:left">하락장</th><th>고점</th><th>저점</th><th>하락률</th><th>기간</th></tr></thead><tbody></tbody></table></div>
+    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_mdd_rank_kiwoom.jpg" width="756" height="605" loading="lazy" alt="과거 코스피 고점 대비 낙폭 역대 순위 표 (FnGuide, 키움증권 리서치)"></div>
+    <p class="note" style="margin:4px 4px 2px" id="mddranknote"></p>
   </div>
 
   <h2 id="sec-ism">🏭 미국 ISM 제조업지수 — 꺾이면 반도체도 꺾일까</h2>
@@ -2161,6 +2166,17 @@ const MDD_WHY = {
   '2026-06-22': ['2026년 6월 말~', '반도체·AI 투자 수익성 우려, 높은 금리, 외국인 매도 부담', '진행 중'],
 };
 
+// 고점 대비 낙폭 역대 순위 — user: 사용자가 보낸 키움증권 리서치 표(자료: FnGuide, 26.11.10 받음) 숫자 그대로. [하락장, 고점 날짜, 고점, 저점 날짜, 저점, 기간]
+const MDD_RANK = [
+  ['IMF 외환위기', '1994-11-08', 1138.75, '1998-06-16', 280.00, '3년 7개월'],
+  ['IT 버블 붕괴, 9.11', '2000-01-04', 1059.04, '2001-09-17', 468.76, '1년 8개월'],
+  ['글로벌 금융위기', '2007-10-31', 2064.85, '2008-10-24', 938.75, '1년'],
+  ['3저 호황 이후', '1989-04-01', 1007.77, '1992-08-21', 459.07, '3년 4개월'],
+  ['카드 사태, 이라크전', '2002-04-18', 937.61, '2003-03-17', 515.24, '11개월'],
+  ['미중 무역분쟁, 코로나', '2018-01-29', 2598.19, '2020-03-19', 1457.64, '2년 2개월'],
+  ['연준 긴축, 러-우 전쟁', '2021-07-06', 3305.21, '2022-09-30', 2155.49, '1년 3개월'],
+];
+
 function renderMdd() {
   const m = DATA.mdd;
   if (!m) return;
@@ -2200,6 +2216,23 @@ function renderMdd() {
     <div style="color:var(--muted)">하락·반등 이유는 사용자 정리. 수익률은 바닥 날 종가 → n달 뒤 종가(네이버 금융 코스피)로 자동 계산.</div></div></details>`;
   document.getElementById('mddnote').innerHTML = `빨간 숫자 = 하락기마다 가장 깊었던 바닥(%). 점선 = −10·−20·−40%. ${m.since.slice(0, 4)}년 이후 날짜 중 지금보다 더 깊이 빠져 있던 날은 <b>${m.deeper_pct}%</b>예요. ` +
     `'최고점 회복' = 직전 최고점에서 다시 그 높이로 돌아오기까지 걸린 시간. 매일 갱신(그래프는 주 단위). 자료: <a href="https://finance.naver.com/sise/sise_index.naver?code=KOSPI" target="_blank" rel="noopener">네이버 금융 코스피</a>`;
+
+  // 역대 순위: 옛 하락장은 표 숫자 고정, 지금 하락기 줄만 매일 자동(최고점 종가 → 그 뒤 가장 낮은 종가)
+  // shortcut: 코스피가 최고점을 다시 넘으면 이 줄이 새 하락기로 바뀜 — 그때 2026년 값을 MDD_RANK에 고정 줄로 옮기기
+  const hm = Math.round((new Date(m.cur_low.date) - new Date(m.peak_date)) / 864e5 / 30.44 * 2) / 2, hy = Math.floor(hm / 12), mo = hm - hy * 12;
+  const now = {name: m.peak_date.slice(0, 4) + '년 (진행 중)', p: m.peak_date, pv: m.peak, l: m.cur_low.date, lv: m.cur_low.low,
+    dur: ((hy ? hy + '년 ' : '') + (mo >= 1 ? Math.floor(mo) + '개월' : '') + (mo % 1 ? ' 반' : '')).trim()};
+  const rows = MDD_RANK.map(([name, p, pv, l, lv, dur]) => ({name, p, pv, l, lv, dur})).concat([now]);
+  rows.forEach(r => r.dd = (r.lv / r.pv - 1) * 100);
+  rows.sort((a, b) => a.dd - b.dd);
+  const rk = rows.indexOf(now), up = rows[rk - 1];
+  document.getElementById('mddrankmemo').innerHTML = `<div class="memo" style="margin:4px 0 8px"><div style="font-size:15px">👉 이번 하락은 역대 <b style="color:var(--bad)">${rk + 1}위</b> (${rows.length}번 중) · 바닥 ${md(now.l)} ${fmtNum(now.lv, 2)} (${now.dd.toFixed(1)}%)</div>` +
+    (up ? `<div style="font-size:15px;margin-top:4px">👉 코스피가 <b>${fmtNum(m.peak * up.lv / up.pv, 0)}</b> 아래로 마감하면 ${rk}위(${up.name} ${up.dd.toFixed(1)}%)를 넘어서요</div>` : '') + `</div>`;
+  document.querySelector('#mddrank tbody').innerHTML = rows.map((r, i) =>
+    `<tr${r === now ? ' style="color:var(--bad);font-weight:700"' : ''}><td style="text-align:left;white-space:normal;word-break:keep-all">${i + 1}. ${r.name}</td><td>${r.p}<br>${fmtNum(r.pv, 2)}</td><td>${r.l}<br>${fmtNum(r.lv, 2)}</td><td>${r.dd.toFixed(1)}%</td><td style="white-space:normal;word-break:keep-all">${r.dur}</td></tr>`).join('');
+  document.getElementById('mddranknote').innerHTML = `옛 하락장 7줄 = user: 사용자가 보낸 키움증권 리서치 표 '과거 코스피 고점 대비 낙폭 역대 순위'(자료: FnGuide, 26.11.10 받음) 숫자 그대로예요. 1990년 이후 6줄은 네이버 금융 종가와 모두 같아요(1989년 줄은 우리 자료가 1990년부터라 확인 못 함). ` +
+    `<b>${now.name.slice(0, 5)} 줄은 매일 자동</b>: 고점 = 최고 종가, 저점 = 그 뒤 가장 낮은 종가(네이버 금융), 하락률 = 저점 ÷ 고점 − 1, 순위는 하락률 순. 더 낮은 종가가 나오면 저점·하락률·기간·순위가 저절로 바뀌어요. ` +
+    `'넘어서는 지수' = 지금 고점 × (윗 순위 저점 ÷ 고점). 아래 그림은 원본(26.11.06 저점 기준, 갱신 안 됨, 누르면 커져요).`;
 }
 
 function renderNps() {
