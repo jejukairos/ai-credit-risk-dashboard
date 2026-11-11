@@ -846,7 +846,7 @@ footer a{color:var(--ink2)}
   <h2 id="sec-month">📅 달별 평균 상승률 — 코스피 · 코스닥</h2>
   <div class="card" id="monthcard">
     <h3><span>달마다 평균 몇 % 올랐나</span><span class="small" id="monthto"></span></h3>
-    <div class="small" style="margin:2px 4px 6px">2001년부터 해마다 그 달에 지수가 평균 몇 % 올랐는지예요. 막대가 위로 길수록 그 달에 잘 올랐던 거예요.</div>
+    <div class="small" style="margin:2px 4px 6px">2001년부터 해마다 그 달에 지수가 평균 몇 % 올랐는지예요. 막대가 위로 길수록 그 달에 잘 올랐던 거예요. <b>검은 가로줄</b> = 신문 그림(2001~2023년) 값이에요.</div>
     <div id="monthkospi" class="plot" style="height:200px"></div>
     <div class="memo" style="margin:4px 0 10px">📌 <b>코스피는 12월보다 <span style="color:var(--bad)">11월</span>이 강해요</b> — 12월이 강하다고 생각하기 쉽지만, 통계로는 11월이 가장 강해요.
       <br>· 11월부터 내년 회계연도 자금을 새로 집행해요.
@@ -861,6 +861,7 @@ footer a{color:var(--ink2)}
       <br>· <b>CES</b>(세계 최대 전자·IT 박람회)와 <b>JP모건 헬스케어 콘퍼런스</b>가 1월에 열려요.
       <br>· 2027년 1월도 CES 기대감(로봇 등)이 있을 테니, <b>11월 중순부터 미리 준비</b>하면 돼요.
       <br>· 2026년 1월에도 코스닥이 매우 강했어요.
+      <div class="real" id="kosdaqrank" style="margin-top:6px"></div>
       <div class="src">출처: user: 사용자 메모(26.11.01)</div></div>
     <p class="note" style="margin:6px 4px 2px" id="monthnote"></p>
   </div>
@@ -2553,6 +2554,10 @@ function renderKqOddEven() {
     <div class="src">출처: 주장 = user: 사용자 제공 방송 요약(26.11) · 박세익 대표 의견 = user: 사용자가 보내 준 요약문(26.11.03), 회사 이름은 <a href="https://www.fntimes.com/html/view.php?ud=202509231545111168b4a7c6999c_18" target="_blank" rel="noopener">한국금융신문(25.09.23)</a> · 계산 = 네이버 금융 코스닥 일별 종가. 해마다 수익률 = 그해 마지막 종가 ÷ 전해 마지막 종가 − 1(1996년은 첫 거래일부터, 올해는 지금까지), 평균 = 그 해들 수익률을 더해 해 수로 나눈 값.</div></details>`;
 }
 
+// user: 사용자 제공 머니투데이 그래픽 '코스피·코스닥 지수 월별 평균 상승률'(2001-01~2023-12) 숫자 — 우리 계산과 같은 기간이면 12달 모두 같음(26.11.11 확인)
+const MONTH_FIG = {kospi: [1.21, 0.33, 0.83, 2.89, 0.17, -1.00, 1.54, -0.20, -0.49, -0.49, 3.01, 1.55],
+  kosdaq: [4.19, 0.56, 1.81, 2.28, 0.62, -2.19, -0.14, -1.20, -2.36, -1.25, 2.79, 0.95]};
+
 // 코스피·코스닥 달별 평균 상승률(2001-01~지난달). 가장 강한 달은 진하게
 function renderMonthAvg() {
   const M = DATA.monthly_avg;
@@ -2562,16 +2567,20 @@ function renderMonthAvg() {
     const o = M[k], best = o.avg.indexOf(Math.max(...o.avg));
     Plotly.react('month' + k, [{x: mon, y: o.avg, type: 'bar', marker: {color: o.avg.map((v, i) => css(i === best ? '--bad' : v >= 0 ? '--g1' : '--muted'))},
       text: o.avg.map(v => (v > 0 ? '+' : '') + v.toFixed(2)), textposition: 'outside', cliponaxis: false, constraintext: 'none', textfont: {size: 9, color: css('--ink')},
-      customdata: o.up.map((u, i) => `${u}/${o.n[i]}`), hovertemplate: `${nm} %{x} 평균 %{y:+.2f}% · 오른 해 %{customdata}<extra></extra>`}],
-      Object.assign(baseLayout(), {hovermode: 'closest', margin: {l: 34, r: 6, t: 22, b: 24}, bargap: 0.25,
-        xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(o.avg.concat([0]).map(v => v * 1.25), false)}),
+      customdata: o.up.map((u, i) => `${u}/${o.n[i]}`), hovertemplate: `지금까지 평균 %{y:+.2f}% · 오른 해 %{customdata}<extra></extra>`},
+      {x: mon, y: MONTH_FIG[k], type: 'scatter', mode: 'markers', marker: {symbol: 'line-ew', size: 13, opacity: 0.55, line: {width: 2.5, color: css('--ink')}},
+        hovertemplate: `그림(2001~2023) %{y:+.2f}%<extra></extra>`}],
+      Object.assign(baseLayout(), {hovermode: 'x unified', showlegend: false, margin: {l: 34, r: 6, t: 22, b: 24}, bargap: 0.25,
+        xaxis: axis({type: 'category', tickfont: {size: 10}}), yaxis: axis({ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2'), range: padRange(o.avg.concat(MONTH_FIG[k], [0]).map(v => v * 1.25), false)}),
         annotations: [{xref: 'paper', yref: 'paper', x: 0, y: 1.02, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${nm} 달별 평균 상승률 (%)</b>`, font: {size: 11, color: css('--ink2')}}]}), CFG);
   });
   const ka = M.kospi.avg, rk = [...ka].sort((a, b) => b - a), top = ka.indexOf(rk[0]);
   document.getElementById('kospirank').innerHTML = `🔍 <b>지금 데이터로 다시 보면</b> (2001.01~${M.kospi.to.slice(2).replace('-', '.')}): 11월 평균 ${fmtPct(ka[10])}로 12개월 중 <b>${rk.indexOf(ka[10]) + 1}위</b>예요. 12월은 ${rk.indexOf(ka[11]) + 1}위` +
     (top === 10 ? '.' : `, 1위는 <b>${top + 1}월</b>(${fmtPct(ka[top])})이에요. 그림 기간(2001~2023)에선 11월(+3.01%)이 4월(+2.89%)보다 조금 앞서 1위였어요.`);
+  const qa = M.kosdaq.avg, qr = [...qa].sort((a, b) => b - a);
+  document.getElementById('kosdaqrank').innerHTML = `🔍 <b>지금 데이터로 다시 보면</b> (2001.01~${M.kosdaq.to.slice(2).replace('-', '.')}): 1월 평균 ${fmtPct(qa[0])}로 12개월 중 <b>${qr.indexOf(qa[0]) + 1}위</b>예요. 그림 기간(2001~2023)에서도 1월(+4.19%)이 1위였어요.`;
   document.getElementById('monthto').textContent = `2001.01~${M.kospi.to.slice(2).replace('-', '.')}`;
-  document.getElementById('monthnote').innerHTML = `자료: 네이버 금융 코스피·코스닥 일별 종가. 달 상승률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1, 같은 달끼리 2001년 1월부터 지난달까지 평균(이번 달은 끝나면 들어가요). 막대를 누르면 그 달에 오른 해 수도 보여요. 2001-01~2023-12로 계산하면 머니투데이 그래픽(사용자 제공) 숫자와 똑같아요. 빨간 막대 = 가장 강한 달. 지난 평균이라 올해도 그렇다는 보장은 없어요.`;
+  document.getElementById('monthnote').innerHTML = `자료: 네이버 금융 코스피·코스닥 일별 종가. 달 상승률 = 그달 마지막 종가 ÷ 전달 마지막 종가 − 1, 같은 달끼리 2001년 1월부터 지난달까지 평균(이번 달은 끝나면 들어가요). 막대를 누르면 그 달에 오른 해 수도 보여요. <b>검은 가로줄</b> = user: 사용자 제공 머니투데이 그래픽 '코스피·코스닥 지수 월별 평균 상승률'(2001-01~2023-12) 숫자예요. 우리 계산도 같은 기간으로 하면 24개 모두 똑같아요(26.11.11 다시 확인). 막대와 가로줄 차이 = 2024년~지난달 자료가 더해진 만큼이에요. 빨간 막대 = 가장 강한 달. 지난 평균이라 올해도 그렇다는 보장은 없어요.`;
 }
 
 // 한국 월별 수출입 — trade_log.csv(산업통상부 발표, 출처와 함께 추가). 분기말(3·6·9·12월)은 막대 테두리로 표시
