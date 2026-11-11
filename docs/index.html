@@ -789,6 +789,13 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin-top:4px">메모 출처: 김단테 「내일은 투자왕」 글 요약 · JP모건 보고서 요약(KuCoin 뉴스) · user: 사용자 제공 <a href="https://t.me/skitteam" target="_blank" rel="noopener">SK증권 리서치 IT팀</a> 글(TrendForce 10월 D램 고정가) · <a href="https://biz.chosun.com/it-science/ict/2026/10/30/RGLJVNACRVGHZI4DTQK4XLDEYU/" target="_blank" rel="noopener">조선비즈 10/30</a>(D램익스체인지 10월 고정가)</div>
   </div>
   <div id="dramcards"></div>
+  <div class="card" id="dramkg"><h3><span>D램 중량 기준 수출 단가 (천 달러/kg)</span><span class="small" id="dramkgdate"></span></h3>
+    <div class="small" style="margin:2px 4px 6px">D램 칩 1kg을 수출하고 받은 돈이에요. 무게는 그대로인데 이 값이 오르면 <b>D램이 비싸게 팔린다</b>는 뜻이에요(가격이 오르거나 비싼 제품이 많이 나감).</div>
+    <div class="fgchips" id="dramkgchips"></div>
+    <div id="dramkgplot" class="plot" style="height:240px"></div>
+    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/dram_kg_meritz.jpg" width="1280" height="1128" loading="lazy" alt="DRAM 중량 기준 수출 단가 2021년 1월~2026년 11월(11월은 1~10일 잠정치를 30일로 환산), 메리츠증권 리서치센터"></div>
+    <p class="note" style="margin:6px 4px 2px" id="dramkgnote"></p>
+  </div>
   <div class="card" id="hynixinv"></div>
   <div class="memo" style="margin:0 0 12px">🪨 <b>SK하이닉스 '락바텀'(가장 나쁠 때 바닥) 계산 — 소박사</b>
     <br>· <b>주장</b>: 2028년 D램 가격이 <b>분기마다 −30%</b>씩 빠져 25년 3분기 수준까지 내려가도, 영업이익 <b>100~130조</b> × PER 10배면 주가 <b>100~120만원</b>이 가장 나쁜 경우의 바닥이에요. 본인 추정 모델이고, 이 최악이 실제로 올 확률은 낮다고 봤어요.
@@ -2633,6 +2640,26 @@ function renderTrade() {
   document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
 }
 
+// D램 중량 기준 수출 단가 — 관세청 칩 수출액 ÷ 수출 중량(update.py build_hs_exports), 매달 자동. 아이디어·그림: user: 메리츠증권 그림4(26.11.11)
+function renderDramKg() {
+  const o = DATA.hs_exports && DATA.hs_exports.dram_kg, el = document.getElementById('dramkg');
+  if (!o) { el.style.display = 'none'; return; }
+  const n = o.y.length, v = o.y[n - 1], m = o.x[n - 1], mm = s => s.slice(2).replace('-', '.'), x = o.x.map(s => s + '-15');
+  const old = o.y.filter((_, i) => o.x[i] < '2026-01'), avg = old.reduce((a, b) => a + b, 0) / old.length, top = o.y.indexOf(Math.max(...o.y));
+  document.getElementById('dramkgdate').textContent = mm(m) + ' 확정';
+  document.getElementById('dramkgchips').innerHTML = `<span class="chip">${+m.slice(5)}월 <b>${v.toFixed(1)}천 달러/kg</b> (전달 대비 ${fmtPct((v / o.y[n - 2] - 1) * 100)})</span>` +
+    (n > 12 ? `<span class="chip">1년 전의 <b>${(v / o.y[n - 13]).toFixed(1)}배</b></span>` : '') +
+    `<span class="chip">${o.x[0].slice(0, 4)}~2025년 평균 ${avg.toFixed(1)}의 <b>${(v / avg).toFixed(1)}배</b></span>` +
+    `<span class="chip">최고 ${o.y[top].toFixed(1)} (${mm(o.x[top])})</span>`;
+  Plotly.react('dramkgplot', [{x, y: o.y, type: 'scatter', mode: 'lines+markers', line: {color: css('--g1'), width: 2.2},
+      marker: {size: 5, color: css('--surface'), line: {color: css('--g1'), width: 1.5}}, hovertemplate: '%{x|%Y-%m} %{y:.1f}천 달러/kg<extra></extra>'}],
+    tagLast(Object.assign(baseLayout(), {showlegend: false, hovermode: 'closest', margin: {l: 34, r: 40, t: 8, b: 24},
+      xaxis: axis({type: 'date', tickformat: "'%y.%-m", dtick: 'M12', hoverformat: '%Y-%m'}), yaxis: axis({range: [0, Math.max(...o.y) * 1.12]})}),
+      [[o.y, 'y', w => w.toFixed(1), css('--g1')]]), CFG);
+  document.getElementById('dramkgnote').innerHTML = `계산: 관세청 D램 칩(HS ${o.code.join(' + ')}) <b>수출액 ÷ 수출 중량</b>, 달마다 확정치(다음 달 중순에 나오면 자동으로 더해져요). 자료: <a href="https://www.data.go.kr/data/15100475/openapi.do" target="_blank" rel="noopener">관세청 품목별 수출입실적</a>(공공데이터포털). ` +
+    `아이디어·아래 그림 = user: 사용자 제공 메리츠증권 리서치센터 '그림4 DRAM 중량 기준 수출 단가'(자료: TRASS, 26.11.11 받음) — 우리 계산과 달마다 소수 첫째 자리까지 같아요. 그림의 마지막 점(11월, 1~10일 잠정치를 30일로 환산)은 무료 자동 자료가 없어서 위 차트엔 없어요(11월 확정치는 12월 중순에 들어와요).`;
+}
+
 // 품목별 수출 연도별 같은 달 비교 — 관세청 확정치(hs_exports) + 확정 전 마지막 달은 잠정(빈 동그라미):
 // 화장품·라면은 나라별 글의 '전체' 금액, 나머지는 잠정 증가율 × 작년 같은 달 확정치
 let HS_IT = '디램';
@@ -3714,7 +3741,7 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderDramKg(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;

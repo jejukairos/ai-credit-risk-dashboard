@@ -1607,11 +1607,14 @@ def build_trade():
 HS_ITEMS = {"디램": ["8542321010", "8473304060"], "낸드": ["8542321030"], "SSD": ["8523511000"], "MCP(HBM)": ["8542323000"],
             "반도체장비": ["8486"], "MLCC": ["8532240000"], "PCB": ["8534"], "대형변압기(10000KVA 이상)": ["8504230000"],
             "화장품": ["3304"], "라면": ["1902301010"]}
+# 화면 품목 버튼엔 없고 계산에만 쓰는 코드: D램 중량 기준 수출 단가 = 칩 수출액 ÷ 수출 중량
+# (사용자 제공 메리츠증권 그림 'DRAM 중량 기준 수출 단가'(자료: TRASS)와 칩만 쓸 때 소수 첫째 자리까지 같음, 26.11.11 확인)
+HS_KG = {"디램 칩": ["8542321010"]}
 
 
 def fetch_hs_exports():
     # 공공데이터포털 '관세청_품목별 수출입실적(GW)' (키 DATA_GO_KR_KEY 는 .env 에만). 한 번에 1년까지라 해마다 따로,
-    # 처음엔 2021년부터, 그 뒤엔 작년·올해만 다시 받음(확정치가 고쳐질 수 있어서). 달마다 HS 코드 합(백만 달러)
+    # 처음엔 2021년부터, 그 뒤엔 작년·올해만 다시 받음(확정치가 고쳐질 수 있어서). 달마다 HS 코드 합(백만 달러)·수출 중량(kg)
     import xml.etree.ElementTree as ET
     key = os.environ.get("DATA_GO_KR_KEY", "").strip()
     if not key:
@@ -1619,10 +1622,11 @@ def fetch_hs_exports():
     path, now = os.path.join(DATA, "hs_exports.csv"), datetime.now(KST)
     old = pd.read_csv(path, dtype={"month": str}) if os.path.exists(path) else None
     rows = []
-    for y in (range(2021, now.year + 1) if old is None else (now.year - 1, now.year)):
+    full = old is None or "kg" not in old.columns or not set(HS_KG) <= set(old["item"])  # 중량 칸·새 품목이 없으면 2021년부터 다시
+    for y in (range(2021, now.year + 1) if full else (now.year - 1, now.year)):
         end = f"{y}12" if y < now.year else now.strftime("%Y%m")
-        for item, codes in HS_ITEMS.items():
-            acc = {}
+        for item, codes in {**HS_ITEMS, **HS_KG}.items():
+            acc, kg = {}, {}
             for c in codes:
                 root = ET.fromstring(get("https://apis.data.go.kr/1220000/Itemtrade/getItemtradeList", timeout=120,
                                          params={"serviceKey": key, "strtYymm": f"{y}01", "endYymm": end, "hsSgn": c}).text)
@@ -1632,7 +1636,8 @@ def fetch_hs_exports():
                     ym, hs = it.findtext("year") or "", it.findtext("hsCode") or ""
                     if re.fullmatch(r"\d{4}\.\d{2}", ym) and hs.startswith(c):
                         acc[ym] = acc.get(ym, 0) + float(it.findtext("expDlr") or 0)
-            rows += [{"month": ym.replace(".", "-"), "item": item, "usd_m": round(v / 1e6, 2)} for ym, v in acc.items()]
+                        kg[ym] = kg.get(ym, 0) + float(it.findtext("expWgt") or 0)
+            rows += [{"month": ym.replace(".", "-"), "item": item, "usd_m": round(v / 1e6, 2), "kg": round(kg[ym])} for ym, v in acc.items()]
     if not rows:
         raise RuntimeError("관세청 품목별 수출을 하나도 못 받음")
     df = pd.DataFrame(rows)
@@ -1646,8 +1651,13 @@ def build_hs_exports():
     if not os.path.exists(p):
         return None
     d = pd.read_csv(p, dtype={"month": str}).sort_values("month")
-    return {"items": list(HS_ITEMS), "codes": HS_ITEMS,
-            "data": {it: {"x": list(g["month"]), "y": g["usd_m"].tolist()} for it, g in d.groupby("item")}}
+    out = {"items": list(HS_ITEMS), "codes": HS_ITEMS,
+           "data": {it: {"x": list(g["month"]), "y": g["usd_m"].tolist()} for it, g in d.groupby("item") if it in HS_ITEMS}}
+    if "kg" in d.columns:  # D램 중량 기준 수출 단가(천 달러/kg) = 칩 수출액 ÷ 수출 중량
+        k = d[(d["item"] == "디램 칩") & (d["kg"] > 0)]
+        if len(k):
+            out["dram_kg"] = {"x": list(k["month"]), "y": (k["usd_m"] * 1000 / k["kg"]).round(1).tolist(), "code": HS_KG["디램 칩"]}
+    return out
 
 
 def fetch_liquidity():
