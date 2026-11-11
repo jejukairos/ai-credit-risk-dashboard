@@ -793,7 +793,6 @@ footer a{color:var(--ink2)}
     <div class="small" style="margin:2px 4px 6px">D램 칩 1kg을 수출하고 받은 돈이에요. 무게는 그대로인데 이 값이 오르면 <b>D램이 비싸게 팔린다</b>는 뜻이에요(가격이 오르거나 비싼 제품이 많이 나감).</div>
     <div class="fgchips" id="dramkgchips"></div>
     <div id="dramkgplot" class="plot" style="height:240px"></div>
-    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/dram_kg_meritz.jpg" width="1280" height="1128" loading="lazy" alt="DRAM 중량 기준 수출 단가 2021년 1월~2026년 11월(11월은 1~10일 잠정치를 30일로 환산), 메리츠증권 리서치센터"></div>
     <p class="note" style="margin:6px 4px 2px" id="dramkgnote"></p>
   </div>
   <div class="card" id="hynixinv"></div>
@@ -2640,7 +2639,7 @@ function renderTrade() {
   document.getElementById('tradenote').innerHTML = `자료: 산업통상부 월별 수출입 동향(매달 1일 발표) — 사용자 제공 그림·메모로 시작해 매주 월요일 자동 검색이 새 달 발표를 출처와 함께 <code>trade_log.csv</code>에 더해요. 단위 억 달러. 무역수지 = 수출 − 수입, 전월 대비 = 이번 달 ÷ 지난달 − 1.`;
 }
 
-// D램 중량 기준 수출 단가 — 관세청 칩 수출액 ÷ 수출 중량(update.py build_hs_exports), 매달 자동. 아이디어·그림: user: 메리츠증권 그림4(26.11.11)
+// D램 중량 기준 수출 단가 — 관세청 칩 수출액 ÷ 수출 중량(update.py build_hs_exports), 매달 자동. 아이디어(참고만, 그림은 안 올림): user: 메리츠증권 그림4(26.11.11)
 function renderDramKg() {
   const o = DATA.hs_exports && DATA.hs_exports.dram_kg, el = document.getElementById('dramkg');
   if (!o) { el.style.display = 'none'; return; }
@@ -2657,7 +2656,7 @@ function renderDramKg() {
       xaxis: axis({type: 'date', tickformat: "'%y.%-m", dtick: 'M12', hoverformat: '%Y-%m'}), yaxis: axis({range: [0, Math.max(...o.y) * 1.12]})}),
       [[o.y, 'y', w => w.toFixed(1), css('--g1')]]), CFG);
   document.getElementById('dramkgnote').innerHTML = `계산: 관세청 D램 칩(HS ${o.code.join(' + ')}) <b>수출액 ÷ 수출 중량</b>, 달마다 확정치(다음 달 중순에 나오면 자동으로 더해져요). 자료: <a href="https://www.data.go.kr/data/15100475/openapi.do" target="_blank" rel="noopener">관세청 품목별 수출입실적</a>(공공데이터포털). ` +
-    `아이디어·아래 그림 = user: 사용자 제공 메리츠증권 리서치센터 '그림4 DRAM 중량 기준 수출 단가'(자료: TRASS, 26.11.11 받음) — 우리 계산과 달마다 소수 첫째 자리까지 같아요. 그림의 마지막 점(11월, 1~10일 잠정치를 30일로 환산)은 무료 자동 자료가 없어서 위 차트엔 없어요(11월 확정치는 12월 중순에 들어와요).`;
+    `아이디어 = user: 사용자 제공 메리츠증권 리서치센터 '그림4 DRAM 중량 기준 수출 단가'(자료: TRASS, 26.11.11 받음) — 우리 계산과 달마다 소수 첫째 자리까지 같아요. 그 그림의 마지막 점(11월, 1~10일 잠정치를 30일로 환산)은 무료 자동 자료가 없어서 위 차트엔 없어요(11월 확정치는 12월 중순에 들어와요).`;
 }
 
 // 품목별 수출 연도별 같은 달 비교 — 관세청 확정치(hs_exports) + 확정 전 마지막 달은 잠정(빈 동그라미):
