@@ -272,7 +272,7 @@ footer a{color:var(--ink2)}
     <div id="mkt-us10y"></div>
     <div class="memo">
       <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
-      <div>· 미국 10년 금리가 <b>오르는 중</b>이에요. 금리가 오르면 돈 빌리기가 비싸져서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요.</div>
+      <div>· 미국 10년 금리가 <b>오르는 중</b>이에요. 금리가 오르면 돈 빌리기가 비싸져서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요. <b>5%를 넘으면 경계</b>로 봐요(그래프 점선).</div>
       <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
       <div class="real" id="liqreal-us10y"></div>
       <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
@@ -375,7 +375,7 @@ footer a{color:var(--ink2)}
     <div id="mkt-dxy"></div>
     <div class="memo">
       <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
-      <div>· 달러가 <b>최근 고점을 뚫었어요</b>. 달러가 강해지면 세계에서 돈이 미국으로 빨려 들어가서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요.</div>
+      <div>· 달러가 <b>최근 고점을 뚫었어요</b>. 달러가 강해지면 세계에서 돈이 미국으로 빨려 들어가서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요. <b>100을 넘고 추세가 위로</b> 가면 돈을 빨아들인다고 봐요(그래프 점선 = 100).</div>
       <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
       <div class="real" id="liqreal-dxy"></div>
       <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
@@ -2932,18 +2932,19 @@ function renderLiquidity() {
     '1년 전 대비 (%)', '--g3', [[G.y.map(v => v / 1000), 'y', v => v.toFixed(2) + '조', css('--g3')], [gy, 'y2', v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', css('--g3')]]);
 }
 
-// 금리·달러 함께 보기(사용자 메모 26.11.13) — 달러: 직전 250거래일 최고와 비교 / 금리: 1주 전보다 올랐는지
+// 금리·달러 함께 보기(사용자 메모 26.11.13) — 달러: 100 위 + 추세 위(20일 평균 > 60일 평균) / 금리: 5% 이상이면 경계
 function renderLiqWatch() {
   const U = DATA.usmkt || {}, D = U.dxy, R = U.us10y;
   if (!D || !R) return;
   const md = s => s.slice(2).replace(/-/g, '.');
+  const avg = (o, w) => o.y.slice(-w).reduce((s, v) => s + v, 0) / Math.min(w, o.y.length);
   const hi = o => { const n = o.y.length; let i = Math.max(0, n - 251); for (let j = i; j < n - 1; j++) if (o.y[j] > o.y[i]) i = j; return i; };
-  const di = hi(D), dv = D.y[di], dGap = (D.last / dv - 1) * 100, ri = hi(R), rv = R.y[ri];
-  const dUp = dGap > -0.5, rUp = R.w1 != null && R.w1 > 0;
+  const a20 = avg(D, 20), a60 = avg(D, 60), dTrend = a20 > a60, dOn = D.last > 100 && dTrend, di = hi(D), dv = D.y[di];
+  const rOn = R.last >= 5, ri = hi(R), rv = R.y[ri];
   const w1 = R.w1 == null ? '–' : `<span class="${R.w1 >= 0 ? 'up' : 'down'}">${R.w1 >= 0 ? '+' : ''}${R.w1.toFixed(2)}%p</span>`;
-  const html = `<div>👉 달러인덱스 ${fmtNum(D.last, 2)}: ${D.last > dv ? `<b>최근 1년 중 가장 높아요</b> (전 최고 ${fmtNum(dv, 2)}, ${md(D.x[di])})` : `최근 1년 최고 ${fmtNum(dv, 2)}(${md(D.x[di])})보다 ${fmtPct(dGap)}`}</div>
-    <div>👉 미 10년 금리 ${fmtNum(R.last, 2)}%: 1주 전보다 ${w1} · 최근 1년 최고 ${fmtNum(rv, 2)}%(${md(R.x[ri])})${R.last > rv ? ' — <b>새 최고</b>' : `보다 ${(R.last - rv).toFixed(2)}%p`}</div>
-    <div><b>${dUp && rUp ? '⚠️ 지금 둘 다 오르는 중 — 유동성에 부정적인 신호가 켜져 있어요' : dUp || rUp ? '△ 둘 중 하나만 오르는 중' : '✅ 지금은 둘 다 오르는 중이 아니에요'}</b> <span class="small">(${D.last_date} 기준)</span></div>`;
+  const html = `<div>👉 달러인덱스 ${fmtNum(D.last, 2)}: <b>100 ${D.last > 100 ? '위' : '아래'}</b> · 추세 <b>${dTrend ? '위로 📈' : '아래로 📉'}</b> (20일 평균 ${fmtNum(a20, 2)} ${dTrend ? '>' : '<'} 60일 평균 ${fmtNum(a60, 2)})${D.last > dv ? ' · 최근 1년 중 가장 높아요' : ''}</div>
+    <div>👉 미 10년 금리 ${fmtNum(R.last, 2)}%: ${rOn ? '<b>5% 위 — 경계</b>' : `5%까지 ${(5 - R.last).toFixed(2)}%p 남음`} · 1주 전보다 ${w1} · 최근 1년 최고 ${fmtNum(rv, 2)}%(${md(R.x[ri])})</div>
+    <div><b>${dOn && rOn ? '⚠️ 둘 다 경계 구간 — 유동성에 부정적인 신호가 켜져 있어요' : dOn ? '△ 달러만 경계 구간' : rOn ? '△ 금리만 경계 구간' : '✅ 지금은 둘 다 경계 구간이 아니에요'}</b> <span class="small">(${D.last_date} 기준)</span></div>`;
   ['liqreal-dxy', 'liqreal-us10y'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = html; });
 }
 
@@ -3006,6 +3007,9 @@ function mktBlock(boxId, list) {
     const M = MA_DD.includes(k) ? maDd(o.y, DD_WIN[k]) : null, cut = DD_CUT[k] || -10;
     const vis = o.x.map((d, i) => d >= xs ? i : -1).filter(i => i >= 0), yr = padRange(vis.map(i => o.y[i]).concat(M ? vis.map(i => M.ma[i]).filter(v => v != null) : []), false);
     let shapes = [], annotations = [];
+    const LV = {us10y: [5, '5% 경계'], dxy: [100, '100']}[k];  // 사용자 메모 26.11.13 기준선
+    if (LV) { shapes.push({type: 'line', xref: 'paper', x0: 0, x1: 1, y0: LV[0], y1: LV[0], line: {color: css('--bad'), width: 1, dash: 'dot'}});
+      annotations.push({xref: 'paper', x: 0, y: LV[0], text: LV[1], showarrow: false, xanchor: 'left', yanchor: 'bottom', font: {size: 10, color: css('--bad')}}); }
     if (T) {
       shapes = T.map((g, j) => ({type: 'rect', xref: 'x', yref: 'paper', x0: g.x0, x1: T[j + 1] ? T[j + 1].x0 : last, y0: 0, y1: 1,
         fillcolor: css(g.up ? '--g2' : '--g1'), opacity: 0.13, line: {width: 0}, layer: 'below'}));
