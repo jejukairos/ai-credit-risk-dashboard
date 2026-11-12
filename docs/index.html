@@ -270,6 +270,13 @@ footer a{color:var(--ink2)}
       <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
     </div>
     <div id="mkt-us10y"></div>
+    <div class="memo">
+      <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
+      <div>· 미국 10년 금리가 <b>오르는 중</b>이에요. 금리가 오르면 돈 빌리기가 비싸져서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요.</div>
+      <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
+      <div class="real" id="liqreal-us10y"></div>
+      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
+    </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1962년~).</p>
   </div>
 
@@ -366,6 +373,13 @@ footer a{color:var(--ink2)}
       <div><b>달러인덱스</b> 유로·엔 등 6개 주요 통화와 비교한 달러 가치예요. 오르면 달러가 강해졌다는 뜻이에요.</div>
     </div>
     <div id="mkt-dxy"></div>
+    <div class="memo">
+      <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
+      <div>· 달러가 <b>최근 고점을 뚫었어요</b>. 달러가 강해지면 세계에서 돈이 미국으로 빨려 들어가서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요.</div>
+      <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
+      <div class="real" id="liqreal-dxy"></div>
+      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
+    </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(DX-Y.NYB), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
@@ -2918,9 +2932,25 @@ function renderLiquidity() {
     '1년 전 대비 (%)', '--g3', [[G.y.map(v => v / 1000), 'y', v => v.toFixed(2) + '조', css('--g3')], [gy, 'y2', v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%', css('--g3')]]);
 }
 
+// 금리·달러 함께 보기(사용자 메모 26.11.13) — 달러: 직전 250거래일 최고와 비교 / 금리: 1주 전보다 올랐는지
+function renderLiqWatch() {
+  const U = DATA.usmkt || {}, D = U.dxy, R = U.us10y;
+  if (!D || !R) return;
+  const md = s => s.slice(2).replace(/-/g, '.');
+  const hi = o => { const n = o.y.length; let i = Math.max(0, n - 251); for (let j = i; j < n - 1; j++) if (o.y[j] > o.y[i]) i = j; return i; };
+  const di = hi(D), dv = D.y[di], dGap = (D.last / dv - 1) * 100, ri = hi(R), rv = R.y[ri];
+  const dUp = dGap > -0.5, rUp = R.w1 != null && R.w1 > 0;
+  const w1 = R.w1 == null ? '–' : `<span class="${R.w1 >= 0 ? 'up' : 'down'}">${R.w1 >= 0 ? '+' : ''}${R.w1.toFixed(2)}%p</span>`;
+  const html = `<div>👉 달러인덱스 ${fmtNum(D.last, 2)}: ${D.last > dv ? `<b>최근 1년 중 가장 높아요</b> (전 최고 ${fmtNum(dv, 2)}, ${md(D.x[di])})` : `최근 1년 최고 ${fmtNum(dv, 2)}(${md(D.x[di])})보다 ${fmtPct(dGap)}`}</div>
+    <div>👉 미 10년 금리 ${fmtNum(R.last, 2)}%: 1주 전보다 ${w1} · 최근 1년 최고 ${fmtNum(rv, 2)}%(${md(R.x[ri])})${R.last > rv ? ' — <b>새 최고</b>' : `보다 ${(R.last - rv).toFixed(2)}%p`}</div>
+    <div><b>${dUp && rUp ? '⚠️ 지금 둘 다 오르는 중 — 유동성에 부정적인 신호가 켜져 있어요' : dUp || rUp ? '△ 둘 중 하나만 오르는 중' : '✅ 지금은 둘 다 오르는 중이 아니에요'}</b> <span class="small">(${D.last_date} 기준)</span></div>`;
+  ['liqreal-dxy', 'liqreal-us10y'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = html; });
+}
+
 function renderUsmkt() {
   renderLiquidity();
   [['us10y', '미국채 10년물', '%', 2], ['dxy', '달러인덱스', 'pt', 2]].forEach(a => mktBlock('mkt-' + a[0], [a]));
+  renderLiqWatch();
   mktBlock('mkt-etf', [['sp500', 'S&amp;P500', 'pt', 2], ['qqq', 'QQQ · 나스닥100', '달러', 2], ['soxx', 'SOXX · 반도체', '달러', 2], ['dow', '다우', 'pt', 2]]);
   mktBlock('fx', [['usdkrw', '원/달러 환율', '원', 2]]);
   mktBlock('mkt-kr', [['kospi', '코스피', 'pt', 2], ['kosdaq', '코스닥', 'pt', 2]]);
