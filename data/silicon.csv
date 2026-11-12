@@ -310,6 +310,7 @@ date,series,price
 2026-11-07,LLM Token,0.8338
 2026-11-08,LLM Token,0.8252
 2026-11-09,LLM Token,0.8209
+2026-11-10,LLM Token,0.8132
 2026-09-18,Open LLM,0.4965
 2026-09-19,Open LLM,0.4899
 2026-09-20,Open LLM,0.4804
@@ -363,6 +364,7 @@ date,series,price
 2026-11-07,Open LLM,0.4883
 2026-11-08,Open LLM,0.4904
 2026-11-09,Open LLM,0.4996
+2026-11-10,Open LLM,0.4985
 2026-09-18,Proprietary LLM,1.8476
 2026-09-19,Proprietary LLM,1.8638
 2026-09-20,Proprietary LLM,1.9001
@@ -416,3 +418,4 @@ date,series,price
 2026-11-07,Proprietary LLM,1.9809
 2026-11-08,Proprietary LLM,1.9692
 2026-11-09,Proprietary LLM,1.9627
+2026-11-10,Proprietary LLM,1.9324
