@@ -680,9 +680,10 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card">
     <h3><span>신용잔고 — 전체 · 코스피 · 코스닥</span></h3>
-    <div class="small" style="margin:2px 4px 6px">빚내서 산 주식 금액(신용융자)을 실제 금액(조원)으로 그렸어요. <b style="color:#d81b7a">분홍 = 전체</b>(코스피 + 코스닥), 나머지 두 줄 = 시장별. 점선 = 지금 전체 금액.</div>
+    <div class="small" style="margin:2px 4px 6px">빚내서 산 주식 금액(신용융자)을 실제 금액(조원)으로 그렸어요. <b style="color:#d81b7a">분홍 = 전체</b>(코스피 + 코스닥), 나머지 두 줄 = 시장별. 회색 점선 = 지금 전체 금액. <b style="color:var(--good)">초록 점선 = 전저점</b>(바닥에서 오른쪽으로 늘어뜨린 선) — 줄이 이 아래로 내려가면 전저점 이탈이에요.</div>
     <div id="credit3" class="plot" style="height:300px"></div>
-    <p class="note" style="margin:4px">사용자가 보내 준 그림(NNN PB 작성, 26.11.09 받음)처럼 세 줄을 겹쳤어요. 맨 위 기간 버튼을 따라가요. 자료: 금융투자협회 FreeSIS</p>
+    <div class="small" id="credit3low" style="margin:2px 4px 4px"></div>
+    <p class="note" style="margin:4px">사용자가 보내 준 그림(NNN PB 작성, 26.11.09 받음)처럼 세 줄을 겹쳤어요. 전저점 = 마지막으로 <b>10% 넘게 다시 오른 바닥</b>(그 바닥이 확인된 가장 최근 저점), 사용자가 보내 준 FreeSIS 코스피 신용잔고 그림(user: 26.11.15 받음)처럼 그 점에서 오른쪽으로 점선을 그었어요. 매일 자동으로 다시 찾아요. 맨 위 기간 버튼을 따라가요. 자료: 금융투자협회 FreeSIS</p>
   </div>
   <div class="card">
     <h3><span>신용융자 잔고 vs 지수 — 누가 먼저 꺾이나 (코스피 · 코스닥)</span></h3>
@@ -1902,6 +1903,21 @@ function kofiaStart(last, first) {
 }
 // 3년·5년·전체로 볼 때 시기(①~⑩) 구간을 옅은 배경과 위쪽 번호로 표시 — 아래 '시기별 흐름'과 같은 번호
 const ERA_NUM = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫';
+// 전저점 = 마지막으로 th(10%) 넘게 다시 오른 바닥의 위치(지그재그). 없으면 −1
+function prevLow(y, th = 0.1) {
+  let low = -1, dir = 0, hi = -1, lo = -1;
+  y.forEach((v, i) => {
+    if (v == null) return;
+    if (hi < 0) { hi = lo = i; return; }
+    if (v > y[hi]) hi = i;
+    if (v < y[lo]) lo = i;
+    if (dir <= 0 && lo < i && v >= y[lo] * (1 + th)) { low = lo; dir = 1; hi = i; }
+    else if (dir >= 0 && hi < i && v <= y[hi] * (1 - th)) { dir = -1; lo = i; }
+  });
+  return low;
+}
+console.assert(prevLow([10, 8, 9.5, 7]) === 1 && prevLow([10, 9.5, 9.8]) === -1, 'prevLow');
+
 function withEras(layout, xs) {
   const E = (DATA.kofia && DATA.kofia.eras) || [];
   if (!['3y', '5y', 'all'].includes(KOFIA_PERIOD)) return layout;
@@ -1947,15 +1963,22 @@ function renderKofia() {
       shapes: [peakLine('y', rs.hi[0])]}), xs), [[crr, 'y', v => v.toFixed(1) + '%', css('--spread')]]), CFG);
   const inX = (o) => o.y.filter((v, i) => v != null && o.x[i] >= xs);
   // 금액 그대로 그린 줄 그림(사용자 그림 NNN PB 26.11.09처럼): 첫 줄의 지금 값에 점선 + 숫자
-  const lvlPlot = (id, ser, h) => Plotly.react(id, ser.map(([y, nm, c, w]) => ({x: k.x, y, type: 'scatter', mode: 'lines', name: nm, line: {color: c, width: w},
+  const lvlPlot = (id, ser, ex = {}) => Plotly.react(id, ser.map(([y, nm, c, w]) => ({x: k.x, y, type: 'scatter', mode: 'lines', name: nm, line: {color: c, width: w},
       customdata: y.map(v => v == null ? '' : v.toFixed(2)), hovertemplate: `${nm} %{customdata}조<extra></extra>`})),
     tagLast(withEras(Object.assign(baseLayout(), {showlegend: ser.length > 1, legend: {orientation: 'h', x: 0, y: -0.1, yanchor: 'top', font: {size: 11}},
       margin: {l: 44, r: 8, t: 8, b: ser.length > 1 ? 40 : 28},
       xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
       yaxis: axis({range: padRange(ser.flatMap(([y]) => inR(y)), false), ticksuffix: '조'}),
-      shapes: [peakLine('y', ser[0][0].filter(v => v != null).pop())]}), xs), ser.map(([y, , c]) => [y, 'y', v => v.toFixed(2) + '조', c])), CFG);
+      shapes: [peakLine('y', ser[0][0].filter(v => v != null).pop())].concat(ex.shapes || []), annotations: ex.annotations || []}), xs), ser.map(([y, , c]) => [y, 'y', v => v.toFixed(2) + '조', c])), CFG);
   lvlPlot('depplot', [[k.deposit, '고객예탁금', css('--ink'), 2]]);
-  lvlPlot('credit3', [[k.credit, '전체', '#d81b7a', 2.4], [k.credit_kospi, '코스피', css('--ink'), 2], [k.credit_kosdaq, '코스닥', '#5b9bd5', 2]]);
+  // 전저점 초록 점선(사용자 그림 FreeSIS 코스피 신용잔고 26.11.15처럼 바닥에서 오른쪽 끝까지)
+  const C3 = [[k.credit, '전체', '#d81b7a', 2.4], [k.credit_kospi, '코스피', css('--ink'), 2], [k.credit_kosdaq, '코스닥', '#5b9bd5', 2]];
+  const LOW3 = C3.map(([y, nm]) => [y, nm, prevLow(y)]).filter(a => a[2] >= 0);
+  lvlPlot('credit3', C3, {shapes: LOW3.map(([y, , i]) => ({type: 'line', xref: 'x', yref: 'y', x0: k.x[i], x1: last, y0: y[i], y1: y[i], line: {color: css('--good'), width: 2, dash: 'dot'}})),
+    // 전체 줄 글자는 코스피 줄과 겹쳐서 빼고 아래 글로만
+    annotations: LOW3.filter(a => a[1] !== '전체').map(([y, , i]) => ({x: k.x[i] > xs ? k.x[i] : xs, y: y[i], text: '전저점 ' + y[i].toFixed(2), showarrow: false, xanchor: 'left', yanchor: 'top', font: {size: 10, color: css('--good')}}))});
+  document.getElementById('credit3low').innerHTML = LOW3.map(([y, nm, i]) => { const v = y.filter(a => a != null).pop();
+    return `· ${nm} ${v.toFixed(2)}조 — 전저점 ${y[i].toFixed(2)}조(${md(k.x[i])})보다 ${fmtPct((v / y[i] - 1) * 100)}${v < y[i] ? ' <b style="color:var(--bad)">이탈 중</b>' : ''}`; }).join('<br>');
   // 칸 이름은 세로로 돌리지 않고 칸 왼쪽 위에 가로로
   const panelLbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
   const tv = DATA.tv;
