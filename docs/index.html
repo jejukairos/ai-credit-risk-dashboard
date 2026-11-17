@@ -1126,7 +1126,7 @@ function renderBanner() {
     if (ageH > 36) msgs.push(`자동 갱신이 ${Math.floor(ageH / 24)}일째 멈춰 있습니다 (컴퓨터가 꺼져 있었거나 작업 스케줄러 오류).`);
   }
   if (!STATUS) msgs.push('상태 파일(status.json)을 불러오지 못했습니다.');
-  el.innerHTML = msgs.length ? `<div class="banner err"><b>갱신 문제 발생</b> — 아래 데이터는 마지막으로 성공한 시점 기준입니다.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '';
+  el.innerHTML = msgs.length ? `<div class="banner err"><b>일부 자료 갱신 실패</b> — 아래 자료만 마지막으로 받은 값이고, 나머지는 정상 갱신됐어요.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '';
 }
 
 function renderPd() {
@@ -2450,7 +2450,7 @@ function renderVkospi() {
     document.getElementById('vkauto').innerHTML = pi < 0 ? '' : `<b>우리 기록(${md(k.x[j0 - 1])}~, 매일 자동)</b> 하루에 가장 크게 뛴 날은 <b>${md(k.x[j])}</b> ${k.y[j - 1].toFixed(2)} → ${k.y[j].toFixed(2)} (+${(k.y[j] - k.y[j - 1]).toFixed(2)})예요.
       그날 코스피 ${ch(pi - 1, pi)} · 그 전 5거래일 ${ch(pi - 6, pi - 1)} · 그 뒤 5거래일 ${ch(pi, pi + 5)}`;
   }
-  document.getElementById('vknote').innerHTML = `자료: <a href="https://openapi.krx.co.kr/" target="_blank" rel="noopener">한국거래소 Open API</a>(파생상품지수 시세정보 · 코스피 200 변동성지수 종가, ${k.since}~, 다음 날 아침에 나와요) · 오늘 마감 숫자는 <a href="${k.url}" target="_blank" rel="noopener">인베스팅닷컴 VKOSPI 과거 데이터</a>에서 먼저 받아요(두 곳 숫자가 같은지 확인함). ${k.since.slice(0, 4)}년 전 기록은 위 기사 숫자예요. 위 기간 버튼 '전체'를 누르면 ${k.since.slice(0, 4)}년부터 보여요.`;
+  document.getElementById('vknote').innerHTML = `자료: <a href="https://openapi.krx.co.kr/" target="_blank" rel="noopener">한국거래소 Open API</a>(파생상품지수 시세정보 · 코스피 200 변동성지수 종가, ${k.since}~, 다음 날 아침에 나와요) · 거래소가 전 거래일 값을 <b>아침 8시쯤</b> 올리면 30분 안에 자동으로 넣어요. 그래서 장 마감 뒤~다음 날 아침까지는 하루 전 값이에요(오늘 장중 값을 주던 인베스팅닷컴은 26.11.11부터 자동 접속을 막아서 뺐어요). ${k.since.slice(0, 4)}년 전 기록은 위 기사 숫자예요. 위 기간 버튼 '전체'를 누르면 ${k.since.slice(0, 4)}년부터 보여요.`;
 }
 
 function renderMove() {
@@ -3200,7 +3200,9 @@ function renderWti() {
   document.getElementById('wtiscore').textContent = '$' + w.last.toFixed(2);
   const rt = document.getElementById('wtirating');
   if (w.m1 != null) { rt.textContent = `한 달 전보다 ${w.m1 > 0 ? '+' : ''}${w.m1.toFixed(1)}%`; rt.style.color = w.m1 > 0 ? css('--bad') : css('--ink2'); }
-  document.getElementById('wtiprev').innerHTML = `${w.last_date} 기준 · 전일 $${w.prev.toFixed(2)}<br>최근 1년 최고 $${w.max_1y.value.toFixed(2)} (${md(w.max_1y.date)}) · 최저 $${w.min_1y.value.toFixed(2)} (${md(w.min_1y.date)})`;
+  // 유가 선물은 거의 24시간 거래 → '마감'이 아니라 받은 시각을 보여 줌
+  const wGot = ((STATUS && STATUS.sources) || {})['WTI 유가(Yahoo)'];
+  document.getElementById('wtiprev').innerHTML = `미국 ${w.last_date} 거래일${wGot && wGot.last_ok ? ` · <b>${wGot.last_ok.slice(5).replace('-', '/')}</b>(한국) 받은 값` : ''} · 전일 $${w.prev.toFixed(2)}<br>최근 1년 최고 $${w.max_1y.value.toFixed(2)} (${md(w.max_1y.date)}) · 최저 $${w.min_1y.value.toFixed(2)} (${md(w.min_1y.date)})`;
   const xs = xStartFor(last, w.x[0]);
   Plotly.react('wtiplot', [{x: w.x, y: w.y, type: 'scatter', mode: 'lines', name: 'WTI', line: {color: css('--price'), width: 2}, hovertemplate: '$%{y:.2f}<extra></extra>'}],
     Object.assign(baseLayout(), {

@@ -14,7 +14,7 @@
 - `docs/market.js` + `docs/market.json` — 🚦 시장 탭. 사용자의 다른 대시보드(밸류 신호등, `C:\Users\hyunm\valuation-dashboard`)에서 데이터를 복사해 옴(README 참고). 그쪽 폴더는 다른 세션이 작업 중이니 건드리지 않음
 - `cds_log.csv`, `trade_log.csv`(한국 월별 수출입), `export_items_log.csv`(주요 품목 수출 증가율), `export_country_log.csv`(라면·화장품 나라별 수출), `dram_log.csv`, `arr_log.csv`, `opinion_log.csv` — 사람/AI가 뉴스에서 찾아 직접 추가하는 기록
 - `run_update.bat` — 갱신 + git commit/push. 로그는 `logs\update.log`
-- `fg_update.py/.bat` — CNN 공포·탐욕 지수가 바뀌면 그때만 push
+- `fg_update.py/.bat` — 30분마다: CNN 공포·탐욕 지수가 바뀌거나, 아침 8시 뒤 거래소 VKOSPI 전날 값이 새로 나오면 그때만 push
 
 ## 절대 규칙
 1. **출처 없는 숫자는 절대 넣지 않는다.** 모든 수치는 출처 URL과 함께. 사용자가 준 캡처 화면은 출처를 `user:설명` 으로 적음. 추측·보간·계산으로 만든 값 금지(계산식이 README에 공개된 파생값만 예외: 예 CDS→부도확률)
