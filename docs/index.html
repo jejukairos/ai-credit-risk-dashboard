@@ -3021,6 +3021,10 @@ function mktBlock(boxId, list) {
         let pi = W ? Math.max(0, n - W + 1) : 0;
         for (let i = pi; i <= n; i++) if (o.y[i] > o.y[pi]) pi = i;
         return `<div class="small" style="margin:-4px 4px 4px;font-size:12px;color:var(--ink)"><span style="white-space:nowrap">200일선(${fmtNum(T.ma[n], dp)})보다 <b class="${g >= 0 ? 'up' : 'down'}">${g >= 0 ? '+' : '−'}${Math.abs(g).toFixed(1)}% ${g >= 0 ? '위' : '아래'}</b>${Math.abs(g) >= 10 ? ' <b class="down">⚠️ 많이 벌어졌어요</b>' : ''}</span> · <span style="white-space:nowrap">${W ? '1년 고점' : '고점'}(${md(o.x[pi])} ${fmtNum(o.y[pi], dp)}) 대비 <b${T.dd[n] <= cut ? ' class="down"' : ''}>${T.dd[n] > -0.05 ? '고점이에요' : '−' + Math.abs(T.dd[n]).toFixed(1) + '%'}</b></span></div>`; })() : ''}
+      ${DD_WIN[k] ? (() => { const n = o.y.length;  // 이격도 = 지수 ÷ N일 평균 × 100 (사용자 요청 26.11.17: 100·120·200일)
+        return `<div class="small" style="margin:-2px 4px 6px;font-size:12px;color:var(--ink)">이격도 ${[100, 120, 200].map(w => { const ma = o.y.slice(n - w).reduce((a, b) => a + b, 0) / w, r = o.y[n - 1] / ma * 100;
+          return `<span style="white-space:nowrap">${w}일선 <b class="${r >= 100 ? 'up' : 'down'}">${r.toFixed(1)}</b>(${fmtNum(ma, 0)})</span>`; }).join(' · ')}
+          <div style="font-size:11px;color:var(--muted)">이격도 = 지수 ÷ 평균선 × 100. 100보다 작으면 평균선 <b>아래</b>(약세 쪽), 크면 위예요. 괄호 = 평균선 값.</div></div>`; })() : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
       <div id="usmkt-${k}" class="plot" style="height:170px"></div>
       ${T ? `<div class="small" style="margin:2px 4px 0;font-size:11px">배경 ${sq('--g2')} 올라가는 추세 ${sq('--g1')} 내려가는 추세 · 색이 바뀌는 날 = 추세가 꺾인 날(20일 평균과 60일 평균이 엇갈린 날)</div>` : ''}</div>`;
