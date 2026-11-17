@@ -149,7 +149,8 @@ footer a{color:var(--ink2)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #mktv{--surface-2:#262624;--good-bg:#12301a;--warn-bg:#3a2c08;--bad-bg:#3d1515;--na-bg:#262624;--good-ink:#5fd65f;--warn-ink:#ffc94d;--bad-ink:#ff8a8a}}
 :root[data-theme="dark"] #mktv{--surface-2:#262624;--good-bg:#12301a;--warn-bg:#3a2c08;--bad-bg:#3d1515;--na-bg:#262624;--good-ink:#5fd65f;--warn-ink:#ffc94d;--bad-ink:#ff8a8a}
 #mktv .vm-sec{font-size:16px;margin:22px 0 6px}
-#mktv .card{padding:14px;min-width:0}
+#mktv .card{padding:14px;min-width:0;scroll-margin-top:50px}  /* 바로가기로 왔을 때 기간 버튼(sticky)에 안 가리게 */
+#mktv .emo>div{border-left:3px solid var(--bad);border-radius:0 8px 8px 0;background:var(--surface-2);padding:6px 10px;margin-bottom:5px;font-size:13px;line-height:1.45}
 #mktv .card h3{display:block;font-size:15px;margin:18px 0 8px}
 #mktv .sub{color:var(--ink2);font-size:13px} #mktv .src{color:var(--muted);font-size:11px} #mktv .nowrap{white-space:nowrap}
 #mktv .vm-bar{position:sticky;top:0;z-index:5;background:var(--page);display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:6px 0;margin:4px 0 0}
@@ -202,6 +203,7 @@ footer a{color:var(--ink2)}
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
     <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-investor">투자자</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-fx">환율</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a><a href="#sec-krearn">이익전망</a>
+    <a href="#vm-seasons">주식4계</a><a href="#curve-card">광기곡선</a><a href="#cyc-us">사이클심리</a><a href="#vm-emotion">하락장마음</a><a href="#kwpath-mkt">경로전망</a><a href="#eventcard">이벤트</a><a href="#bubblecard">버블</a><a href="#railcard">철도주</a><a href="#epsmomcard">이익모멘텀</a><a href="#leadcard">주도업종</a><a href="#vm-kospiBand">코스피밸류</a><a href="#vm-spBand">S&amp;P밸류</a><a href="#vm-crossCheck">크로스체크</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
@@ -1010,6 +1012,17 @@ footer a{color:var(--ink2)}
     <div class="card" id="krcurve-mkt"></div>
     <div class="card" id="cyc-kr"></div>
     <p class="note" style="margin:6px 4px 2px">한국 곡선: 온도 = (50일 이격 − 90) × 4 (−100~100도), 50일 이격 = 오늘 지수 ÷ 어제까지 50거래일 평균 × 100(26.11.06부터, 전에는 0~100도). 단계 = 온도 + 한 달(20거래일) 전 온도보다 오르는 중인지 내리는 중인지(이 대시보드 규칙). 자료: 네이버 금융(지수 일별 종가)</p>
+    <div class="card" id="vm-emotion"><h3 style="margin-top:0">😵 하락장, 개미가 겪는 마음 5단계</h3>
+      <div class="small" style="margin:2px 4px 6px">주가가 오래 빠지면 사람 마음도 차례로 바뀐대요. 지금 내 마음이 몇 단계인지 알아채면 감정에 끌려다니는 걸 줄일 수 있어요.</div>
+      <div class="emo">
+        <div><b>① 부정 · 합리화 · 회피</b><br><span class="src">"곧 오르겠지" 하며 물타기, 듣고 싶은 소식만 골라 들어요.</span></div>
+        <div style="margin-left:8px"><b>② 자책 · 불안 · 분노 · 남 탓</b><br><span class="src">"그때 팔걸…" 지난 일을 계속 되씹어요.</span></div>
+        <div style="margin-left:16px"><b>③ 무기력 · 우울 · 자존감 하락</b><br><span class="src">투자 실패를 내 인생 실패처럼 느껴요.</span></div>
+        <div style="margin-left:24px"><b>④ 패닉</b><br><span class="src">괴로움을 끝내려고 바닥 근처에서 한꺼번에 팔아요(투매).</span></div>
+        <div style="margin-left:32px;border-color:var(--good)"><b>⑤ 수용 · 체념</b><br><span class="src">다 내려놓는 때예요. 그런데 그림은 <b>바로 이때 주가가 반등</b>하곤 한다고 말해요.</span></div>
+      </div>
+      <div class="note">👉 지금 시장 위치는 바로 위 <b>'마켓 사이클 심리'</b> 카드(매일 자동)에서 봐요. 비슷한 흐름을 월가 그림은 바닥 근처 <b>항복 → 분노 → 우울</b>로 그려요. 같이 볼 곳: 미국 탭 'CNN 공포·탐욕 지수' · 한국 탭 'VKOSPI' · '역발상 판독기' 탭.
+        <div class="src">출처: user: 사용자가 보내 준 그림 「하락장, 개미가 겪는 감정 변화」(@going_tothe_moon, 26.11.17 받음) · 그림 대신 글로 옮김, 자동 갱신 안 됨</div></div></div>
     <div class="card" id="kwpath-mkt"></div>
     <div class="card" id="mapath-mkt"></div>
     <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
@@ -1243,7 +1256,8 @@ function setupTabs() {
     if (el.tagName === 'H2') cur = TAB_OF[el.id] || cur;
     if (cur) el.dataset.tab = cur;
   }
-  document.querySelectorAll('.jump a').forEach(a => a.dataset.tab = TAB_OF[a.getAttribute('href').slice(1)] || 'us');
+  // 바로가기 단어는 가리키는 섹션의 탭을 따라감(시장 탭 카드는 #mktv 안에 있음)
+  document.querySelectorAll('.jump a').forEach(a => a.dataset.tab = document.getElementById(a.getAttribute('href').slice(1))?.closest('[data-tab]')?.dataset.tab || 'us');
   let saved = 'us';
   try { saved = localStorage.getItem('tab') || 'us'; } catch (e) {}
   showTab(saved);
