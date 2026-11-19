@@ -685,24 +685,19 @@ footer a{color:var(--ink2)}
     맨 위 기간 버튼(1개월~전체, 전체 = 2019년~)으로 바꿀 수 있고, 3년·5년·전체에선 배경 번호 ①~⑩ = 아래 '시기별로 보기'예요. 자료: 금융투자협회 FreeSIS · 코스피 네이버 금융</p>
   </div>
   <div class="card">
-    <h3><span>신용잔고 — 전체 · 코스피 · 코스닥</span></h3>
-    <div class="small" style="margin:2px 4px 6px">빚내서 산 주식 금액(신용융자)을 실제 금액(조원)으로 그렸어요. <b style="color:#d81b7a">분홍 = 전체</b>(코스피 + 코스닥), 나머지 두 줄 = 시장별. 회색 점선 = 지금 전체 금액. <b style="color:var(--good)">초록 점선 = 전저점</b>(바닥에서 오른쪽으로 늘어뜨린 선) — 줄이 이 아래로 내려가면 전저점 이탈이에요.</div>
-    <div id="credit3" class="plot" style="height:300px"></div>
+    <h3><span>신용잔고와 지수 한 번에 — 코스피 · 코스닥</span></h3>
+    <div class="small" style="margin:2px 4px 6px"><b>맨 위 칸</b> = 빚내서 산 주식 금액(신용잔고, 조원). 아래 두 칸 = <b>코스피 · 코스닥 지수</b>. 세 칸의 날짜가 위아래로 맞춰져 있어서, <b>빚이 늘고 줄 때 지수가 어땠는지</b> 한 번에 보여요. 손가락을 대면 그날의 값이 모두 나와요. 동그라미 = 고른 기간에서 가장 높았던 날, <b style="color:var(--good)">초록 점선 = 전저점</b>(바닥에서 오른쪽으로 늘어뜨린 선) — 줄이 이 아래로 내려가면 전저점 이탈이에요.</div>
+    <div class="nowline" id="creditkospiday"></div>
+    <div class="nowline" id="creditkosdaqday"></div>
+    <div id="credit3" class="plot" style="height:580px"></div>
+    <div class="small" id="creditpk" style="margin:2px 4px 4px"></div>
     <div class="small" id="credit3low" style="margin:2px 4px 4px"></div>
-    <p class="note" style="margin:4px">사용자가 보내 준 그림(NNN PB 작성, 26.11.09 받음)처럼 세 줄을 겹쳤어요. 전저점 = 마지막으로 <b>10% 넘게 다시 오른 바닥</b>(그 바닥이 확인된 가장 최근 저점), 사용자가 보내 준 FreeSIS 코스피 신용잔고 그림(user: 26.11.15 받음)처럼 그 점에서 오른쪽으로 점선을 그었어요. 매일 자동으로 다시 찾아요. 맨 위 기간 버튼을 따라가요. 자료: 금융투자협회 FreeSIS</p>
+    <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
+    <p class="note" style="margin:4px">사용자가 보내 준 그림(금융투자협회 FreeSIS '코스피·코스닥 신용거래융자 잔고 추이', user: 26.11.18 받음)처럼 코스피·코스닥·합계 세 줄을 금액 그대로 그리고, 지수 두 칸을 바로 아래 붙였어요(예전의 '전체·코스피·코스닥' 그림과 '신용 vs 지수' 겹친 그림 두 장을 이 한 장으로 합침). 동그라미가 어느 쪽에 먼저 나왔는지 보면 <b>신용과 주가 중 누가 먼저 꺾였는지</b> 알 수 있어요. 신용이 빠르게 줄면 빚을 갚으려 팔았거나 강제로 팔린(반대매매) 경우가 많아요.
+    전저점 = 마지막으로 <b>10% 넘게 다시 오른 바닥</b>(user: FreeSIS 코스피 신용잔고 그림 26.11.15), 매일 자동으로 다시 찾아요. 맨 위 기간 버튼을 따라가요. 자료: 금융투자협회 FreeSIS(하루 늦게 나와요) · 지수 네이버 금융(2019년~)</p>
   </div>
   <div class="card">
-    <h3><span>신용융자 잔고 vs 지수 — 누가 먼저 꺾이나 (코스피 · 코스닥)</span></h3>
-    <div class="nowline" id="creditkospiday"></div>
-    <div id="creditkospi" class="plot" style="height:300px"></div>
-    <div class="small" id="creditkospipk" style="margin:2px 4px 10px"></div>
-    <div class="nowline" id="creditkosdaqday"></div>
-    <div id="creditkosdaq" class="plot" style="height:300px"></div>
-    <div class="small" id="creditkosdaqpk" style="margin:2px 4px 4px"></div>
-    <p class="note" style="margin:4px">시장마다 <b>빚내서 산 주식</b> 금액(신용융자)과 <b>그 시장 지수</b>를 한 칸에 겹쳤어요. 단위가 달라서 둘 다 <b>고른 기간에서 가장 높았던 날 = 100</b>으로 맞췄어요(80이면 고점보다 20% 아래). 동그라미 = 고점. 어느 동그라미가 먼저 나왔는지 보면 <b>신용과 주가 중 누가 먼저 꺾였는지</b> 알 수 있어요. 손가락을 대면 실제 금액·지수가 나와요.
-    신용이 빠르게 줄어들면 빚을 갚으려 팔거나 강제로 팔린(반대매매) 경우가 많아요. 맨 위 기간 버튼으로 기간을 바꿀 수 있어요. 자료: 금융투자협회 FreeSIS · 지수 네이버 금융(2019년~)</p>
-    <div class="small" id="creditmktnow" style="margin:2px 4px 4px"></div>
-    <div id="krcapbox" style="margin-top:16px">
+    <div id="krcapbox">
       <h3><span>코스피 신용잔고 — 평소 범위 · 코스피 비중 · 시총 대비</span></h3>
       <div class="small" style="margin:2px 4px 6px">분홍 띠 = 최근 60거래일 평균에서 위아래로 평소 움직이는 범위예요. 띠 아래로 내려가면 빚이 평소보다 빠르게 줄어든 거예요. 아래 두 칸은 전체 빚 중 코스피 몫, 코스피 시가총액 대비 빚이에요.</div>
       <div class="nowline" id="krcapday"></div>
@@ -1993,6 +1988,8 @@ function renderKofia() {
       yaxis: axis({range: padRange(inR(crr), false), ticksuffix: '%'}),
       shapes: [peakLine('y', rs.hi[0])]}), xs), [[crr, 'y', v => v.toFixed(1) + '%', css('--spread')]]), CFG);
   const inX = (o) => o.y.filter((v, i) => v != null && o.x[i] >= xs);
+  // 칸 이름은 세로로 돌리지 않고 칸 왼쪽 위에 가로로
+  const panelLbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
   // 금액 그대로 그린 줄 그림(사용자 그림 NNN PB 26.11.09처럼): 첫 줄의 지금 값에 점선 + 숫자
   const lvlPlot = (id, ser, ex = {}) => Plotly.react(id, ser.map(([y, nm, c, w]) => ({x: k.x, y, type: 'scatter', mode: 'lines', name: nm, line: {color: c, width: w},
       customdata: y.map(v => v == null ? '' : v.toFixed(2)), hovertemplate: `${nm} %{customdata}조<extra></extra>`})),
@@ -2002,16 +1999,31 @@ function renderKofia() {
       yaxis: axis({range: padRange(ser.flatMap(([y]) => inR(y)), false), ticksuffix: '조'}),
       shapes: [peakLine('y', ser[0][0].filter(v => v != null).pop())].concat(ex.shapes || []), annotations: ex.annotations || []}), xs), ser.map(([y, , c]) => [y, 'y', v => v.toFixed(2) + '조', c])), CFG);
   lvlPlot('depplot', [[k.deposit, '고객예탁금', css('--ink'), 2]]);
-  // 전저점 초록 점선(사용자 그림 FreeSIS 코스피 신용잔고 26.11.15처럼 바닥에서 오른쪽 끝까지)
-  const C3 = [[k.credit, '전체', '#d81b7a', 2.4], [k.credit_kospi, '코스피', css('--ink'), 2], [k.credit_kosdaq, '코스닥', '#5b9bd5', 2]];
+  // 신용잔고(코스피·코스닥·합계)와 두 지수를 위아래 세 칸에(사용자 그림 FreeSIS C1009 26.11.18 + 요청: 지수를 바로 아래 두고 한 번에). 이중 y축 대신 칸을 나눠 날짜축 공유
+  // 전저점 초록 점선(사용자 그림 FreeSIS 코스피 신용잔고 26.11.15처럼 바닥에서 오른쪽 끝까지) · 동그라미 = 고른 기간 고점
+  const pkAt = (xx, yy) => { let j = -1; yy.forEach((v, i) => { if (v != null && xx[i] >= xs && (j < 0 || v > yy[j])) j = i; }); return j; };
+  const C3 = [[k.credit_kospi, '코스피', css('--cds'), 2.2], [k.credit_kosdaq, '코스닥', css('--g1'), 2.2], [k.credit, '합계', css('--ink2'), 1.4]];
+  const IX3 = [[k.kospi, '코스피', 'y2'], [k.kosdaq, '코스닥', 'y3']].filter(a => a[0]);
   const LOW3 = C3.map(([y, nm]) => [y, nm, prevLow(y)]).filter(a => a[2] >= 0);
-  lvlPlot('credit3', C3, {shapes: LOW3.map(([y, , i]) => ({type: 'line', xref: 'x', yref: 'y', x0: k.x[i], x1: last, y0: y[i], y1: y[i], line: {color: css('--good'), width: 2, dash: 'dot'}})),
-    // 전체 줄 글자는 코스피 줄과 겹쳐서 빼고 아래 글로만
-    annotations: LOW3.filter(a => a[1] !== '전체').map(([y, , i]) => ({x: k.x[i] > xs ? k.x[i] : xs, y: y[i], text: '전저점 ' + y[i].toFixed(2), showarrow: false, xanchor: 'left', yanchor: 'top', font: {size: 10, color: css('--good')}}))});
+  const ring = (x, y, c, yaxis) => ({x: [x], y: [y], yaxis, type: 'scatter', mode: 'markers', hoverinfo: 'skip', marker: {size: 10, color: 'rgba(0,0,0,0)', line: {color: c, width: 2}}});
+  const cpk = C3.slice(0, 2).map(([y]) => pkAt(k.x, y)), ipk = IX3.map(([s]) => pkAt(s.x, s.y));
+  Plotly.react('credit3', [
+    ...C3.map(([y, nm, c, w]) => ({x: k.x, y, type: 'scatter', mode: 'lines', name: nm + ' 신용', line: {color: c, width: w, dash: nm === '합계' ? 'dash' : 'solid'},
+      customdata: y.map(v => v == null ? '' : v.toFixed(2)), hovertemplate: `${nm === '합계' ? '신용 합계' : nm + ' 신용'} %{customdata}조<extra></extra>`})),
+    ...IX3.map(([s, nm, ya]) => ({x: s.x, y: s.y, yaxis: ya, type: 'scatter', mode: 'lines', name: nm, line: {color: css('--price'), width: 1.8}, hovertemplate: nm + ' %{y:,.0f}<extra></extra>'})),
+    ...cpk.map((i, j) => i < 0 ? null : ring(k.x[i], C3[j][0][i], C3[j][2], 'y')), ...ipk.map((i, j) => i < 0 ? null : ring(IX3[j][0].x[i], IX3[j][0].y[i], css('--price'), IX3[j][2])),
+  ].filter(Boolean), tagLast(withEras(Object.assign(baseLayout(), {
+    xaxis: axis({type: 'date', anchor: 'y3', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.56, 0.95], range: padRange(C3.flatMap(([y]) => inR(y)), false), ticksuffix: '조'}),
+    yaxis2: axis({domain: [0.28, 0.48], range: padRange(IX3[0] ? inX(IX3[0][0]) : [], false), tickformat: ',d'}),
+    yaxis3: axis({domain: [0, 0.2], range: padRange(IX3[1] ? inX(IX3[1][0]) : [], false), tickformat: ',d'}),
+    shapes: LOW3.map(([y, , i]) => ({type: 'line', xref: 'x', yref: 'y', x0: k.x[i], x1: last, y0: y[i], y1: y[i], line: {color: css('--good'), width: 1.6, dash: 'dot'}})),
+    annotations: [panelLbl(0.955, `신용잔고(조원) <span style="color:${css('--cds')}">━ 코스피</span> <span style="color:${css('--g1')}">━ 코스닥</span> ┅ 합계`), panelLbl(0.485, '코스피 지수'), panelLbl(0.205, '코스닥 지수')]
+      // 합계 줄 전저점 글자는 빼고 아래 글로만(줄이 많아 번잡)
+      .concat(LOW3.filter(a => a[1] !== '합계').map(([y, , i]) => ({x: k.x[i] > xs ? k.x[i] : xs, y: y[i], text: '전저점 ' + y[i].toFixed(2), showarrow: false, xanchor: 'left', yanchor: 'top', font: {size: 10, color: css('--good')}}))),
+  }), xs), C3.map(([y, , c]) => [y, 'y', v => v.toFixed(1) + '조', c]).concat(IX3.map(([s, , ya]) => [s.y, ya, v => n0(v), css('--price')]))), CFG);
   document.getElementById('credit3low').innerHTML = LOW3.map(([y, nm, i]) => { const v = y.filter(a => a != null).pop();
-    return `· ${nm} ${v.toFixed(2)}조 — 전저점 ${y[i].toFixed(2)}조(${md(k.x[i])})보다 ${fmtPct((v / y[i] - 1) * 100)}${v < y[i] ? ' <b style="color:var(--bad)">이탈 중</b>' : ''}`; }).join('<br>');
-  // 칸 이름은 세로로 돌리지 않고 칸 왼쪽 위에 가로로
-  const panelLbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+    return `· ${nm} 신용 ${v.toFixed(2)}조 — 전저점 ${y[i].toFixed(2)}조(${md(k.x[i])})보다 ${fmtPct((v / y[i] - 1) * 100)}${v < y[i] ? ' <b style="color:var(--bad)">이탈 중</b>' : ''}`; }).join('<br>');
   const tv = DATA.tv;
   if (tv) {
     const tl = tv.x[tv.x.length - 1], tx = kofiaStart(tl, tv.x[0]);
@@ -2045,18 +2057,18 @@ function renderKofia() {
     });
   }
   {
-    // 신용융자 vs 지수(사용자 요청 26.11.04, 부의 나침반 그림처럼)·예탁금 vs 코스피(26.11.05)를 한 칸에 겹침. 이중 y축 대신 둘 다 '고른 기간의 최고점 = 100'
-    [['fundplot', '코스피', k.deposit, '--g2', k.kospi, '고객예탁금', '예탁금', 1],
-     ['creditkospi', '코스피', k.credit_kospi, '--g1', k.kospi, '코스피 신용', '신용', 2], ['creditkosdaq', '코스닥', k.credit_kosdaq, '--bad', k.kosdaq, '코스닥 신용', '신용', 2]].forEach(([id, nm, cr, col, ix, an, ab, dc]) => {
+    // 예탁금 vs 코스피(26.11.05)는 한 칸에 겹침. 이중 y축 대신 둘 다 '고른 기간의 최고점 = 100'. 신용 vs 지수는 위 세 칸 그림으로 합쳐서(26.11.18) 그림 없이 '지금' 줄과 '누가 먼저 꺾였나' 글만
+    const pkTxt = [];
+    [['fundplot', '코스피', k.deposit, '--g2', k.kospi, '고객예탁금', '예탁금', 1, true],
+     ['creditkospi', '코스피', k.credit_kospi, '--cds', k.kospi, '코스피 신용', '신용', 2], ['creditkosdaq', '코스닥', k.credit_kosdaq, '--g1', k.kosdaq, '코스닥 신용', '신용', 2]].forEach(([id, nm, cr, col, ix, an, ab, dc, plot]) => {
       if (!cr) return;
       ix = ix || {x: [], y: []};
-      const pk = (xx, yy) => { let j = -1; yy.forEach((v, i) => { if (v != null && xx[i] >= xs && (j < 0 || v > yy[j])) j = i; }); return j; };
       const lastOk = yy => { let i = yy.length - 1; while (i > 0 && yy[i] == null) i--; return i; };
-      const ic = pk(k.x, cr), ii = pk(ix.x, ix.y), lc = lastOk(cr), li = lastOk(ix.y);
+      const ic = pkAt(k.x, cr), ii = pkAt(ix.x, ix.y), lc = lastOk(cr), li = lastOk(ix.y);
       if (ic < 0 || ii < 0) return;
       const nc = cr.map(v => v == null ? null : v / cr[ic] * 100), ni = ix.y.map(v => v == null ? null : v / ix.y[ii] * 100);
       const lo = Math.min(...inR(nc), ...inX({x: ix.x, y: ni}));
-      Plotly.react(id, [
+      if (plot) Plotly.react(id, [
         {x: k.x, y: nc, customdata: cr, type: 'scatter', mode: 'lines', name: an, line: {color: css(col), width: 2}, hovertemplate: `${an} %{customdata:.${dc}f}조 (고점의 %{y:.0f}%)<extra></extra>`},
         {x: ix.x, y: ni, customdata: ix.y, type: 'scatter', mode: 'lines', name: nm, line: {color: css('--price'), width: 1.6}, hovertemplate: nm + ' %{customdata:,.0f} (고점의 %{y:.0f}%)<extra></extra>'},
         {x: [k.x[ic], ix.x[ii]], y: [100, 100], type: 'scatter', mode: 'markers', hoverinfo: 'skip', marker: {size: 11, color: 'rgba(0,0,0,0)', line: {color: [css(col), css('--price')], width: 2}}},
@@ -2066,13 +2078,15 @@ function renderKofia() {
         annotations: [panelLbl(0.92, `${an} vs ${nm} 지수 (고른 기간 최고점 = 100)`)],
       }), xs), [[nc, 'y', v => v.toFixed(0), css(col)], [ni, 'y', v => v.toFixed(0), css('--price')]]), CFG);
       document.getElementById(id + 'day').innerHTML =
-        `<span><i style="color:${css(col)}">●</i>${an} <b>${cr[lc].toFixed(dc)}조</b> <span class="small">(고점의 ${nc[lc].toFixed(0)}%)</span></span>` +
+        `<span><i style="color:${css(col)}">●</i>${an} <b>${cr[lc].toFixed(dc)}조</b> <span class="small">(${PL} 고점의 ${nc[lc].toFixed(0)}%)</span></span>` +
         `<span><i style="color:${css('--price')}">●</i>${nm} <b>${n0(ix.y[li])}</b> <span class="small">(고점의 ${ni[li].toFixed(0)}%)</span></span><span class="nowdt">${md(k.x[lc])} 기준</span>`;
       const gap = Math.round((new Date(k.x[ic]) - new Date(ix.x[ii])) / 864e5);
-      document.getElementById(id + 'pk').innerHTML = `📍 ${PL} 고점: ${ab} <b>${md(k.x[ic])}</b> · 지수 <b>${md(ix.x[ii])}</b> → ` +
+      const txt = `📍 ${plot ? '' : nm + ' '}${PL} 고점: ${ab} <b>${md(k.x[ic])}</b> · 지수 <b>${md(ix.x[ii])}</b> → ` +
         (ic === lc || ii === li ? '아직 고점 근처라 꺾였는지 몰라요' : gap === 0 ? '같은 날 꺾였어요' : `<b>${gap > 0 ? '지수가' : ab + '이'} ${Math.abs(gap)}일 먼저</b> 꺾였어요`) +
         (ic === k.x.findIndex(d => d >= xs) || ii === ix.x.findIndex(d => d >= xs) ? ' (기간 첫날이 고점이라 더 긴 기간으로 보세요)' : '');
+      if (plot) document.getElementById(id + 'pk').innerHTML = txt; else pkTxt.push(txt);
     });
+    document.getElementById('creditpk').innerHTML = pkTxt.join('<br>');
   }
   if (k.monthly) {
     const m = k.monthly, mx = Math.max(...m.y);
