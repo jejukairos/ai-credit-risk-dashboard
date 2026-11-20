@@ -281,6 +281,25 @@ footer a{color:var(--ink2)}
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1962년~).</p>
   </div>
+  <div class="card" id="realcard">
+    <h3><span>미국 10년 실질금리 — 물가를 빼고 남는 진짜 이자</span></h3>
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>실질금리</b> 이자에서 <b>물가가 오르는 만큼을 뺀</b> 진짜 이자예요. 은행 이자가 1년에 5%인데 물건값이 3% 오르면, 내 돈으로 살 수 있는 물건은 2%쯤만 늘어나요. 이 2%가 실질금리예요.</div>
+      <div><b>미국 10년 실질금리</b> 물가가 오르면 원금도 같이 늘어나는 미국 국채(<b>TIPS</b>, 물가연동국채)의 10년 금리예요. 시장이 매기는 "물가를 빼고 남는 10년 이자"예요.</div>
+      <div><b>둘의 관계</b> <b>10년물 금리 = 실질금리 + 기대 인플레이션</b>(사람들이 예상하는 앞으로 10년 평균 물가 상승률). 그래서 10년물 금리가 오를 때 <b>무엇 때문에</b> 오르는지 나눠 볼 수 있어요.</div>
+    </div>
+    <div class="nowline" id="realday"></div>
+    <div id="realplot" class="plot" style="height:380px"></div>
+    <div class="memo">
+      <b>📖 10년물 금리와 실질금리는 어떻게 움직이나</b>
+      <div>· 보통 <b>같은 방향</b>으로 움직여요. 위 칸 두 줄 사이의 간격이 <b>기대 인플레이션</b>이고, 아래 칸에 따로 그렸어요.</div>
+      <div>· <b>둘이 같이 오르면</b>(실질금리가 끌어올림): 경제가 세거나 연준이 금리를 오래 높게 둘 거라고 보는 거예요. 돈 빌리는 진짜 비용이 비싸져서 <b>주식(특히 기술·성장주)과 금</b>에 부담이 돼요.</div>
+      <div>· <b>10년물만 오르고 실질금리는 그대로</b>(기대 인플레이션이 끌어올림): 물가가 다시 오를까 걱정하는 거예요.</div>
+      <div>· <b>실질금리가 0 아래</b>(그래프의 2011~13년, 2020~22년): 물가를 빼면 이자가 마이너스라 돈을 그냥 들고 있으면 손해예요. 그래서 돈이 주식·집 같은 곳으로 몰리기 쉬워요.</div>
+      <div class="real" id="realreal"></div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://fred.stlouisfed.org/series/DFII10" target="_blank" rel="noopener">FRED DFII10</a>(10년 실질금리, TIPS) · <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">DGS10</a>(10년물) · <a href="https://fred.stlouisfed.org/series/T10YIE" target="_blank" rel="noopener">T10YIE</a>(기대 인플레이션 = 10년물 − 실질금리, FRED 발표값), 2003년~ 매일(하루 늦게 나와요). 위 10년물 칸(Yahoo)과 소수점 끝자리가 조금 다를 수 있어요. 사용자가 보내 준 '미국 10년 실질금리' 그림(user: 26.11.20 받음)처럼 그렸어요. 맨 위 기간 버튼을 따라가요(전체 = 2003년~).</p>
+  </div>
 
   <h2 id="sec-fg">CNN 공포·탐욕 지수 (미국 증시 분위기)</h2>
   <div class="card">
@@ -2444,6 +2463,36 @@ function renderFg() {
     `과거 결과가 앞으로를 보장하지는 않아요. 매일 미국 장 마감 후 값으로 갱신. 자료: <a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener">CNN Fear &amp; Greed Index</a>`;
 }
 
+// 미국 10년 실질금리(사용자 그림 26.11.20) — 위 칸 10년물·실질금리(같은 % 눈금), 아래 칸 기대 인플레이션. 날짜축 공유
+function renderReal() {
+  const R = DATA.real10y;
+  if (!R) return;
+  const x = R.x, n = x.length - 1, last = x[n], xs = xStartFor(last, x[0]), md = s => s.slice(2).replace(/-/g, '.');
+  const vis = a => a.filter((_, i) => x[i] >= xs), cN = css('--price'), cR = css('--g1'), cB = css('--g2');
+  const lbl = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 11, color: css('--ink2')}});
+  Plotly.react('realplot', [
+    {x, y: R.nominal, type: 'scatter', mode: 'lines', name: '10년물', line: {color: cN, width: 1.4}, hovertemplate: '10년물 %{y:.2f}%<extra></extra>'},
+    {x, y: R.real, type: 'scatter', mode: 'lines', name: '실질금리', line: {color: cR, width: 2.2}, hovertemplate: '실질금리 %{y:.2f}%<extra></extra>'},
+    {x, y: R.bei, yaxis: 'y2', type: 'scatter', mode: 'lines', name: '기대 인플레이션', line: {color: cB, width: 1.8}, hovertemplate: '기대 인플레이션 %{y:.2f}%<extra></extra>'},
+  ], tagLast(Object.assign(baseLayout(), {hoversubplots: 'axis',
+    xaxis: axis({type: 'date', anchor: 'y2', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: [0.4, 0.93], range: padRange([...vis(R.nominal), ...vis(R.real), 0], false), ticksuffix: '%'}),
+    yaxis2: axis({domain: [0, 0.27], range: padRange(vis(R.bei), false), ticksuffix: '%'}),
+    shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 0, y1: 0, line: {color: css('--ink2'), width: 1, dash: 'dot'}}],
+    annotations: [lbl(0.94, `<span style="color:${cN}">━ 10년물</span> <span style="color:${cR}">━ 실질금리</span>`), lbl(0.28, `<span style="color:${cB}">━ 기대 인플레이션</span> (= 두 줄 사이 간격)`)],
+  }), [[R.nominal, 'y', v => v.toFixed(2) + '%', cN], [R.real, 'y', v => v.toFixed(2) + '%', cR], [R.bei, 'y2', v => v.toFixed(2) + '%', cB]]), CFG);
+  document.getElementById('realday').innerHTML = `<span><i style="color:${cN}">●</i>10년물 <b>${R.nominal[n].toFixed(2)}%</b></span> = ` +
+    `<span><i style="color:${cR}">●</i>실질금리 <b>${R.real[n].toFixed(2)}%</b></span> + <span><i style="color:${cB}">●</i>기대 인플레이션 <b>${R.bei[n].toFixed(2)}%</b></span><span class="nowdt">${md(last)} 기준</span>`;
+  // 1달 전보다 10년물이 얼마나 변했고, 그중 실질금리·기대 인플레이션 몫은 얼마인지(T10YIE = DGS10 − DFII10이라 두 몫을 더하면 10년물 변화)
+  const m = new Date(last); m.setMonth(m.getMonth() - 1); const ms = m.toISOString().slice(0, 10);
+  let j = n; while (j > 0 && x[j] > ms) j--;
+  const d = k => R[k][n] - R[k][j], p = v => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}%p`;
+  const why = Math.abs(d('nominal')) < 0.05 ? (Math.abs(d('real')) >= 0.1 ? `거의 그대로지만 <b>속은 바뀌었어요</b> — 실질금리가 ${d('real') > 0 ? '오르고' : '내리고'} 기대 인플레이션이 ${d('bei') > 0 ? '올랐어요' : '내렸어요'}` : '거의 그대로예요') :`<b>주로 ${Math.abs(d('real')) >= Math.abs(d('bei')) ? '실질금리' : '기대 인플레이션(물가 걱정)'} 때문</b>에 ${d('nominal') > 0 ? '올랐어요' : '내렸어요'}`;
+  const hi = R.real.reduce((a, v, i) => v > R.real[a] ? i : a, 0), above = R.real.filter(v => v > R.real[n]).length;
+  document.getElementById('realreal').innerHTML = `<b>실제 기록(자동)</b> 1달 전(${md(x[j])})보다 10년물 ${p(d('nominal'))} = 실질금리 ${p(d('real'))} + 기대 인플레이션 ${p(d('bei'))} → 10년물은 ${why}. ` +
+    `실질금리 ${R.real[n].toFixed(2)}%는 2003년 이후 ${x.length.toLocaleString()}거래일 중 이보다 높았던 날은 <b>${(above / x.length * 100).toFixed(1)}%</b>예요(최고 ${R.real[hi].toFixed(2)}%, ${md(x[hi])}).`;
+}
+
 // 변동성이 급등 뒤 꺾였나(사용자 메모 26.11.18: '급등했다 꺾여 내려가는 게 가장 좋은 신호') — 기준선 아래 = 진정, 위인데 5거래일 전보다 낮음 = 꺾이는 중, 그 밖 = 진정 안 됨
 function calmLine(v, line, lineName) {
   const y = v.y, n = y.length, now = y[n - 1], wk = y[n - 6];
@@ -3855,14 +3904,14 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderDramKg(); renderExpCountry(); renderValMarket(); }
+function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderReal(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderDramKg(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
   document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x === b));
   try { localStorage.setItem('period', PERIOD); } catch (e) {}
   syncOwnBars(); renderAdr();
-  renderFg(); renderVix(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders(); renderKrVal();
+  renderFg(); renderVix(); renderReal(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders(); renderKrVal();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
 // 기간 버튼은 맨 위 하나만(26.11.09 사용자 요청으로 섹션별 버튼을 없앰) — 주변자금·ADR·급락·투자자도 이 기간을 따라감

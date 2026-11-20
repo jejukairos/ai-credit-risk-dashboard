@@ -1721,10 +1721,15 @@ RATE_SERIES = {"us10y": "DGS10", "fedfunds": "DFF", "kr10y": "IRLTLT01KRM156N", 
                "t10y2y": "T10Y2Y"}  # 미국 장단기 금리차(10년 − 2년, %p) — 주식 4계 카드의 '임계 수준' 확인용
 
 
+REAL10Y = {"nominal": "DGS10", "real": "DFII10", "bei": "T10YIE"}  # 미국 10년 명목·실질(TIPS)·기대 인플레이션(FRED가 10년물 − 실질로 발표). 실질은 2003-01-02부터
+
+
 def fetch_rates():
     # 시장 국면 판단용 금리 (FRED, 단위 %)
     for name, sid in RATE_SERIES.items():
         (fred_series(sid, start="2020-01-01") / 100).rename(name).rename_axis("date").round(3).to_csv(os.path.join(DATA, f"rate_{name}.csv"))
+    pd.DataFrame({n: fred_series(s, start="2003-01-01") / 100 for n, s in REAL10Y.items()}).sort_index().round(3) \
+        .rename_axis("date").to_csv(os.path.join(DATA, "real10y.csv"))
 
 
 KR_BASE_URL = "https://www.bok.or.kr/portal/singl/baseRate/list.do?dataSeCd=01&menuNo=200643"
@@ -2493,6 +2498,14 @@ def build_vix():
             "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
 
 
+def build_real10y():
+    path = os.path.join(DATA, "real10y.csv")
+    if not os.path.exists(path):
+        return None
+    d = pd.read_csv(path, dtype={"date": str}).dropna().sort_values("date")  # 세 값이 다 있는 날만(그래야 10년물 = 실질 + 기대 인플레이션이 맞음)
+    return {"x": list(d["date"]), **{c: [round(float(v), 2) for v in d[c]] for c in REAL10Y}}
+
+
 def build_vkospi():
     path = os.path.join(DATA, "vkospi.csv")
     if not os.path.exists(path):
@@ -3190,6 +3203,7 @@ def build():
     out["opinions"] = build_opinions()
     out["arr"] = build_arr()
     out["vix"] = build_vix()
+    out["real10y"] = build_real10y()
     out["vkospi"] = build_vkospi()
     out["mdd"] = build_mdd()
     out["tv"] = build_tv()
