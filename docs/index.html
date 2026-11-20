@@ -340,12 +340,15 @@ footer a{color:var(--ink2)}
       <b>🐒 투자 메모</b>
       <div>· 이 숫자가 <b>20 위</b>로 올라가면 증시가 <b>하루에 1~2% 이상</b> 출렁일 수 있다는 뜻이에요.</div>
       <div>· 원래 극단적 공포 구간에서는 위아래로 마구 흔들면서 개인들이 손절하게 만들어요. 그래서 당분간 이런 <b>공포 유발</b>이 이어질 수 있어요.</div>
-      <div>· <b>VIX로 사는 때 고르기</b>: 역발상 투자자들은 <b>30을 넘을 때부터</b> 나눠서 많이 사는 편이에요(이길 확률이 높아서). 메모 작성자는 VIX가 <b>내려오기 시작하는 걸 보면서</b> 사는 양을 늘리는 편이래요.</div>
+      <div>· <b>VIX로 사는 때 고르기</b>: 역발상 투자자들은 <b>30을 넘을 때부터</b> 나눠서 많이 사는 편이에요(이길 확률이 높아서). 메모 작성자는 VIX가 <b>30 이상 올라갔다가 꺾이는 구간부터</b> 나눠 사는 편이래요(내려오기 시작하는 걸 보면서 양을 늘림). <span class="small">26.11.21 메모는 30 위를 '패닉'이라고 불렀지만, 위 '보는 법'은 26.11.18 메모대로 30 공포 · 40 패닉으로 둬요.</span></div>
       <div>· <b>가장 좋은 신호</b>는 VIX가 <b>확 올랐다가 꺾여 내려가는 것</b>이에요. 오른 채로 <b>진정되지 않으면</b> 찝찝한 신호예요(시장이 아직 경계 중이라는 뜻). 채권 쪽 불안(MOVE)도 바로 아래 칸에서 같은 방법으로 봐요.</div>
       <div>· 메모 작성자는 <b>추세를 타는</b> 투자를 즐겨요. 고점끼리 이은 <b>내리막 선을 뚫고 올라설 때</b> 사거나, <b>저점과 고점이 함께 높아지는</b> 오르막을 따라가요.</div>
       <div class="real" id="vixcalm"></div>
+      <div>· <b>2018년 12월 저점</b>(트럼프 1기 미중 무역분쟁) 때 패닉셀이 나오면서 VIX 꼭대기가 <b>36</b>이었어요. 30을 넘으면 보통 패닉장이고 <b>하락 후반부</b>인 경우가 많다고 해요(26.11.21 메모). 아래 표에서 역대 꼭대기를 같이 봐요.</div>
+      <div class="real" id="vix30"></div>
+      <div id="vixspikes" style="margin-top:6px"></div>
       <div class="real" id="vixreal"></div>
-      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.06 · 26.11.18)</div>
+      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.06 · 26.11.18 · 26.11.21)</div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
   </div>
@@ -2549,6 +2552,16 @@ function renderVix() {
   const v = DATA.vix;
   if (!v) return;
   document.getElementById('vixcalm').innerHTML = calmLine(v, 20, '경계선 20');
+  // 사용자 메모(26.11.21) '30 이상 올라갔다가 꺾이는 구간부터 나눠 사요' — 최근 20거래일 마감 고점이 30 이상이었나 + 지금 그 고점·1주 전보다 낮나
+  {
+    const y = v.y, n = y.length, now = y[n - 1], wk = y[n - 6];
+    let pi = n - 20; for (let i = pi; i < n; i++) if (y[i] > y[pi]) pi = i;
+    const pk = y[pi], st = pk < 30 ? `⏳ 최근 한 달 마감 기준 30을 넘은 날이 없어요 — 메모의 '30 위' 조건 전 (30까지 ${(30 - now).toFixed(1)} 남음)`
+      : pi === n - 1 ? '⚠️ 오늘이 한 달 꼭대기 — 아직 안 꺾였어요'
+      : now < wk ? "🟡 30 넘었다가 꺾여 내려오는 중 — 메모의 '꺾이는 구간'" : '↩️ 꼭대기에선 내려왔지만 1주 전보다 다시 높아요';
+    document.getElementById('vix30').innerHTML = `📍 <b>30 넘었다 꺾였나?(자동)</b> 최근 한 달 고점 ${pk.toFixed(1)}(${v.x[pi].slice(2).replace(/-/g, '.')}) · 1주 전 ${wk.toFixed(1)} → 지금 ${now.toFixed(1)} → <b>${st}</b>
+      <div class="small" style="color:var(--muted)">판정: 최근 20거래일 마감 고점이 30 이상이고, 지금이 그 고점이 아니면서 1주(5거래일) 전보다 낮으면 '꺾이는 중' · 장중 값은 안 봐요 · 매일 자동</div>`;
+  }
   const last = v.x[v.x.length - 1], sc = Math.round(v.last * 10) / 10;  // 19.99 → 20.0 (화면 표시와 판정을 같게)
   document.getElementById('vixscore').textContent = sc.toFixed(1);
   const zone = sc >= 40 ? ['패닉', css('--g7')] : sc >= 30 ? ['공포', css('--bad')] : sc >= 20 ? ['경계', css('--spread')] : ['안정', css('--ink2')];
@@ -2561,8 +2574,18 @@ function renderVix() {
   else if (sc >= 20) chips.push('<span class="chip warm">경계 구간 (20 이상) · 하루 1~2% 출렁일 수 있어요</span>');
   if (sc >= 20 && v.prev < 19.95) chips.push(`<span class="chip">전일 ${v.prev.toFixed(1)} → 오늘 20 위로 올라섰어요</span>`);
   document.getElementById('vixchips').innerHTML = chips.join('');
+  // 마감 30 이상 구간의 꼭대기(update.py build_vix). 이름은 사용자 제공 그림(26.11.21)의 이름표
+  const EV = {'2018-02': '변동성 쇼크', '2018-12': '미중 무역분쟁', '2020-03': '코로나19', '2022-03': '연준 금리인상 약세장', '2024-08': '엔캐리 청산', '2025-04': '관세 쇼크'};
+  const SP = v.spikes || [], la = v.y.findLastIndex(a => a >= 30), ongoing = la >= 0 && v.y.length - 1 - la <= 60;
+  const evName = (s, k) => ongoing && k === SP.length - 1 ? '🔴 지금 진행 중 (꼭대기가 더 올라갈 수 있어요)' : EV[s.date.slice(0, 7)] || '–';
+  document.getElementById('vixspikes').innerHTML = SP.length ? `<b>📜 30 넘었던 큰 공포 — 꼭대기 (마감 기준, 자동)</b>
+    <div class="tbl-wrap"><table class="compact"><thead><tr><th>꼭대기 날</th><th>VIX</th><th style="text-align:left">무슨 일</th></tr></thead><tbody>${SP.map((s, k) =>
+      `<tr><td>${s.date.slice(2).replace(/-/g, '.')}</td><td><b>${s.value.toFixed(1)}</b></td><td style="white-space:normal;text-align:left">${evName(s, k)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="small" style="color:var(--muted)">마감 30 이상인 날 사이가 60거래일 넘게 벌어지면 다른 공포로 셈 · 그래프의 빨간 점 · 이름: 사용자 제공 그림(26.11.21)</div>` : '';
   const xs = xStartFor(last, v.x[0]);
-  Plotly.react('vixplot', [{x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: 'VIX', line: {color: css('--cds'), width: 2}, hovertemplate: '%{y:.1f}'}],
+  Plotly.react('vixplot', [{x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: 'VIX', line: {color: css('--cds'), width: 2}, hovertemplate: '%{y:.1f}'},
+    {x: SP.map(s => s.date), y: SP.map(s => s.value), customdata: SP.map(evName), type: 'scatter', mode: 'markers+text', name: '꼭대기', text: SP.map(s => s.value.toFixed(1)),
+     textposition: SP.map((_, k) => k === SP.length - 1 ? 'top left' : 'top center'), textfont: {size: 10, color: css('--bad')}, cliponaxis: false, marker: {size: 6, color: css('--bad')}, hovertemplate: '꼭대기 %{y:.1f} %{customdata}<extra></extra>'}],
     Object.assign(baseLayout(), {
       xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
       yaxis: axis({range: [10, Math.max(35, Math.max(...v.y.filter((a, i) => v.x[i] >= xs)) * 1.05)], tickvals: [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80]}),
@@ -2575,7 +2598,7 @@ function renderVix() {
                     {xref: 'paper', x: 0.99, y: 40, yanchor: 'bottom', xanchor: 'right', showarrow: false, text: '+40 패닉', font: {size: 10, color: css('--g7')}}],
     }), CFG);
   document.getElementById('vixreal').innerHTML = `<b>실제 기록</b> 최근 1년 ${v.days_1y}거래일 중 VIX가 20 이상이었던 날은 <b>${v.days_above_20_1y}일</b>(${(v.days_above_20_1y / v.days_1y * 100).toFixed(0)}%)이에요. ` +
-    (sc >= 20 ? '지금은 그 구간 입구에 있어요.' : `지금은 20까지 ${(20 - sc).toFixed(1)}포인트 남았어요.`);
+    (sc >= 30 ? '지금은 그보다 높은 30 위(공포 구간)에 있어요.' : sc >= 20 ? '지금은 그 구간 입구에 있어요.' : `지금은 20까지 ${(20 - sc).toFixed(1)}포인트 남았어요.`);
 }
 
 function renderVkospi() {

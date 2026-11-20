@@ -441,7 +441,7 @@ def fetch_insiders():
 # ---------- VIX 지수 (Yahoo Finance) · 하이일드 스프레드 (FRED) ----------
 def fetch_vix():
     import yfinance as yf
-    v = yf.download("^VIX", start="2020-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()
+    v = yf.download("^VIX", start="2017-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()  # 2018년 두 번의 공포도 보이게(사용자 메모 26.11.21)
     if v.empty:
         raise RuntimeError("VIX 데이터가 비어 있음")
     v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
@@ -2498,7 +2498,17 @@ def build_vix():
     v = pd.read_csv(path, dtype={"date": str}).sort_values("date")
     s = v.set_index("date")["vix"]
     yr = s[pd.to_datetime(s.index) >= pd.Timestamp(s.index[-1]) - pd.Timedelta(days=365)]
-    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],
+    # 마감 30 이상 구간마다 꼭대기. 30 이상인 날 사이가 60거래일 넘게 벌어지면 새 구간 (README)
+    spikes, last_i = [], -999
+    for i, (d, a) in enumerate(s.items()):
+        if a < 30:
+            continue
+        if i - last_i > 60:
+            spikes.append({"start": d, "date": d, "value": round(float(a), 1)})
+        elif a > spikes[-1]["value"]:
+            spikes[-1].update(date=d, value=round(float(a), 1))
+        last_i = i
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values], "spikes": spikes,
             "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
             "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 1)},
             "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
