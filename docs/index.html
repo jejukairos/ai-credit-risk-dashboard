@@ -49,6 +49,7 @@ details.more>summary::after{content:' ▶ 자세히';font-size:11px;color:var(--
 .tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
 table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{padding:7px 5px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+#sdtable th,#sdtable td{padding:7px 3px}
 th{font-weight:600;color:var(--ink2);font-size:11.5px}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
 tr:last-child td{border-bottom:0}
@@ -516,15 +517,18 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card">
     <h3><span>Silicon Data 지수 (업계 기준 지수, 블룸버그에도 실림)</span></h3>
-    <div class="tablebox" style="border:0"><table id="sdtable"><thead><tr><th>지수</th><th>최근가</th><th>1주</th><th>기록<br>시작 대비</th></tr></thead><tbody></tbody></table></div>
+    <div class="tablebox" style="border:0"><table id="sdtable"><thead><tr><th>지수</th><th>최근가</th><th>1주</th><th>30일*</th><th>기록<br>시작 대비</th></tr></thead><tbody></tbody></table></div>
+    <div class="small" style="margin:6px 4px 0">1주 = 7일 전 대비 · *30일 = 29일 전(사이트 30일 그림의 첫날) 대비. Silicon Data 사이트에 <b>'(7D)'</b>라고 적힌 숫자는 실제로는 이 30일 칸과 같아요(26.11.20 5개 모두 확인).</div>
     <div class="small" style="margin:8px 4px 0">첫 기록일 = 100으로 맞춘 비교 (사진의 Silicon Data 차트와 같은 방식) · *A100은 09.28부터 기록이라 그날 = 100</div>
     <div id="sdplot" class="plot" style="height:300px"></div>
     <div class="memo"><details class="more"><summary><b>🐒 투자 메모</b> GPU 임대가격·D램 현물가격은 <b>좋고</b>, LLM 토큰 가격은 <b>하락</b>(싼 모델이 더 많이 쓰임)</summary>
       <div>· B300이 약간 주춤하지만 H100·H200은 좋아요.</div>
       <div>· <b>JP모건(10/26)</b>: 10월 AI 토큰 지출 전월 대비 <b>+40%</b> · GPU 임대료 A100 −3.5% · H100 +6.5% · B200 +4.7%(고성능 칩 위주로 반등). <a href="https://www.kucoin.com/news/flash/jpmorgan-report-october-token-spending-rises-40-mom-gpu-rental-and-storage-prices-diverge" target="_blank" rel="noopener">출처</a></div>
+      <div>· <b>📝 사용자 제공(26.11.21) '7일 상승률'</b>: B200 +12.9% · H100 +6.9% · H200 +6.6% · A100 +5.8% · B300 +3.3%. 사이트에 '(7D)'라고 적힌 숫자인데, 우리 기록과 맞춰 보니 실제로는 <b>약 한 달(10.22 → 11.20) 변화</b>예요. 위 표 <b>'30일' 칸</b>에 매일 같은 방식으로 나와요. 진짜 1주 변화는 '1주' 칸에서 봐요.</div>
+      <div>· <b>함께 온 1년 그림</b>(우리 기록은 09.18부터라 그 전 흐름은 그림으로만 봐요): H100은 25년 11월부터 거의 쉬지 않고 올랐어요. B200은 26년 3월에 확 뛰었다가 내려온 뒤 10월부터 다시 크게 올랐어요. A100은 거의 제자리예요.</div>
       <div class="real" id="sdreal"></div>
     </details></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.silicondata.com/products/silicon-index" target="_blank" rel="noopener">Silicon Data</a> 공개 페이지(최근 30일 표시분)를 매일 저장해 쌓아요. 과거 전체 기록은 유료라 2026-09-18부터 시작해요. 메모 출처: 김단테 「내일은 투자왕」 글 요약 · user: 사용자 제공(26.11.21) Silicon Data 1년 그림·'7일 상승률' 숫자</p>
   </div>
   <div class="card">
     <h3><span>네비우스(NBIS) GPU 현물(스팟) 가격</span></h3>
@@ -3591,9 +3595,11 @@ function renderSilicon() {
   const unit = n => /LLM/.test(n) ? '$/백만 토큰' : '$/GPU·시간';
   const kr = {'LLM Token': 'LLM Token Index', 'Open LLM': '└ 오픈웨이트 모델', 'Proprietary LLM': '└ 독점(유료) 모델'};
   const since = s => (s.y[s.y.length - 1] / s.y[0] - 1) * 100;
+  // 사이트가 '(7D)'로 적는 숫자 = 페이지 30일 그림 첫날(29일 전) 대비 — 26.11.20 A100·H100·H200·B200·B300 모두 일치 확인
+  const d29 = s => { const t = new Date(Date.parse(s.last_date) - 29 * 864e5).toISOString().slice(0, 10), i = s.x.indexOf(t); return i < 0 ? null : (s.last / s.y[i] - 1) * 100; };
   document.querySelector('#sdtable tbody').innerHTML = ['A100', 'H100', 'H200', 'B200', 'B300', 'LLM Token', 'Open LLM', 'Proprietary LLM']
     .filter(n => by[n]).map(n => { const s = by[n]; return `<tr><td>${kr[n] || n}<br><span class="small">${unit(n)}</span></td>
-      <td>$${s.last.toFixed(s.last < 1 ? 3 : 2)}<br><span class="small">${s.last_date.slice(5).replace('-', '.')}</span></td><td>${fmtPct(s.w1)}</td><td>${fmtPct(since(s))}<br><span class="small">${s.x[0].slice(5).replace('-', '.')}~</span></td></tr>`; }).join('');
+      <td>$${s.last.toFixed(s.last < 1 ? 3 : 2)}<br><span class="small">${s.last_date.slice(5).replace('-', '.')}</span></td><td>${fmtPct(s.w1)}</td><td>${fmtPct(d29(s))}</td><td>${fmtPct(since(s))}<br><span class="small">${s.x[0].slice(5).replace('-', '.')}~</span></td></tr>`; }).join('');
   // 첫 기록일 = 100 으로 맞춘 비교 (한 축으로 단위가 다른 GPU·토큰 지수를 같이 봄). 늦게 시작한 A100(09.28~)은 자기 첫날 = 100, 범례에 적음(사용자 요청 26.11.07)
   const plotN = [['LLM Token', '--price'], ['A100', '--g5'], ['H100', '--g1'], ['H200', '--g7'], ['B200', '--g2'], ['B300', '--g3']].filter(([n]) => by[n]);
   const base = plotN.filter(([n]) => n !== 'A100').map(([n]) => by[n].x[0]).sort().pop();  // 나머지는 예전처럼 공통 첫날
