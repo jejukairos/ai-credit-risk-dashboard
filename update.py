@@ -1653,6 +1653,8 @@ def fetch_liquidity():
     (fred_series("M2SL", start="2006-01-01") / 100).rename("m2").rename_axis("date").round(1).to_csv(os.path.join(DATA, "m2.csv"))
     # MMF 긴 흐름: 연준 Z.1 분기 MMF 총금융자산(FRED MMMFFAQ027S, 백만 달러 → 십억 달러), 0이 아닌 1974년 1분기부터
     (fred_series("MMMFFAQ027S", start="1974-01-01") / 1e5).rename("mmf").rename_axis("date").round(1).to_csv(os.path.join(DATA, "mmf_fed_q.csv"))
+    # 재무부 통장(TGA) 주간 평균(FRED WTREGEN, 연준 H.4.1, 백만 달러 → 십억 달러), 2006년부터
+    (fred_series("WTREGEN", start="2006-01-01") / 1e5).rename("tga").rename_axis("date").round(1).to_csv(os.path.join(DATA, "tga.csv"))
 
 
 def fetch_ici_mmf():
@@ -1694,6 +1696,10 @@ def build_liquidity():
     if os.path.exists(qp):
         s = pd.read_csv(qp, dtype={"date": str}).set_index("date")["mmf"].dropna()
         out["mmf_q"] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
+    tp = os.path.join(DATA, "tga.csv")
+    if os.path.exists(tp):
+        s = pd.read_csv(tp, dtype={"date": str}).set_index("date")["tga"].dropna()
+        out["tga"] = {"x": list(s.index), "y": [round(float(v), 1) for v in s]}
     return out or None
 
 
