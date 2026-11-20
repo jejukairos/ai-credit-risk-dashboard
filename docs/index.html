@@ -284,19 +284,24 @@ footer a{color:var(--ink2)}
   <div class="card" id="realcard">
     <h3><span>미국 10년 실질금리 — 물가를 빼고 남는 진짜 이자</span></h3>
     <div class="glossary" style="margin:0 0 10px">
-      <div><b>실질금리</b> 이자에서 <b>물가가 오르는 만큼을 뺀</b> 진짜 이자예요. 은행 이자가 1년에 5%인데 물건값이 3% 오르면, 내 돈으로 살 수 있는 물건은 2%쯤만 늘어나요. 이 2%가 실질금리예요.</div>
-      <div><b>미국 10년 실질금리</b> 물가가 오르면 원금도 같이 늘어나는 미국 국채(<b>TIPS</b>, 물가연동국채)의 10년 금리예요. 시장이 매기는 "물가를 빼고 남는 10년 이자"예요.</div>
-      <div><b>둘의 관계</b> <b>10년물 금리 = 실질금리 + 기대 인플레이션</b>(사람들이 예상하는 앞으로 10년 평균 물가 상승률). 그래서 10년물 금리가 오를 때 <b>무엇 때문에</b> 오르는지 나눠 볼 수 있어요.</div>
+      <div><b>💰 실질금리가 뭐냐면</b> 용돈 100만 원을 저금했더니 1년 이자 <b>5%</b>가 붙어 105만 원이 됐어요. 그런데 그사이 과자값이 <b>3%</b> 올랐어요. 통장 숫자는 5% 늘었지만, <b>실제로 살 수 있는 과자는 2%쯤만</b> 늘었어요.</div>
+      <div style="padding-left:10px">· 5% = <b>명목금리</b> — 통장에 찍히는 숫자 (위 칸 검정 줄 '10년물')<br>· 3% = <b>기대 인플레이션</b> — 물가가 오를 거라는 예상 (아래 칸 주황 줄)<br>· 2% = <b>실질금리</b> — 진짜로 늘어난 장보기 힘 (위 칸 파랑 줄)</div>
+      <div><b>공식 하나만 기억</b> <b>10년물 금리 = 실질금리 + 기대 인플레이션</b></div>
+      <div><b>이 그림의 실질금리</b> 미국 정부가 <b>물가가 오른 만큼 원금을 따로 더 얹어 주는 국채</b>(TIPS, 물가연동국채)의 10년 금리예요. 물가는 이미 챙겨 주니까, 이 금리 자체가 실질금리예요.</div>
     </div>
     <div class="nowline" id="realday"></div>
     <div id="realplot" class="plot" style="height:380px"></div>
     <div class="memo">
-      <b>📖 10년물 금리와 실질금리는 어떻게 움직이나</b>
-      <div>· 보통 <b>같은 방향</b>으로 움직여요. 위 칸 두 줄 사이의 간격이 <b>기대 인플레이션</b>이고, 아래 칸에 따로 그렸어요.</div>
-      <div>· <b>둘이 같이 오르면</b>(실질금리가 끌어올림): 경제가 세거나 연준이 금리를 오래 높게 둘 거라고 보는 거예요. 돈 빌리는 진짜 비용이 비싸져서 <b>주식(특히 기술·성장주)과 금</b>에 부담이 돼요.</div>
-      <div>· <b>10년물만 오르고 실질금리는 그대로</b>(기대 인플레이션이 끌어올림): 물가가 다시 오를까 걱정하는 거예요.</div>
-      <div>· <b>실질금리가 0 아래</b>(그래프의 2011~13년, 2020~22년): 물가를 빼면 이자가 마이너스라 돈을 그냥 들고 있으면 손해예요. 그래서 돈이 주식·집 같은 곳으로 몰리기 쉬워요.</div>
+      <b>📖 까먹지 않게 — 10년물과 실질금리 읽는 법</b>
+      <div>· 보통 <b>같은 방향</b>으로 움직여요. 위 칸 두 줄 사이 간격이 기대 인플레이션이에요(아래 칸).</div>
+      <div>· 같은 '금리 상승'이라도 <b>이유가 두 가지</b>예요. 10년물 숫자만 보지 말고 <b>나눠서</b> 봐요.</div>
+      <div style="border-left:3px solid var(--g2);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:6px 0 4px"><b>① 기대 인플레이션↑</b>(주황 줄) = "물가가 오를 것 같다" 걱정<br>→ 주식: 원자재·가치주는 버티기도 해요</div>
+      <div style="border-left:3px solid var(--g1);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:0 0 6px"><b>② 실질금리↑</b>(파랑 줄) = <b>"진짜 돈값이 비싸졌다"</b><br>→ 주식: <b>더 아파요</b>. 특히 먼 미래 이익에 기대는 성장주</div>
+      <div>· <b>실질금리가 0 아래</b>(그림의 2011~13년, 2020~22년): 저금하면 오히려 손해라서 돈이 주식·코인·집으로 몰렸어요. 2021년은 성장주와 코인이 크게 오른 때예요.</div>
+      <div>· <b>주식 값과 이어지는 점</b>: 적정 PBR ≈ ROE ÷ 투자자가 바라는 수익률. 실질금리가 오르면 '바라는 수익률'도 올라가서, 같은 이익이라도 <b>PER·PBR이 낮아지기 쉬워요</b>.</div>
+      <div id="realkey"></div>
       <div class="real" id="realreal"></div>
+      <div class="small" style="color:var(--muted)">설명: 사용자 제공 학습 노트(26.11.20)를 쉽게 옮김 · 🔑 줄과 실제 기록은 매일 자동</div>
     </div>
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://fred.stlouisfed.org/series/DFII10" target="_blank" rel="noopener">FRED DFII10</a>(10년 실질금리, TIPS) · <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">DGS10</a>(10년물) · <a href="https://fred.stlouisfed.org/series/T10YIE" target="_blank" rel="noopener">T10YIE</a>(기대 인플레이션 = 10년물 − 실질금리, FRED 발표값), 2003년~ 매일(하루 늦게 나와요). 위 10년물 칸(Yahoo)과 소수점 끝자리가 조금 다를 수 있어요. 사용자가 보내 준 '미국 10년 실질금리' 그림(user: 26.11.20 받음)처럼 그렸어요. 맨 위 기간 버튼을 따라가요(전체 = 2003년~).</p>
   </div>
@@ -2488,9 +2493,15 @@ function renderReal() {
   let j = n; while (j > 0 && x[j] > ms) j--;
   const d = k => R[k][n] - R[k][j], p = v => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}%p`;
   const why = Math.abs(d('nominal')) < 0.05 ? (Math.abs(d('real')) >= 0.1 ? `거의 그대로지만 <b>속은 바뀌었어요</b> — 실질금리가 ${d('real') > 0 ? '오르고' : '내리고'} 기대 인플레이션이 ${d('bei') > 0 ? '올랐어요' : '내렸어요'}` : '거의 그대로예요') :`<b>주로 ${Math.abs(d('real')) >= Math.abs(d('bei')) ? '실질금리' : '기대 인플레이션(물가 걱정)'} 때문</b>에 ${d('nominal') > 0 ? '올랐어요' : '내렸어요'}`;
-  const hi = R.real.reduce((a, v, i) => v > R.real[a] ? i : a, 0), above = R.real.filter(v => v > R.real[n]).length;
+  // 최근 1년 최고 실질금리가 언제 이후 가장 높은 값인지(1년보다 전에서 그 값 이상이었던 마지막 날)
+  const y1 = new Date(last); y1.setFullYear(y1.getFullYear() - 1); const ys = y1.toISOString().slice(0, 10);
+  let pk = n; for (let i = n; i >= 0 && x[i] >= ys; i--) if (R.real[i] > R.real[pk]) pk = i;
+  let bf = -1; for (let i = 0; x[i] < ys; i++) if (R.real[i] >= R.real[pk]) bf = i;
+  const rn = R.real[n].toFixed(2), bn = R.bei[n].toFixed(2);
+  document.getElementById('realkey').innerHTML = `<div>· 🔑 <b>기억할 한 줄(자동)</b>: 미국 국채(TIPS)만 사서 10년 들고 있어도 <b>물가를 빼고 1년에 약 ${rn}%</b>를 거의 확실히 벌어요. 주식은 이보다 <b>더</b> 벌어 줄 것 같을 때 위험을 질 가치가 있어요.</div>` +
+    `<div>· 지금 10년물이 높은 건 ${R.real[n] > R.bei[n] ? `물가 걱정(기대 인플레이션 ${bn}%)보다 <b>"진짜 돈값"(실질금리 ${rn}%)</b> 몫이 더 커서예요` : `"진짜 돈값"(실질금리 ${rn}%)보다 <b>물가 걱정(기대 인플레이션 ${bn}%)</b> 몫이 더 커서예요`}.</div>`;
   document.getElementById('realreal').innerHTML = `<b>실제 기록(자동)</b> 1달 전(${md(x[j])})보다 10년물 ${p(d('nominal'))} = 실질금리 ${p(d('real'))} + 기대 인플레이션 ${p(d('bei'))} → 10년물은 ${why}. ` +
-    `실질금리 ${R.real[n].toFixed(2)}%는 2003년 이후 ${x.length.toLocaleString()}거래일 중 이보다 높았던 날은 <b>${(above / x.length * 100).toFixed(1)}%</b>예요(최고 ${R.real[hi].toFixed(2)}%, ${md(x[hi])}).`;
+    `최근 1년 실질금리 최고 ${R.real[pk].toFixed(2)}%(${md(x[pk])})는 <b>${bf >= 0 ? `${x[bf].slice(0, 4)}년 ${+x[bf].slice(5, 7)}월 이후 가장 높은 값` : '2003년 이후 가장 높은 값'}</b>이에요.`;
 }
 
 // 변동성이 급등 뒤 꺾였나(사용자 메모 26.11.18: '급등했다 꺾여 내려가는 게 가장 좋은 신호') — 기준선 아래 = 진정, 위인데 5거래일 전보다 낮음 = 꺾이는 중, 그 밖 = 진정 안 됨
