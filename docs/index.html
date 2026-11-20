@@ -949,8 +949,8 @@ footer a{color:var(--ink2)}
       <h3 style="margin-top:0">🔄 우라가미 구니오의 주식 4계 — 지금은 어느 계절?</h3>
       <div class="note" style="margin:2px 0 6px">주식시장은 <b>금리·실적·주가</b>가 엇갈리며 봄 → 여름 → 가을 → 겨울을 돌아요. 일본 증권사 출신 우라가미 구니오가 『주식시장 흐름 읽는 법』에서 정리한 틀이에요.</div>
       <div class="seasons">
-        <div class="s-spring"><b>🌸 봄 · 금융장세</b><br>금리 ↓ · 주가 ↗<br><span class="src">경기는 아직 나쁘지만 금리가 내려가 돈이 풀리면서 주가가 오르기 시작</span></div>
-        <div class="s-summer"><b>☀️ 여름 · 실적장세</b><br>실적 ↗ · 주가 최고<br><span class="src">경기가 본격적으로 좋아지고 회사 실적이 늘어 주가가 최고조 (금리는 서서히 ↗)</span></div>
+        <div class="s-spring"><b>🌸 봄 · 금융(유동성)장세</b><br>금리 ↓ · 주가 ↗<br><span class="src">경기는 아직 나쁘지만 금리가 내려가 돈이 풀리면서 주가가 오르기 시작</span></div>
+        <div class="s-summer"><b>☀️ 여름 · 실적(테마편입)장세</b><br>실적 ↗ · 주가 최고<br><span class="src">경기가 본격적으로 좋아지고 회사 실적이 늘어 주가가 최고조 (금리는 서서히 ↗)</span></div>
         <div class="s-winter"><b>❄️ 겨울 · 역실적장세</b><br>실적 ↘ · 주가 바닥<br><span class="src">금리 인상 여파로 경기가 식고 실적이 나빠져 주가가 바닥을 침</span></div>
         <div class="s-autumn"><b>🍂 가을 · 역금융장세</b><br>금리 ↗ · 주가 ↘<br><span class="src">경기가 과열되자 금리를 올리기 시작해 주가가 하락으로 돌아섬</span></div>
       </div>
@@ -964,13 +964,19 @@ footer a{color:var(--ink2)}
         <g style="font-size:10px;fill:var(--ink);font-weight:700">
           <text x="22" y="112">① 금융</text><text x="72" y="126">② 반락</text><text x="112" y="70">③ 실적</text>
           <text x="214" y="58">④ 역금융</text><text x="244" y="112">⑤ 반등</text><text x="290" y="96">⑥ 역실적</text></g>
+        <g style="font-size:10px;fill:var(--ink2);font-weight:700" text-anchor="middle"><text x="95" y="146">← 경기상승기 →</text><text x="255" y="146">← 경기하락기 →</text></g>
         <text x="170" y="164" style="font-size:9px;fill:var(--ink2)" text-anchor="middle">선 = 주가 · 점 = 아래 '우리 데이터로 대 보기' 미국·한국 자동 판단(매일)</text>
       </svg>
+      <div class="note">'경기상승기 · 하락기'는 주가가 크게 오르는 때와 내리는 때로 묶은 이름이에요. 실제 경기는 주가보다 늦게 따라와서, 봄엔 경기가 아직 나빠요.</div>
+      <div class="memo" style="margin-top:8px"><b>📝 사용자 메모 (26.11.20)</b> — "지금은 역금융과 역실적장세 그 어딘가가 아닌가... 금리 바텀아웃 찍어줘야 뭐가 되도 될듯.."
+        <br>· 표로 보면 🍂 역금융(금리 ↑) → ❄️ 역실적(금리 ↘) → 🌸 금융장세(금리 <b>↓ 빠르게</b>) 차례예요. 다음 봄이 오려면 <b>금리가 확실히 꺾여 내려와야</b> 해요.
+        <div class="real" id="vm-ratepk" style="margin-top:6px"></div>
+        <div class="src">그림: 아시아경제 '주식시장의 사계절'(user: 사용자 제공 26.11.20, 우라가미 구니오) — 금리·실적·주가 표는 아래 6단계 표와 같아서 이름만 더함</div></div>
       <details class="fold"><summary><b>6단계로 더 자세히 — 금리 · 실적 · 주가 화살표</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
       <div class="note">↑↓ = 빠르게 크게 · ↗↘ = 천천히 · → = 멈춤(옆으로). 위에서부터 차례로 돌고, 맨 아래 다음엔 다시 맨 위로 가요.</div>
       <div class="tbl-wrap"><table class="compact seasons-t"><thead><tr><th>구간 · 쉬운 설명</th><th>금리</th><th>실적</th><th>주가</th></tr></thead><tbody>
         <tr><td><b>① 금융장세</b> 🌸봄<br><span class="src">경기는 나쁜데 금리를 크게 내려 돈이 풀려요. 실적은 아직 나빠지는데도 주가가 먼저 <b>크게 뛰어요</b>.</span></td><td>↓</td><td>↘</td><td>↑</td></tr>
-        <tr><td><b>② 중간반락</b><br><span class="src">금리 인하가 멈추고 실적은 아직 바닥이라, 많이 오른 주가가 잠시 쉬거나 살짝 내려요.</span></td><td>→</td><td>→</td><td>→</td></tr>
+        <tr><td><b>② 중간반락</b>(단기하락)<br><span class="src">금리 인하가 멈추고 실적은 아직 바닥이라, 많이 오른 주가가 잠시 쉬거나 살짝 내려요.</span></td><td>→</td><td>→</td><td>→</td></tr>
         <tr><td><b>③ 실적장세</b> ☀️여름<br><span class="src">경기가 살아나 회사들이 돈을 <b>크게</b> 잘 벌어요. 금리가 조금씩 올라도 실적 힘으로 주가가 꾸준히 올라요.</span></td><td>↗</td><td>↑</td><td>↗</td></tr>
         <tr><td><b>④ 역금융장세</b> 🍂가을<br><span class="src">물가를 잡으려고 금리를 <b>빠르게</b> 올려요. 실적은 아직 좋아지는 중인데도 돈이 빠져나가 주가가 먼저 <b>크게 떨어져요</b>.</span></td><td>↑</td><td>↗</td><td>↓</td></tr>
         <tr><td><b>⑤ 중간반등</b><br><span class="src">금리 인상이 멈추고 실적도 아직 버텨서, 떨어진 주가가 잠시 반등하거나 쉬어요.</span></td><td>→</td><td>→</td><td>→</td></tr>

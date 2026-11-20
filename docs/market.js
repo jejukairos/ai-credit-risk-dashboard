@@ -153,6 +153,24 @@ function seasonsNow() {
     return `<circle cx="${x}" cy="${y}" r="6" style="fill:${col};stroke:var(--surface);stroke-width:2"/><text x="${left ? x - 9 : x + 9}" y="${y + 4}" text-anchor="${left ? "end" : "start"}" style="font-size:10px;font-weight:800;fill:${col}">${ms.map((m) => m.short).join("·")}</text>`;
   }).join("")}</g>`);
 }
+// 사용자 메모(26.11.20) '금리가 꺾여야 봄': 10년물이 최근 1년 꼭대기에서 0.15%p 넘게 내려왔나 + 약 4주 전보다 낮나 (README)
+function ratePeak() {
+  const el = $("#vm-ratepk");
+  if (!el) return;
+  const md = (s) => s.slice(2).replace(/-/g, ".");
+  const one = (name, r) => {
+    const h = r?.hist;
+    if (!h || h.length < 5) return "";
+    const [d, now] = h[h.length - 1], w4 = h[h.length - 5][1];
+    const from = new Date(Date.parse(d) - 365 * 864e5).toISOString().slice(0, 10);
+    const pk = h.filter(([x]) => x >= from).reduce((a, b) => (b[1] > a[1] ? b : a));
+    const off = now - pk[1];
+    const st = off > -0.15 ? "⚠️ 아직 꼭대기 근처 — 안 꺾였어요" : now < w4 ? "🟡 꼭대기에서 내려오는 중" : "↩️ 꼭대기에선 내려왔지만 4주 전보다 다시 높아요";
+    return `<div>· ${name} 10년물: 1년 꼭대기 ${n(pk[1], 2)}%(${md(pk[0])}) → 지금 <b>${n(now, 2)}%</b>(${md(d)}, ${pct(off, 2, true).replace("%", "%p")}) · 4주 전 ${n(w4, 2)}% → <b>${st}</b></div>`;
+  };
+  const body = one("🇺🇸 미국", M.rates.us10y) + one("🇰🇷 한국", M.rates.kr10y);
+  el.innerHTML = body ? `📍 <b>금리 꺾였나?(자동 · 주간 자료)</b>${body}<div class="small" style="color:var(--muted)">판정: 꼭대기에서 0.15%p 안쪽이면 '꼭대기 근처', 더 내려왔고 4주 전보다 낮으면 '내려오는 중'</div>` : "";
+}
 // DB증권이 말한 '임계 수준' 신호: 장단기 금리차(긴 금리 − 짧은 금리)가 마이너스로 들어갔나
 function spreadLine(D) {
   const us = D.policy?.t10y2y, k10 = M.rates.kr10y, k3 = M.rates.kr3y;
@@ -376,6 +394,7 @@ function render() {
   };
   DRAWS = [];
   seasonsNow();
+  ratePeak();
   miraePath();
   kospiCard();
   spBand();
