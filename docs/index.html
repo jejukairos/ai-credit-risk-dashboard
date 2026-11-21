@@ -382,6 +382,8 @@ footer a{color:var(--ink2)}
       <b>🐒 투자 메모 — ⚠️ 위기 선행지표</b>
       <div>· 메모 작성자가 <b>위험지표 1순위</b>로 보는 선행지표예요. 이게 박스권을 뚫고 올라갔다는 건 투자자들이 뭔가 터질 수 있다는 위험을 <b>본격적으로 반영</b>하기 시작했다는 뜻이에요.</div>
       <div>· 단기적으로는 좋지 않은 신호이고, 고변동·공포 유발 움직임이 이어질 수 있어요.</div>
+      <div>· <b>26.11.22 메모</b>: 지금 <b>올해 고점을 뚫고 올라가는 중</b>이에요. 메모 작성자는 이게 지금처럼 <b>확 오른 뒤 내려오기 시작할 때</b> 보통 크게 사는 편이래요. VIX처럼 '꺾일 때'를 봐요. <span class="small">메모 그림(블룸버그)은 3.7%이고, 이번 급등을 '블루웨이브(26.11)'라고 불렀어요.</span></div>
+      <div class="real" id="hyturn"></div>
       <div style="margin-top:8px"><b>📌 최근에 튀었던 다섯 번 — 한 줄 요약</b></div>
       <div>· <b>23년 10월</b> 금리가 오래 높을 것 같아 "회사들이 이자를 버틸까?" 걱정 → 경기가 버텨 주자 내려옴</div>
       <div>· <b>24년 8월</b> 미국 일자리가 줄어 경기 걱정 + 엔화로 빌린 돈 급히 갚기 → 진정 발언·좋은 지표로 내려옴</div>
@@ -391,7 +393,7 @@ footer a{color:var(--ink2)}
       <div style="margin-top:4px">👉 <b>핵심</b>: 튈 때마다 이유는 달랐지만 "회사들이 빚을 잘 갚을 수 있을까?" 걱정이 커진 것이고, <b>걱정을 풀어 주는 소식</b>(정책·휴전·좋은 실적)이 나오면 내려왔어요. 이번엔 AI 투자가 돈을 제때 벌어 오는지가 그 소식이에요.</div>
       <div class="real" id="hyreal"></div>
     </div>
-    <p class="note" style="margin:6px 4px 2px">블룸버그 값은 유료라, 같은 ICE BofA 하이일드 지수를 무료로 공개하는 <a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2" target="_blank" rel="noopener">FRED</a> 데이터를 씁니다. 블룸버그 화면보다 하루 늦고 0.1%p 안팎 다를 수 있어요. 점선(3.2%)은 메모 차트의 박스권 위쪽 기준선입니다.</p>
+    <p class="note" style="margin:6px 4px 2px">블룸버그 값은 유료라, 같은 ICE BofA 하이일드 지수를 무료로 공개하는 <a href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2" target="_blank" rel="noopener">FRED</a> 데이터를 씁니다. 블룸버그 화면보다 하루 늦고 0.1%p 안팎 다를 수 있어요. 점선(3.2%)은 메모 차트의 박스권 위쪽 기준선입니다. 26.11.22 메모·그림: user: 사용자 제공.</p>
   </div>
   <div class="card"><details class="fold" ontoggle="if (this.open) Plotly.Plots.resize('hylong')">
     <summary><b>더 길게 보기 — 신용 스프레드가 치솟았을 때 무슨 일이 있었나 (1986~)</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
@@ -3455,6 +3457,19 @@ function renderHy() {
   const md = s => s.slice(2).replace(/-/g, '.');
   document.getElementById('hyreal').innerHTML = `<b>실제 기록</b> 최근 1년 범위는 ${h.min_1y.value.toFixed(2)}%(${md(h.min_1y.date)}) ~ ${h.max_1y.value.toFixed(2)}%(${md(h.max_1y.date)})예요. ` +
     `지금 ${sc.toFixed(2)}%는 ${above ? `${top}% 선보다 ${(sc - top).toFixed(2)}%p 위` : `${top}% 선보다 ${(top - sc).toFixed(2)}%p 아래`}에 있어요.`;
+  // 사용자 메모(26.11.22) '급등 후 내려오기 시작할 때 크게 사요' — VIX 'vix30'과 같은 방식, 급등 기준 = 박스권 위쪽(top)
+  {
+    const y = h.y, n = y.length, now = y[n - 1], wk = y[n - 6];
+    let pi = n - 20; for (let i = pi; i < n; i++) if (y[i] > y[pi]) pi = i;
+    const pk = y[pi], y0 = h.x.findIndex(x => x >= last.slice(0, 4)), early = y.slice(y0, n - 20);
+    const pm = early.length ? Math.max(...early) : null;
+    const yr = pm == null ? '' : `올해 앞선 최고 ${pm.toFixed(2)}%(${md(h.x[y0 + early.indexOf(pm)])}) → <b>${pk > pm ? '🔴 최근 한 달에 넘었어요 — 올해 고점 돌파' : '아직 못 넘었어요'}</b><br>`;
+    const st = pk < top ? `⏳ 최근 한 달 ${top}% 위로 튄 날이 없어요 — 메모의 '급등' 전`
+      : pi === n - 1 ? '⚠️ 오늘이 한 달 꼭대기 — 아직 안 꺾였어요'
+      : now < wk ? "🟡 꼭대기에서 내려오는 중 — 메모의 '내려오기 시작할 때'" : '↩️ 꼭대기에선 내려왔지만 1주 전보다 다시 높아요';
+    document.getElementById('hyturn').innerHTML = `📍 <b>올해 고점 돌파? · 급등 후 꺾였나?(자동)</b><br>${yr}최근 한 달 꼭대기 ${pk.toFixed(2)}%(${md(h.x[pi])}) · 1주 전 ${wk.toFixed(2)}% → 지금 ${now.toFixed(2)}% → <b>${st}</b>
+      <div class="small" style="color:var(--muted)">판정: 최근 20거래일 꼭대기가 박스권 위쪽(${top}%)보다 높고, 지금이 그 꼭대기가 아니면서 1주(5거래일) 전보다 낮으면 '내려오는 중' · 올해 앞선 최고 = 1월 1일 ~ 20거래일 전 최고 · FRED라 하루 늦어요 · 매일 자동</div>`;
+  }
 }
 
 function renderOpinions() {
