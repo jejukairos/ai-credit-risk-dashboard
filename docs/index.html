@@ -189,6 +189,19 @@ footer a{color:var(--ink2)}
 .horizon div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;color:var(--ink2);text-align:center}
 .horizon b{display:block;font-size:14px;color:var(--ink)}
 .dirs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 4px}
+/* 자산군 머리글 · 한눈에 보기 표 (26.11.22 화면 정리) */
+h2{scroll-margin-top:56px}  /* 바로가기·표에서 왔을 때 기간 버튼(sticky)에 안 가리게 */
+.grp{margin:30px 0 -10px;padding-top:6px;border-top:2px solid var(--ink);font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--ink2)}
+.mon{padding:4px 0}
+.mon table{font-size:13px}
+.mon td{vertical-align:middle;padding:6px 6px}
+.mon td:first-child{text-align:left}
+.mon td.mst{text-align:left}
+.mon td.mst .chip{display:inline-block;padding:2px 7px;font-size:11.5px;line-height:1.3;white-space:nowrap}
+.mon tr.g td{background:var(--page);font-size:11px;font-weight:800;color:var(--ink2);text-align:left;padding:4px 6px;letter-spacing:.04em}
+.mon tr[data-go]{cursor:pointer}
+.mon tr[data-go]:active td{background:var(--line)}
+a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;color:var(--g1)}
 </style>
 </head>
 <body>
@@ -203,14 +216,20 @@ footer a{color:var(--ink2)}
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
   <nav class="jump" aria-label="섹션 바로가기">
-    <a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usprice">원유·금</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-dxy">달러</a><a href="#sec-wti">WTI</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-liq">MMF·M2·TGA</a><a href="#sec-credit">신용위험</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a><a href="#sec-supply">주식공급</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-investor">투자자</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-fx">환율</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-mdd">MDD</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-nps">국민연금</a><a href="#sec-trade">수출입</a><a href="#sec-month">달별</a><a href="#sec-krearn">이익전망</a>
-    <a href="#vm-seasons">주식4계</a><a href="#curve-card">광기곡선</a><a href="#cyc-us">사이클심리</a><a href="#vm-emotion">하락장마음</a><a href="#mapath-mkt">경로전망</a><a href="#eventcard">이벤트</a><a href="#bubblecard">버블</a><a href="#railcard">철도주</a><a href="#epsmomcard">이익모멘텀</a><a href="#earncyc">이익사이클</a><a href="#leadcard">주도업종</a><a href="#vm-kospiBand">코스피밸류</a><a href="#vm-spBand">S&amp;P밸류</a><a href="#vm-crossCheck">크로스체크</a>
+    <a href="#sec-usmon">요약</a><a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-supply">주식공급</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-dxy">달러</a><a href="#sec-usprice">원유·금</a><a href="#sec-liq">MMF·M2·TGA</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a>
+    <a href="#sec-krmon">요약</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-mdd">MDD</a><a href="#sec-investor">투자자</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a><a href="#sec-fx">환율</a><a href="#sec-trade">수출입</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-krearn">이익전망</a><a href="#sec-month">달별</a>
+    <a href="#vm-kospiBand">코스피밸류</a><a href="#vm-spBand">S&amp;P밸류</a><a href="#vm-crossCheck">크로스체크</a><a href="#vm-seasons">주식4계</a><a href="#curve-card">광기곡선</a><a href="#cyc-us">사이클심리</a><a href="#vm-emotion">하락장마음</a><a href="#mapath-mkt">경로전망</a><a href="#eventcard">이벤트</a><a href="#bubblecard">버블</a><a href="#railcard">철도주</a><a href="#epsmomcard">이익모멘텀</a><a href="#earncyc">이익사이클</a><a href="#leadcard">주도업종</a>
   </nav>
 
   <div class="bar p7" role="group" aria-label="기간">
     <button data-p="1m">1개월</button><button data-p="3m">3개월</button><button data-p="6m">6개월</button><button data-p="1y" class="on">1년</button><button data-p="3y">3년</button><button data-p="5y">5년</button><button data-p="all">전체</button>
   </div>
 
+  <h2 id="sec-usmon">🧭 한눈에 보기 — 미국</h2>
+  <div class="glossary"><div>중요한 숫자만 한 표에 모았어요. <b>줄을 누르면</b> 그 칸으로 가요. 상태 칸 색: <b style="color:var(--bad)">빨강</b> = 위험·극단 쪽, <b style="color:#b07800">노랑</b> = 지켜볼 쪽(각 칸에 적힌 기준 그대로).</div></div>
+  <div class="card mon" id="usmon"></div>
+
+  <div class="grp">① 주식</div>
   <h2 id="sec-ustoday">📊 오늘의 미국 증시</h2>
   <div class="glossary">
     <div><b>지수</b>는 애플·엔비디아 같은 큰 회사 몇 개만 움직여도 크게 바뀌어요. 그래서 미국 전체 주식(뉴욕·나스닥·아멕스 상장) 중 <b>오른 종목·내린 종목이 몇 개인지</b> 같이 봐요. <b>신고가·신저가</b> = 최근 1년(52주) 중 가장 비싼·가장 싼 값을 새로 쓴 종목, <b>50일선·200일선 위</b> = 자기 최근 50일·200일 평균 가격보다 비싸게 거래되는 종목이에요. 초록 쪽이 길수록 시장 전체가 튼튼해요.</div>
@@ -252,61 +271,34 @@ footer a{color:var(--ink2)}
     <div id="etfidx" class="plot" style="height:340px"></div>
     <p class="note" style="margin:6px 4px 2px" id="etfnote"></p></div>
 
-  <h2 id="sec-usprice">💵 원유 · 금 · 비트코인</h2>
+  <h2 id="sec-usmargin">💳 미국 신용잔고 증가율 — 빚투가 꺾이면 주가도?</h2>
   <div class="card">
-    <div class="glossary" style="margin:0 0 10px"><div>돈이 어디로 몰리는지 보는 대표 가격이에요. 불안할 때는 <b>금</b>, 기대가 클 때는 <b>비트코인</b> 같은 위험한 곳으로 돈이 가는 일이 많아요. <b>원유</b>가 오르면 물가가 오르기 쉬워요.</div></div>
-    <div id="usprice"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance — 원유 = WTI 선물(CL=F), 금 = 금 선물(GC=F, 금 현물 시세와 조금 달라요), 비트코인 = BTC-USD(24시간 거래). 전일 = 하루 전 일봉 종가. 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신.</p>
+    <div class="glossary" style="margin:0 0 10px"><div><b>신용잔고 증가율</b> = 미국 투자자들이 증권사에서 <b>돈을 빌려 산 주식</b> 금액이 1년 전보다 몇 % 늘었는지예요. 빚투가 빠르게 늘다가(점선 40% 위) 꺾이면, 그 무렵이나 몇 달 뒤 주가도 고점이었던 때가 많았어요.</div></div>
+    <div class="fgchips" id="usmgchips"></div>
+    <div id="usmgplot" class="plot" style="height:320px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noopener">FINRA 신용잔고</a>(Debit Balances, 월말, 약 3주 뒤 발표) · S&amp;P500 월말 종가 Yahoo Finance(^GSPC, 이번 달은 지금까지, 고른 기간 최고점 = 100으로 맞춰 겹침). 증가율 = 그 달 잔고 ÷ 1년 전 같은 달 잔고 − 1. 점선 40%와 '고점이 같거나 2·3·9개월 먼저 왔다'는 설명 = 사용자 제공 그림 [표1](미국 금융감독청·블룸버그, 2026년 9월 말 기준). 동그라미 = 40%를 넘은 구간마다 가장 높은 달. 위 기간 버튼을 따라 바뀌어요(전체 = 1998년~). 매일 확인해서 새 달 숫자가 나오면 바로 들어가요.</p>
   </div>
 
-  <h2 id="sec-usyield">🏦 미국 국채 금리 — 만기별</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px"><div><b>국채 금리</b> 미국 정부가 돈을 빌릴 때 주는 이자예요. 3개월은 짧게, 30년은 아주 길게 빌릴 때예요. 보통은 길게 빌릴수록 이자가 높아요. 짧은 금리가 긴 금리보다 높아지는 <b>금리 역전</b>은 경기가 나빠질 신호로 많이 봐요.</div></div>
-    <div id="usyield"></div>
-    <div id="yieldplot" class="plot" style="height:250px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 재무부 자료가 시작된 1990년부터 쌓여 있고(30년물은 2002~2006년에 발행을 쉬어서 빈칸), 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1990년~).</p>
-  </div>
-
-  <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
+  <h2 id="sec-supply">📦 주식 공급 — 새 주식이 얼마나 풀리나</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
-      <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
+      <div><b>주식 공급</b> 포켓몬 카드처럼 주식도 시장에 많이 풀리면 값이 눌려요. <b>새로 찍는 주식</b>(IPO = 처음 상장, 유상증자 = 상장한 회사가 더 찍음)은 공급을 늘리고, <b>사라지는 주식</b>(자사주 매입·소각, 현금 인수합병)은 줄여요.</div>
+      <div><b>순발행</b> = 새로 찍은 주식 − 사라진 주식. <b>마이너스면 주식이 줄어드는 중</b>(주가에 순풍), <b>플러스면 늘어나는 중</b>(역풍)이에요.</div>
+      <div><b>보호예수 해제</b> 직원·초기 투자자가 상장 뒤 일정 기간 못 팔던 주식이 팔 수 있게 풀리는 것. 주식 수는 그대로지만 시장에 나올 수 있는 물량이 늘어요.</div>
     </div>
-    <div id="mkt-us10y"></div>
+    <div id="supplybox"></div>
     <div class="memo">
-      <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
-      <div>· 미국 10년 금리가 <b>오르는 중</b>이에요. 금리가 오르면 돈 빌리기가 비싸져서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요. <b>5%를 넘으면 경계</b>로 봐요(그래프 점선).</div>
-      <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
-      <div class="real" id="liqreal-us10y"></div>
-      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
+      <b>🐒 왜 보나</b>
+      <div>· 폴 튜더 존스(26년 10월): 지난 4년 강세장은 <b>자사주 매입·인수합병으로 주식이 줄어든 덕</b>이 컸는데, 2027년엔 앤트로픽·오픈AI 상장 가능성, AI 투자 자금용 증자, 스페이스X 등의 <b>보호예수 해제</b>가 겹쳐 <b>"2002년 이후 가장 나쁜 수급"</b>이 될 수 있다고 경고했어요.</div>
+      <div>· 우리 데이터로 보면 이미 시작됐어요: 순발행이 <b>26년 1분기부터 플러스</b>로 바뀌었고, 26년 6월 <b>스페이스X IPO 750억 달러</b>는 2000년 이후 한 건으로 가장 커요(그래프 26년 6월 막대, 나스닥 IPO 달력 2000년~ 기준).</div>
+      <div>· 그래서 순발행 막대가 <b>플러스로 더 커지는지</b>, IPO 막대가 <b>계속 치솟는지</b> 봐요.</div>
+      <div>· 좋은 회사 주가가 빠질 때 <b>회사 문제인지, 물량(공급) 문제인지</b> 가르는 데 써요. 물량 문제라면 회사 가치는 그대로일 수 있어요.</div>
+      <div class="src">출처: <a href="https://qz.com/paul-tudor-jones-2027-stock-market-warning-101326" target="_blank" rel="noopener">Quartz</a> · <a href="https://m.news.nate.com/view/20261013n36939" target="_blank" rel="noopener">뉴스핌(네이트)</a> (사용자 제공 요약에 달린 출처)</div>
     </div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1962년~).</p>
-  </div>
-  <div class="card" id="realcard">
-    <h3><span>미국 10년 실질금리 — 물가를 빼고 남는 진짜 이자</span></h3>
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>💰 실질금리가 뭐냐면</b> 용돈 100만 원을 저금했더니 1년 이자 <b>5%</b>가 붙어 105만 원이 됐어요. 그런데 그사이 과자값이 <b>3%</b> 올랐어요. 통장 숫자는 5% 늘었지만, <b>실제로 살 수 있는 과자는 2%쯤만</b> 늘었어요.</div>
-      <div style="padding-left:10px">· 5% = <b>명목금리</b> — 통장에 찍히는 숫자 (위 칸 검정 줄 '10년물')<br>· 3% = <b>기대 인플레이션</b> — 물가가 오를 거라는 예상 (아래 칸 주황 줄)<br>· 2% = <b>실질금리</b> — 진짜로 늘어난 장보기 힘 (위 칸 파랑 줄)</div>
-      <div><b>공식 하나만 기억</b> <b>10년물 금리 = 실질금리 + 기대 인플레이션</b></div>
-      <div><b>이 그림의 실질금리</b> 미국 정부가 <b>물가가 오른 만큼 원금을 따로 더 얹어 주는 국채</b>(TIPS, 물가연동국채)의 10년 금리예요. 물가는 이미 챙겨 주니까, 이 금리 자체가 실질금리예요.</div>
-    </div>
-    <div class="nowline" id="realday"></div>
-    <div id="realplot" class="plot" style="height:380px"></div>
-    <div class="memo">
-      <b>📖 까먹지 않게 — 10년물과 실질금리 읽는 법</b>
-      <div>· 보통 <b>같은 방향</b>으로 움직여요. 위 칸 두 줄 사이 간격이 기대 인플레이션이에요(아래 칸).</div>
-      <div>· 같은 '금리 상승'이라도 <b>이유가 두 가지</b>예요. 10년물 숫자만 보지 말고 <b>나눠서</b> 봐요.</div>
-      <div style="border-left:3px solid var(--g2);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:6px 0 4px"><b>① 기대 인플레이션↑</b>(주황 줄) = "물가가 오를 것 같다" 걱정<br>→ 주식: 원자재·가치주는 버티기도 해요</div>
-      <div style="border-left:3px solid var(--g1);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:0 0 6px"><b>② 실질금리↑</b>(파랑 줄) = <b>"진짜 돈값이 비싸졌다"</b><br>→ 주식: <b>더 아파요</b>. 특히 먼 미래 이익에 기대는 성장주</div>
-      <div>· <b>실질금리가 0 아래</b>(그림의 2011~13년, 2020~22년): 저금하면 오히려 손해라서 돈이 주식·코인·집으로 몰렸어요. 2021년은 성장주와 코인이 크게 오른 때예요.</div>
-      <div>· <b>주식 값과 이어지는 점</b>: 적정 PBR ≈ ROE ÷ 투자자가 바라는 수익률. 실질금리가 오르면 '바라는 수익률'도 올라가서, 같은 이익이라도 <b>PER·PBR이 낮아지기 쉬워요</b>.</div>
-      <div id="realkey"></div>
-      <div class="real" id="realreal"></div>
-      <div class="small" style="color:var(--muted)">설명: 사용자 제공 학습 노트(26.11.20)를 쉽게 옮김 · 🔑 줄과 실제 기록은 매일 자동</div>
-    </div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://fred.stlouisfed.org/series/DFII10" target="_blank" rel="noopener">FRED DFII10</a>(10년 실질금리, TIPS) · <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">DGS10</a>(10년물) · <a href="https://fred.stlouisfed.org/series/T10YIE" target="_blank" rel="noopener">T10YIE</a>(기대 인플레이션 = 10년물 − 실질금리, FRED 발표값), 2003년~ 매일(하루 늦게 나와요). 위 10년물 칸(Yahoo)과 소수점 끝자리가 조금 다를 수 있어요. 사용자가 보내 준 '미국 10년 실질금리' 그림(user: 26.11.20 받음)처럼 그렸어요. 맨 위 기간 버튼을 따라가요(전체 = 2003년~).</p>
+    <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 위 기간 버튼을 따라 바뀌어요(전체 = 순발행 1946년~, IPO는 나스닥 달력에 기록이 있는 때부터).</p>
   </div>
 
+  <div class="grp">② 심리 · 변동성</div>
   <h2 id="sec-fg">CNN 공포·탐욕 지수 (미국 증시 분위기)</h2>
   <div class="card">
     <div class="fgtop"><div class="fgscore" id="fgscore">–</div><div><div class="fgrating" id="fgrating"></div><div class="small" id="fgprev"></div></div></div>
@@ -369,6 +361,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(ICE BofA MOVE Index, ^MOVE), 매일 갱신. 위 그래프 기간 버튼으로 길게(전체) 볼 수 있어요.</p>
   </div>
 
+  <div class="grp">③ 신용</div>
   <h2 id="sec-hy">하이일드 스프레드 (위기 선행지표)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -403,6 +396,87 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">하이일드 최고치는 출처가 있는 값만 적었어요(최근 3년은 FRED 실제 값, 2008·2020·2002는 연준·운용사 자료). 자료: <a href="https://fred.stlouisfed.org/series/BAA10Y" target="_blank" rel="noopener">FRED BAA10Y</a></p>
   </details></div>
 
+  <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
+  <div class="card" id="cdsboard"></div>
+  <div class="card" id="cdscmpcard"><h3><span>📈 회사별 CDS 비교 — 5년 안에 부도날 걱정</span></h3>
+    <div class="small" style="margin:2px 4px 6px">회사마다 CDS(부도 보험료) 기록을 한 그림에 모았어요. 선이 위로 갈수록 "빚을 못 갚을까 봐" 걱정이 커진 거예요. 코어위브처럼 아주 높은 회사(600bp 이상)는 다른 회사가 납작해 보이지 않게 위 칸에 따로 그렸어요. 아래 칸 점선 = 300bp(위험)·100bp(경계).</div>
+    <div id="cdscmp" class="plot" style="height:420px"></div>
+    <div class="small" id="cdscmpkey" style="margin:4px 4px 0;line-height:1.7"></div>
+    <p class="note" style="margin:6px 4px 2px">점 = 기록이 있는 날(뉴스·사용자 제공 화면, 날마다 있진 않아요), 선 = 그 사이를 이은 것. 위 기간 버튼을 따라가요. 자료: cds_log.csv(출처는 아래 표의 CDS 숫자를 누르면 보여요). 비교: 사용자 제공 그림 '데이터센터 규제 우려, 신용리스크 ▲'(26.11.06, user:)과 회사 순서·높이가 같아요(코어위브 &gt; 소프트뱅크 &gt; 오라클 &gt; 스페이스X &gt; 브로드컴 …).</p>
+  </div>
+  <div class="tablebox"><table id="summary">
+    <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
+    <tbody></tbody></table></div>
+  <div id="cdssrc"></div>
+  <div class="glossary">
+    <div><b>CDS</b> 회사가 망할 때를 대비한 <b>보험료</b>예요. 숫자가 클수록 "이 회사 망할까 봐 걱정된다"는 뜻이에요.</div>
+    <div><b>신용등급</b> 회사가 빌린 돈을 잘 갚을지 매긴 <b>성적표</b>예요. AAA가 1등이고, BB+부터는 "조심" 등급이에요.</div>
+    <div><b>스프레드</b> 같은 성적표 회사들이 미국 정부보다 이자를 <b>얼마나 더 주고</b> 돈을 빌리는지예요. 많이 줄수록 위험해요.</div>
+    <div><b>셋의 관계</b> 셋 다 "돈 못 갚을 위험"을 재는 자예요. 성적표가 나쁠수록 스프레드와 CDS가 높아요.</div>
+    <div><b>bp</b> 0.01%예요. 100bp = 1%, 1,000bp = 10% (보험료가 1년에 빌린 돈의 10%).</div>
+    <div><b>부도확률은 어떻게 알까?</b> CDS 보험료에서 거꾸로 계산해요. ① 부도가 나도 빌려준 돈의 <b>40%는 돌려받는다</b>고 가정(업계 관행) ② 그러면 1년에 부도날 확률 ≈ CDS ÷ 60% ③ 그게 5년 동안 쌓인 값이 <b>5년 내 부도확률</b>이에요.
+      <div class="tablebox" style="border:0;margin-top:6px"><table id="pdtable"><thead><tr><th>CDS</th><th>1년 부도율</th><th>5년 내 부도확률</th></tr></thead><tbody></tbody></table></div>
+      <span class="small">시장 가격에서 뽑은 "시장이 걱정하는 정도"이지, 실제로 그만큼 부도가 난다는 뜻은 아니에요(보험료엔 걱정·수급도 섞여 있어요).</span></div>
+    <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 300bp 이상(위험·부실)이거나 한 달 새 주가 −25% ·
+      <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 100bp 이상(경계)이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
+  </div>
+  <div class="memo" style="margin:0 0 10px">
+    <b>🐒 투자 메모 (동향 파악용)</b>
+    <div>· <b>⚠️ 오라클 역시 부도위험 지속 상승</b> — 진짜 부도가 나는 건 아니지만, 빅테크의 가장 약한 고리인 오라클도 신용리스크가 계속 높아지고 있어요. CDS 300이면 5년 내 부도위험 약 20%.</div>
+    <div>· <b>🟢 10/28 오라클 선순위 채권 금리 하락</b> — 2056년 만기 6.7% 선순위 무담보 채권의 금리(만기수익률)가 <b>8.20%</b>로 10월 중순 고점에서 내려왔어요. 같은 날 주가는 <b>+10.7%</b>($130.53 → $144.54). 채권 금리가 내려간다는 건 "돈 떼일 걱정"이 조금 줄었다는 뜻이에요. <span class="small">(채권 금리: user: 사용자 제공 화면 10/28 · 주가: Yahoo Finance)</span></div>
+    <div>· <b>⚠️ 코어위브 부도위험 여전히 60% 이상</b> — CDS가 1,000 이상이면 임계점 돌파(부실채권 취급)인데, 크게 진정되지 않고 있어요.</div>
+    <div>· <b>⚠️ 소프트뱅크 5년 내 부도위험 약 30%</b> — 블룸버그 기준 CDS가 약 4년 만의 최고 수준이에요(2022년 고점 이후 최고). 주가는 반대로 미끄러지는 중이에요.</div>
+  </div>
+
+  <div class="grp">④ 금리 · 달러 · 원자재</div>
+  <h2 id="sec-usyield">🏦 미국 국채 금리 — 만기별</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div><b>국채 금리</b> 미국 정부가 돈을 빌릴 때 주는 이자예요. 3개월은 짧게, 30년은 아주 길게 빌릴 때예요. 보통은 길게 빌릴수록 이자가 높아요. 짧은 금리가 긴 금리보다 높아지는 <b>금리 역전</b>은 경기가 나빠질 신호로 많이 봐요.</div></div>
+    <div id="usyield"></div>
+    <div id="yieldplot" class="plot" style="height:250px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener">미 재무부 국채 금리 곡선</a>(Daily Treasury Par Yield Curve), 장 마감 기준으로 하루 한 번 발표. 뉴스·증권사 앱의 실시간 시세와 조금 다를 수 있어요. 재무부 자료가 시작된 1990년부터 쌓여 있고(30년물은 2002~2006년에 발행을 쉬어서 빈칸), 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1990년~).</p>
+  </div>
+
+  <h2 id="sec-us10y">미국채 10년물 (세계 금리의 기준)</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>미국채 10년물</b> 미국 정부가 10년 동안 돈을 빌릴 때 주는 이자(%)예요. 세계 금리의 기준이라, 오르면 회사들이 빚내는 비용도 같이 올라가요.</div>
+    </div>
+    <div id="mkt-us10y"></div>
+    <div class="memo">
+      <b>🐒 투자 메모 — ⚠️ 금리·달러 같이 보기</b>
+      <div>· 미국 10년 금리가 <b>오르는 중</b>이에요. 금리가 오르면 돈 빌리기가 비싸져서 <b>시장에 도는 돈(유동성)에 부정적</b>이에요. <b>5%를 넘으면 경계</b>로 봐요(그래프 점선).</div>
+      <div>· 지금 다들 젠슨 황(엔비디아)에 눈이 팔려 있지만, <b>금리 상승·달러 상승이 더 심상치 않아요</b>. 계속 지켜봐야 해요.</div>
+      <div class="real" id="liqreal-us10y"></div>
+      <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.13) · 아래 👉 줄은 매일 자동 계산</div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(^TNX), 매일 갱신. 금리 변화는 %p(1%p = 100bp). 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 1962년~).</p>
+  </div>
+  <div class="card" id="realcard">
+    <h3><span>미국 10년 실질금리 — 물가를 빼고 남는 진짜 이자</span></h3>
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>💰 실질금리가 뭐냐면</b> 용돈 100만 원을 저금했더니 1년 이자 <b>5%</b>가 붙어 105만 원이 됐어요. 그런데 그사이 과자값이 <b>3%</b> 올랐어요. 통장 숫자는 5% 늘었지만, <b>실제로 살 수 있는 과자는 2%쯤만</b> 늘었어요.</div>
+      <div style="padding-left:10px">· 5% = <b>명목금리</b> — 통장에 찍히는 숫자 (위 칸 검정 줄 '10년물')<br>· 3% = <b>기대 인플레이션</b> — 물가가 오를 거라는 예상 (아래 칸 주황 줄)<br>· 2% = <b>실질금리</b> — 진짜로 늘어난 장보기 힘 (위 칸 파랑 줄)</div>
+      <div><b>공식 하나만 기억</b> <b>10년물 금리 = 실질금리 + 기대 인플레이션</b></div>
+      <div><b>이 그림의 실질금리</b> 미국 정부가 <b>물가가 오른 만큼 원금을 따로 더 얹어 주는 국채</b>(TIPS, 물가연동국채)의 10년 금리예요. 물가는 이미 챙겨 주니까, 이 금리 자체가 실질금리예요.</div>
+    </div>
+    <div class="nowline" id="realday"></div>
+    <div id="realplot" class="plot" style="height:380px"></div>
+    <div class="memo">
+      <b>📖 까먹지 않게 — 10년물과 실질금리 읽는 법</b>
+      <div>· 보통 <b>같은 방향</b>으로 움직여요. 위 칸 두 줄 사이 간격이 기대 인플레이션이에요(아래 칸).</div>
+      <div>· 같은 '금리 상승'이라도 <b>이유가 두 가지</b>예요. 10년물 숫자만 보지 말고 <b>나눠서</b> 봐요.</div>
+      <div style="border-left:3px solid var(--g2);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:6px 0 4px"><b>① 기대 인플레이션↑</b>(주황 줄) = "물가가 오를 것 같다" 걱정<br>→ 주식: 원자재·가치주는 버티기도 해요</div>
+      <div style="border-left:3px solid var(--g1);border-radius:0 8px 8px 0;background:var(--surface);padding:5px 10px;margin:0 0 6px"><b>② 실질금리↑</b>(파랑 줄) = <b>"진짜 돈값이 비싸졌다"</b><br>→ 주식: <b>더 아파요</b>. 특히 먼 미래 이익에 기대는 성장주</div>
+      <div>· <b>실질금리가 0 아래</b>(그림의 2011~13년, 2020~22년): 저금하면 오히려 손해라서 돈이 주식·코인·집으로 몰렸어요. 2021년은 성장주와 코인이 크게 오른 때예요.</div>
+      <div>· <b>주식 값과 이어지는 점</b>: 적정 PBR ≈ ROE ÷ 투자자가 바라는 수익률. 실질금리가 오르면 '바라는 수익률'도 올라가서, 같은 이익이라도 <b>PER·PBR이 낮아지기 쉬워요</b>.</div>
+      <div id="realkey"></div>
+      <div class="real" id="realreal"></div>
+      <div class="small" style="color:var(--muted)">설명: 사용자 제공 학습 노트(26.11.20)를 쉽게 옮김 · 🔑 줄과 실제 기록은 매일 자동</div>
+    </div>
+    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://fred.stlouisfed.org/series/DFII10" target="_blank" rel="noopener">FRED DFII10</a>(10년 실질금리, TIPS) · <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">DGS10</a>(10년물) · <a href="https://fred.stlouisfed.org/series/T10YIE" target="_blank" rel="noopener">T10YIE</a>(기대 인플레이션 = 10년물 − 실질금리, FRED 발표값), 2003년~ 매일(하루 늦게 나와요). 위 10년물 칸(Yahoo)과 소수점 끝자리가 조금 다를 수 있어요. 사용자가 보내 준 '미국 10년 실질금리' 그림(user: 26.11.20 받음)처럼 그렸어요. 맨 위 기간 버튼을 따라가요(전체 = 2003년~).</p>
+  </div>
+
   <h2 id="sec-dxy">달러인덱스 (달러 가치)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -419,7 +493,12 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(DX-Y.NYB), 매일 갱신. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 종가와 비교. 위 기간 버튼으로 기간을 바꿀 수 있어요(전체 = 2020년~).</p>
   </div>
 
-  <h2 id="sec-wti">WTI 유가 (미국 원유 가격)</h2>
+  <h2 id="sec-usprice">💵 원유(WTI) · 금 · 비트코인</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px"><div>돈이 어디로 몰리는지 보는 대표 가격이에요. 불안할 때는 <b>금</b>, 기대가 클 때는 <b>비트코인</b> 같은 위험한 곳으로 돈이 가는 일이 많아요. <b>원유</b>가 오르면 물가가 오르기 쉬워요.</div></div>
+    <div id="usprice"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance — 원유 = WTI 선물(CL=F), 금 = 금 선물(GC=F, 금 현물 시세와 조금 달라요), 비트코인 = BTC-USD(24시간 거래). 전일 = 하루 전 일봉 종가. 매일 16시·20시 + 미국 장 마감 뒤 아침(화~목 07:30, 금·토 06:30·서머타임엔 05:30) 자동 갱신.</p>
+  </div>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
       <div><b>WTI</b> 미국에서 거래되는 <b>원유 1배럴(약 159리터) 가격</b>(달러)이에요. 세계 기름값의 기준이에요.</div>
@@ -430,14 +509,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(WTI 원유 근월물 선물, CL=F), 매일 갱신. 2020년 4월엔 코로나로 기름이 남아돌아 하루 동안 마이너스(−37.63달러)가 된 적도 있어요. 위 기간 버튼으로 길게 볼 수 있어요(전체 = Yahoo에 자료가 있는 2000년 8월~).</p>
   </div>
 
-  <h2 id="sec-usmargin">💳 미국 신용잔고 증가율 — 빚투가 꺾이면 주가도?</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px"><div><b>신용잔고 증가율</b> = 미국 투자자들이 증권사에서 <b>돈을 빌려 산 주식</b> 금액이 1년 전보다 몇 % 늘었는지예요. 빚투가 빠르게 늘다가(점선 40% 위) 꺾이면, 그 무렵이나 몇 달 뒤 주가도 고점이었던 때가 많았어요.</div></div>
-    <div class="fgchips" id="usmgchips"></div>
-    <div id="usmgplot" class="plot" style="height:320px"></div>
-    <p class="note" style="margin:6px 4px 2px">자료: <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noopener">FINRA 신용잔고</a>(Debit Balances, 월말, 약 3주 뒤 발표) · S&amp;P500 월말 종가 Yahoo Finance(^GSPC, 이번 달은 지금까지, 고른 기간 최고점 = 100으로 맞춰 겹침). 증가율 = 그 달 잔고 ÷ 1년 전 같은 달 잔고 − 1. 점선 40%와 '고점이 같거나 2·3·9개월 먼저 왔다'는 설명 = 사용자 제공 그림 [표1](미국 금융감독청·블룸버그, 2026년 9월 말 기준). 동그라미 = 40%를 넘은 구간마다 가장 높은 달. 위 기간 버튼을 따라 바뀌어요(전체 = 1998년~). 매일 확인해서 새 달 숫자가 나오면 바로 들어가요.</p>
-  </div>
-
+  <div class="grp">⑤ 유동성</div>
   <h2 id="sec-liq">💧 미국 MMF · M2 · TGA — 돈이 어디에 쌓였나</h2>
   <div class="glossary">
     <div><b>MMF</b>(머니마켓펀드) 안전한 곳에 굴리며 이자를 받는 <b>대기 자금 통장</b>이에요. MMF에 돈이 <b>들어오면</b> 사람들이 현금을 쌓아 두는 거고, <b>빠지면</b> 그 돈이 주식 같은 곳으로 나갔거나 쓰였을 수 있어요.</div>
@@ -480,38 +552,7 @@ footer a{color:var(--ink2)}
       <div class="src">출처: user: 사용자가 보내 준 블로그 '메르의 블로그' 글 캡처(26.11.20) · 글의 TGA 숫자는 하루 값이라 주간 평균인 위 그림과 조금 달라요 · 투자 방법 이야기·청약 설명·사진·광고는 뺌</div></details></div></div>
   <p class="note" style="margin:6px 4px 2px">자료: MMF — <a href="https://www.ici.org/research/stats/mmf" target="_blank" rel="noopener">ICI(미국 자산운용협회) 주간 MMF 자산</a>(매주 목요일 발표, 그 주 수요일 기준, 뉴스에 나오는 숫자). ICI가 올리는 최근 20주 엑셀을 매일 받아 쌓아요(2026-06-17부터, 매주 한 점씩 늘어요. 미국 목요일 발표 → 한국 금요일 16시에 들어와요). 전체 = 기관용 + 개인용. ICI가 지난주 숫자를 고치면 고친 값으로 바뀌어요 · MMF 긴 흐름 — FRED <a href="https://fred.stlouisfed.org/series/MMMFFAQ027S" target="_blank" rel="noopener">MMMFFAQ027S</a>(연준 Z.1 금융계정, MMF 총금융자산, 3개월마다, 1974년 1분기~. 날짜는 분기 첫날, 값은 분기 말 잔고. 증감 = 바로 전 분기 대비) · M2 — FRED <a href="https://fred.stlouisfed.org/series/M2SL" target="_blank" rel="noopener">M2SL</a>(연준 H.6, 매달, 계절조정, 2007년~). 증감 = 바로 전 발표 대비, 1년 전 대비 = 1년 전 그날(없으면 그 전 발표) 값과 비교(MMF는 1년 치가 쌓이면 나와요) · TGA — FRED <a href="https://fred.stlouisfed.org/series/WTREGEN" target="_blank" rel="noopener">WTREGEN</a>(연준 H.4.1, 재무부 일반계정 주간 평균, 매주 목요일 발표, 2006년~. 증감 = 바로 전 주 대비). 위 기간 버튼을 따라 바뀌어요. 매일 16시·20시 확인해서 새 숫자가 나오면 들어가요.</p>
 
-  <h2 id="sec-credit">위험 기업 요약 (CDS가 거래되는 AI 빚 많은 기업)</h2>
-  <div class="card" id="cdsboard"></div>
-  <div class="card" id="cdscmpcard"><h3><span>📈 회사별 CDS 비교 — 5년 안에 부도날 걱정</span></h3>
-    <div class="small" style="margin:2px 4px 6px">회사마다 CDS(부도 보험료) 기록을 한 그림에 모았어요. 선이 위로 갈수록 "빚을 못 갚을까 봐" 걱정이 커진 거예요. 코어위브처럼 아주 높은 회사(600bp 이상)는 다른 회사가 납작해 보이지 않게 위 칸에 따로 그렸어요. 아래 칸 점선 = 300bp(위험)·100bp(경계).</div>
-    <div id="cdscmp" class="plot" style="height:420px"></div>
-    <div class="small" id="cdscmpkey" style="margin:4px 4px 0;line-height:1.7"></div>
-    <p class="note" style="margin:6px 4px 2px">점 = 기록이 있는 날(뉴스·사용자 제공 화면, 날마다 있진 않아요), 선 = 그 사이를 이은 것. 위 기간 버튼을 따라가요. 자료: cds_log.csv(출처는 아래 표의 CDS 숫자를 누르면 보여요). 비교: 사용자 제공 그림 '데이터센터 규제 우려, 신용리스크 ▲'(26.11.06, user:)과 회사 순서·높이가 같아요(코어위브 &gt; 소프트뱅크 &gt; 오라클 &gt; 스페이스X &gt; 브로드컴 …).</p>
-  </div>
-  <div class="tablebox"><table id="summary">
-    <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
-    <tbody></tbody></table></div>
-  <div id="cdssrc"></div>
-  <div class="glossary">
-    <div><b>CDS</b> 회사가 망할 때를 대비한 <b>보험료</b>예요. 숫자가 클수록 "이 회사 망할까 봐 걱정된다"는 뜻이에요.</div>
-    <div><b>신용등급</b> 회사가 빌린 돈을 잘 갚을지 매긴 <b>성적표</b>예요. AAA가 1등이고, BB+부터는 "조심" 등급이에요.</div>
-    <div><b>스프레드</b> 같은 성적표 회사들이 미국 정부보다 이자를 <b>얼마나 더 주고</b> 돈을 빌리는지예요. 많이 줄수록 위험해요.</div>
-    <div><b>셋의 관계</b> 셋 다 "돈 못 갚을 위험"을 재는 자예요. 성적표가 나쁠수록 스프레드와 CDS가 높아요.</div>
-    <div><b>bp</b> 0.01%예요. 100bp = 1%, 1,000bp = 10% (보험료가 1년에 빌린 돈의 10%).</div>
-    <div><b>부도확률은 어떻게 알까?</b> CDS 보험료에서 거꾸로 계산해요. ① 부도가 나도 빌려준 돈의 <b>40%는 돌려받는다</b>고 가정(업계 관행) ② 그러면 1년에 부도날 확률 ≈ CDS ÷ 60% ③ 그게 5년 동안 쌓인 값이 <b>5년 내 부도확률</b>이에요.
-      <div class="tablebox" style="border:0;margin-top:6px"><table id="pdtable"><thead><tr><th>CDS</th><th>1년 부도율</th><th>5년 내 부도확률</th></tr></thead><tbody></tbody></table></div>
-      <span class="small">시장 가격에서 뽑은 "시장이 걱정하는 정도"이지, 실제로 그만큼 부도가 난다는 뜻은 아니에요(보험료엔 걱정·수급도 섞여 있어요).</span></div>
-    <div><b>위험 색깔</b> <span class="risk"><span class="dot red"></span>빨강</span> CDS 300bp 이상(위험·부실)이거나 한 달 새 주가 −25% ·
-      <span class="risk"><span class="dot yellow"></span>노랑</span> CDS 100bp 이상(경계)이거나 한 달 새 −10% · <span class="risk"><span class="dot green"></span>초록</span> 그 외 (스프레드도 함께 봄)</div>
-  </div>
-  <div class="memo" style="margin:0 0 10px">
-    <b>🐒 투자 메모 (동향 파악용)</b>
-    <div>· <b>⚠️ 오라클 역시 부도위험 지속 상승</b> — 진짜 부도가 나는 건 아니지만, 빅테크의 가장 약한 고리인 오라클도 신용리스크가 계속 높아지고 있어요. CDS 300이면 5년 내 부도위험 약 20%.</div>
-    <div>· <b>🟢 10/28 오라클 선순위 채권 금리 하락</b> — 2056년 만기 6.7% 선순위 무담보 채권의 금리(만기수익률)가 <b>8.20%</b>로 10월 중순 고점에서 내려왔어요. 같은 날 주가는 <b>+10.7%</b>($130.53 → $144.54). 채권 금리가 내려간다는 건 "돈 떼일 걱정"이 조금 줄었다는 뜻이에요. <span class="small">(채권 금리: user: 사용자 제공 화면 10/28 · 주가: Yahoo Finance)</span></div>
-    <div>· <b>⚠️ 코어위브 부도위험 여전히 60% 이상</b> — CDS가 1,000 이상이면 임계점 돌파(부실채권 취급)인데, 크게 진정되지 않고 있어요.</div>
-    <div>· <b>⚠️ 소프트뱅크 5년 내 부도위험 약 30%</b> — 블룸버그 기준 CDS가 약 4년 만의 최고 수준이에요(2022년 고점 이후 최고). 주가는 반대로 미끄러지는 중이에요.</div>
-  </div>
-
+  <div class="grp">⑥ AI</div>
   <h2 id="sec-gpu">엔비디아 GPU 임대가격 · LLM 토큰 가격</h2>
   <div class="glossary">
     <div><b>GPU 임대가격</b> AI용 그래픽카드(GPU) 1장을 1시간 빌리는 값이에요. 오르면 AI 컴퓨팅 수요가 공급보다 세다는 뜻이에요.</div>
@@ -568,25 +609,11 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">TickerTrends의 주간 막대 추정치는 공개 데이터가 아니라서, 보도된 추정치만 점으로 넣었어요. 새 발표·보도는 매주 월요일 자동 검색으로 추가돼요. 메모 출처: 김단테 「내일은 투자왕」 글 요약</p>
   </div>
 
-  <h2 id="sec-supply">📦 주식 공급 — 새 주식이 얼마나 풀리나</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>주식 공급</b> 포켓몬 카드처럼 주식도 시장에 많이 풀리면 값이 눌려요. <b>새로 찍는 주식</b>(IPO = 처음 상장, 유상증자 = 상장한 회사가 더 찍음)은 공급을 늘리고, <b>사라지는 주식</b>(자사주 매입·소각, 현금 인수합병)은 줄여요.</div>
-      <div><b>순발행</b> = 새로 찍은 주식 − 사라진 주식. <b>마이너스면 주식이 줄어드는 중</b>(주가에 순풍), <b>플러스면 늘어나는 중</b>(역풍)이에요.</div>
-      <div><b>보호예수 해제</b> 직원·초기 투자자가 상장 뒤 일정 기간 못 팔던 주식이 팔 수 있게 풀리는 것. 주식 수는 그대로지만 시장에 나올 수 있는 물량이 늘어요.</div>
-    </div>
-    <div id="supplybox"></div>
-    <div class="memo">
-      <b>🐒 왜 보나</b>
-      <div>· 폴 튜더 존스(26년 10월): 지난 4년 강세장은 <b>자사주 매입·인수합병으로 주식이 줄어든 덕</b>이 컸는데, 2027년엔 앤트로픽·오픈AI 상장 가능성, AI 투자 자금용 증자, 스페이스X 등의 <b>보호예수 해제</b>가 겹쳐 <b>"2002년 이후 가장 나쁜 수급"</b>이 될 수 있다고 경고했어요.</div>
-      <div>· 우리 데이터로 보면 이미 시작됐어요: 순발행이 <b>26년 1분기부터 플러스</b>로 바뀌었고, 26년 6월 <b>스페이스X IPO 750억 달러</b>는 2000년 이후 한 건으로 가장 커요(그래프 26년 6월 막대, 나스닥 IPO 달력 2000년~ 기준).</div>
-      <div>· 그래서 순발행 막대가 <b>플러스로 더 커지는지</b>, IPO 막대가 <b>계속 치솟는지</b> 봐요.</div>
-      <div>· 좋은 회사 주가가 빠질 때 <b>회사 문제인지, 물량(공급) 문제인지</b> 가르는 데 써요. 물량 문제라면 회사 가치는 그대로일 수 있어요.</div>
-      <div class="src">출처: <a href="https://qz.com/paul-tudor-jones-2027-stock-market-warning-101326" target="_blank" rel="noopener">Quartz</a> · <a href="https://m.news.nate.com/view/20261013n36939" target="_blank" rel="noopener">뉴스핌(네이트)</a> (사용자 제공 요약에 달린 출처)</div>
-    </div>
-    <p class="note" style="margin:6px 4px 2px">자료: 순발행 — <a href="https://fred.stlouisfed.org/series/BOGZ1FU103164103Q" target="_blank" rel="noopener">연준 자금순환표(FRED BOGZ1FU103164103Q)</a> 미국 비금융 기업 주식 순발행, 분기 합계(약 2달 반 늦게 나와요) · IPO — <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noopener">나스닥 IPO 달력</a> 공모가가 정해진 건의 공모 금액(스팩 SPAC 포함). 매일 자동 갱신. 보호예수 해제 일정은 무료로 자동으로 받을 수 있는 곳이 없어 아직 못 넣었어요. 위 기간 버튼을 따라 바뀌어요(전체 = 순발행 1946년~, IPO는 나스닥 달력에 기록이 있는 때부터).</p>
-  </div>
+  <h2 id="sec-krmon">🧭 한눈에 보기 — 한국</h2>
+  <div class="glossary"><div>중요한 숫자만 한 표에 모았어요. <b>줄을 누르면</b> 그 칸으로 가요. 상태 칸 색: <b style="color:var(--bad)">빨강</b> = 위험·극단 쪽, <b style="color:#b07800">노랑</b> = 지켜볼 쪽(각 칸에 적힌 기준 그대로).</div></div>
+  <div class="card mon" id="krmon"></div>
 
+  <div class="grp">① 지수</div>
   <h2 id="sec-today">📊 오늘의 코스피 · 코스닥</h2>
   <div class="glossary">
     <div><b>지수</b>는 삼성전자·SK하이닉스 같은 큰 회사 몇 개만 움직여도 크게 바뀌어요. 그래서 <b>실제로 오른 종목·내린 종목이 몇 개인지</b>를 같이 봐요. 오른 종목이 더 많으면 <b>온기가 퍼진 날</b>, 지수만 오르고 내린 종목이 더 많으면 <b>몇몇 종목 쏠림</b>이에요. 바로 아래 <b>ADR</b>은 이 종목 수를 20일 동안 모아 본 거예요.</div>
@@ -615,6 +642,27 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">자료: <a href="https://stock.naver.com/market/stock/kr/trend/trader" target="_blank" rel="noopener">네이버 증권 투자자별 매매동향</a> 중 <b>거래소(KRX)만</b>(넥스트레이드 빼고 — FnGuide·증권사 보고서와 같은 기준) · 그날 지수 종가(네이버 금융)가 속한 가격대(코스피 400pt, 코스닥 50pt)마다 그날 순매수를 더한 값. 올해 = 1월 첫 거래일부터, 전체 = 2005-01부터(네이버가 주는 끝, 2008 금융위기·2020 코로나 포함). 매일 16시·20시 자동. 비교: 한화투자증권 '개인 매물대' 그림(user: 사용자 제공, FnGuide 자료 26.01~11월 초)과 7,200 위 합계 89.2조, 6,800~7,200 −30.3조 등 같은 숫자예요.</p>
   </div>
 
+  <h2 id="sec-mdd">코스피 MDD — 최고점에서 얼마나 빠졌나?</h2>
+  <div class="card">
+    <div class="glossary" style="margin:0 0 10px">
+      <div><b>MDD</b> 그날까지 <b>가장 높았던 코스피</b>에서 지금 몇 % 내려와 있는지예요. 0이면 최고점, −40이면 최고점보다 40% 싸진 거예요.</div>
+      <div><b>구간</b> 0~−10% 보통 흔들림 · −10~−20% 조정 · −20~−40% 약세장 · −40% 아래 <b>역사적 폭락 구간</b>(1990년 이후 몇 번 없었어요).</div>
+    </div>
+    <div class="fgtop"><div class="fgscore" id="mddscore">–</div><div><div class="fgrating" id="mddzone"></div><div class="small" id="mddprev"></div></div></div>
+    <div id="mddplot" class="plot" style="height:260px"></div>
+    <div class="small" style="margin:14px 4px 4px;color:var(--ink)"><b>🏆 고점 대비 낙폭 역대 순위</b> <span class="small">(2026년 줄은 매일 자동 갱신)</span></div>
+    <div id="mddrankmemo"></div>
+    <div class="tablebox" style="border:0"><table id="mddrank" class="mt"><thead><tr><th style="text-align:left">하락장</th><th>고점</th><th>저점</th><th>하락률</th><th>기간</th></tr></thead><tbody></tbody></table></div>
+    <details class="fold"><summary><b>⏱ 큰 폭락 — 바닥까지 · 최고점 회복까지 걸린 시간</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
+    <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div></details>
+    <div id="mddwhy"></div>
+    <details class="fold"><summary><b>🖼 원본 그림 — 키움증권 역대 순위표</b> <span class="small">(▶ 위 순위 표와 같은 내용)</span></summary>
+    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_mdd_rank_kiwoom.jpg" width="756" height="605" loading="lazy" alt="과거 코스피 고점 대비 낙폭 역대 순위 표 (FnGuide, 키움증권 리서치)"></div></details>
+    <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
+    <p class="note" style="margin:4px 4px 2px" id="mddranknote"></p>
+  </div>
+
+  <div class="grp">② 수급 · 심리</div>
   <h2 id="sec-investor">👥 투자자별 매매동향 — 누가 사고 누가 팔았나</h2>
   <div class="glossary">
     <div><b>순매수</b> = 산 돈 − 판 돈이에요. <b>+면 더 많이 산 것</b>, −면 더 많이 판 것. 주식은 누가 사면 반드시 누가 팔아서, <b>모두 더하면 0</b>이에요. 그래서 "외국인이 1조 팔았다"는 "다른 누군가가 1조를 받아 샀다"는 말과 같아요. 지수가 오른 날 누가 사서 올렸는지, 빠진 날 누가 받쳐 줬는지를 보는 거예요.</div>
@@ -684,22 +732,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">보통주만(우선주·ETF·스팩 제외), <b>지금 상장된 종목</b>으로 계산해요(그사이 상장폐지된 종목은 빠져서 옛날 값은 실제와 조금 다를 수 있어요). 200거래일이 안 된 새 종목은 빼요. 위 ADR 기간 버튼을 따라가요(전체 = 2015-06~, 네이버가 종목마다 최근 3,000거래일까지만 줘요). 매일 16시·20시 자동. 자료: 네이버 증권 종목별 일별 시세 · 지수 = 네이버 금융 일별 종가. 비교: 한화투자증권 그림(user: 사용자 제공, 블룸버그 자료)도 2018·2022년 저점 부근이라고 봤고, 여기서도 그때 바닥은 코스피 7.3%(18.10.29)·8.0%(22.06.23)예요.</p>
   </div>
 
-  <h2 id="sec-fx">원/달러 환율</h2>
-  <div class="card">
-    <div class="glossary" style="margin:0 0 10px">
-      <div><b>원/달러 환율</b> 1달러를 사려면 원화가 <b>얼마</b> 필요한지예요. 오르면 원화 값이 떨어진 거예요(원화 약세). 외국인이 한국 주식을 팔고 달러로 바꿔 나갈 때 자주 올라요.</div>
-    </div>
-    <div id="fx"></div>
-    <div id="fxfc"></div>
-    <div class="memo"><details class="more"><summary>💡 <b>환율이 수출주에 주는 영향</b> — 환율이 내려가면 수출주가 약해지기 쉬워요</summary>
-      환율이 <b>내려가면</b>(원화 강세) 수출 회사는 물건을 똑같이 1달러에 팔아도 원화로 바꾸면 받는 돈이 줄어요 → 이익이 줄 거란 걱정에 <b>수출주 주가가 약해지기 쉬워요.</b> 환율이 <b>오르면</b> 반대로 수출주엔 도움이 돼요.
-      <br><b>이번에 생긴 일</b> 환율이 1,500원대에서 1,300원대로 내려오면서 <b>화장품·자동차·반도체</b> 같은 수출주가 크게 타격을 받았어요.
-      <br><b>다음엔 미리 알아채려면</b> ① 위 차트 배경이 주황 → 파랑으로 바뀌는 날(추세가 꺾인 날) ② 최고점 대비 하락 폭이 계속 커질 때 → 갖고 있는 수출주가 있다면 환율 영향을 한 번 더 확인해 볼 신호예요.
-      <br>⚠️ 평균선은 늦게 반응해서, 색이 바뀔 땐 이미 꼭짓점에서 꽤 내려온 뒤일 수 있어요.
-      <br><span class="src">출처: 이번에 생긴 일 = user: 사용자 메모(26.10.30) · 환율 숫자 = Yahoo Finance</span></details></div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
-  </div>
-
   <h2 id="sec-vkospi">VKOSPI (한국 증시 변동성)</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -720,6 +752,7 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="vknote"></p>
   </div>
 
+  <div class="grp">③ 빚 · 큰손</div>
   <h2 id="sec-kofia">국내 증시 주변자금 · 반대매매</h2>
   <div class="glossary">
     <div><b>고객예탁금</b> 사람들이 주식 사려고 증권사 계좌에 넣어 둔 <b>대기 현금</b>이에요. 줄면 시장에서 주식을 받아줄 돈이 줄어든 거예요.</div>
@@ -811,24 +844,61 @@ footer a{color:var(--ink2)}
   </div>
   <div class="card" id="erabox"></div>
 
-  <h2 id="sec-mdd">코스피 MDD — 최고점에서 얼마나 빠졌나?</h2>
+  <h2 id="sec-nps">국민연금 — 자산배분 · 지분 늘린/줄인 기업</h2>
+  <div class="card">
+    <div class="donuts"><div id="npsactual" class="donut"></div><div id="npstarget" class="donut"></div></div>
+    <div class="tablebox" style="border:0"><table id="npstable"><thead><tr><th>자산</th><th>실제</th><th>목표</th><th>차이</th><th>금액(조원)</th></tr></thead><tbody></tbody></table></div>
+    <div id="npsdomestic" class="plot" style="height:120px"></div>
+    <p class="note" style="margin:4px" id="npsnote"></p>
+  </div>
+  <div class="card" id="npsstakes"></div>
+
+  <div class="grp">④ 환율 · 수출</div>
+  <h2 id="sec-fx">원/달러 환율</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
-      <div><b>MDD</b> 그날까지 <b>가장 높았던 코스피</b>에서 지금 몇 % 내려와 있는지예요. 0이면 최고점, −40이면 최고점보다 40% 싸진 거예요.</div>
-      <div><b>구간</b> 0~−10% 보통 흔들림 · −10~−20% 조정 · −20~−40% 약세장 · −40% 아래 <b>역사적 폭락 구간</b>(1990년 이후 몇 번 없었어요).</div>
+      <div><b>원/달러 환율</b> 1달러를 사려면 원화가 <b>얼마</b> 필요한지예요. 오르면 원화 값이 떨어진 거예요(원화 약세). 외국인이 한국 주식을 팔고 달러로 바꿔 나갈 때 자주 올라요.</div>
     </div>
-    <div class="fgtop"><div class="fgscore" id="mddscore">–</div><div><div class="fgrating" id="mddzone"></div><div class="small" id="mddprev"></div></div></div>
-    <div id="mddplot" class="plot" style="height:260px"></div>
-    <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div>
-    <div id="mddwhy"></div>
-    <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
-    <div class="small" style="margin:14px 4px 4px;color:var(--ink)"><b>🏆 고점 대비 낙폭 역대 순위</b> <span class="small">(2026년 줄은 매일 자동 갱신)</span></div>
-    <div id="mddrankmemo"></div>
-    <div class="tablebox" style="border:0"><table id="mddrank" class="mt"><thead><tr><th style="text-align:left">하락장</th><th>고점</th><th>저점</th><th>하락률</th><th>기간</th></tr></thead><tbody></tbody></table></div>
-    <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_mdd_rank_kiwoom.jpg" width="756" height="605" loading="lazy" alt="과거 코스피 고점 대비 낙폭 역대 순위 표 (FnGuide, 키움증권 리서치)"></div>
-    <p class="note" style="margin:4px 4px 2px" id="mddranknote"></p>
+    <div id="fx"></div>
+    <div id="fxfc"></div>
+    <div class="memo"><details class="more"><summary>💡 <b>환율이 수출주에 주는 영향</b> — 환율이 내려가면 수출주가 약해지기 쉬워요</summary>
+      환율이 <b>내려가면</b>(원화 강세) 수출 회사는 물건을 똑같이 1달러에 팔아도 원화로 바꾸면 받는 돈이 줄어요 → 이익이 줄 거란 걱정에 <b>수출주 주가가 약해지기 쉬워요.</b> 환율이 <b>오르면</b> 반대로 수출주엔 도움이 돼요.
+      <br><b>이번에 생긴 일</b> 환율이 1,500원대에서 1,300원대로 내려오면서 <b>화장품·자동차·반도체</b> 같은 수출주가 크게 타격을 받았어요.
+      <br><b>다음엔 미리 알아채려면</b> ① 위 차트 배경이 주황 → 파랑으로 바뀌는 날(추세가 꺾인 날) ② 최고점 대비 하락 폭이 계속 커질 때 → 갖고 있는 수출주가 있다면 환율 영향을 한 번 더 확인해 볼 신호예요.
+      <br>⚠️ 평균선은 늦게 반응해서, 색이 바뀔 땐 이미 꼭짓점에서 꽤 내려온 뒤일 수 있어요.
+      <br><span class="src">출처: 이번에 생긴 일 = user: 사용자 메모(26.10.30) · 환율 숫자 = Yahoo Finance</span></details></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(USD/KRW, KRW=X), 매일 갱신. 해외 외환시장 시세라 은행 고시 환율·서울 외환시장 종가와 몇 원 다를 수 있어요. 1주 전·1달 전은 그날(쉬는 날이면 그 전 거래일) 값과 비교. 최고점은 2020년 이후 기준. 위 기간 버튼으로 기간을 바꿀 수 있어요.</p>
   </div>
 
+  <h2 id="sec-trade">🚢 한국 월별 수출입</h2>
+  <div class="glossary"><div><b>수출</b>은 우리나라가 외국에 판 물건, <b>수입</b>은 사 온 물건이에요. 수출이 수입보다 많으면 <b>무역 흑자</b>예요. 한국 회사들 이익과 코스피에 바로 이어지는 숫자라 매달 1일 발표를 챙겨 봐요.</div></div>
+  <div class="card">
+    <div class="fgchips" id="tradechips"></div>
+    <div id="tradeplot" class="plot" style="height:300px"></div>
+    <div class="memo" id="trademem" style="margin-top:8px"></div>
+    <div class="memo" id="tradewsj" style="margin-top:8px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
+  </div>
+  <div class="card" id="expitems"></div>
+  <div class="card" id="hscard">
+    <h3><span>📈 품목별 수출 — 연도별 같은 달 비교</span></h3>
+    <div class="small" style="margin:2px 4px 6px">해마다 같은 달끼리 수출액을 겹쳐 그렸어요. <b style="color:var(--g2)">진한 주황 선 = 올해</b>, 나머지는 해마다 다른 차분한 색이에요(작년이 가장 진한 파랑, 4·5년 전은 점선). 주황 선이 다른 해보다 위에 있으면 그만큼 많이 팔리는 중이에요.</div>
+    <div class="bar own" role="group" aria-label="수출 품목" id="hsitem" style="position:static;flex-wrap:wrap"></div>
+    <div class="fgchips" id="hschips"></div>
+    <div id="hsplot" class="plot" style="height:340px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="hsnote"></p>
+  </div>
+  <div class="card" id="expcountry">
+    <h3><span>🌏 나라별 수출 — 라면 · 화장품</span><span class="small" id="ecmonth"></span></h3>
+    <div class="small" style="margin:2px 4px 6px">어느 나라에 얼마나 팔았는지예요. 막대가 길수록 많이 판 나라, <b style="color:var(--good)">초록</b>은 1년 전보다 늘어난 곳, <b style="color:var(--bad)">빨강</b>은 줄어든 곳이에요.</div>
+    <div class="bar own" role="group" aria-label="수출 품목" id="ecprod" style="position:static"></div>
+    <div class="bar own" role="group" aria-label="수출 기준" id="ecbasis" style="position:static"><button data-b="월합계" class="on">한 달 합계</button><button data-b="일평균">하루 평균(영업일수 감안)</button></div>
+    <div class="fgchips" id="ecchips"></div>
+    <div id="ecplot" class="plot" style="height:340px"></div>
+    <p class="note" style="margin:6px 4px 2px" id="ecnote"></p>
+  </div>
+
+  <div class="grp">⑤ 반도체 · 이익</div>
   <h2 id="sec-ism">🏭 미국 ISM 제조업지수 — 꺾이면 반도체도 꺾일까</h2>
   <div class="card">
     <div class="glossary" style="margin:0 0 10px">
@@ -886,43 +956,23 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px">새 의견은 매주 월요일 자동 검색으로 추가돼요(출처 있는 것만). 의견 수는 "누가 더 많이 말했나"일 뿐 맞고 틀림은 아니에요 — 실제 가격 기울기(위 YoY·QoQ)와 함께 보세요.</p>
   </div>
 
-  <h2 id="sec-nps">국민연금 — 자산배분 · 지분 늘린/줄인 기업</h2>
-  <div class="card">
-    <div class="donuts"><div id="npsactual" class="donut"></div><div id="npstarget" class="donut"></div></div>
-    <div class="tablebox" style="border:0"><table id="npstable"><thead><tr><th>자산</th><th>실제</th><th>목표</th><th>차이</th><th>금액(조원)</th></tr></thead><tbody></tbody></table></div>
-    <div id="npsdomestic" class="plot" style="height:120px"></div>
-    <p class="note" style="margin:4px" id="npsnote"></p>
-  </div>
-  <div class="card" id="npsstakes"></div>
-
-  <h2 id="sec-trade">🚢 한국 월별 수출입</h2>
-  <div class="glossary"><div><b>수출</b>은 우리나라가 외국에 판 물건, <b>수입</b>은 사 온 물건이에요. 수출이 수입보다 많으면 <b>무역 흑자</b>예요. 한국 회사들 이익과 코스피에 바로 이어지는 숫자라 매달 1일 발표를 챙겨 봐요.</div></div>
-  <div class="card">
-    <div class="fgchips" id="tradechips"></div>
-    <div id="tradeplot" class="plot" style="height:300px"></div>
-    <div class="memo" id="trademem" style="margin-top:8px"></div>
-    <div class="memo" id="tradewsj" style="margin-top:8px"></div>
-    <p class="note" style="margin:6px 4px 2px" id="tradenote"></p>
-  </div>
-  <div class="card" id="expitems"></div>
-  <div class="card" id="hscard">
-    <h3><span>📈 품목별 수출 — 연도별 같은 달 비교</span></h3>
-    <div class="small" style="margin:2px 4px 6px">해마다 같은 달끼리 수출액을 겹쳐 그렸어요. <b style="color:var(--g2)">진한 주황 선 = 올해</b>, 나머지는 해마다 다른 차분한 색이에요(작년이 가장 진한 파랑, 4·5년 전은 점선). 주황 선이 다른 해보다 위에 있으면 그만큼 많이 팔리는 중이에요.</div>
-    <div class="bar own" role="group" aria-label="수출 품목" id="hsitem" style="position:static;flex-wrap:wrap"></div>
-    <div class="fgchips" id="hschips"></div>
-    <div id="hsplot" class="plot" style="height:340px"></div>
-    <p class="note" style="margin:6px 4px 2px" id="hsnote"></p>
-  </div>
-  <div class="card" id="expcountry">
-    <h3><span>🌏 나라별 수출 — 라면 · 화장품</span><span class="small" id="ecmonth"></span></h3>
-    <div class="small" style="margin:2px 4px 6px">어느 나라에 얼마나 팔았는지예요. 막대가 길수록 많이 판 나라, <b style="color:var(--good)">초록</b>은 1년 전보다 늘어난 곳, <b style="color:var(--bad)">빨강</b>은 줄어든 곳이에요.</div>
-    <div class="bar own" role="group" aria-label="수출 품목" id="ecprod" style="position:static"></div>
-    <div class="bar own" role="group" aria-label="수출 기준" id="ecbasis" style="position:static"><button data-b="월합계" class="on">한 달 합계</button><button data-b="일평균">하루 평균(영업일수 감안)</button></div>
-    <div class="fgchips" id="ecchips"></div>
-    <div id="ecplot" class="plot" style="height:340px"></div>
-    <p class="note" style="margin:6px 4px 2px" id="ecnote"></p>
+  <h2 id="sec-krearn">📊 한국 증시 이익 전망 — 코스피 · 코스닥</h2>
+  <div class="card" id="krfwdcard">
+    <div class="small" style="margin:2px 4px 6px">증권사들이 예상한 <b>앞으로 1년(12개월) 동안 회사들이 벌 돈(순이익)</b>을 다 더한 거예요. 이 숫자가 오르면 '이익 전망이 좋아진다'는 뜻이에요. 주가가 그대로여도 이익 예상이 오르면 PER(몇 년 치 이익을 주고 사나)은 내려가요.</div>
+    <div id="krfwd"></div>
+    <div id="krfwdplot" class="plot" style="height:300px"></div>
+    <div class="small" style="margin:12px 4px 4px;color:var(--ink)"><b>📈 긴 흐름 — 코스피 12개월 선행 PER · EPS · PBR · ROE</b> <span class="small">(우리 자료 · 매일 갱신 · 맨 위 기간 버튼을 따라가요)</span></div>
+    <div id="krval"></div>
+    <div id="krvalplot" class="plot" style="height:600px"></div>
+    <p class="note" style="margin:4px 4px 8px" id="krvalnote"></p>
+    <div class="memo" style="margin-top:8px">💡 <b>그림 글쓴이 메모</b>
+      <br>· 주가가 빠진 것(가격 조정)도 있지만, <b>시간이 지나며 12개월 이익 예상이 올라오니</b> PER(멀티플)은 계속 내려가요.
+      <br>· 그림 기준(26.11.06) 코스피 12개월 선행 PER <b>3.54배</b>(3년 평균 8.99배 · 5년 평균 9.71배), PBR <b>0.95배</b>. 매일 바뀌는 값은 위 '긴 흐름' 표에서 봐요.
+      <div class="src">출처: user: 사용자가 보내 준 'South Korea Market Valuation' 그림·글(NNN PB 작성, 26.11.06 기준 · 26.11.09 받음)</div></div>
+    <p class="note" style="margin:6px 4px 2px" id="krfwdnote"></p>
   </div>
 
+  <div class="grp">⑥ 계절성</div>
   <h2 id="sec-month">📅 달별 평균 상승률 — 코스피 · 코스닥</h2>
   <div class="card" id="monthcard">
     <h3><span>달마다 평균 몇 % 올랐나</span><span class="small" id="monthto"></span></h3>
@@ -946,22 +996,6 @@ footer a{color:var(--ink2)}
     <p class="note" style="margin:6px 4px 2px" id="monthnote"></p>
   </div>
 
-  <h2 id="sec-krearn">📊 한국 증시 이익 전망 — 코스피 · 코스닥</h2>
-  <div class="card" id="krfwdcard">
-    <div class="small" style="margin:2px 4px 6px">증권사들이 예상한 <b>앞으로 1년(12개월) 동안 회사들이 벌 돈(순이익)</b>을 다 더한 거예요. 이 숫자가 오르면 '이익 전망이 좋아진다'는 뜻이에요. 주가가 그대로여도 이익 예상이 오르면 PER(몇 년 치 이익을 주고 사나)은 내려가요.</div>
-    <div id="krfwd"></div>
-    <div id="krfwdplot" class="plot" style="height:300px"></div>
-    <div class="small" style="margin:12px 4px 4px;color:var(--ink)"><b>📈 긴 흐름 — 코스피 12개월 선행 PER · EPS · PBR · ROE</b> <span class="small">(우리 자료 · 매일 갱신 · 맨 위 기간 버튼을 따라가요)</span></div>
-    <div id="krval"></div>
-    <div id="krvalplot" class="plot" style="height:600px"></div>
-    <p class="note" style="margin:4px 4px 8px" id="krvalnote"></p>
-    <div class="memo" style="margin-top:8px">💡 <b>그림 글쓴이 메모</b>
-      <br>· 주가가 빠진 것(가격 조정)도 있지만, <b>시간이 지나며 12개월 이익 예상이 올라오니</b> PER(멀티플)은 계속 내려가요.
-      <br>· 그림 기준(26.11.06) 코스피 12개월 선행 PER <b>3.54배</b>(3년 평균 8.99배 · 5년 평균 9.71배), PBR <b>0.95배</b>. 매일 바뀌는 값은 위 '긴 흐름' 표에서 봐요.
-      <div class="src">출처: user: 사용자가 보내 준 'South Korea Market Valuation' 그림·글(NNN PB 작성, 26.11.06 기준 · 26.11.09 받음)</div></div>
-    <p class="note" style="margin:6px 4px 2px" id="krfwdnote"></p>
-  </div>
-
   <h2 id="sec-contra">역발상 판독기 — 사람들 마음이 한쪽으로 쏠렸나?</h2>
   <div class="glossary">
     <div><b>역발상 판독기</b> 미국 투자자들의 <b>마음(심리)</b>을 보여주는 지표 5개에 1~5점을 매겨 평균을 내요. 모두가 겁먹으면 1점(공포), 모두가 들뜨면 5점(광기)에 가까워져요.</div>
@@ -979,6 +1013,35 @@ footer a{color:var(--ink2)}
 
   <h2 id="sec-valmkt">🚦 시장 — 금리 · 지수는 비싼가?</h2>
   <div id="mktv">
+    <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
+    <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
+    <div class="vm-sec">1. 지수 밸류에이션</div>
+    <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>
+    <h3 style="margin:14px 4px 0">🇰🇷 코스피</h3><div class="card" id="vm-kospiBand"></div>
+    <div class="memo" style="margin:8px 0 0">
+      <b>📌 2027 코스피 전망</b>
+      <div>· <b>키움 「기대에서 증명으로」</b>: 2027년 코스피 예상 범위 <b>5,100~8,100</b> = 선행 PBR <b>1.0~1.6배</b>. 상반기엔 미국 장기금리·AI 투자 부담·반도체 이익 둔화 우려로 출렁이고, 2분기 이후 금리·유가 진정과 빅테크 현금흐름 저점 통과로 할인이 풀릴 거라는 예상이에요. 채권은 금리가 내려가도 예전보다 높은 수준에서 머물고, 원/달러는 연초 1,300원 아래로 갈 수 있지만 이후 완만히 오를 거라고 봤어요.</div>
+      <div>· <b>IM증권</b>: 내년 코스피 <b>5,200~7,500</b>. 하단 5,200 = <b>2027년 예상 PBR 1배</b>. 선행 ROE는 25.4%인데 시장이 인정하는 ROE는 약 11%라, 반도체 이익만으로는 한계가 있다는 분석이에요. 상반기엔 AI 활용주(소프트웨어·보안·피지컬 AI), 하반기엔 메모리·전력기기가 돌아와 7,500을 회복할 거라고 봤어요.</div>
+      <div>· <b>박세익 대표</b>(체슬리투자자문): 10월 22% 급락 뒤 <b>5,200이 바닥</b>이라고 봤어요. 예상 못 한 급락 뒤에는 <b>쌍바닥</b>(바닥을 두 번 찍고 오르는 W 모양)이 흔하고, 두 번째 바닥이 가장 무섭지만 사는 구간이라는 입장이에요. 목표 <b>7,500</b> = 내년 BPS <b>5,000</b> × PBR <b>1.5배</b>. 근거로 OECD 평균 PBR 1.7배, 일본 1.5~2.5배를 들었어요. 이 탭과 견주려면 위 '시나리오: BPS × PBR' 표의 <b>27E 칸</b>을 보세요(BPS를 얼마로 잡느냐에 따라 같은 1.5배라도 지수가 달라져요).</div>
+      <div>· <b>같은 'PBR 1배'라도 기준이 달라요</b>: 키움(1배 ≈ 5,060~5,100)은 FnGuide식 <b>12개월 선행 BPS</b> → 위 '내 기준선'·'12개월 선행 PBR 밴드'와 같은 기준. IM(1배 5,200)은 <b>2027년 예상 BPS</b> → 위 '시나리오: BPS × PBR' 표의 <b>27E 칸</b>과 같은 기준. 이 탭은 증권사 예상치가 있는 코스피 종목을 <b>넓게(시총 상위 약 350개)</b> 모아 계산해요. 예전처럼 상위 150개만 쓰면 PBR이 높은 대형주 비중이 커져서 1배 값이 3%쯤 낮게 나왔어요. '지난 실적 기준'은 이미 발표된 자본이라 더 낮아요.</div>
+      <div class="small" style="margin-top:4px">출처: <a href="https://www.kiwoom.com/h/invest/research/VMarketIMDetailView?sqno=385" target="_blank" rel="noopener">키움증권 투자전략팀 2027 연간 전망</a> · IM증권 내년 전망 · 박세익 대표 의견(26.11.03 받음, 회사 이름은 <a href="https://www.fntimes.com/html/view.php?ud=202509231545111168b4a7c6999c_18" target="_blank" rel="noopener">한국금융신문</a>) (셋 다 요약은 user: 사용자가 보내 준 요약문)</div>
+    </div>
+    <h3 style="margin:14px 4px 0">🇺🇸 S&amp;P500</h3>
+    <div class="horizon">
+      <div>장기 <span class="small">(5년 이상)</span><b>실적</b>돈 벌기<br><span class="small">→ 아래 PER 밴드</span></div>
+      <div>중기 <span class="small">(1~5년)</span><b>금리</b>돈 풀기<br><span class="small">→ 하이일드·MOVE</span></div>
+      <div>단기 <span class="small">(1년 미만)</span><b>심리</b>돈 쏠림<br><span class="small">→ 차트·역발상 판독기</span></div>
+    </div>
+    <div class="glossary">
+      <div><b>보는 순서</b> 오래 갈수록 <b>회사가 돈을 얼마나 버는지(실적)</b>가, 1~5년은 <b>금리</b>가, 1년 안쪽은 <b>사람들 마음</b>이 주가를 움직인다는 틀이에요. 금리 쪽은 '미국' 탭의 하이일드·MOVE, 마음 쪽은 '역발상 판독기' 탭과 함께 보세요.</div>
+      <div><b>경제 사이클 (중기·금리)</b> 금리인하 → 돈 풀기 → 경기호황 → 금리인상 → 경기둔화 → 다시 금리인하. 1~5년 흐름은 지금이 이 바퀴의 어디쯤인지에 따라 움직여요.</div>
+    </div>
+    <div class="card" id="vm-spBand"></div>
+    <div class="card" id="pe-card"></div>
+    <div class="vm-sec">2. 크로스체크 <span class="sub">우산(NNN) 텔레그램 채널 숫자와 비교</span></div>
+    <div class="glossary"><div>위 숫자를 다른 곳에서 낸 숫자와 맞춰 봐요. <b>5% 넘게 다르면 ⚠</b> 표시가 붙어요.</div></div>
+    <div class="card" id="vm-crossCheck"></div>
+    <div class="vm-sec">3. 지금 시장은 어느 국면? <span class="sub">주식 4계 · 심리 곡선 · 하락장 마음</span></div>
     <div class="card" id="vm-seasons">
       <h3 style="margin-top:0">🔄 우라가미 구니오의 주식 4계 — 지금은 어느 계절?</h3>
       <div class="note" style="margin:2px 0 6px">주식시장은 <b>금리·실적·주가</b>가 엇갈리며 봄 → 여름 → 가을 → 겨울을 돌아요. 일본 증권사 출신 우라가미 구니오가 『주식시장 흐름 읽는 법』에서 정리한 틀이에요.</div>
@@ -1084,6 +1147,7 @@ footer a{color:var(--ink2)}
       </div>
       <div class="note">👉 지금 시장 위치는 바로 위 <b>'마켓 사이클 심리'</b> 카드(매일 자동)에서 봐요. 비슷한 흐름을 월가 그림은 바닥 근처 <b>항복 → 분노 → 우울</b>로 그려요. 같이 볼 곳: 미국 탭 'CNN 공포·탐욕 지수' · 한국 탭 'VKOSPI' · '역발상 판독기' 탭.
         <div class="src">출처: user: 사용자가 보내 준 그림 「하락장, 개미가 겪는 감정 변화」(@going_tothe_moon, 26.11.17 받음) · 그림 대신 글로 옮김, 자동 갱신 안 됨</div></div></div>
+    <div class="vm-sec">4. 증권사 · 블로그 그림 <span class="sub">전망 · 과거 비교 (참고)</span></div>
     <div class="card" id="mapath-mkt"></div>
     <div class="card" id="kwpath-mkt" style="padding:6px 14px"></div>
     <div class="card" id="eventcard"><h3><span>💥 이벤트는 촉매, 원인은 펀더멘털 (블로그 그림)</span></h3>
@@ -1121,34 +1185,6 @@ footer a{color:var(--ink2)}
       <div id="earncyc-now"></div>
       <p class="note" style="margin:6px 4px 2px">자료: user: 사용자가 보내 준 그림(그림 속 자료: 메릴린치 정량분석팀 · 26.11.17 받음). 그림은 원본 그대로, 자동 갱신 안 됨. '어닝 서프라이즈 모델' = 깜짝 실적이 나올 주식을 찾는 계량 모델.</p></div>
     <div class="card" id="leadcard"></div>
-    <div class="small" id="vm-updated" style="margin:0 4px">불러오는 중…</div>
-    <div class="vm-bar" id="vm-bar" role="group" aria-label="기간"></div>
-    <div class="vm-sec">1. 지수 밸류에이션</div>
-    <div class="glossary"><div>지수 전체가 버는 돈(<b>PER</b>)·가진 재산(<b>PBR</b>)에 비해 얼마나 비싼지, 과거에 오르내린 범위(밴드)와 비교해요. 배수가 낮을수록 싼 편이에요.</div></div>
-    <h3 style="margin:14px 4px 0">🇰🇷 코스피</h3><div class="card" id="vm-kospiBand"></div>
-    <div class="memo" style="margin:8px 0 0">
-      <b>📌 2027 코스피 전망</b>
-      <div>· <b>키움 「기대에서 증명으로」</b>: 2027년 코스피 예상 범위 <b>5,100~8,100</b> = 선행 PBR <b>1.0~1.6배</b>. 상반기엔 미국 장기금리·AI 투자 부담·반도체 이익 둔화 우려로 출렁이고, 2분기 이후 금리·유가 진정과 빅테크 현금흐름 저점 통과로 할인이 풀릴 거라는 예상이에요. 채권은 금리가 내려가도 예전보다 높은 수준에서 머물고, 원/달러는 연초 1,300원 아래로 갈 수 있지만 이후 완만히 오를 거라고 봤어요.</div>
-      <div>· <b>IM증권</b>: 내년 코스피 <b>5,200~7,500</b>. 하단 5,200 = <b>2027년 예상 PBR 1배</b>. 선행 ROE는 25.4%인데 시장이 인정하는 ROE는 약 11%라, 반도체 이익만으로는 한계가 있다는 분석이에요. 상반기엔 AI 활용주(소프트웨어·보안·피지컬 AI), 하반기엔 메모리·전력기기가 돌아와 7,500을 회복할 거라고 봤어요.</div>
-      <div>· <b>박세익 대표</b>(체슬리투자자문): 10월 22% 급락 뒤 <b>5,200이 바닥</b>이라고 봤어요. 예상 못 한 급락 뒤에는 <b>쌍바닥</b>(바닥을 두 번 찍고 오르는 W 모양)이 흔하고, 두 번째 바닥이 가장 무섭지만 사는 구간이라는 입장이에요. 목표 <b>7,500</b> = 내년 BPS <b>5,000</b> × PBR <b>1.5배</b>. 근거로 OECD 평균 PBR 1.7배, 일본 1.5~2.5배를 들었어요. 이 탭과 견주려면 위 '시나리오: BPS × PBR' 표의 <b>27E 칸</b>을 보세요(BPS를 얼마로 잡느냐에 따라 같은 1.5배라도 지수가 달라져요).</div>
-      <div>· <b>같은 'PBR 1배'라도 기준이 달라요</b>: 키움(1배 ≈ 5,060~5,100)은 FnGuide식 <b>12개월 선행 BPS</b> → 위 '내 기준선'·'12개월 선행 PBR 밴드'와 같은 기준. IM(1배 5,200)은 <b>2027년 예상 BPS</b> → 위 '시나리오: BPS × PBR' 표의 <b>27E 칸</b>과 같은 기준. 이 탭은 증권사 예상치가 있는 코스피 종목을 <b>넓게(시총 상위 약 350개)</b> 모아 계산해요. 예전처럼 상위 150개만 쓰면 PBR이 높은 대형주 비중이 커져서 1배 값이 3%쯤 낮게 나왔어요. '지난 실적 기준'은 이미 발표된 자본이라 더 낮아요.</div>
-      <div class="small" style="margin-top:4px">출처: <a href="https://www.kiwoom.com/h/invest/research/VMarketIMDetailView?sqno=385" target="_blank" rel="noopener">키움증권 투자전략팀 2027 연간 전망</a> · IM증권 내년 전망 · 박세익 대표 의견(26.11.03 받음, 회사 이름은 <a href="https://www.fntimes.com/html/view.php?ud=202509231545111168b4a7c6999c_18" target="_blank" rel="noopener">한국금융신문</a>) (셋 다 요약은 user: 사용자가 보내 준 요약문)</div>
-    </div>
-    <h3 style="margin:14px 4px 0">🇺🇸 S&amp;P500</h3>
-    <div class="horizon">
-      <div>장기 <span class="small">(5년 이상)</span><b>실적</b>돈 벌기<br><span class="small">→ 아래 PER 밴드</span></div>
-      <div>중기 <span class="small">(1~5년)</span><b>금리</b>돈 풀기<br><span class="small">→ 하이일드·MOVE</span></div>
-      <div>단기 <span class="small">(1년 미만)</span><b>심리</b>돈 쏠림<br><span class="small">→ 차트·역발상 판독기</span></div>
-    </div>
-    <div class="glossary">
-      <div><b>보는 순서</b> 오래 갈수록 <b>회사가 돈을 얼마나 버는지(실적)</b>가, 1~5년은 <b>금리</b>가, 1년 안쪽은 <b>사람들 마음</b>이 주가를 움직인다는 틀이에요. 금리 쪽은 '미국' 탭의 하이일드·MOVE, 마음 쪽은 '역발상 판독기' 탭과 함께 보세요.</div>
-      <div><b>경제 사이클 (중기·금리)</b> 금리인하 → 돈 풀기 → 경기호황 → 금리인상 → 경기둔화 → 다시 금리인하. 1~5년 흐름은 지금이 이 바퀴의 어디쯤인지에 따라 움직여요.</div>
-    </div>
-    <div class="card" id="vm-spBand"></div>
-    <div class="card" id="pe-card"></div>
-    <div class="vm-sec">2. 크로스체크 <span class="sub">우산(NNN) 텔레그램 채널 숫자와 비교</span></div>
-    <div class="glossary"><div>위 숫자를 다른 곳에서 낸 숫자와 맞춰 봐요. <b>5% 넘게 다르면 ⚠</b> 표시가 붙어요.</div></div>
-    <div class="card" id="vm-crossCheck"></div>
     <p class="note" style="margin:8px 4px">이 탭은 사용자의 다른 대시보드 <b>밸류 신호등</b>의 시장 탭을 옮겨 온 거예요. 밸류 신호등이 평일 07:30·18:30에 모은 숫자를 이 대시보드가 16:00·20:00 갱신 때 가져와요. 투자 판단 참고용이며 매수·매도 추천이 아니에요.<br>데이터 출처: <span id="vm-srcs"></span></p>
   </div>
 
@@ -1314,7 +1350,7 @@ function srcHtml(t) {
 const isHidden = name => ((DATA && DATA.hidden) || []).includes(name);
 // 숨김 설정된 섹션: 제목(h2)부터 다음 제목 전까지, 또는 지정한 요소를 감춤
 // 미국·한국 탭: 섹션 제목(h2) id로 나눔. id 없는 h2는 바로 앞 섹션을 따라감
-const TAB_OF = {'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-month': 'kr', 'sec-krearn': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us','sec-wti': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr',
+const TAB_OF = {'sec-usmon': 'us', 'sec-krmon': 'kr', 'sec-ustoday': 'us','sec-etfdd': 'us', 'sec-usprice': 'us', 'sec-usyield': 'us', 'sec-usmargin': 'us', 'sec-liq': 'us', 'sec-trade': 'kr', 'sec-month': 'kr', 'sec-krearn': 'kr', 'sec-fg': 'us', 'sec-vix': 'us', 'sec-vkospi': 'kr','sec-move': 'us', 'sec-hy': 'us', 'sec-sp500': 'us', 'sec-us10y': 'us', 'sec-dxy': 'us', 'sec-supply': 'us', 'sec-credit': 'us', 'sec-gpu': 'us', 'sec-ai': 'us', 'sec-today': 'kr', 'sec-investor': 'kr', 'sec-fx': 'kr',
                 'sec-dram': 'kr', 'sec-ism': 'kr','sec-adr': 'kr', 'sec-kofia': 'kr', 'sec-mdd': 'kr','sec-nps': 'kr', 'sec-contra': 'contra', 'sec-chart': 'chart', 'sec-valmkt': 'mkt'};
 function setupTabs() {
   let cur = null;
@@ -3781,6 +3817,8 @@ function readerTop(id, title, R, extra) {
     <div class="tablebox" style="border:0;margin-top:8px"><table><thead><tr><th>지표</th><th>지금<br>(기준일)</th><th>점수</th><th>판단</th></tr></thead><tbody>${rows}</tbody></table></div>${extra || ''}`;
 }
 
+// 미국 탭에 같은 자료로 더 자세한 칸이 있는 지표는 차트를 또 그리지 않고 링크로(26.11.22 중복 정리) — 점수·구간 표는 그대로
+const RD_XL = {vix: ['sec-vix', 'VIX'], hy: ['sec-hy', '하이일드 스프레드']};
 function readerCard(it, extraMeta) {
   const m = RD[it.key];
   if (it.value == null) return `<div class="card"><h3><span>${m.name}</span></h3><div class="meta">자료를 아직 받지 못했어요.</div></div>`;
@@ -3788,7 +3826,7 @@ function readerCard(it, extraMeta) {
     <div class="meta">지금 <b>${rdVal(it)}</b> <span class="small">(${rdDate(it)} 기준)</span>${it.why ? `<br>${it.why}` : ''}${extraMeta || ''}</div>
     <div class="small" style="margin:0 4px">${m.desc}</div>
     <div class="bands">${it.bands.map((b, i) => `<div class="${5 - i === it.score ? 'on' : ''}"><b>${5 - i}점</b>${b}</div>`).join('')}</div>
-    <div id="rd-${it.key}" class="plot" style="height:200px"></div>
+    ${RD_XL[it.key] ? `<a class="xlink" href="#${RD_XL[it.key][0]}" onclick="goTo('${RD_XL[it.key][0]}');return false">📈 차트·메모는 🇺🇸 미국 탭 '${RD_XL[it.key][1]}' 칸에 있어요 →</a>` : `<div id="rd-${it.key}" class="plot" style="height:200px"></div>`}
     ${it.hist ? aaiiMore(it) : ''}
     ${m.memo ?`<div class="small" style="margin:2px 4px">${m.memo}</div>` : ''}
     ${m.src ? `<div class="small" style="margin:4px">자료: ${m.src.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ')}</div>` : ''}</div>`;
@@ -4006,7 +4044,64 @@ function renderReaders() {
   readerPlot(pe);
 }
 
-function renderAll() { applyHidden(); renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderReal(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderDramKg(); renderExpCountry(); renderValMarket(); }
+// 다른 탭에 있는 칸으로 이동(한눈에 보기 표·역발상 탭 링크)
+function goTo(id) {
+  const el = document.getElementById(id), tab = el && el.closest('[data-tab]')?.dataset.tab;
+  if (!el) return;
+  if (tab && !document.querySelector(`.tabs button.on[data-tab="${tab}"]`)) showTab(tab);
+  requestAnimationFrame(() => el.scrollIntoView({block: 'start'}));
+}
+
+// 한눈에 보기(26.11.22 화면 정리): 핵심 숫자만 한 표로. 상태 = 각 칸에 이미 있는 판정 규칙 그대로(새 기준 없음)
+function renderMonitor() {
+  const D = DATA, U = D.usmkt || {}, md = s => s ? s.slice(5, 10).replace('-', '.') : '';
+  const ago = (y, k = 5) => y && y.length > k ? y[y.length - 1 - k] : null;  // k거래일 전
+  const dp = (v, d, u) => v == null ? '–' : `${v >= 0 ? '+' : ''}${v.toFixed(d)}${u}`;  // 지표 변화는 색 없이(오르면 나쁜 지표도 있어서)
+  const st = (txt, lv) => txt ? `<span class="chip${lv ? ' ' + lv : ''}">${txt}</span>` : '';
+  const row = (name, val, date, chg, status, go) => `<tr data-go="${go}"><td>${name}</td><td><b>${val}</b><br><span class="small">${md(date)}</span></td><td>${chg}</td><td class="mst">${status}</td></tr>`;
+  const grp = g => `<tr class="g"><td colspan="4">${g}</td></tr>`;
+  const safe = f => { try { return f() || ''; } catch (e) { console.warn('한눈에 보기', e); return ''; } };
+  const px = (k, nm, go, status = st()) => safe(() => { const v = U[k]; return row(nm, fmtNum(v.last, 2), v.last_date, fmtPct(v.w1), status, go); });
+  const us = [grp('주식'), px('sp500', 'S&amp;P500', 'sec-sp500'), px('ndx', '나스닥100', 'sec-usdrop'), px('sox', '반도체 SOX', 'sec-usdrop'),
+    grp('심리 · 변동성'),
+    safe(() => { const n = D.fg.now, kr = {'extreme fear': '극단적 공포', fear: '공포', neutral: '중립', greed: '탐욕', 'extreme greed': '극단적 탐욕'};
+      return row('공포·탐욕', Math.round(n.score), n.timestamp.slice(0, 10), dp(n.score - n.previous_1_week, 0, ''), st(kr[n.rating], /extreme/.test(n.rating) ? 'hot' : n.rating === 'neutral' ? '' : 'warm'), 'sec-fg'); }),
+    safe(() => { const v = D.vix, s = Math.round(v.last * 10) / 10;
+      return row('VIX', s.toFixed(1), v.last_date, dp(v.last - ago(v.y), 1, ''), st(...(s >= 40 ? ['패닉', 'hot'] : s >= 30 ? ['공포', 'hot'] : s >= 20 ? ['경계', 'warm'] : ['안정'])), 'sec-vix'); }),
+    safe(() => { const v = D.move; return row('MOVE', v.last.toFixed(1), v.last_date, dp(v.last - ago(v.y), 1, ''), st(...(v.last >= v.median_all ? ['평소보다 불안', 'warm'] : ['평소 수준'])), 'sec-move'); }),
+    grp('신용'),
+    safe(() => { const h = D.hy; return row('하이일드', h.last.toFixed(2) + '%', h.last_date, dp(h.d1w, 2, '%p'), st(...(h.last > h.box_top ? ['박스권 돌파', 'hot'] : ['박스권 안'])), 'sec-hy'); }),
+    safe(() => { const r = D.cds_board.rows.reduce((a, b) => b.bp > a.bp ? b : a);
+      return row(`CDS 최고<br><span class="small">${r.name}</span>`, fmtNum(r.bp) + 'bp', r.date, '<span class="small">–</span>', st(r.tier, ['부실', '위험'].includes(r.tier) ? 'hot' : r.tier === '경계' ? 'warm' : ''), 'sec-credit'); }),
+    grp('금리 · 달러 · 원자재'),
+    safe(() => { const v = U.us10y; return row('미국채 10년', v.last.toFixed(2) + '%', v.last_date, dp(v.w1, 2, '%p'), st(), 'sec-us10y'); }),
+    safe(() => { const v = U.dxy; return row('달러인덱스', v.last.toFixed(2), v.last_date, fmtPct(v.w1), st(), 'sec-dxy'); }),
+    safe(() => { const w = D.wti; return row('WTI', '$' + w.last.toFixed(2), w.last_date, fmtPct((w.last / ago(w.y) - 1) * 100), st(), 'sec-usprice'); }),
+    grp('AI'),
+    safe(() => { const s = D.silicon.find(x => x.name === 'H100'); return row('GPU H100<br><span class="small">시간당 임대</span>', '$' + s.last.toFixed(2), s.last_date, fmtPct(s.w1), st(), 'sec-gpu'); })];
+  const kr = [grp('지수'),
+    safe(() => { const v = U.kospi, m = D.mdd, dd = -m.last;
+      return row(`코스피<br><span class="small">고점 대비 ${m.last.toFixed(1)}%</span>`, fmtNum(v.last, 2), v.last_date, fmtPct(v.w1), st(m.zone.replace(/ 구간$/, ''), dd >= 20 ? 'hot' : dd >= 10 ? 'warm' : ''), 'sec-mdd'); }),
+    px('kosdaq', '코스닥', 'sec-krmkt'),
+    grp('수급 · 심리'),
+    safe(() => { const k = D.kr_today.kospi, f = k.flow.foreign; return row('외국인<br><span class="small">코스피 하루 순매수</span>', `<span class="${f >= 0 ? 'up' : 'down'}">${f >= 0 ? '+' : ''}${fmtNum(f)}억</span>`, k.date, '<span class="small">–</span>', st(), 'sec-investor'); }),
+    safe(() => { const a = D.adr.kospi, v = a.y[a.y.length - 1];
+      return row('ADR<br><span class="small">코스피</span>', v.toFixed(1) + '%', a.x[a.x.length - 1], dp(v - ago(a.y), 1, '%p'), st(...(v >= 120 ? ['과열', 'hot'] : v <= 80 ? ['과매도', 'warm'] : ['중립'])), 'sec-adr'); }),
+    safe(() => { const k = D.vkospi; return row('VKOSPI', k.last.toFixed(2), k.last_date, dp(k.last - ago(k.y), 2, ''), st(), 'sec-vkospi'); }),
+    grp('빚 · 환율'),
+    safe(() => { const K = D.kofia, L = K.last; return row('신용잔고', L.credit.toFixed(2) + '조', L.date, fmtPct((L.credit / ago(K.credit) - 1) * 100), st(), 'sec-kofia'); }),
+    safe(() => { const L = D.kofia.last; return row(`반대매매<br><span class="small">1년 평균 ${fmtNum(L.forced_avg_1y)}억</span>`, fmtNum(L.forced) + '억', L.date, '<span class="small">–</span>', st(), 'sec-kofia'); }),
+    safe(() => { const v = U.usdkrw; return row('원/달러', fmtNum(v.last, 2), v.last_date, fmtPct(v.w1), st(), 'sec-fx'); })];
+  const tbl = (rows, wk) => `<div class="tablebox" style="border:0"><table><thead><tr><th>지표</th><th>지금</th><th>1주</th><th style="text-align:left">상태</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
+    <div class="small" style="margin:4px 6px 2px;color:var(--muted)">상태 = 각 칸에 적힌 기준 그대로 · 1주 = ${wk} · 날짜 = 그 숫자의 기준일(지표마다 달라요)</div>`;
+  [['usmon', us, '5거래일 전 대비(GPU는 7일)'], ['krmon', kr, '5거래일 전 대비']].forEach(([id, rows, wk]) => {
+    const el = document.getElementById(id); if (!el) return;
+    el.innerHTML = tbl(rows, wk);
+    el.querySelectorAll('tr[data-go]').forEach(tr => tr.onclick = () => goTo(tr.dataset.go));
+  });
+}
+
+function renderAll() { applyHidden(); renderMonitor();renderReaders(); if (!isHidden('phase')) renderPhase(); renderSilicon(); renderNebius(); renderAdr(); if (!isHidden('opinions')) renderOpinions(); if (!isHidden('arr')) renderArr(); renderFg(); renderVix(); renderReal(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderWti(); renderSummary(); renderGpu();renderDram(); renderIsm(); renderHynixInv(); renderSupply(); renderKrCurve(); renderKwPath(); renderFxFc(); renderKrFwd(); renderKrVal(); renderToday(); renderInvestors(); renderMaemul(); renderFrgnMemo(); renderKofia(); renderLiq(); renderMdd(); renderClean(); renderNps(); renderNpsStakes(); renderBubble(); renderLeadShare(); renderMidterm(); renderSanta(); renderKqOddEven(); renderMonthAvg(); renderTrade(); renderHsSeason(); renderDramKg(); renderExpCountry(); renderValMarket(); }
 
 document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () => {
   PERIOD = b.dataset.p;
