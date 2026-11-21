@@ -201,6 +201,20 @@ h2{scroll-margin-top:56px}  /* 바로가기·표에서 왔을 때 기간 버튼(
 .mon tr.g td{background:var(--page);font-size:11px;font-weight:800;color:var(--ink2);text-align:left;padding:4px 6px;letter-spacing:.04em}
 .mon tr[data-go]{cursor:pointer}
 .mon tr[data-go]:active td{background:var(--line)}
+.rk-row{display:flex;gap:8px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line)}
+.rk-row.now{background:var(--page);border-radius:8px}
+.rk-n{width:18px;flex:none;text-align:center;color:var(--muted);font-size:13px}
+.rk-b{flex:1;min-width:0}
+.rk-t{font-size:14px;font-weight:700;word-break:keep-all}
+.rk-s{font-size:11px;color:var(--muted);margin:2px 0 5px}
+.rk-bar{height:5px;border-radius:3px;background:var(--line)}
+.rk-bar i{display:block;height:100%;border-radius:3px;background:var(--ink2)}
+.rk-row.now .rk-bar i{background:var(--bad)}
+.rk-v{flex:none;text-align:right;white-space:nowrap}
+.rk-v b{display:block;font-size:16px;color:var(--bad)}
+.rk-v span{font-size:11px;color:var(--muted)}
+.rk-tag{font-size:10.5px;font-weight:600;padding:1px 6px;border:1px solid var(--muted);color:var(--ink2);border-radius:6px;margin-left:4px;vertical-align:1px;white-space:nowrap}
+.rk-row.now .rk-tag{border-color:var(--bad);color:var(--bad)}
 a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;color:var(--g1)}
 </style>
 </head>
@@ -650,13 +664,13 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
     </div>
     <div class="fgtop"><div class="fgscore" id="mddscore">–</div><div><div class="fgrating" id="mddzone"></div><div class="small" id="mddprev"></div></div></div>
     <div id="mddplot" class="plot" style="height:260px"></div>
-    <div class="small" style="margin:14px 4px 4px;color:var(--ink)"><b>🏆 고점 대비 낙폭 역대 순위</b> <span class="small">(2026년 줄은 매일 자동 갱신)</span></div>
+    <div class="small" style="margin:14px 4px 4px;color:var(--ink)"><b>🏆 고점 대비 낙폭 역대 순위</b> <span class="small">(종가 기준 · 고점 → 저점 · 진행 중 줄은 매일 자동)</span></div>
     <div id="mddrankmemo"></div>
-    <div class="tablebox" style="border:0"><table id="mddrank" class="mt"><thead><tr><th style="text-align:left">하락장</th><th>고점</th><th>저점</th><th>하락률</th><th>기간</th></tr></thead><tbody></tbody></table></div>
+    <div id="mddrank"></div>
     <details class="fold"><summary><b>⏱ 큰 폭락 — 바닥까지 · 최고점 회복까지 걸린 시간</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>
     <div class="tablebox" style="border:0"><table id="mddtable"><thead><tr><th style="text-align:left">큰 폭락</th><th>최고점<br>→바닥</th><th>최대<br>하락</th><th>최고점<br>회복</th></tr></thead><tbody></tbody></table></div></details>
     <div id="mddwhy"></div>
-    <details class="fold"><summary><b>🖼 원본 그림 — 키움증권 역대 순위표</b> <span class="small">(▶ 위 순위 표와 같은 내용)</span></summary>
+    <details class="fold"><summary><b>🖼 원본 그림 — 키움증권 역대 순위표</b> <span class="small">(▶ 위 순위 중 옛 7줄의 원본)</span></summary>
     <div class="imgbox" onclick="this.classList.toggle('big')"><img src="img/kospi_mdd_rank_kiwoom.jpg" width="756" height="605" loading="lazy" alt="과거 코스피 고점 대비 낙폭 역대 순위 표 (FnGuide, 키움증권 리서치)"></div></details>
     <p class="note" style="margin:6px 4px 2px" id="mddnote"></p>
     <p class="note" style="margin:4px 4px 2px" id="mddranknote"></p>
@@ -2364,6 +2378,9 @@ const MDD_RANK = [
   ['카드 사태, 이라크전', '2002-04-18', 937.61, '2003-03-17', 515.24, '11개월'],
   ['미중 무역분쟁, 코로나', '2018-01-29', 2598.19, '2020-03-19', 1457.64, '2년 2개월'],
   ['연준 긴축, 러-우 전쟁', '2021-07-06', 3305.21, '2022-09-30', 2155.49, '1년 3개월'],
+  // 아래 2줄 = user: 사용자 제공 그림 '코스피 역대 MDD 순위'(26.11.20 기준, 26.11.22 받음) — 숫자는 네이버 종가(kospi_long.csv)와 같음 확인, 기간은 README 반 달 반올림
+  ['유럽 재정위기, 美 신용강등', '2011-05-02', 2228.96, '2011-09-26', 1652.71, '5개월'],
+  ['코로나 쇼크', '2020-01-22', 2267.25, '2020-03-19', 1457.64, '2개월', '부분 구간'],
 ];
 
 function renderMdd() {
@@ -2409,19 +2426,25 @@ function renderMdd() {
   // 역대 순위: 옛 하락장은 표 숫자 고정, 지금 하락기 줄만 매일 자동(최고점 종가 → 그 뒤 가장 낮은 종가)
   // shortcut: 코스피가 최고점을 다시 넘으면 이 줄이 새 하락기로 바뀜 — 그때 2026년 값을 MDD_RANK에 고정 줄로 옮기기
   const hm = Math.round((new Date(m.cur_low.date) - new Date(m.peak_date)) / 864e5 / 30.44 * 2) / 2, hy = Math.floor(hm / 12), mo = hm - hy * 12;
-  const now = {name: m.peak_date.slice(0, 4) + '년 (진행 중)', p: m.peak_date, pv: m.peak, l: m.cur_low.date, lv: m.cur_low.low,
+  const yr = m.peak_date.slice(0, 4);
+  const now = {name: m.peak_date === '2026-06-22' ? '2026 반도체 급락' : yr + '년 하락', tag: '진행 중', p: m.peak_date, pv: m.peak, l: m.cur_low.date, lv: m.cur_low.low,
     dur: ((hy ? hy + '년 ' : '') + (mo >= 1 ? Math.floor(mo) + '개월' : '') + (mo % 1 ? ' 반' : '')).trim()};
-  const rows = MDD_RANK.map(([name, p, pv, l, lv, dur]) => ({name, p, pv, l, lv, dur})).concat([now]);
+  const rows = MDD_RANK.map(([name, p, pv, l, lv, dur, tag]) => ({name, p, pv, l, lv, dur, tag})).concat([now]);
   rows.forEach(r => r.dd = (r.lv / r.pv - 1) * 100);
   rows.sort((a, b) => a.dd - b.dd);
-  const rk = rows.indexOf(now), up = rows[rk - 1];
+  const rk = rows.indexOf(now), up = rows[rk - 1], deep = -rows[0].dd;
   document.getElementById('mddrankmemo').innerHTML = `<div class="memo" style="margin:4px 0 8px"><div style="font-size:15px">👉 이번 하락은 역대 <b style="color:var(--bad)">${rk + 1}위</b> (${rows.length}번 중) · 바닥 ${md(now.l)} ${fmtNum(now.lv, 2)} (${now.dd.toFixed(1)}%)</div>` +
     (up ? `<div style="font-size:15px;margin-top:4px">👉 코스피가 <b>${fmtNum(m.peak * up.lv / up.pv, 0)}</b> 아래로 마감하면 ${rk}위(${up.name} ${up.dd.toFixed(1)}%)를 넘어서요</div>` : '') + `</div>`;
-  document.querySelector('#mddrank tbody').innerHTML = rows.map((r, i) =>
-    `<tr${r === now ? ' style="color:var(--bad);font-weight:700"' : ''}><td style="text-align:left;white-space:normal;word-break:keep-all">${i + 1}. ${r.name}</td><td>${r.p}<br>${fmtNum(r.pv, 2)}</td><td>${r.l}<br>${fmtNum(r.lv, 2)}</td><td>${r.dd.toFixed(1)}%</td><td style="white-space:normal;word-break:keep-all">${r.dur}</td></tr>`).join('');
+  document.getElementById('mddrank').innerHTML = rows.map((r, i) =>
+    `<div class="rk-row${r === now ? ' now' : ''}"><div class="rk-n">${i + 1}</div><div class="rk-b">` +
+    `<div class="rk-t">${r.name}${r.tag ? ` <span class="rk-tag">${r.tag}</span>` : ''}</div>` +
+    `<div class="rk-s">${md(r.p)} ${fmtNum(r.pv, 2)} → ${md(r.l)} ${fmtNum(r.lv, 2)}</div>` +
+    `<div class="rk-bar"><i style="width:${(-r.dd / deep * 100).toFixed(1)}%"></i></div></div>` +
+    `<div class="rk-v"><b>${r.dd.toFixed(2)}%</b><span>${r.dur}</span></div></div>`).join('');
   document.getElementById('mddranknote').innerHTML = `옛 하락장 7줄 = user: 사용자가 보낸 키움증권 리서치 표 '과거 코스피 고점 대비 낙폭 역대 순위'(자료: FnGuide, 26.11.10 받음) 숫자 그대로예요. 1990년 이후 6줄은 네이버 금융 종가와 모두 같아요(1989년 줄은 우리 자료가 1990년부터라 확인 못 함). ` +
-    `<b>${now.name.slice(0, 5)} 줄은 매일 자동</b>: 고점 = 최고 종가, 저점 = 그 뒤 가장 낮은 종가(네이버 금융), 하락률 = 저점 ÷ 고점 − 1, 순위는 하락률 순. 더 낮은 종가가 나오면 저점·하락률·기간·순위가 저절로 바뀌어요. ` +
-    `'넘어서는 지수' = 지금 고점 × (윗 순위 저점 ÷ 고점). 아래 그림은 원본(26.11.06 저점 기준, 갱신 안 됨, 누르면 커져요).`;
+    `'유럽 재정위기'·'코로나 쇼크' 2줄 = user: 사용자 제공 그림 '코스피 역대 MDD 순위'(26.11.20 기준, 26.11.22 받음), 네이버 금융 종가와 같음을 확인했어요. '부분 구간' = 2018년 고점에서 이어진 하락(미중 무역분쟁, 코로나) 안의 짧은 하락이라 따로 셌어요. ` +
+    `<b>'진행 중' 줄은 매일 자동</b>: 고점 = 최고 종가, 저점 = 그 뒤 가장 낮은 종가(네이버 금융), 하락률 = 저점 ÷ 고점 − 1, 순위는 하락률 순, 막대 길이 = 1위 대비. 더 낮은 종가가 나오면 저점·하락률·기간·순위가 저절로 바뀌어요. ` +
+    `'넘어서는 지수' = 지금 고점 × (윗 순위 저점 ÷ 고점). 아래 키움 그림은 원본(26.11.06 저점 기준, 갱신 안 됨, 누르면 커져요).`;
 }
 
 function renderNps() {
