@@ -441,7 +441,7 @@ def fetch_insiders():
 # ---------- VIX 지수 (Yahoo Finance) · 하이일드 스프레드 (FRED) ----------
 def fetch_vix():
     import yfinance as yf
-    v = yf.download("^VIX", start="2017-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()  # 2018년 두 번의 공포도 보이게(사용자 메모 26.11.21)
+    v = yf.download("^VIX", start="1990-01-01", progress=False, auto_adjust=False)["Close"].squeeze().dropna()  # 1990년~: 'VIX 30 이상 사례·40 터치 횟수'(사용자 그림 26.11.23)
     if v.empty:
         raise RuntimeError("VIX 데이터가 비어 있음")
     v.index = pd.to_datetime(v.index).strftime("%Y-%m-%d")
@@ -2508,7 +2508,15 @@ def build_vix():
         elif a > spikes[-1]["value"]:
             spikes[-1].update(date=d, value=round(float(a), 1))
         last_i = i
-    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values], "spikes": spikes,
+    # 'VIX vs S&P500' 긴 그림(2006~)용 S&P500 주 단위 종가(금요일 + 마지막 날)
+    spx = None
+    hp, cp = os.path.join(DATA, "sp500_1950.csv"), os.path.join(DATA, "sp500.csv")
+    if os.path.exists(hp) and os.path.exists(cp):
+        p = pd.concat([pd.read_csv(hp, dtype={"date": str}), pd.read_csv(cp, dtype={"date": str})]).drop_duplicates("date", keep="last").sort_values("date")
+        p = p[p["date"] >= "2006-01-01"].set_index("date")["sp500"]
+        w = pd.Series(p.values, index=pd.to_datetime(p.index)).resample("W-FRI").last().dropna()
+        spx = {"x": [d.strftime("%Y-%m-%d") for d in w.index[:-1]] + [p.index[-1]], "y": [round(float(a), 2) for a in w.values[:-1]] + [round(float(p.iloc[-1]), 2)]}
+    return {"x": list(s.index), "y": [round(float(a), 2) for a in s.values], "spikes": spikes, "spx": spx,
             "last": round(float(s.iloc[-1]), 2), "last_date": s.index[-1], "prev": round(float(s.iloc[-2]), 2),
             "max_1y": {"date": yr.idxmax(), "value": round(float(yr.max()), 1)},
             "days_above_20_1y": int((yr >= 20).sum()), "days_1y": int(len(yr))}
@@ -3003,7 +3011,7 @@ def build_readers():
     contra = [
         _item("aaii", _csv_series("aaii.csv", "spread", since="2015-01-01"), config.CONTRA_RULES["aaii"], 1, _aaii_hist()),
         _pc_item(),
-        _item("vix", _csv_series("vix.csv", "vix"), config.CONTRA_RULES["vix"], 2),
+        _item("vix", _csv_series("vix.csv", "vix", since="2017-01-01"), config.CONTRA_RULES["vix"], 2),  # 판독기 칸은 전처럼 2017년~
         _item("margin", margin, config.CONTRA_RULES["margin"], 1,
               {"debit_b": round(last_debit / 1000, 1), "debits": debits} if margin is not None else None),
         _hy_item(),

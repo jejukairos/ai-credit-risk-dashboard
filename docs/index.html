@@ -319,7 +319,9 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
     <div class="fgchips" id="fgchips"></div>
     <div class="fgbar" aria-hidden="true"><span style="flex:25" class="z1"></span><span style="flex:20" class="z2"></span><span style="flex:10" class="z3"></span><span style="flex:20" class="z4"></span><span style="flex:25" class="z5"></span><i id="fgmark"></i></div>
     <div class="fgscale"><span>0 극단적 공포</span><span>50 중립</span><span>극단적 탐욕 100</span></div>
-    <div id="fgplot" class="plot" style="height:240px"></div>
+    <div id="fgplot" class="plot" style="height:340px"></div>
+    <div class="small" style="margin:2px 4px 6px;font-size:11px">동그라미 = 공포가 깊었던 바닥: <b style="color:var(--bad)">빨강</b> 10 아래까지 간 구간 · <b style="color:var(--spread)">주황</b> 20 아래까지만 간 구간(구간마다 가장 낮은 날, 30일 안에 다시 내려가면 같은 구간). 그림 모양: user: 사용자 제공 그림 '극단 구간 분할매수 유효'(26.11.21 기준).</div>
+    <details class="fold"><summary><b>🏆 공포·탐욕 역대 최저 Top10</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary><div id="fgtop10"></div></details>
     <div class="memo"><details class="more"><summary><b>🐒 투자 메모</b> 20 이하 = <b>분할매수 시작</b> · 10 이하 = <b>절호의 기회</b></summary>
       <div>· 이런 구간은 <b>1년에 1~2번꼴</b>로 와요. 그때마다 시장지수나 우량주를 <b>장기 계좌에 나눠 담아두면</b> 성과가 꽤 좋았어요.</div>
       <div>· 뉴스를 열심히 보는 것보다 공포지수를 보고 나눠 담는 게 나을 수도 있어요. 뉴스는 이성적인 판단을 방해하거든요.</div>
@@ -353,11 +355,14 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
       <div class="real" id="vixcalm"></div>
       <div>· <b>2018년 12월 저점</b>(트럼프 1기 미중 무역분쟁) 때 패닉셀이 나오면서 VIX 꼭대기가 <b>36</b>이었어요. 30을 넘으면 보통 패닉장이고 <b>하락 후반부</b>인 경우가 많다고 해요(26.11.21 메모). 아래 표에서 역대 꼭대기를 같이 봐요.</div>
       <div class="real" id="vix30"></div>
-      <div id="vixspikes" style="margin-top:6px"></div>
       <div class="real" id="vixreal"></div>
       <div class="small" style="color:var(--muted)">메모: 사용자 제공(26.11.06 · 26.11.18 · 26.11.21)</div>
     </div>
-    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX), 매일 갱신</p>
+    <div style="margin:14px 4px 4px;font-weight:800;color:var(--ink)">📜 VIX 40 터치 · 30 넘었던 큰 공포 <span class="small" style="font-weight:400">(2006년~, 매일 자동)</span></div>
+    <div class="small" id="vixcount" style="margin:0 4px 4px;color:var(--ink)"></div>
+    <div id="vixlong" class="plot" style="height:380px"></div>
+    <div id="vixspikes" style="margin-top:6px"></div>
+    <p class="note" style="margin:6px 4px 2px">자료: Yahoo Finance(CBOE VIX 1990년~ · S&amp;P500 ^GSPC, 긴 그림은 주 단위), 매일 갱신. 긴 그림·표 모양과 사건 이름: user: 사용자 제공 그림 'VIX 40 터치, 역사적으로 10번 내외'·'VIX지수 30 이상 주요 사례'(26.11.23). 그림의 이중 눈금 대신 위(S&amp;P500)·아래(VIX) 두 칸으로 나눴어요. 횟수는 이 대시보드 규칙(마감 30 이상인 날 사이가 60거래일 넘게 벌어지면 다른 공포)으로 세서 그림(1990년 이후 21회 · 2011년 이후 10번)과 조금 달라요 — 예: 22년은 3월(36.5)과 10월(33.6)을 따로 세요. 시작일도 마감 기준이라 장중에 30을 넘은 날로 보이는 그림 날짜(예: 26.03.09)와 다를 수 있어요.</p>
   </div>
 
   <h2 id="sec-move">MOVE 지수 (채권 시장 변동성)</h2>
@@ -2533,13 +2538,22 @@ function renderFg() {
   document.getElementById('fgmark').style.left = sc + '%';
   const last = f.x[f.x.length - 1], xs = xStartFor(last, f.x[0]);
   const ep = f.episodes;
+  // 20 이하로 내려간 구간(30일 안이면 한 구간)마다 가장 낮은 날 — 10 아래까지 안 간 구간만 주황 동그라미(10 아래 구간은 ep 빨강)
+  const g20 = [];
+  f.x.forEach((d, i) => { if (f.y[i] > 20) return; const e = g20[g20.length - 1];
+    if (e && (Date.parse(d) - Date.parse(f.x[e.end])) / 864e5 <= 30) { e.end = i; if (f.y[i] < f.y[e.i]) e.i = i; } else g20.push({i, end: i}); });
+  const mid = g20.filter(e => f.y[e.i] > 10).map(e => e.i), S = DATA.usmkt && DATA.usmkt.sp500;
+  const ring = (c, s) => ({size: s, color: 'rgba(0,0,0,0)', line: {color: css(c), width: 2}});
+  const lb = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 10, color: css('--ink2')}});
   Plotly.react('fgplot', [
-    {x: f.x, y: f.y, type: 'scatter', mode: 'lines', name: '공포탐욕', line: {color: css('--ink'), width: 1.6}, hovertemplate: '%{y:.0f}'},
-    {x: ep.map(e => e.min_date), y: ep.map(e => e.min), type: 'scatter', mode: 'markers', name: '10 이하 최저',
-     marker: {size: 9, color: css('--bad'), line: {color: css('--surface'), width: 2}}, hovertemplate: '최저 %{y:.0f}'},
-  ], Object.assign(baseLayout(), {
-    xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m'}),
-    yaxis: axis({range: [0, 100], tickvals: [0, 10, 20, 50, 75, 100]}),
+    {x: f.x, y: f.y, type: 'scatter', mode: 'lines', name: '공포탐욕', line: {color: css('--ink'), width: 1.6}, hovertemplate: '공포·탐욕 %{y:.0f}<extra></extra>'},
+    {x: ep.map(e => e.min_date), y: ep.map(e => e.min), type: 'scatter', mode: 'markers', name: '10 이하 최저', marker: ring('--bad', 16), hovertemplate: '최저 %{y:.1f}<extra></extra>'},
+    {x: mid.map(i => f.x[i]), y: mid.map(i => f.y[i]), type: 'scatter', mode: 'markers', name: '20 이하 최저', marker: ring('--spread', 14), hovertemplate: '최저 %{y:.1f}<extra></extra>'},
+  ].concat(S ? [{x: S.x, y: S.y, yaxis: 'y2', type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.4}, hovertemplate: 'S&P500 %{y:,.0f}<extra></extra>'}] : []),
+  Object.assign(baseLayout(), {hoversubplots: 'axis',
+    xaxis: axis({type: 'date', anchor: S ? 'y2' : 'y', range: [xs, last], tickformat: '%y.%m'}),
+    yaxis: axis({domain: S ? [0.36, 1] : [0, 1], range: [0, 100], tickvals: [0, 10, 20, 50, 75, 100]}),
+    yaxis2: axis({domain: [0, 0.27], range: S ? padRange(S.y.filter((_, i) => S.x[i] >= xs), false) : undefined}),
     shapes: [
       {type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 10, y1: 20, fillcolor: css('--spread'), opacity: 0.16, line: {width: 0}, layer: 'below'},
       {type: 'rect', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 10, fillcolor: css('--bad'), opacity: 0.2, line: {width: 0}, layer: 'below'},
@@ -2550,8 +2564,21 @@ function renderFg() {
        font: {size: 10, color: css('--ink2')}},
       {xref: 'paper', x: 0.99, y: 5, yanchor: 'middle', xanchor: 'right', showarrow: false, text: '10 이하 절호의 기회',
        font: {size: 10, color: css('--bad')}},
-    ],
+    ].concat(S ? [lb(0.28, 'S&amp;P500')] : []),
   }), CFG);
+  // 역대 최저 Top10 — 25.4.6까지 = user: 사용자 제공 그림 '[공포/탐욕지수 역대 Top10]'(25.4.6 자료) 그대로, 그 뒤 = 우리 CNN 자료의 10 이하 구간마다 가장 낮은 날(자동)
+  const FG_TOP = [['2020-03-23', 1, 'COVID19'], ['2008-09-17', 2, 'GFC'], ['2020-03-12', 3, 'COVID19'], ['2025-04-05', 4, '관세전쟁'], ['2008-09-29', 5, 'GFC'],
+    ['2008-10-10', 5, 'GFC'], ['2011-08-08', 5, '미국 신용등급 강등'], ['2022-06-16', 5, '러우전쟁'], ['2018-12-24', 6, '미중무역전쟁'], ['2020-03-16', 6, 'COVID19']];
+  const FG_EV = {'2025-04': '관세전쟁', '2026-03': '미국·이란 전쟁'};  // 이름: 위 그림 · VIX 사례 그림(26.11.23)
+  const neu = ep.filter(e => e.min_date > '2025-04-06').map(e => ({d: e.min_date, v: e.min, ev: FG_EV[e.min_date.slice(0, 7)] || '', auto: true, s: e.start, e: e.end}));
+  const tops = FG_TOP.filter(([d]) => !neu.some(o => d >= o.s && d <= o.e)).map(([d, v, ev]) => ({d, v, ev})).concat(neu)
+    .sort((a, b) => Math.round(a.v) - Math.round(b.v) || a.v - b.v);
+  tops.forEach(t => t.rk = 1 + tops.filter(u => Math.round(u.v) < Math.round(t.v)).length);  // 같은 숫자는 같은 순위(그림처럼)
+  const cur = neu.find(o => o.e === lastD), show = tops.filter(t => t.rk <= 10);
+  document.getElementById('fgtop10').innerHTML = `<div class="tbl-wrap"><table class="compact"><thead><tr><th>순위</th><th>날짜</th><th>지수</th><th style="text-align:left">무슨 일</th></tr></thead><tbody>${show.map(t =>
+    `<tr${t === cur ? ' style="background:var(--page);font-weight:700"' : ''}><td>${t.rk}</td><td>${t.d.slice(2).replace(/-/g, '.')}</td><td><b>${t.auto ? t.v.toFixed(1) : t.v}</b></td><td style="white-space:normal;text-align:left">${t.ev}${t.auto ? ' <span class="small" style="color:var(--muted)">자동</span>' : ''}</td></tr>`).join('')}</tbody></table></div>` +
+    (cur ? `<div class="memo" style="margin:6px 0">👉 지금(${cur.d.slice(2).replace(/-/g, '.')} 최저 ${cur.v.toFixed(1)})은 <b>${cur.rk}위</b>${cur.rk > 10 ? ` — Top10에 들려면 ${Math.round(show[show.length - 1].v)} 이하로 내려가야 해요` : '예요'}.</div>` : '') +
+    `<p class="note" style="margin:4px">25.4.6까지 줄 = user: 사용자 제공 그림 '[공포/탐욕지수 역대 Top10]'(25.4.6 자료, 정수) 그대로예요. 그 뒤 줄(자동) = <a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener">CNN Fear &amp; Greed</a> 그래프 값으로, 10 이하 구간마다 가장 낮은 날 하나(같은 구간의 그림 줄은 이 값으로 바꿈: 25.04.05 → 25.04.08). 순위는 반올림한 정수로 매기고 같은 숫자는 같은 순위예요. CNN 그래프의 지난 값은 그림과 다를 때가 있어요(예: 22년은 그래프상 22.05.12 3.2, 그림은 22.06.16 5).</p>`;
   const pc = v => v == null ? '<span class="small">아직</span>' : fmtPct(v);
   document.querySelector('#fgtable tbody').innerHTML = ep.slice().reverse().map(e => `<tr>
     <td>${e.start.slice(2).replace(/-/g, '.')}</td><td>${e.min.toFixed(1)}</td><td>${pc(e.dd)}</td><td>${pc(e.r3)}</td><td>${pc(e.r6)}</td><td>${pc(e.r12)}</td></tr>`).join('');
@@ -2639,14 +2666,42 @@ function renderVix() {
   else if (sc >= 20) chips.push('<span class="chip warm">경계 구간 (20 이상) · 하루 1~2% 출렁일 수 있어요</span>');
   if (sc >= 20 && v.prev < 19.95) chips.push(`<span class="chip">전일 ${v.prev.toFixed(1)} → 오늘 20 위로 올라섰어요</span>`);
   document.getElementById('vixchips').innerHTML = chips.join('');
-  // 마감 30 이상 구간의 꼭대기(update.py build_vix). 이름은 사용자 제공 그림(26.11.21)의 이름표
-  const EV = {'2018-02': '변동성 쇼크', '2018-12': '미중 무역분쟁', '2020-03': '코로나19', '2022-03': '연준 금리인상 약세장', '2024-08': '엔캐리 청산', '2025-04': '관세 쇼크'};
+  // 마감 30 이상 구간의 꼭대기(update.py build_vix). 이름 = 사용자 제공 그림(26.11.21 · 26.11.23)의 이름표, 꼭대기 달로 찾음
+  const EV = {'2008-11': '금융위기', '2011-08': '미국 신용등급 강등', '2015-08': '중국 위안화 절하', '2018-02': '변동성 쇼크(볼마겟돈)', '2018-12': '미중 무역분쟁·연준 긴축',
+    '2020-03': '코로나19', '2022-03': '연준 금리인상', '2024-08': '엔캐리 청산', '2025-04': '관세 쇼크', '2026-03': '미국·이란 전쟁'};
   const SP = v.spikes || [], la = v.y.findLastIndex(a => a >= 30), ongoing = la >= 0 && v.y.length - 1 - la <= 60;
   const evName = (s, k) => ongoing && k === SP.length - 1 ? '🔴 지금 진행 중 (꼭대기가 더 올라갈 수 있어요)' : EV[s.date.slice(0, 7)] || '–';
-  document.getElementById('vixspikes').innerHTML = SP.length ? `<b>📜 30 넘었던 큰 공포 — 꼭대기 (마감 기준, 자동)</b>
-    <div class="tbl-wrap"><table class="compact"><thead><tr><th>꼭대기 날</th><th>VIX</th><th style="text-align:left">무슨 일</th></tr></thead><tbody>${SP.map((s, k) =>
-      `<tr><td>${s.date.slice(2).replace(/-/g, '.')}</td><td><b>${s.value.toFixed(1)}</b></td><td style="white-space:normal;text-align:left">${evName(s, k)}</td></tr>`).join('')}</tbody></table></div>
-    <div class="small" style="color:var(--muted)">마감 30 이상인 날 사이가 60거래일 넘게 벌어지면 다른 공포로 셈 · 그래프의 빨간 점 · 이름: 사용자 제공 그림(26.11.21)</div>` : '';
+  const md = s => s.slice(2).replace(/-/g, '.'), ks = SP.map((_, k) => k).reverse();
+  const tb = list => `<div class="tbl-wrap"><table class="compact"><thead><tr><th>시작</th><th>꼭대기</th><th>VIX</th><th style="text-align:left">무슨 일</th></tr></thead><tbody>${list.map(k =>
+    `<tr${ongoing && k === SP.length - 1 ? ' style="background:var(--page);font-weight:700"' : ''}><td>${md(SP[k].start)}</td><td>${md(SP[k].date)}</td><td><b${SP[k].value >= 40 ? ' style="color:var(--g7)"' : ''}>${SP[k].value.toFixed(1)}</b></td><td style="white-space:normal;text-align:left">${evName(SP[k], k)}</td></tr>`).join('')}</tbody></table></div>`;
+  const nw = ks.filter(k => SP[k].start >= '2011-01-01'), od = ks.filter(k => SP[k].start < '2011-01-01');
+  document.getElementById('vixspikes').innerHTML = SP.length ? `<b>📋 VIX 30 이상 주요 사례 (마감 기준, 최근 것부터)</b>${tb(nw)}
+    ${od.length ? `<details class="fold"><summary><b>${SP[od[od.length - 1]].start.slice(0, 4)}~2010년 ${od.length}번 더 보기</b> <span class="small">(▶ 누르면 펼쳐져요)</span></summary>${tb(od)}</details>` : ''}
+    <div class="small" style="color:var(--muted)">시작 = 마감 30을 처음 넘은 날 · 꼭대기 = 그 공포에서 가장 높은 마감 값 · 보라 숫자 = 40 이상(패닉) · 위쪽 그래프의 빨간 점</div>` : '';
+  const n40 = SP.filter(s => s.value >= 40), s11 = SP.filter(s => s.start >= '2011-01-01'), y11 = (Date.parse(last) - Date.parse('2011-01-01')) / 3.156e10;
+  document.getElementById('vixcount').innerHTML = SP.length ? `VIX가 마감 기준 <b>40 이상</b>으로 올라간 공포는 ${SP[0].start.slice(0, 4)}년 이후 <b>${n40.length}번</b>(${n40.map(s => "'" + s.date.slice(2, 4)).join(' · ')})이에요. ` +
+    `<b>30 이상</b>은 ${SP.length}번, 2011년 이후 ${s11.length}번(1년에 평균 ${(s11.length / y11).toFixed(1)}번).` : '';
+  // VIX vs S&P500 긴 그림(사용자 그림 26.11.23) — 이중 눈금 대신 위 S&P500(로그) · 아래 VIX, 날짜축 공유. 꼭대기 38 이상만 숫자(겹치지 않게), 이름은 짧게
+  if (v.spx) {
+    const x0 = '2006-01-01', i0 = v.x.findIndex(d => d >= x0), VX = v.x.slice(i0), VY = v.y.slice(i0), S = v.spx;
+    const NM = {'2008-11': '금융위기', '2011-08': '신용등급 강등', '2015-08': '위안화', '2020-03': '코로나19', '2024-08': '엔캐리', '2025-04': '관세 쇼크'};
+    const L = SP.filter((s, k) => s.date >= x0 && (NM[s.date.slice(0, 7)] || ongoing && k === SP.length - 1));
+    const lab = s => s === SP[SP.length - 1] && ongoing ? '지금' : Math.round(s.value) + '<br>' + NM[s.date.slice(0, 7)];
+    const lb = (y, text) => ({xref: 'paper', yref: 'paper', x: 0, y, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: `<b>${text}</b>`, font: {size: 10, color: css('--ink2')}});
+    Plotly.react('vixlong', [
+      {x: S.x, y: S.y, type: 'scatter', mode: 'lines', line: {color: css('--muted'), width: 1.4}, hovertemplate: 'S&P500 %{y:,.0f}<extra></extra>'},
+      {x: VX, y: VY, yaxis: 'y2', type: 'scatter', mode: 'lines', line: {color: css('--g1'), width: 1.1}, hovertemplate: 'VIX %{y:.1f}<extra></extra>'},
+      {x: L.map(s => s.date), y: L.map(s => s.value), yaxis: 'y2', type: 'scatter', mode: 'markers+text', text: L.map(lab), textposition: 'top center',
+       textfont: {size: 10, color: css('--bad')}, cliponaxis: false, marker: {size: 5, color: css('--bad')}, hoverinfo: 'skip'},
+    ], tagLast(Object.assign(baseLayout(), {hoversubplots: 'axis',
+      xaxis: axis({type: 'date', anchor: 'y2', range: [x0, last], tickformat: "'%y", dtick: 'M48'}),
+      yaxis: axis({domain: [0.68, 1], type: 'log', tickvals: [1000, 2000, 4000, 8000], ticktext: ['1천', '2천', '4천', '8천']}),
+      yaxis2: axis({domain: [0, 0.6], range: [0, 98], tickvals: [10, 20, 30, 40, 60, 80]}),
+      shapes: [[20, 30, '--spread'], [30, 40, '--bad']].map(([a, b, c]) => ({type: 'rect', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: a, y1: b,
+        fillcolor: css(c), opacity: 0.14, line: {width: 0}, layer: 'below'})).concat([{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: 40, y1: 40, line: {color: css('--g7'), width: 1.2, dash: 'dash'}}]),
+      annotations: [Object.assign(lb(1, 'S&amp;P500 (로그 눈금)'), {yanchor: 'top'}), lb(0.61, 'VIX · 띠 20~30 경계 / 30~40 공포 · 점선 40 패닉')],
+    }), [[S.y, 'y', v => fmtNum(v, 0), css('--ink2')], [VY, 'y2', v => v.toFixed(1), css('--g1')]]), CFG);
+  }
   const xs = xStartFor(last, v.x[0]);
   Plotly.react('vixplot', [{x: v.x, y: v.y, type: 'scatter', mode: 'lines', name: 'VIX', line: {color: css('--cds'), width: 2}, hovertemplate: '%{y:.1f}'},
     {x: SP.map(s => s.date), y: SP.map(s => s.value), customdata: SP.map(evName), type: 'scatter', mode: 'markers+text', name: '꼭대기', text: SP.map(s => s.value.toFixed(1)),
@@ -3251,6 +3306,19 @@ function fxTrend(o) {
 const MA_DD = ['sp500', 'qqq', 'soxx', 'dow', 'kospi', 'kosdaq'];
 // 한국(26.11.07 사용자 요청): 빨간 구간 = −20% 아래, 고점 = 최근 1년(252거래일) 최고 종가(코스닥은 2000년 고점이 너무 높아 '자료 기간 최고'로 하면 26년 내내 빨강)
 const DD_CUT = {kospi: -20, kosdaq: -20}, DD_WIN = {kospi: 252, kosdaq: 252};
+// QQQ·SOXX 아래 '고점 대비 하락률' 칸 + −20% 점선 + 하락기 바닥 동그라미(사용자 그림 '나스닥 −20%, 평균 2년에 한번'·'반도체 −30%~ 하락도 평균 2년에 한번' 26.11.23)
+const DD_PANEL = ['qqq', 'soxx'];
+// 하락기(최고 종가 → 다음 최고 종가 전)마다 가장 깊은 날의 위치 — lim(%) 아래로 빠진 하락기만. 진행 중이면 지금까지 가장 깊은 날
+function ddTroughs(dd, lim) {
+  const out = []; let b = -1;
+  dd.forEach((v, i) => {
+    if (v >= 0) { b = -1; return; }
+    if (b < 0 || v < dd[b]) b = i;
+    if ((i === dd.length - 1 || dd[i + 1] >= 0) && dd[b] <= lim) out.push(b);
+  });
+  return out;
+}
+console.assert(ddTroughs([0, -5, -25, -10, 0, -30, -21], -20).join() === '2,5' && ddTroughs([0, -19, 0], -20).length === 0, 'ddTroughs');
 function maDd(y, win) {
   let s = 0, pk = -Infinity;
   return {ma: y.map((v, i) => { s += v - (i >= 200 ? y[i - 200] : 0); return i >= 199 ? s / 200 : null; }),
@@ -3282,7 +3350,9 @@ function mktBlock(boxId, list) {
           return `<span style="white-space:nowrap">${w}일선 <b class="${r >= 100 ? 'up' : 'down'}">${r.toFixed(1)}</b>(${fmtNum(ma, 0)})</span>`; }).join(' · ')}
           <div style="font-size:11px;color:var(--muted)">이격도 = 지수 ÷ 평균선 × 100. 100보다 작으면 평균선 <b>아래</b>(약세 쪽), 크면 위예요. 괄호 = 평균선 값.</div></div>`; })() : ''}
       ${s ? `<div class="small" style="margin:-2px 4px 6px;font-size:13px;color:var(--ink)">${s.up ? '📈 지금은 <b>올라가는 추세</b>' : '📉 지금은 <b>내려가는 추세</b>'} — ${md(s.x0)}에 꺾임 (그날 ${fmtNum(s.v, 0)}원 → 지금 ${fmtNum(o.last, 0)}원)</div>` : ''}
-      <div id="usmkt-${k}" class="plot" style="height:170px"></div>
+      <div id="usmkt-${k}" class="plot" style="height:${DD_PANEL.includes(k) ? 300 : 170}px"></div>
+      ${DD_PANEL.includes(k) ? (() => { const tr = ddTroughs(maDd(o.y).dd, -20), n18 = tr.filter(i => o.x[i] >= '2018-01-01').length, yrs = (Date.parse(o.x[o.x.length - 1]) - Date.parse('2018-01-01')) / 3.156e10;
+        return `<div class="small" style="margin:2px 4px 6px;font-size:12px;color:var(--ink)">📍 고점 대비 <b>−20% 넘게</b> 빠진 하락기(아래 칸 동그라미): 2018년 이후 <b>${n18}번</b>${n18 ? `(평균 ${(yrs / n18).toFixed(1)}년에 한 번)` : ''} · 자료 전체(${o.x[0].slice(0, 4)}년~) ${tr.length}번</div>`; })() : ''}
       ${T ? `<div class="small" style="margin:2px 4px 0;font-size:11px">배경 ${sq('--g2')} 올라가는 추세 ${sq('--g1')} 내려가는 추세 · 색이 바뀌는 날 = 추세가 꺾인 날(20일 평균과 60일 평균이 엇갈린 날)</div>` : ''}</div>`;
   }).join('');
   items.forEach(([k, , unit]) => {
@@ -3304,14 +3374,25 @@ function mktBlock(boxId, list) {
       yr[0] -= pad; yr[1] += pad;
     }
     const lw = PM[PERIOD] <= 3 ? 2 : 1.5;  // SOXX도 파란 선(빨간 구간이 보이게, 26.11.07)
+    const P = DD_PANEL.includes(k), D = P ? maDd(o.y).dd : null, tv = P ? ddTroughs(D, -20).filter(i => o.x[i] >= xs) : [], extra = [];
+    let y2 = null;
+    if (P) {
+      const lo = Math.min(-25, ...vis.map(i => D[i]));
+      extra.push({x: o.x, y: D, yaxis: 'y2', type: 'scatter', mode: 'lines', fill: 'tozeroy', line: {color: css('--bad'), width: 1}, fillcolor: 'rgba(208,59,59,0.22)', hovertemplate: '고점 대비 %{y:.1f}%<extra></extra>'},
+        {x: tv.map(i => o.x[i]), y: tv.map(i => D[i]), yaxis: 'y2', type: 'scatter', mode: 'markers+text', text: tv.map(i => '−' + Math.abs(D[i]).toFixed(0) + '%'), textposition: 'bottom center',
+         textfont: {size: 11, color: css('--bad')}, cliponaxis: false, marker: {size: 14, color: 'rgba(0,0,0,0)', line: {color: css('--bad'), width: 1.5}}, hoverinfo: 'skip'});
+      shapes.push({type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y2', y0: -20, y1: -20, line: {color: css('--bad'), width: 1, dash: 'dash'}});
+      annotations.push({xref: 'paper', yref: 'paper', x: 0, y: 0.35, xanchor: 'left', yanchor: 'bottom', showarrow: false, text: '<b>고점 대비 하락률</b> (점선 −20%)', font: {size: 10, color: css('--ink2')}});
+      y2 = axis({domain: [0, 0.34], range: [lo * 1.3, 3], ticksuffix: '%'});
+    }
     Plotly.react('usmkt-' + k, (M ? [{x: o.x, y: M.ma, type: 'scatter', mode: 'lines', line: {color: css('--muted'), width: 1.3}, opacity: 0.6,
         customdata: M.ma.map(v => v == null ? '' : fmtNum(v, 2)), hovertemplate: '200일선 %{customdata}<extra></extra>'}] : []).concat([{x: o.x, y: o.y, type: 'scatter', mode: 'lines', line: {color: css({sp500: '--g1', dow: '--g1', us10y: '--cds', usdkrw: '--g1', qqq: '--g1', soxx: '--g1', kospi: '--g1', kosdaq: '--g1'}[k] || '--ink2'), width: lw},
       hovertemplate: `%{y:,.2f}${unit === '%' ? '%' : unit === '원' ? '원' : ''}<extra></extra>`}],
-      M ? [{x: o.x, y: o.y.map((v, i) => M.dd[i] <= cut || M.dd[i + 1] <= cut ? v : null), type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: lw}, hoverinfo: 'skip'}] : []),
-      tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations,
-        xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d'}),
-        yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : ''})}),
-        [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : unit === '달러' ? 2 : 0), css('--ink')]]), CFG);
+      M ? [{x: o.x, y: o.y.map((v, i) => M.dd[i] <= cut || M.dd[i + 1] <= cut ? v : null), type: 'scatter', mode: 'lines', line: {color: css('--bad'), width: lw}, hoverinfo: 'skip'}] : [], extra),
+      tagLast(Object.assign(baseLayout(), {showlegend: false, margin: {l: 44, r: 10, t: 6, b: 26}, shapes, annotations, ...(P ? {yaxis2: y2, hoversubplots: 'axis'} : {}),
+        xaxis: axis({type: 'date', range: [xs, last], tickformat: TF(), hoverformat: '%Y-%m-%d', anchor: P ? 'y2' : 'y'}),
+        yaxis: axis({range: yr, ticksuffix: unit === '%' ? '%' : '', domain: P ? [0.42, 1] : [0, 1]})}),
+        [[o.y, 'y', v => unit === '%' ? v.toFixed(2) + '%' : fmtNum(v, k === 'dxy' ? 1 : unit === '달러' ? 2 : 0), css('--ink')]].concat(P ? [[D, 'y2', v => v.toFixed(1) + '%', css('--bad')]] : [])), CFG);
   });
 }
 
