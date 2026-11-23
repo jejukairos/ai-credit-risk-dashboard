@@ -2634,6 +2634,10 @@ def build_usmkt():
         if not os.path.exists(path):
             continue
         s = pd.read_csv(path, dtype={"date": str}).sort_values("date").set_index("date")[col].dropna()
+        hp = os.path.join(DATA, "sp500_1950.csv")
+        if col == "sp500" and os.path.exists(hp):  # 고점 대비 하락률 칸의 '자료 전체'용: 1985년~(나스닥100과 같은 출발, 26.11.24 사용자 요청)
+            h = pd.read_csv(hp, dtype={"date": str}).set_index("date")["sp500"].dropna()
+            s = pd.concat([h[(h.index >= "1985-01-01") & (h.index < s.index[0])], s])
         di, end = pd.to_datetime(s.index), pd.to_datetime(s.index[-1])
         last = float(s.iloc[-1])
 
@@ -2644,7 +2648,7 @@ def build_usmkt():
             return round(last - float(b.iloc[-1]), 3) if col == "us10y" else round((last / float(b.iloc[-1]) - 1) * 100, 2)
         o = {"x": list(s.index), "y": [round(float(a), 2) for a in s.values],"last": round(last, 3), "last_date": s.index[-1],
              "d1": chg(pd.to_datetime(s.index[-2])), "w1": chg(end - pd.DateOffset(weeks=1)), "m1": chg(end - pd.DateOffset(months=1))}
-        if col in ("sp500", "dow", "QQQ", "SOXX", "kospi", "kosdaq"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
+        if col in ("sp500", "dow", "QQQ", "SOXX", "ndx", "sox", "kospi", "kosdaq"):  # 토스증권과 같게: 5일 = 5거래일 전 종가, 1·3개월 = 오늘(한국 날짜)에서 30·90일 전 그날(쉬는 날이면 그 전 거래일) 종가
             today = pd.Timestamp(datetime.now(KST).date())
             o.update(d5=chg(pd.to_datetime(s.index[-6])), m1=chg(today - pd.Timedelta(days=30)), m3=chg(today - pd.Timedelta(days=90)))
         if col == "usdkrw":
@@ -2735,8 +2739,12 @@ def build_equity_supply():
     u = pd.read_csv(upath, dtype=str).fillna("") if os.path.exists(upath) else pd.DataFrame()
     if len(u):  # 예정일이 며칠 지난 건 빼기(가격이 정해지면 위 priced 쪽으로 옮겨 감)
         u = u[u["date"] >= (datetime.now(KST) - timedelta(days=3)).strftime("%Y-%m-%d")]
+    # 달마다 공모 금액 큰 3곳(막대를 누르면 화면에 회사 이름, 26.11.24 사용자 요청)
+    top = {m: [[r["name"], r["ticker"], round(r["usd"] / 1e8, 1)] for _, r in d.nlargest(3, "usd").iterrows()]
+           for m, d in i.dropna(subset=["usd"]).fillna({"ticker": ""}).groupby("m")}
     return {"net": {"x": list(n["date"]), "y": [round(v / 100) for v in n["usd_mil"]]},
-            "ipo": {"x": [m + "-01" for m in months], "y": [round(v / 1e8, 1) for v in g["sum"]], "n": [int(c) for c in g["count"]]},
+            "ipo": {"x": [m + "-01" for m in months], "y": [round(v / 1e8, 1) for v in g["sum"]], "n": [int(c) for c in g["count"]],
+                    "top": [top.get(m, []) for m in months]},
             "ytd": ysum(yr), "prev": ysum(yr - 1), "year": yr,
             "upcoming": u.sort_values("date").to_dict("records") if len(u) else []}
 
@@ -3275,7 +3283,11 @@ def main():
              ("투자자 심리 설문(AAII)", fetch_aaii), ("풋/콜 비율(CBOE)", fetch_putcall), ("신용잔고(FINRA)", fetch_margin),
              ("S&P500 이평선 위 종목 비율(Yahoo)", fetch_breadth), ("S&P500 예상 P/E(FactSet)", fetch_pe), ("금리(FRED)", fetch_rates),
              ("화면 데이터 만들기", build)]
+    morning = os.environ.get("US_CLOSE") == "1"  # 아침(미국 마감 뒤) 갱신: 밤사이 안 바뀌는 한국 이익 전망(약 9분)은 16시·20시에만 → 7:30 전에 끝나게(26.11.24 사용자 요청)
     for name, fn in steps:
+        if morning and "와이즈리포트" in name:
+            print(f"[건너뜀] {name} (아침 갱신)")
+            continue
         try:
             fn()
             status["sources"][name] = {"ok": True, "last_ok": now_kst()}
