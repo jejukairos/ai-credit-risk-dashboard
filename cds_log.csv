@@ -43,3 +43,6 @@ date,ticker,bp,source_url,note
 2026-11-06,NVDA,139,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 약 139bp(한 달 새 76% 상승). 날짜는 기사 발행일. 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
 2026-11-06,ORCL,298,https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html,"CNBC(11/6) — Deutsche Bank 자료, 약 298bp. 날짜는 기사 발행일. 원문 접속 차단 - 검색 요약 2곳 일치(fourweekmba)"
 2026-11-05,SPACEX,286.56,https://www.roic.ai/news/spacex-credit-default-swaps-widen-to-record-high-on-ai-infrastructure-financing-concerns-11-05-2026,"Markit 데이터 5년물, 하루 24.5bp 올라 사상 최고(같은 날 ICE 284.3bp와 제공처 차이). 원래 X 글(Walter Bloomberg) 인용, 장중/종가 미표기. 원문 접속 차단 - 검색 요약 2곳 일치(stockhub.kr·fourweekmba)"
+2026-11-25,CRWV,1314,https://www.newspim.com/news/view/20261125001299,"뉴스핌(26.11.25) — 로이터(25일 현지시간)가 S&P글로벌마켓인텔리전스 자료 인용, 5년물 사상 최고(한 달 전 1,167bp). 한국경제(26.11.25)도 같은 숫자. 기준 시각 미표기 - 기사 날짜로 기록"
+2026-11-25,ORCL,356,https://www.newspim.com/news/view/20261125001299,"뉴스핌(26.11.25) — 로이터(25일 현지시간)가 S&P글로벌마켓인텔리전스 자료 인용, 5년물 사상 최고. 한국경제(26.11.25)도 같은 숫자. 기준 시각 미표기 - 기사 날짜로 기록"
+2026-11-25,9984.T,501,https://www.newspim.com/news/view/20261125001299,"뉴스핌(26.11.25) — 5년물 '이날' 501bp, 2022년 10월 이후 최고. 한국경제(26.11.25)도 같은 숫자. 데이터 제공처 미표기"

@@ -421,7 +421,7 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
     <div class="small" style="margin:2px 4px 6px">회사마다 CDS(부도 보험료) 기록을 한 그림에 모았어요. 선이 위로 갈수록 "빚을 못 갚을까 봐" 걱정이 커진 거예요. 코어위브처럼 아주 높은 회사(600bp 이상)는 다른 회사가 납작해 보이지 않게 위 칸에 따로 그렸어요. 아래 칸 점선 = 300bp(위험)·100bp(경계).</div>
     <div id="cdscmp" class="plot" style="height:420px"></div>
     <div class="small" id="cdscmpkey" style="margin:4px 4px 0;line-height:1.7"></div>
-    <p class="note" style="margin:6px 4px 2px">점 = 기록이 있는 날(뉴스·사용자 제공 화면, 날마다 있진 않아요), 선 = 그 사이를 이은 것. 위 기간 버튼을 따라가요. 자료: cds_log.csv(출처는 아래 표의 CDS 숫자를 누르면 보여요). 비교: 사용자 제공 그림 '데이터센터 규제 우려, 신용리스크 ▲'(26.11.06, user:)과 회사 순서·높이가 같아요(코어위브 &gt; 소프트뱅크 &gt; 오라클 &gt; 스페이스X &gt; 브로드컴 …).</p>
+    <p class="note" style="margin:6px 4px 2px">점 = 기록이 있는 날(뉴스·사용자 제공 화면, 날마다 있진 않아요), 선 = 그 사이를 이은 것. 위 기간 버튼을 따라가요. 자료: cds_log.csv(출처는 아래 표의 CDS 숫자를 누르면 보여요). 비교: 사용자 제공 그림 '데이터센터 규제 우려, 신용리스크 ▲'(26.11.06, user:)과 회사 순서·높이가 같아요(코어위브 &gt; 소프트뱅크 &gt; 오라클 &gt; 스페이스X &gt; 브로드컴 …). 사용자 제공 그림 'AI투자 신용리스크 또 최고치 경신 중'(26.11.25, user:)도 같은 순서예요.</p>
   </div>
   <div class="tablebox"><table id="summary">
     <thead><tr><th>위험·종목</th><th>주가($)</th><th>1주<br>1개월</th><th>스프레드<br>(bp)</th><th>CDS<br>(bp)</th></tr></thead>
@@ -441,6 +441,7 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
   </div>
   <div class="memo" style="margin:0 0 10px">
     <b>🐒 투자 메모 (동향 파악용)</b>
+    <div>· <b>⚠️ AI 신용부도 리스크 또 최고치 경신 중 (26.11.25)</b> — 'AI 약한 고리' 위험 지표가 다시 고점을 넘고 있어요. 네오클라우드에선 <b>코어위브(1,314bp)</b>, 빅테크에선 <b>오라클(356bp)</b>이 가장 약한 고리인데 <b>둘 다 사상 최고</b>예요. 소프트뱅크도 501bp(2022년 10월 이후 최고). <span class="small">(메모: user: 사용자 제공 그림·글 26.11.25 · 숫자: 뉴스핌·한국경제 26.11.25, 로이터가 S&amp;P글로벌마켓인텔리전스 자료 인용)</span></div>
     <div>· <b>⚠️ 오라클 역시 부도위험 지속 상승</b> — 진짜 부도가 나는 건 아니지만, 빅테크의 가장 약한 고리인 오라클도 신용리스크가 계속 높아지고 있어요. CDS 300이면 5년 내 부도위험 약 20%.</div>
     <div>· <b>🟢 10/28 오라클 선순위 채권 금리 하락</b> — 2056년 만기 6.7% 선순위 무담보 채권의 금리(만기수익률)가 <b>8.20%</b>로 10월 중순 고점에서 내려왔어요. 같은 날 주가는 <b>+10.7%</b>($130.53 → $144.54). 채권 금리가 내려간다는 건 "돈 떼일 걱정"이 조금 줄었다는 뜻이에요. <span class="small">(채권 금리: user: 사용자 제공 화면 10/28 · 주가: Yahoo Finance)</span></div>
     <div>· <b>⚠️ 코어위브 부도위험 여전히 60% 이상</b> — CDS가 1,000 이상이면 임계점 돌파(부실채권 취급)인데, 크게 진정되지 않고 있어요.</div>
