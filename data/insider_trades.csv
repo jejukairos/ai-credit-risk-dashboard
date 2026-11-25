@@ -1,8 +1,8 @@
 ticker,date,insider,position,shares,value,text,ownership,kind
 AVGO,2026-07-10,DELLY GAYLA J,Director,500,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2026-07-10,BRAZEAL MARK DAVID,Officer,25000,10033225.0,Sale at price 401.33 per share.,D,sale
-AVGO,2026-07-08,BRAZEAL MARK DAVID,Officer,25000,9479700.0,Sale at price 379.19 per share.,D,sale
 AVGO,2026-07-08,DELLY GAYLA J,Director,1890,728368.0,Sale at price 385.38 per share.,D,sale
+AVGO,2026-07-08,BRAZEAL MARK DAVID,Officer,25000,9479700.0,Sale at price 379.19 per share.,D,sale
 AVGO,2026-06-29,PAGE JUSTINE F.,Director,1602,598916.0,Sale at price 373.86 per share.,D,sale
 AVGO,2026-06-25,BRAZEAL MARK DAVID,Officer,25000,9675000.0,Sale at price 387.00 per share.,D,sale
 AVGO,2026-06-24,SAMUELI HENRY,Director,336893,0.0,Stock Gift at price 0.00 per share.,D/I,gift
@@ -31,16 +31,16 @@ AVGO,2026-03-02,VELAGA S. RAM,Officer,125000,0.0,Stock Award(Grant) at price 0.0
 AVGO,2026-03-02,KAWWAS CHARLIE B,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,BRAZEAL MARK DAVID,Officer,151250,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,110640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-01-06,BRAZEAL MARK DAVID,Officer,30000,10413693.0,Sale at price 346.99 - 347.66 per share.,D,sale
 AVGO,2026-01-06,TAN HOCK E,Chief Executive Officer,70000,24310684.0,Sale at price 346.75 - 348.28 per share.,D,sale
+AVGO,2026-01-06,BRAZEAL MARK DAVID,Officer,30000,10413693.0,Sale at price 346.99 - 347.66 per share.,D,sale
 AVGO,2025-12-31,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,30000,10434603.0,Sale at price 346.64 - 347.82 per share.,D,sale
 AVGO,2025-12-26,BRAZEAL MARK DAVID,Officer,25921,9126058.0,Sale at price 352.07 per share.,D,sale
 AVGO,2025-12-23,TAN HOCK E,Chief Executive Officer,100000,34564807.0,Sale at price 339.11 - 349.85 per share.,I,sale
 AVGO,2025-12-18,YOU HARRY L,Director,1000,325129.0,Purchase at price 325.13 per share.,D,purchase
 AVGO,2025-12-18,TAN HOCK E,Chief Executive Officer,130000,42382600.0,Sale at price 326.02 per share.,I,sale
-AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
 AVGO,2025-12-17,KAWWAS CHARLIE B,Officer,3163,1053112.0,Sale at price 322.33 - 345.99 per share.,D,sale
 AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
+AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
 AVGO,2025-12-16,PAGE JUSTINE F.,Director,400,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-12-16,BRAZEAL MARK DAVID,Officer,24527,8361500.0,Sale at price 337.21 - 347.14 per share.,D,sale
 AVGO,2025-12-15,PAGE JUSTINE F.,Director,800,289512.0,Sale at price 361.89 per share.,D,sale
@@ -65,9 +65,9 @@ AVGO,2025-06-26,DELLY GAYLA J,Director,3000,795390.0,Sale at price 265.13 per sh
 AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,473898,125737538.0,Sale at price 264.16 - 269.62 per share.,I,sale
-AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
-AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
 AVGO,2025-06-24,TAN HOCK E,Chief Executive Officer,40000,10486920.0,Sale at price 262.17 per share.,I,sale
+AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
+AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
 AVGO,2025-06-23,TAN HOCK E,Chief Executive Officer,190000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-23,BRAZEAL MARK DAVID,Officer,50000,12664250.0,Sale at price 253.28 per share.,D,sale
 AVGO,2025-06-18,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,56310,14175986.0,Sale at price 251.75 per share.,D,sale
@@ -96,14 +96,30 @@ AVGO,2025-01-08,HARTENSTEIN EDDY W.,Director,4000,918548.0,Sale at price 229.64 
 AVGO,2025-01-06,LOW CHECK KIAN,Director,48000,11296800.0,Sale at price 235.35 per share.,D,sale
 AVGO,2025-01-02,KAWWAS CHARLIE B,Officer,40000,9279200.0,Sale at price 231.98 per share.,I,sale
 AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,130000,0.0,Stock Gift at price 0.00 per share.,D,gift
-AVGO,2024-12-24,BRAZEAL MARK DAVID,Officer,20168,4815937.0,Sale at price 238.79 per share.,D,sale
 AVGO,2024-12-24,TAN HOCK E,Chief Executive Officer,45000,10798200.0,Sale at price 239.96 per share.,D,sale
+AVGO,2024-12-24,BRAZEAL MARK DAVID,Officer,20168,4815937.0,Sale at price 238.79 per share.,D,sale
 AVGO,2024-12-23,BRYANT DIANE M,Director,15000,3400200.0,Sale at price 226.68 per share.,D,sale
 AVGO,2024-12-20,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,12570,2886323.0,Sale at price 229.62 per share.,D,sale
 AVGO,2024-12-17,PAGE JUSTINE F.,Director,1000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2024-12-17,YOU HARRY L,Director,6540,1569626.0,Sale at price 240.00 per share.,D,sale
 AVGO,2024-12-16,SAMUELI HENRY,Director,137795,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2024-11-06,TAN HOCK E,Chief Executive Officer,1477110,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+CRWV,2026-11-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
+CRWV,2026-11-20,AGRAWAL NITIN,Chief Financial Officer,19450,,,D,other
+CRWV,2026-11-20,MCVEETY KRISTEN J,General Counsel,7696,,,D,other
+CRWV,2026-11-20,BAKER JEFFREY R,Officer,2425,,,D,other
+CRWV,2026-11-20,MCBEE BRANNIN,Officer,8038,,,D,other
+CRWV,2026-11-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
+CRWV,2026-11-20,JAIN SACHIN,Chief Operating Officer,15645,,,D,other
+CRWV,2026-11-20,GOLDBERG CHEN,Officer,16733,,,D,other
+CRWV,2026-11-20,AGRAWAL NITIN,Chief Financial Officer,10550,446090.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,BAKER JEFFREY R,Officer,1318,55730.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,MCVEETY KRISTEN J,General Counsel,4173,176450.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,VENTURO BRIAN M,Officer and Director,6187,261612.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,GOLDBERG CHEN,Officer,9053,382794.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,MCBEE BRANNIN,Officer,3864,163378.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,INTRATOR MICHAEL N,Chief Executive Officer,13753,581514.0,Sale at price 42.28 per share.,D,sale
+CRWV,2026-11-20,JAIN SACHIN,Chief Operating Officer,7655,323679.0,Sale at price 42.28 per share.,D,sale
 CRWV,2026-11-10,HUTCHINS GLENN H,Director,1440,,,D,other
 CRWV,2026-11-09,JAIN SACHIN,Chief Operating Officer,13611,629237.0,Sale at price 46.23 per share.,D,sale
 CRWV,2026-11-06,JAIN SACHIN,Chief Operating Officer,33740,,,D,other
@@ -142,30 +158,30 @@ CRWV,2026-08-25,INTRATOR MICHAEL N,Chief Executive Officer,307692,27262966.0,Sal
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,249500,,,D/I,other
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,249500,21335903.0,Sale at price 83.93 - 86.48 per share.,D/I,sale
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,500,42756.0,Sale at price 83.95 - 86.55 per share.,I,sale
-CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
-CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,7697,,,D,other
 CRWV,2026-08-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
-CRWV,2026-08-20,BAKER JEFFREY R,Officer,2426,,,D,other
 CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,19451,,,D,other
+CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,7697,,,D,other
+CRWV,2026-08-20,BAKER JEFFREY R,Officer,2426,,,D,other
+CRWV,2026-08-20,MCBEE BRANNIN,Officer,8038,,,D,other
 CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
 CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,15646,,,D,other
-CRWV,2026-08-20,MCBEE BRANNIN,Officer,8038,,,D,other
+CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
 CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,10062,924497.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,BAKER JEFFREY R,Officer,1256,115401.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,3980,365682.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,VENTURO BRIAN M,Officer and Director,5899,542000.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,GOLDBERG CHEN,Officer,8628,792741.0,Sale at price 91.88 per share.,D,sale
+CRWV,2026-08-20,MCBEE BRANNIN,Officer,3610,331687.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,13129,1206293.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,6339,582427.0,Sale at price 91.88 per share.,D,sale
-CRWV,2026-08-20,MCBEE BRANNIN,Officer,3610,331687.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-18,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-08-18,INTRATOR MICHAEL N,Chief Executive Officer,307692,29450777.0,Sale at price 93.59 - 101.60 per share.,D/I,sale
 CRWV,2026-08-17,MCBEE BRANNIN,Officer,194000,,,D/I,other
 CRWV,2026-08-17,MCBEE BRANNIN,Officer,55500,,,I,other
 CRWV,2026-08-17,GOLDBERG CHEN,Officer,6397,678791.0,Sale at price 102.20 - 109.77 per share.,D,sale
-CRWV,2026-08-17,MCBEE BRANNIN,Officer,500,53048.0,Sale at price 101.93 - 109.61 per share.,I,sale
 CRWV,2026-08-17,MCBEE BRANNIN,Officer,194000,20580128.0,Sale at price 101.89 - 109.65 per share.,D/I,sale
 CRWV,2026-08-17,MCBEE BRANNIN,Officer,55500,5887624.0,Sale at price 101.90 - 109.65 per share.,I,sale
+CRWV,2026-08-17,MCBEE BRANNIN,Officer,500,53048.0,Sale at price 101.93 - 109.61 per share.,I,sale
 CRWV,2026-08-14,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,307131,33401610.0,Sale at price 108.48 - 110.00 per share.,I,sale
 CRWV,2026-08-13,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,1921259,213781347.0,Sale at price 107.75 - 115.61 per share.,I,sale
 CRWV,2026-08-12,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% of a Class of Security,2147871,231601955.0,Sale at price 107.64 - 108.16 per share.,I,sale
@@ -175,9 +191,9 @@ CRWV,2026-08-11,INTRATOR MICHAEL N,Chief Executive Officer,307692,27440423.0,Sal
 CRWV,2026-08-10,HUTCHINS GLENN H,Director,1440,,,D,other
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,197000,,,D/I,other
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,52500,,,I,other
-CRWV,2026-08-10,JAIN SACHIN,Chief Operating Officer,13608,1253161.0,Sale at price 92.09 per share.,D,sale
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,197000,17676497.0,Sale at price 88.70 - 93.50 per share.,D/I,sale
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,53000,4755580.0,Sale at price 88.70 - 93.50 per share.,I,sale
+CRWV,2026-08-10,JAIN SACHIN,Chief Operating Officer,13608,1253161.0,Sale at price 92.09 per share.,D,sale
 CRWV,2026-08-07,JAIN SACHIN,Chief Operating Officer,33760,,,D,other
 CRWV,2026-08-05,GOLDBERG CHEN,Officer,37500,,,D,other
 CRWV,2026-08-05,GOLDBERG CHEN,Officer,25605,2348442.0,Sale at price 90.00 - 92.29 per share.,D,sale
@@ -208,8 +224,8 @@ CRWV,2026-07-20,HUTCHINS GLENN H,Director,516,37776.0,Stock Award(Grant) at pric
 CRWV,2026-07-20,WHITMAN MARGARET C.,Director,153,11201.0,Stock Award(Grant) at price 73.21 per share.,D,award
 CRWV,2026-07-14,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-07-14,INTRATOR MICHAEL N,Chief Executive Officer,307692,24877050.0,Sale at price 79.21 - 85.72 per share.,D/I,sale
-CRWV,2026-07-13,MCBEE BRANNIN,Officer,197000,,,D/I,other
 CRWV,2026-07-13,MCBEE BRANNIN,Officer,52500,,,I,other
+CRWV,2026-07-13,MCBEE BRANNIN,Officer,197000,,,D/I,other
 CRWV,2026-07-13,AGRAWAL NITIN,Chief Financial Officer,65055,5512786.0,Sale at price 83.26 - 88.25 per share.,D,sale
 CRWV,2026-07-13,MCBEE BRANNIN,Officer,197000,16674887.0,Sale at price 83.26 - 88.21 per share.,D/I,sale
 CRWV,2026-07-13,MCBEE BRANNIN,Officer,53000,4486099.0,Sale at price 83.27 - 88.25 per share.,I,sale
@@ -224,20 +240,20 @@ CRWV,2026-07-06,MCBEE BRANNIN,Officer,197000,16967521.0,Sale at price 83.09 - 87
 CRWV,2026-07-06,MCBEE BRANNIN,Officer,53000,4564858.0,Sale at price 83.07 - 87.11 per share.,I,sale
 CRWV,2026-07-01,VENTURO BRIAN M,Officer and Director,203683,,,D/I,other
 CRWV,2026-07-01,VENTURO BRIAN M,Officer and Director,142405,12957630.0,Sale at price 85.63 - 95.69 per share.,D/I,sale
-CRWV,2026-06-30,GOLDBERG CHEN,Officer,7,,,D,other
+CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,7,,,D,other
 CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,7,,,D,other
 CRWV,2026-06-30,BAKER JEFFREY R,Officer,7,,,D,other
-CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,7,,,D,other
-CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,248049,,,D/I,other
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,7,,,D,other
+CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,248049,,,D/I,other
+CRWV,2026-06-30,GOLDBERG CHEN,Officer,7,,,D,other
 CRWV,2026-06-30,MCBEE BRANNIN,Officer,121118,,,D,other
 CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,BAKER JEFFREY R,Officer,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,4,383.0,Sale at price 95.69 per share.,D,sale
+CRWV,2026-06-30,MCBEE BRANNIN,Officer,57207,5473451.0,Sale at price 90.23 - 98.31 per share.,D/I,sale
 CRWV,2026-06-30,GOLDBERG CHEN,Officer,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,386252,37706822.0,Sale at price 94.66 - 99.54 per share.,D/I,sale
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,3,287.0,Sale at price 95.69 per share.,D,sale
-CRWV,2026-06-30,MCBEE BRANNIN,Officer,57207,5473451.0,Sale at price 90.23 - 98.31 per share.,D/I,sale
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,194000,,,D/I,other
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,55500,,,I,other
 CRWV,2026-06-29,MCBEE BRANNIN,Officer,194000,18298925.0,Sale at price 90.24 - 98.31 per share.,D/I,sale
@@ -264,64 +280,64 @@ NVDA,2026-09-18,STEVENS MARK A,Director,1366000,300147095.0,Sale at price 219.72
 NVDA,2026-09-09,PARKER NICHOLAS P,Officer,172507,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-09-09,PARKER NICHOLAS P,Officer,160418,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-09-04,STEVENS MARK A,Director,1022239,235636867.0,Sale at price 227.70 - 234.00 per share.,I,sale
-NVDA,2026-09-02,STEVENS MARK A,Director,1848501,410843671.0,Sale at price 220.06 - 226.27 per share.,I,sale
 NVDA,2026-09-02,COXE TENCH C,Director,500000,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2026-09-02,STEVENS MARK A,Director,1848501,410843671.0,Sale at price 220.06 - 226.27 per share.,I,sale
 NVDA,2026-08-31,TETER TIMOTHY S,General Counsel,30000,6536515.0,Sale at price 216.84 - 218.53 per share.,I,sale
 NVDA,2026-08-10,NORA JOHNSON SUZANNE M,Director,2410,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-08-05,COXE TENCH C,Director,500000,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2026-07-01,COXE TENCH C,Director,500000,0.0,Stock Gift at price 0.00 per share.,I,gift
-NVDA,2026-06-25,NEAL STEPHEN C.,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2026-06-25,SHAH AARTI S,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2026-06-25,DABIRI JOHN O,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,HUDSON BEACH DAWN E,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,LORA MELISSA,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,JONES HARVEY C JR.,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,STEVENS MARK A,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,COXE TENCH C,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-25,SEAWELL A BROOKE,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2026-06-25,NEAL STEPHEN C.,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2026-06-25,SHAH AARTI S,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2026-06-25,DABIRI JOHN O,Director,1211,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-06-18,STEVENS MARK A,Director,885000,185999938.0,Sale at price 209.70 - 210.44 per share.,I,sale
 NVDA,2026-06-16,HUANG JEN-HSUN,Chief Executive Officer,400000,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2026-06-08,GAWEL SCOTT,Officer,59509,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2026-06-04,STEVENS MARK A,Director,1000000,221102600.0,Sale at price 217.66 - 222.38 per share.,I,sale
 NVDA,2026-06-04,STEVENS MARK A,Director,307500,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2026-06-04,STEVENS MARK A,Director,1000000,221102600.0,Sale at price 217.66 - 222.38 per share.,I,sale
 NVDA,2026-06-03,NEAL STEPHEN C.,Director,15500,3343863.0,Sale at price 215.73 per share.,I,sale
 NVDA,2026-05-27,DABIRI JOHN O,Director,625,133750.0,Sale at price 214.00 per share.,D,sale
+NVDA,2026-03-20,STEVENS MARK A,Director,221682,38502524.0,Sale at price 172.61 - 174.57 per share.,I,sale
 NVDA,2026-03-20,KRESS COLETTE M.,Chief Financial Officer,62650,10956706.0,Sale at price 171.97 - 177.51 per share.,D/I,sale
 NVDA,2026-03-20,ROBERTSON DONALD F JR,Officer,5396,942944.0,Sale at price 172.58 - 177.31 per share.,D,sale
-NVDA,2026-03-20,STEVENS MARK A,Director,221682,38502524.0,Sale at price 172.61 - 174.57 per share.,I,sale
 NVDA,2026-03-19,SHAH AARTI S,Director,19000,3357549.0,Sale at price 176.27 - 177.73 per share.,D,sale
 NVDA,2026-03-18,PURI AJAY K,Officer,300000,54676140.0,Sale at price 181.31 - 182.94 per share.,I,sale
 NVDA,2026-03-18,HUANG JEN-HSUN,Chief Executive Officer,58962602,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2026-03-17,SEAWELL A BROOKE,Director,530,0.0,Stock Gift at price 0.00 per share.,D,gift
 NVDA,2026-03-13,DABIRI JOHN O,Director,3004,555440.0,Sale at price 184.90 per share.,D,sale
 NVDA,2026-03-10,PURI AJAY K,Officer,300000,54756044.0,Sale at price 182.47 - 183.11 per share.,I,sale
-NVDA,2026-03-09,TETER TIMOTHY S,General Counsel,47048,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-09,KRESS COLETTE M.,Chief Financial Officer,47048,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-09,PURI AJAY K,Officer,47048,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-09,SHOQUIST DEBORA C,Officer,47048,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2026-03-02,TETER TIMOTHY S,General Counsel,98328,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2026-03-09,TETER TIMOTHY S,General Counsel,47048,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-02,KRESS COLETTE M.,Chief Financial Officer,106660,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-02,PURI AJAY K,Officer,103278,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-02,SHOQUIST DEBORA C,Officer,98328,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-03-02,HUANG JEN-HSUN,Chief Executive Officer,936771,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2026-03-02,TETER TIMOTHY S,General Counsel,98328,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2026-02-04,KRESS COLETTE M.,Chief Financial Officer,47640,8371233.0,Sale at price 172.40 - 179.16 per share.,D/I,sale
 NVDA,2026-01-21,PURI AJAY K,Officer,200000,36007160.0,Sale at price 180.04 per share.,I,sale
 NVDA,2026-01-13,KRESS COLETTE M.,Chief Financial Officer,47640,8809582.0,Sale at price 184.15 - 187.73 per share.,D/I,sale
 NVDA,2026-01-07,PURI AJAY K,Officer,200000,37563619.0,Sale at price 187.25 - 188.58 per share.,I,sale
 NVDA,2026-01-02,ROBERTSON DONALD F JR,Officer,80000,15187742.0,Sale at price 188.85 - 192.49 per share.,D,sale
-NVDA,2025-12-19,ROBERTSON DONALD F JR,Officer,24590,4425727.0,Sale at price 176.91 - 180.88 per share.,D,sale
 NVDA,2025-12-19,STEVENS MARK A,Director,222500,40087380.0,Sale at price 180.17 per share.,I,sale
+NVDA,2025-12-19,ROBERTSON DONALD F JR,Officer,24590,4425727.0,Sale at price 176.91 - 180.88 per share.,D,sale
 NVDA,2025-12-18,STEVENS MARK A,Director,258650,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2025-12-17,KRESS COLETTE M.,Chief Financial Officer,113182,0.0,Stock Gift at price 0.00 per share.,D,gift
 NVDA,2025-12-17,HUANG JEN-HSUN,Chief Executive Officer,141488,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2025-12-15,JONES HARVEY C JR.,Director,250000,44333450.0,Sale at price 177.33 per share.,I,sale
-NVDA,2025-12-12,KRESS COLETTE M.,Chief Financial Officer,50500,8994793.0,Sale at price 175.26 - 182.06 per share.,D/I,sale
 NVDA,2025-12-12,SHOQUIST DEBORA C,Officer,229840,41414515.0,Sale at price 175.14 - 185.16 per share.,I,sale
+NVDA,2025-12-12,KRESS COLETTE M.,Chief Financial Officer,50500,8994793.0,Sale at price 175.26 - 182.06 per share.,D/I,sale
 NVDA,2025-12-09,SHOQUIST DEBORA C,Officer,80000,14771657.0,Sale at price 184.25 - 185.55 per share.,I,sale
 NVDA,2025-12-05,STEVENS MARK A,Director,350000,63604065.0,Sale at price 181.73 per share.,I,sale
 NVDA,2025-12-02,SEAWELL A BROOKE,Director,12728,2341117.0,Sale at price 183.93 per share.,I,sale
-NVDA,2025-11-24,DABIRI JOHN O,Director,626,112317.0,Sale at price 179.42 per share.,D,sale
 NVDA,2025-11-24,SEAWELL A BROOKE,Director,520000,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2025-11-24,DABIRI JOHN O,Director,626,112317.0,Sale at price 179.42 per share.,D,sale
 NVDA,2025-11-03,KRESS COLETTE M.,Chief Financial Officer,47640,9924869.0,Sale at price 207.03 - 210.86 per share.,D/I,sale
 NVDA,2025-10-29,HUANG JEN-HSUN,Chief Executive Officer,25000,5197790.0,Sale at price 205.65 - 211.76 per share.,D,sale
 NVDA,2025-10-28,HUANG JEN-HSUN,Chief Executive Officer,125000,23558262.0,Sale at price 184.24 - 202.64 per share.,D,sale
@@ -334,24 +350,24 @@ NVDA,2025-10-07,HUANG JEN-HSUN,Chief Executive Officer,225000,42050639.0,Sale at
 NVDA,2025-10-02,HUANG JEN-HSUN,Chief Executive Officer,225000,42093301.0,Sale at price 182.19 - 190.52 per share.,D,sale
 NVDA,2025-09-29,HUANG JEN-HSUN,Chief Executive Officer,225000,40233721.0,Sale at price 173.85 - 183.55 per share.,D,sale
 NVDA,2025-09-24,HUANG JEN-HSUN,Chief Executive Officer,225000,40206353.0,Sale at price 175.48 - 184.33 per share.,D,sale
-NVDA,2025-09-19,DRELL PERSIS S,Director,40000,7106120.0,Sale at price 177.65 per share.,I,sale
+NVDA,2025-09-19,STEVENS MARK A,Director,350000,61737305.0,Sale at price 176.39 per share.,I,sale
+NVDA,2025-09-19,HUANG JEN-HSUN,Chief Executive Officer,225000,39181549.0,Sale at price 169.09 - 177.54 per share.,D,sale
 NVDA,2025-09-19,KRESS COLETTE M.,Chief Financial Officer,50500,8908172.0,Sale at price 175.99 - 177.56 per share.,D/I,sale
 NVDA,2025-09-19,ROBERTSON DONALD F JR,Officer,3500,617298.0,Sale at price 176.11 - 177.14 per share.,D,sale
-NVDA,2025-09-19,HUANG JEN-HSUN,Chief Executive Officer,225000,39181549.0,Sale at price 169.09 - 177.54 per share.,D,sale
-NVDA,2025-09-19,STEVENS MARK A,Director,350000,61737305.0,Sale at price 176.39 per share.,I,sale
+NVDA,2025-09-19,DRELL PERSIS S,Director,40000,7106120.0,Sale at price 177.65 per share.,I,sale
 NVDA,2025-09-18,JONES HARVEY C JR.,Director,250000,44053700.0,Sale at price 176.21 per share.,I,sale
 NVDA,2025-09-16,HUANG JEN-HSUN,Chief Executive Officer,225000,39748232.0,Sale at price 174.98 - 178.53 per share.,D,sale
 NVDA,2025-09-15,HUANG JEN-HSUN,Chief Executive Officer,1125000,0.0,Stock Gift at price 0.00 per share.,I,gift
-NVDA,2025-09-12,NEAL STEPHEN C.,Director,28000,4972344.0,Sale at price 177.58 per share.,I,sale
 NVDA,2025-09-12,STEVENS MARK A,Director,497797,88558438.0,Sale at price 177.47 - 178.19 per share.,I,sale
+NVDA,2025-09-12,NEAL STEPHEN C.,Director,28000,4972344.0,Sale at price 177.58 per share.,I,sale
 NVDA,2025-09-11,HUANG JEN-HSUN,Chief Executive Officer,225000,39283743.0,Sale at price 167.48 - 179.77 per share.,D,sale
-NVDA,2025-09-08,HUANG JEN-HSUN,Chief Executive Officer,225000,38014347.0,Sale at price 164.80 - 171.65 per share.,D,sale
 NVDA,2025-09-08,COXE TENCH C,Director,1000000,0.0,Stock Gift at price 0.00 per share.,I,gift
-NVDA,2025-09-03,HUDSON BEACH DAWN E,Director,90000,15381065.0,Sale at price 170.63 - 172.00 per share.,D,sale
+NVDA,2025-09-08,HUANG JEN-HSUN,Chief Executive Officer,225000,38014347.0,Sale at price 164.80 - 171.65 per share.,D,sale
 NVDA,2025-09-03,HUANG JEN-HSUN,Chief Executive Officer,225000,38609667.0,Sale at price 167.86 - 177.67 per share.,D,sale
-NVDA,2025-08-29,NEAL STEPHEN C.,Director,1700,0.0,Stock Gift at price 0.00 per share.,I,gift
-NVDA,2025-08-29,SHOQUIST DEBORA C,Officer,55172,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2025-09-03,HUDSON BEACH DAWN E,Director,90000,15381065.0,Sale at price 170.63 - 172.00 per share.,D,sale
 NVDA,2025-08-29,SEAWELL A BROOKE,Director,1200000,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2025-08-29,SHOQUIST DEBORA C,Officer,55172,0.0,Stock Gift at price 0.00 per share.,I,gift
+NVDA,2025-08-29,NEAL STEPHEN C.,Director,1700,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2025-08-15,HUANG JEN-HSUN,Chief Executive Officer,150000,27118544.0,Sale at price 178.92 - 182.71 per share.,D,sale
 NVDA,2025-08-13,HUANG JEN-HSUN,Chief Executive Officer,225000,40959534.0,Sale at price 180.03 - 183.64 per share.,D,sale
 NVDA,2025-08-08,HUANG JEN-HSUN,Chief Executive Officer,225000,40657554.0,Sale at price 176.88 - 183.14 per share.,D,sale
@@ -361,8 +377,8 @@ NVDA,2025-07-31,HUANG JEN-HSUN,Chief Executive Officer,225000,40180274.0,Sale at
 NVDA,2025-07-28,HUANG JEN-HSUN,Chief Executive Officer,225000,39155010.0,Sale at price 172.08 - 176.38 per share.,D,sale
 NVDA,2025-07-23,HUANG JEN-HSUN,Chief Executive Officer,225000,38220744.0,Sale at price 165.36 - 173.19 per share.,D,sale
 NVDA,2025-07-18,HUANG JEN-HSUN,Chief Executive Officer,225000,38711762.0,Sale at price 169.74 - 174.03 per share.,D,sale
-NVDA,2025-07-15,KRESS COLETTE M.,Chief Financial Officer,47650,8142671.0,Sale at price 170.03 - 171.68 per share.,D/I,sale
 NVDA,2025-07-15,HUANG JEN-HSUN,Chief Executive Officer,225000,37594046.0,Sale at price 162.71 - 171.49 per share.,D,sale
+NVDA,2025-07-15,KRESS COLETTE M.,Chief Financial Officer,47650,8142671.0,Sale at price 170.03 - 171.68 per share.,D/I,sale
 NVDA,2025-07-14,SEAWELL A BROOKE,Director,96904,15999906.0,Sale at price 162.67 - 167.79 per share.,I,sale
 NVDA,2025-07-10,SEAWELL A BROOKE,Director,148402,23999797.0,Sale at price 159.04 - 164.30 per share.,I,sale
 NVDA,2025-07-10,HUANG JEN-HSUN,Chief Executive Officer,225000,36430013.0,Sale at price 159.07 - 164.29 per share.,D,sale
@@ -371,10 +387,6 @@ NVDA,2025-07-07,HUANG JEN-HSUN,Chief Executive Officer,225000,35553992.0,Sale at
 NVDA,2025-07-01,SEAWELL A BROOKE,Director,102652,15999848.0,Sale at price 152.16 - 158.11 per share.,I,sale
 NVDA,2025-07-01,HUANG JEN-HSUN,Chief Executive Officer,225000,35161723.0,Sale at price 152.23 - 158.46 per share.,D,sale
 NVDA,2025-06-27,SEAWELL A BROOKE,Director,155209,23999683.0,Sale at price 149.97 - 158.43 per share.,I,sale
-NVDA,2025-06-26,NEAL STEPHEN C.,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2025-06-26,SHAH AARTI S,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2025-06-26,DABIRI JOHN O,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2025-06-26,HUANG JEN-HSUN,Chief Executive Officer,200000,30465420.0,Sale at price 146.14 - 156.29 per share.,D,sale
 NVDA,2025-06-26,DRELL PERSIS S,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-06-26,OCHOA ELLEN,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-06-26,HUDSON BEACH DAWN E,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
@@ -384,6 +396,10 @@ NVDA,2025-06-26,BURGESS ROBERT KENNETH,Director,1799,0.0,Stock Award(Grant) at p
 NVDA,2025-06-26,STEVENS MARK A,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-06-26,COXE TENCH C,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-06-26,SEAWELL A BROOKE,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2025-06-26,HUANG JEN-HSUN,Chief Executive Officer,200000,30465420.0,Sale at price 146.14 - 156.29 per share.,D,sale
+NVDA,2025-06-26,NEAL STEPHEN C.,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2025-06-26,SHAH AARTI S,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2025-06-26,DABIRI JOHN O,Director,1799,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-06-25,PURI AJAY K,Officer,168195,25673040.0,Sale at price 150.51 - 154.32 per share.,I,sale
 NVDA,2025-06-24,SEAWELL A BROOKE,Director,165430,23999735.0,Sale at price 142.95 - 147.77 per share.,I,sale
 NVDA,2025-06-23,HUANG JEN-HSUN,Chief Executive Officer,100000,14403585.0,Sale at price 142.80 - 145.86 per share.,D,sale
@@ -394,22 +410,22 @@ NVDA,2025-06-09,COXE TENCH C,Director,1000000,142804600.0,Sale at price 142.80 p
 NVDA,2025-06-09,STEVENS MARK A,Director,358849,51028855.0,Sale at price 141.86 - 142.51 per share.,I,sale
 NVDA,2025-06-03,STEVENS MARK A,Director,1060836,149094297.0,Sale at price 137.79 - 140.92 per share.,I,sale
 NVDA,2025-06-02,HUANG JEN-HSUN,Chief Executive Officer,660000,0.0,Stock Gift at price 0.00 per share.,I,gift
-NVDA,2025-05-30,DABIRI JOHN O,Director,660,91608.0,Sale at price 138.80 per share.,D,sale
 NVDA,2025-05-30,BURGESS ROBERT KENNETH,Director,50000,6740820.0,Sale at price 134.82 per share.,D,sale
+NVDA,2025-05-30,DABIRI JOHN O,Director,660,91608.0,Sale at price 138.80 per share.,D,sale
 NVDA,2025-03-21,KRESS COLETTE M.,Chief Financial Officer,66660,7787993.0,Sale at price 116.25 - 117.70 per share.,D,sale
 NVDA,2025-03-21,ROBERTSON DONALD F JR,Officer,4500,525585.0,Sale at price 116.31 - 117.77 per share.,D,sale
 NVDA,2025-03-21,SHOQUIST DEBORA C,Officer,42000,0.0,Stock Gift at price 0.00 per share.,I,gift
 NVDA,2025-03-20,SHAH AARTI S,Director,20000,2368377.0,Sale at price 116.99 - 118.87 per share.,D,sale
 NVDA,2025-03-13,BURGESS ROBERT KENNETH,Director,53324,6158405.0,Sale at price 115.49 per share.,D,sale
-NVDA,2025-03-10,DABIRI JOHN O,Director,2663,292930.0,Sale at price 110.00 per share.,D,sale
-NVDA,2025-03-10,TETER TIMOTHY S,General Counsel,57489,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-10,KRESS COLETTE M.,Chief Financial Officer,57106,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-10,PURI AJAY K,Officer,55559,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-10,ROBERTSON DONALD F JR,Officer,8489,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-10,SHOQUIST DEBORA C,Officer,57489,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2025-03-10,DABIRI JOHN O,Director,2663,292930.0,Sale at price 110.00 per share.,D,sale
+NVDA,2025-03-10,TETER TIMOTHY S,General Counsel,57489,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+NVDA,2025-03-03,KRESS COLETTE M.,Chief Financial Officer,139640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-03,TETER TIMOTHY S,General Counsel,122220,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-03,HUANG JEN-HSUN,Chief Executive Officer,956480,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-NVDA,2025-03-03,KRESS COLETTE M.,Chief Financial Officer,139640,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-03,PURI AJAY K,Officer,135240,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 NVDA,2025-03-03,SHOQUIST DEBORA C,Officer,122220,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 ORCL,2026-11-18,RUSCKOWSKI STEPHEN H,Director,793,,,D,other
@@ -459,16 +475,16 @@ ORCL,2025-09-19,SICILIA MICHAEL D,Officer,109212,,,D,other
 ORCL,2025-09-19,HENLEY JEFFREY O,Officer and Director,46460,,,I,other
 ORCL,2025-09-16,SICILIA MICHAEL D,Officer,16323,5118893.0,Sale at price 313.60 per share.,D,sale
 ORCL,2025-09-15,LEVEY STUART A,Officer,26337,,,D,other
+ORCL,2025-09-15,MAGOUYRK CLAYTON M,President,61452,,,D,other
 ORCL,2025-09-15,SMITH MARIA,Officer,13169,,,D,other
 ORCL,2025-09-15,SICILIA MICHAEL D,Officer,52673,,,D,other
-ORCL,2025-09-15,MAGOUYRK CLAYTON M,President,61452,,,D,other
 ORCL,2025-09-15,HENLEY JEFFREY O,Officer and Director,19753,,,I,other
 ORCL,2025-09-12,MAGOUYRK CLAYTON M,President,21241,6310865.0,Sale at price 297.11 per share.,D,sale
 ORCL,2025-09-12,PARRETT WILLIAM GREGORY,Director,11500,3519000.0,Sale at price 306.00 per share.,I,sale
 ORCL,2025-08-05,SICILIA MICHAEL D,Officer,15880,4041142.0,Sale at price 254.48 per share.,D,sale
+ORCL,2025-08-04,MAGOUYRK CLAYTON M,Officer,62500,,,D,other
 ORCL,2025-08-04,SMITH MARIA,Officer,3375,,,D,other
 ORCL,2025-08-04,SICILIA MICHAEL D,Officer,50000,,,D,other
-ORCL,2025-08-04,MAGOUYRK CLAYTON M,Officer,62500,,,D,other
 ORCL,2025-08-04,HENLEY JEFFREY O,Officer and Director,25000,,,I,other
 ORCL,2025-08-04,SICILIA MICHAEL D,Officer,183,44222.0,Stock Award(Grant) at price 241.21 per share.,D,award
 ORCL,2025-07-16,SELIGMAN NAOMI O,Director,3303,770656.0,Sale at price 233.32 per share.,D,sale
