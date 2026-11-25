@@ -1044,6 +1044,9 @@ def build_kr_investors():
             q = krx[krx["market"] == mk]
             g = q.groupby(q["date"].str[:7])["foreign"].sum()
             out[mk]["mon"] = {"m": list(g.index), "foreign": [round(float(v)) for v in g], "last": q["date"].max()}
+            # 한국 탭 '오늘의 지수' 카드의 기관 세부(사용자 요청 26.11.25): 그 카드 개인·외국인·기관과 같은 거래소만 기준, 마지막 날 하루
+            r = q.sort_values("date").iloc[-1]
+            out[mk]["krx_day"] = {"date": r["date"], **{k: round(float(r[k]), 1) for k in ["inst", *INVESTORS]}}
         if os.path.exists(kp):  # 매물대: 거래소만 순매수(억원)를 그날 종가가 속한 가격대(코스피 400pt·코스닥 50pt)마다 더함 → 조원, 기간마다 미리 계산
             k = pd.read_csv(kp, dtype={"date": str})
             k = k[(k["market"] == mk) & k["date"].isin(idx.index)].sort_values("date")

@@ -689,6 +689,9 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
   <div class="bar own" role="group" aria-label="투자자 시장" id="invmk" style="position:static">
     <button data-m="kospi" class="on">코스피</button><button data-m="kosdaq">코스닥</button>
   </div>
+  <div class="bar own p7" role="group" aria-label="투자자 기간" id="invp" style="position:static;gap:2px">
+    <button data-ip="1d">하루</button><button data-ip="1w">1주</button><button data-ip="1m">1개월</button><button data-ip="3m">3개월</button><button data-ip="6m">6개월</button><button data-ip="1y">1년</button><button data-ip="3y">3년</button><button data-ip="5y">5년</button><button data-ip="all">전체</button>
+  </div>
   <div class="card"><h3><span id="invtitle"></span></h3>
     <div class="small" id="invsum" style="margin:0 4px 6px;color:var(--ink)"></div>
     <div class="fgchips" id="invbig"></div>
@@ -1469,6 +1472,16 @@ function xStartFor(lastDate, firstDate) {
 const breadthVerdict = (chg, rise, fall) => rise === fall ? '오른 종목과 내린 종목 수가 같아요' : chg >= 0
   ? (rise > fall ? '🌤 지수도 오르고 오른 종목도 더 많아요 → <b>온기가 퍼진 날</b>' : '⚠️ 지수는 올랐지만 내린 종목이 더 많아요 → <b>몇몇 큰 종목 쏠림</b>')
   : (rise > fall ? '⚠️ 지수는 빠졌지만 오른 종목이 더 많아요 → <b>몇몇 큰 종목만 빠진 날</b>' : '🌧 지수도 빠지고 내린 종목도 더 많아요 → <b>다 같이 빠진 날</b>');
+// 오늘 카드 기관 세부(사용자 요청 26.11.25): 접힌 칸을 누르면 그날 기관 6곳 + 기타법인. 카드와 같은 거래소(KRX)만 기준이라 6곳 합 = 카드 '기관'
+function instDay(c, date, sg, cls) {
+  const D = DATA.kr_investors && DATA.kr_investors[c] && DATA.kr_investors[c].krx_day;
+  const cell = (k, l) => `<div><span>${l}</span><b class="${cls(D[k])}">${sg(D[k])}</b></div>`;
+  const body = !D || D.date !== date ? '<div class="small" style="margin:4px">그날 세부는 장 마감 뒤(16시 갱신) 나와요.</div>'
+    : `<div class="todaygrid small">${[['fin', '금융투자'], ['bank', '은행'], ['ins', '보험'], ['otherfin', '기타금융'], ['trust', '투신(사모)'], ['pension', '연기금등']].map(([k, l]) => cell(k, l)).join('')}</div>
+      <div class="todaygrid small" style="margin-top:4px">${cell('corp', '기타법인')}<div></div></div>
+      <div class="small" style="margin:4px">위 6곳을 더하면 기관 <b>${sg(D.inst)}억</b>이에요. 기타법인 = 금융회사가 아닌 일반 회사(자사주 매입 등, 기관에 안 들어가요). 거래소(KRX) 기준이라 아래 '투자자별 매매동향'(넥스트레이드까지 더한 통합)과 조금 달라요.</div>`;
+  return `<details class="fold" style="margin:6px 0 2px"><summary><b>🔍 기관 안에서는 누가?</b> <span class="small">(▶ 눌러 보기)</span></summary>${body}</details>`;
+}
 function renderToday() {
   const T = DATA.kr_today, box = document.getElementById('today');
   if (!T) { box.innerHTML = '<p class="small">아직 자료가 없어요.</p>'; return; }
@@ -1485,7 +1498,7 @@ function renderToday() {
         <div><span>외국인</span><b class="${cls(F.foreign)}">${sg(F.foreign)}</b></div><div><span>보합</span><b>${fmtNum(U.steady)}</b></div>
         <div><span>기관</span><b class="${cls(F.inst)}">${sg(F.inst)}</b></div><div><span>하락</span><span><b class="down">${fmtNum(U.fall)}</b>(${U.lower})</span></div>
         <div><span class="small">(순매수, 억원)</span></div><div></div>
-      </div>
+      </div>${instDay(c, o.date, sg, cls)}
       <div class="udbar"><span style="width:${w(U.rise)}%;background:var(--good)"></span><span style="width:${w(U.steady)}%;background:var(--line)"></span><span style="width:${w(U.fall)}%;background:var(--bad)"></span></div>
       <div class="small" style="margin:0 4px">오른 종목 <b class="up">${w(U.rise).toFixed(0)}%</b> · 내린 종목 <b class="down">${w(U.fall).toFixed(0)}%</b> (전체 ${fmtNum(n)}개)</div>
       <div class="small" style="margin:2px 4px 0;color:var(--ink)">${verdict}</div></div>`;
@@ -1523,8 +1536,11 @@ function renderInvestors() {
   if (!o || !o.x.length) { document.getElementById('sec-investor').style.display = 'none'; return; }
   const n = o.x.length, last = o.x[n - 1], md = s => s.slice(5).replace('-', '/');
   const back = {'1w': 7, '1m': 30.4, '3m': 91.3, '6m': 182.6, '1y': 365.25, '3y': 1095.75, '5y': 1826.25}[INV_P];
-  const from = INV_P === 'all' ? '' : back ? new Date(new Date(last) - back * 864e5).toISOString().slice(0, 10) : last;
+  const ago = d => new Date(new Date(last) - d * 864e5).toISOString().slice(0, 10);
+  const from = INV_P === 'all' ? '' : back ? ago(back) : last;
   let i0 = o.x.findIndex(d => d > from); if (INV_P === '1d' || i0 < 0) i0 = n - 1;
+  // 하루·1주면 아래 두 그림(외국인 월별·연기금 추이)은 막대가 1~5개뿐이라 1개월로 보여 줌
+  const short = INV_P === '1d' || INV_P === '1w', cf = short ? ago(30.4) : from, c0 = short ? Math.max(0, o.x.findIndex(d => d > cf)) : i0;
   const sum = k => o[k].slice(i0).reduce((a, b) => a + b, 0), S = Object.fromEntries(INV_COLS.map(([k]) => [k, sum(k)]));
   const nm = Object.fromEntries(INV_COLS), mkn = INV_MK === 'kospi' ? '코스피' : '코스닥';
   const ip = o.idx[i0 - 1], il = o.idx[n - 1], ich = ip && il ? (il / ip - 1) * 100 : null;
@@ -1550,9 +1566,9 @@ function renderInvestors() {
     yaxis2: axis({domain: [0, 0.5], showgrid: false}),
     annotations: [lbl(0.95, '개인 · 외국인 · 기관 · 기타법인'), lbl(0.51, '기관 안에서는 누가? (칸마다 길이 기준이 달라요)')],
   }), CFG);
-  renderInvMon(o, mkn, md, from);
+  renderInvMon(o, mkn, md, cf);
   // 연기금 순매수 추이: 맨 위 기간 버튼 기간의 하루 값(억원, 26.11.09 사용자 요청 — 전엔 최근 40거래일 고정), 점선 = 대량매수 기준선(update.py big_th: 지난 1년 상위 5%)
-  const PX = o.x.slice(i0), PY = o.pension.slice(i0), pth = o.big_th.pension, pl = PX.length - 1, lng = PX.length > 130, st = Math.max(1, Math.ceil(PX.length / 5));
+  const PX = o.x.slice(c0), PY = o.pension.slice(c0), pth = o.big_th.pension, pl = PX.length - 1, lng = PX.length > 130, st = Math.max(1, Math.ceil(PX.length / 5));
   const pk = PY.reduce((b, v, i) => Math.abs(v) > Math.abs(PY[b]) ? i : b, 0), tk = PX.filter((_, i) => (pl - i) % st === 0), ymd = d => d.slice(2).replace(/-/g, '.');
   document.getElementById('invpentitle').innerHTML = `<b>🏦 ${mkn} 연기금 순매수 추이</b> — ${ymd(PX[0])}~${ymd(last)} · ${PX.length}거래일(억원)<br><span class="small">초록 = 그날 더 많이 삼, 빨강 = 더 많이 팖 · 점선 = 대량매수 기준(${fmtNum(pth)}억)</span>`;
   Plotly.react('invpension', [{type: 'bar', x: PX, y: PY, marker: {color: PY.map(v => css(v >= 0 ? '--good' : '--bad'))}, hovertemplate: '%{x} 연기금 %{y:+,.0f}억<extra></extra>'}],
@@ -1775,6 +1791,12 @@ document.querySelectorAll('[data-mm]').forEach(b => b.onclick = () => {
 });
 document.querySelectorAll('#invmk button').forEach(b => b.onclick = () => {
   INV_MK = b.dataset.m;
+  b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  renderInvestors();
+});
+// 투자자 자체 기간 버튼(사용자 요청 26.11.25: 수급은 하루·1주도 봐야 해서 다시 둠) — 이 섹션만 바꾸고, 맨 위 기간 버튼을 누르면 그걸 따라감
+document.querySelectorAll('#invp button').forEach(b => b.onclick = () => {
+  INV_P = b.dataset.ip;
   b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
   renderInvestors();
 });
@@ -4242,9 +4264,10 @@ document.querySelectorAll('.bar:not(.own) button').forEach(b => b.onclick = () =
   renderFg(); renderVix(); renderReal(); renderVkospi(); renderMove(); renderHy(); renderUsmkt(); renderUsDrop(); renderCdsCmp(); renderWti(); renderSupply(); renderGpu(); renderDram(); renderIsm(); renderToday(); renderInvestors(); renderFrgnMemo(); renderKofia(); renderReaders(); renderKrVal();
 });
 try { const p = localStorage.getItem('period'); if (p) { PERIOD = p; document.querySelectorAll('.bar:not(.own) button').forEach(x => x.classList.toggle('on', x.dataset.p === p)); } } catch (e) {}
-// 기간 버튼은 맨 위 하나만(26.11.09 사용자 요청으로 섹션별 버튼을 없앰) — 주변자금·ADR·급락·투자자도 이 기간을 따라감
+// 기간 버튼은 맨 위 하나만(26.11.09 사용자 요청으로 섹션별 버튼을 없앰) — 주변자금·ADR·급락·투자자도 이 기간을 따라감(투자자만 26.11.25 자체 버튼 다시 둠, 맨 위를 누르면 따라감)
 function syncOwnBars() {
   KOFIA_PERIOD = PERIOD; ADR_PERIOD = PERIOD; DROP_PERIOD = PERIOD; INV_P = PERIOD;
+  document.querySelectorAll('#invp button').forEach(x => x.classList.toggle('on', x.dataset.ip === INV_P));
 }
 syncOwnBars();
 
