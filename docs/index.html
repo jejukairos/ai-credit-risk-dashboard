@@ -2266,10 +2266,11 @@ function renderKofia() {
         xaxis: axis({type: 'date', range: [xs, last], tickformat: '%y.%m', hoverformat: '%Y-%m-%d'}),
         yaxis: axis({domain: [0, 0.9], range: [lo - (104 - lo) * 0.06, 104]}),
         annotations: [panelLbl(0.92, `${an} vs ${nm} 지수 (고른 기간 최고점 = 100)`)],
-      }), xs), [[nc, 'y', v => v.toFixed(0), css(col)], [ni, 'y', v => v.toFixed(0), css('--price')]]), CFG);
+      }), xs), [[nc, 'y', () => cr[lc].toFixed(dc) + '조', css(col)], [ni, 'y', () => n0(ix.y[li]), css('--price')]]), CFG);  // 끝 숫자 = 실제 값(사용자 요청 26.11.26, 위치만 고점=100 기준)
       document.getElementById(id + 'day').innerHTML =
         `<span><i style="color:${css(col)}">●</i>${an} <b>${cr[lc].toFixed(dc)}조</b> <span class="small">(${PL} 고점의 ${nc[lc].toFixed(0)}%)</span></span>` +
-        `<span><i style="color:${css('--price')}">●</i>${nm} <b>${n0(ix.y[li])}</b> <span class="small">(고점의 ${ni[li].toFixed(0)}%)</span></span><span class="nowdt">${md(k.x[lc])} 기준</span>`;
+        `<span><i style="color:${css('--price')}">●</i>${nm} <b>${n0(ix.y[li])}</b> <span class="small">(고점의 ${ni[li].toFixed(0)}%)</span></span>` +
+        `<span class="nowdt">${k.x[lc] === ix.x[li] ? md(k.x[lc]) : `${ab} ${md(k.x[lc])} · 지수 ${md(ix.x[li])}`} 기준</span>`;
       const gap = Math.round((new Date(k.x[ic]) - new Date(ix.x[ii])) / 864e5);
       const txt = `📍 ${plot ? '' : nm + ' '}${PL} 고점: ${ab} <b>${md(k.x[ic])}</b> · 지수 <b>${md(ix.x[ii])}</b> → ` +
         (ic === lc || ii === li ? '아직 고점 근처라 꺾였는지 몰라요' : gap === 0 ? '같은 날 꺾였어요' : `<b>${gap > 0 ? '지수가' : ab + '이'} ${Math.abs(gap)}일 먼저</b> 꺾였어요`) +
@@ -3268,7 +3269,7 @@ function creditGrowthPlot(key, xs, th, idxName, cap) {
     yaxis: axis({domain: [0, 0.9], range: [bot - pad, top + pad], ticksuffix: '%', zeroline: true, zerolinecolor: css('--ink2')}),
     shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: th, y1: th, line: {color: css('--g5'), width: 1, dash: 'dot'}}],
     annotations: [lbl(0.92, `증가율 vs ${idxName} (최고점 = 100) · 점선 ${th}%`)],
-  }), [[ni, 'y', v => fmtNum(v, 0), css('--price')], [G.yoy, 'y', v => fmtNum(v, 0) + '%', css('--g5')]]), CFG);
+  }), [[ni, 'y', () => fmtNum(G.iy[li], 0), css('--price')], [G.yoy, 'y', v => fmtNum(v, 1) + '%', css('--g5')]]), CFG);  // 지수 끝 숫자 = 실제 지수(사용자 요청 26.11.26)
 }
 
 // 미국 MMF(ICI 주간)·M2(FRED 매달), 십억 달러. 위 칸 = 잔고(조 달러), 아래 칸 = MMF는 주마다 증감(억 달러), M2는 1년 전 대비(%)
