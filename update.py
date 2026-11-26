@@ -3290,6 +3290,7 @@ def main():
     for name, fn in steps:
         if morning and "와이즈리포트" in name:
             print(f"[건너뜀] {name} (아침 갱신)")
+            status["sources"].setdefault(name, {})["skip"] = "아침 갱신엔 원래 건너뛰고 16시·20시에 받아요"  # 화면 맨 위 '안 받은 것'에 이유로 표시
             continue
         try:
             fn()

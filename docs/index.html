@@ -221,14 +221,13 @@ a.xlink{display:block;margin:8px 4px;padding:10px 12px;border:1px dashed var(--l
 <body>
 <div class="wrap">
   <h1>AI 신용위험 대시보드</h1>
-  <div class="sub" id="updated">불러오는 중…</div>
-  <div id="banner"></div>
-
   <div class="tabs" role="tablist" aria-label="미국·한국">
     <button data-tab="us" class="on">🇺🇸 미국</button><button data-tab="kr">🇰🇷 한국</button>
     <button data-tab="contra">🔄 역발상 판독기</button><button data-tab="chart">📈 미국시장<br>차트 판독기</button>
     <button data-tab="mkt">🚦 시장 (금리 · 지수 밸류에이션)</button>
   </div>
+  <div class="sub" id="updated" style="margin-top:8px;line-height:1.55">불러오는 중…</div>
+  <div id="banner"></div>
   <nav class="jump" aria-label="섹션 바로가기">
     <a href="#sec-usmon">요약</a><a href="#sec-ustoday">오늘</a><a href="#sec-sp500">지수</a><a href="#sec-usdrop">급락</a><a href="#sec-etfdd">고점하락</a><a href="#sec-usmargin">빚투증가율</a><a href="#sec-supply">주식공급</a><a href="#sec-fg">공포탐욕</a><a href="#sec-vix">VIX</a><a href="#sec-move">MOVE</a><a href="#sec-hy">하이일드</a><a href="#sec-credit">신용위험</a><a href="#sec-usyield">국채</a><a href="#sec-us10y">10년물</a><a href="#sec-dxy">달러</a><a href="#sec-usprice">원유·금</a><a href="#sec-liq">MMF·M2·TGA</a><a href="#sec-gpu">GPU</a><a href="#sec-ai">AI매출</a>
     <a href="#sec-krmon">요약</a><a href="#sec-today">오늘</a><a href="#sec-krmkt">지수</a><a href="#sec-mdd">MDD</a><a href="#sec-investor">투자자</a><a href="#sec-adr">ADR</a><a href="#sec-ma200">200일선</a><a href="#sec-vkospi">VKOSPI</a><a href="#sec-kofia">반대매매</a><a href="#sec-nps">국민연금</a><a href="#sec-fx">환율</a><a href="#sec-trade">수출입</a><a href="#sec-ism">ISM</a><a href="#sec-dram">D램</a><a href="#sec-krearn">이익전망</a><a href="#sec-month">달별</a>
@@ -1252,20 +1251,57 @@ function padRange(vals, zero) {
   return [zero ? 0 : lo - pad, hi + pad];
 }
 
-function renderBanner() {
-  const el = document.getElementById('banner');
-  const up = document.getElementById('updated');
-  const last = STATUS && (STATUS.last_success || STATUS.last_run);
-  up.innerHTML = `마지막 갱신일: <b>${STATUS && STATUS.last_success ? STATUS.last_success : '없음'}</b> (한국시간)` +
-    (STATUS && STATUS.last_run && STATUS.last_run !== STATUS.last_success ? ` · 마지막 시도: ${STATUS.last_run}` : '');
-  const msgs = [];
-  if (STATUS && STATUS.errors && STATUS.errors.length) msgs.push(...STATUS.errors.map(e => '오류: ' + e));
-  if (last) {
-    const ageH = (Date.now() - new Date(last.replace(' ', 'T') + ':00+09:00').getTime()) / 36e5;
-    if (ageH > 36) msgs.push(`자동 갱신이 ${Math.floor(ageH / 24)}일째 멈춰 있습니다 (컴퓨터가 꺼져 있었거나 작업 스케줄러 오류).`);
+// 맨 위 갱신 표시(사용자 요청 26.11.26: 모든 탭 맨 위에 언제 갱신했는지 + 안 된 건 안 됐다고). 시각은 모두 한국시간
+const kstMs = s => new Date(s.replace(' ', 'T') + ':00+09:00').getTime();
+const WKD = '일월화수목금토', dayLbl = ymd => { const d = new Date(ymd + 'T00:00:00Z'); return `${d.getUTCMonth() + 1}/${d.getUTCDate()}(${WKD[d.getUTCDay()]})`; };
+const kstLbl = s => `${dayLbl(s.slice(0, 10))} ${s.slice(11, 16)}`;
+// 예정 갱신(작업 스케줄러): 매일 16시·20시, 화~토 아침(미국 마감 뒤 — 7:40까지 목표). 가장 최근 예정이 지났는데 그 뒤 갱신 기록이 없으면 그 예정을 돌려줌
+function missedRun(last, now = Date.now()) {
+  const slots = [];
+  for (let k = 0; k < 3; k++) {
+    const d = new Date(now + 9 * 36e5 - k * 864e5), ymd = d.toISOString().slice(0, 10), at = hm => new Date(`${ymd}T${hm}:00+09:00`).getTime();
+    slots.push({start: at('16:00'), due: at('16:30'), name: '오후 4시 갱신'}, {start: at('20:00'), due: at('20:30'), name: '밤 8시 갱신'});
+    if (d.getUTCDay() >= 2) slots.push({start: at('04:00'), due: at('07:50'), name: '아침 갱신(미국 장 마감 뒤)', morning: true});
   }
-  if (!STATUS) msgs.push('상태 파일(status.json)을 불러오지 못했습니다.');
-  el.innerHTML = msgs.length ? `<div class="banner err"><b>일부 자료 갱신 실패</b> — 아래 자료만 마지막으로 받은 값이고, 나머지는 정상 갱신됐어요.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '';
+  const s = slots.filter(x => x.due <= now).sort((a, b) => b.due - a.due)[0];
+  return s && (!last || kstMs(last) < s.start) ? s : null;
+}
+console.assert(missedRun('2026-11-25 20:04', kstMs('2026-11-26 08:00')).morning && !missedRun('2026-11-26 07:16', kstMs('2026-11-26 08:00'))
+  && !missedRun('2026-11-22 20:01', kstMs('2026-11-23 09:00')) && missedRun('2026-11-22 16:01', kstMs('2026-11-22 21:00')), 'missedRun');
+function tabBasis() {
+  const t = (document.querySelector('.tabs button.on') || {}).dataset?.tab, el = document.getElementById('tabbasis');
+  if (!el || !DATA) return;
+  const day = (x, nm) => x && x.date ? `${nm} <b>${dayLbl(x.date)}</b> ${x.status === 'CLOSE' ? '장 마감' : x.time + ' 장중'}` : '';
+  const us = day(DATA.us_today && DATA.us_today.sp500, '미국'), kr = day(DATA.kr_today && DATA.kr_today.kospi, '한국');
+  if (t === 'mkt') {
+    el.innerHTML = '📅 이 탭 자료: 불러오는 중…';
+    getMkt().then(m => { if (document.querySelector('.tabs button.on[data-tab=mkt]')) el.innerHTML = `📅 이 탭 자료: 밸류 신호등 <b>${kstLbl(m.updated_at)}</b> 갱신분`; })
+      .catch(() => { el.innerHTML = '📅 이 탭 자료: <b style="color:var(--bad)">시장 자료를 불러오지 못했어요</b>'; });
+    return;
+  }
+  const b = t === 'kr' ? kr : t === 'contra' ? [us, kr].filter(Boolean).join(' · ') : us;
+  el.innerHTML = b ? `📅 이 탭 자료: ${b} 기준` : '';
+}
+function renderBanner() {
+  const el = document.getElementById('banner'), up = document.getElementById('updated');
+  const S = STATUS || {}, last = S.last_success, done = ((S.sources || {})['화면 데이터 만들기'] || {}).last_ok;
+  const shown = done && last && done >= last ? done : last;  // 갱신이 끝난 시각(없으면 시작 시각)
+  const agoTxt = m => m < 60 ? `${Math.max(0, Math.round(m))}분 전` : m < 2880 ? `${Math.round(m / 60)}시간 전` : `${Math.floor(m / 1440)}일 전`;
+  // 이번 갱신 때 안 받은 자료(실패는 아래 빨간 칸에, 여기엔 건너뛴 것)
+  const grp = {};  // 같은 시각·같은 이유끼리 한 줄로
+  Object.entries(S.sources || {}).filter(([, v]) => v.ok && v.last_ok && S.last_run && v.last_ok < S.last_run)
+    .forEach(([n, v]) => (grp[v.last_ok + '|' + (v.skip || '')] = grp[v.last_ok + '|' + (v.skip || '')] || []).push(n));
+  const stale = Object.entries(grp), nStale = stale.reduce((a, [, ns]) => a + ns.length, 0);
+  up.innerHTML = `🕒 마지막 갱신 <b>${shown ? kstLbl(shown) : '없음'}</b>${shown ? ` <span class="small">(${agoTxt((Date.now() - kstMs(shown)) / 6e4)} · 한국시간)</span>` : ''}
+    <br><span id="tabbasis"></span>` +
+    (stale.length ? `<br>⏸️ 이번 갱신에서 안 받은 것 ${nStale}개: ${stale.map(([k, ns]) => { const [t, why] = k.split('|');
+      return `${ns.join(', ')} — <b>${kstLbl(t)}</b> 값 그대로${why ? ` (${why})` : ''}`; }).join(' / ')}`
+      : STATUS && !(S.errors || []).length ? '<br>✅ 이번 갱신 때 모든 자료를 새로 받았어요' : '');
+  tabBasis();
+  const miss = STATUS && missedRun(last), msgs = (S.errors || []).map(e => '갱신 실패: ' + e);
+  if (!STATUS) msgs.push('상태 파일(status.json)을 불러오지 못해서 갱신 여부를 알 수 없어요.');
+  el.innerHTML = (miss ? `<div class="banner err">⚠️ <b>${miss.name}이 안 됐어요.</b> 지금 화면은 ${last ? kstLbl(last) : '예전'} 자료예요. <span class="small">(컴퓨터가 꺼져 있었거나 갱신·업로드 오류${miss.morning ? ' · 미국 휴장 다음 날엔 원래 없어요' : ''})</span></div>` : '') +
+    (msgs.length ? `<div class="banner err"><b>⚠️ 갱신 안 된 자료</b> — 아래 자료는 마지막으로 받은 값 그대로예요. 나머지는 새로 받았어요.<ul>${msgs.map(m => `<li>${m.replace(/</g, '&lt;')}</li>`).join('')}</ul></div>` : '');
 }
 
 function renderPd() {
@@ -1395,6 +1431,7 @@ function showTab(t) {
   document.querySelector('.bar:not(.own)').style.display = t === 'mkt' ? 'none' : '';  // 시장 탭 차트는 자체 기간 버튼을 씀
   document.querySelectorAll('[data-tab]').forEach(el => { if (el.parentElement.className !== 'tabs') el.classList.toggle('offtab', el.dataset.tab !== t); });
   document.querySelectorAll('.js-plotly-plot').forEach(p => { if (p.offsetParent) Plotly.Plots.resize(p); });
+  tabBasis();
 }
 
 function applyHidden() {
