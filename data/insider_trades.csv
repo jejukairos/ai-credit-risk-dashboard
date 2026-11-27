@@ -11,9 +11,9 @@ AVGO,2026-06-17,BRAZEAL MARK DAVID,Officer,8152,3175919.0,Sale at price 377.10 -
 AVGO,2026-06-15,O TOOLE AMIE THUENER,Chief Financial Officer,50000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-06-11,YOU HARRY L,Director,1000,373570.0,Purchase at price 373.57 per share.,D,purchase
 AVGO,2026-04-21,SAMUELI HENRY,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2026-04-20,PAGE JUSTINE F.,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,BRYANT DIANE M,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,LOW CHECK KIAN,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2026-04-20,PAGE JUSTINE F.,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,HAO KENNETH Y,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,YOU HARRY L,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-04-20,DELLY GAYLA J,Director,864,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
@@ -24,9 +24,9 @@ AVGO,2026-04-08,TAN HOCK E,Chief Executive Officer,22000,0.0,Stock Gift at price
 AVGO,2026-04-08,PAGE JUSTINE F.,Director,2018,712354.0,Sale at price 353.00 per share.,D,sale
 AVGO,2026-04-08,KAWWAS CHARLIE B,Officer,10000,3452270.0,Sale at price 345.23 per share.,I,sale
 AVGO,2026-03-17,VELAGA S. RAM,Officer,64379,20819103.0,Sale at price 317.95 - 328.77 per share.,D,sale
-AVGO,2026-03-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,60154,19452716.0,Sale at price 318.05 - 328.52 per share.,D,sale
 AVGO,2026-03-17,KAWWAS CHARLIE B,Officer,64834,20966675.0,Sale at price 317.97 - 328.70 per share.,D,sale
 AVGO,2026-03-17,BRAZEAL MARK DAVID,Officer,83682,27061694.0,Sale at price 317.97 - 328.84 per share.,D,sale
+AVGO,2026-03-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,60154,19452716.0,Sale at price 318.05 - 328.52 per share.,D,sale
 AVGO,2026-03-02,VELAGA S. RAM,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,KAWWAS CHARLIE B,Officer,125000,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2026-03-02,BRAZEAL MARK DAVID,Officer,151250,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
@@ -38,9 +38,9 @@ AVGO,2025-12-26,BRAZEAL MARK DAVID,Officer,25921,9126058.0,Sale at price 352.07 
 AVGO,2025-12-23,TAN HOCK E,Chief Executive Officer,100000,34564807.0,Sale at price 339.11 - 349.85 per share.,I,sale
 AVGO,2025-12-18,YOU HARRY L,Director,1000,325129.0,Purchase at price 325.13 per share.,D,purchase
 AVGO,2025-12-18,TAN HOCK E,Chief Executive Officer,130000,42382600.0,Sale at price 326.02 per share.,I,sale
-AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
 AVGO,2025-12-17,KAWWAS CHARLIE B,Officer,3163,1053112.0,Sale at price 322.33 - 345.99 per share.,D,sale
 AVGO,2025-12-17,BRAZEAL MARK DAVID,Officer,38281,12542615.0,Sale at price 322.29 - 345.01 per share.,D,sale
+AVGO,2025-12-17,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,6093,2028440.0,Sale at price 322.58 - 346.49 per share.,D,sale
 AVGO,2025-12-16,PAGE JUSTINE F.,Director,400,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-12-16,BRAZEAL MARK DAVID,Officer,24527,8361500.0,Sale at price 337.21 - 347.14 per share.,D,sale
 AVGO,2025-12-15,PAGE JUSTINE F.,Director,800,289512.0,Sale at price 361.89 per share.,D,sale
@@ -60,14 +60,14 @@ AVGO,2025-09-10,TAN HOCK E,Chief Executive Officer,148514,50000208.0,Sale at pri
 AVGO,2025-08-14,PAGE JUSTINE F.,Director,800,245968.0,Sale at price 307.46 per share.,D,sale
 AVGO,2025-07-14,PAGE JUSTINE F.,Director,800,219440.0,Sale at price 274.30 per share.,D,sale
 AVGO,2025-07-09,SAMUELI HENRY,Director,49670,0.0,Stock Gift at price 0.00 per share.,I,gift
-AVGO,2025-06-26,TAN HOCK E,Chief Executive Officer,40000,10731720.0,Sale at price 268.29 per share.,D,sale
 AVGO,2025-06-26,DELLY GAYLA J,Director,3000,795390.0,Sale at price 265.13 per share.,D,sale
-AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
+AVGO,2025-06-26,TAN HOCK E,Chief Executive Officer,40000,10731720.0,Sale at price 268.29 per share.,D,sale
 AVGO,2025-06-25,SAMUELI HENRY,Director,192024,0.0,Stock Gift at price 0.00 per share.,I,gift
+AVGO,2025-06-25,BRAZEAL MARK DAVID,Officer,9450,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-25,SAMUELI HENRY,Director,473898,125737538.0,Sale at price 264.16 - 269.62 per share.,I,sale
 AVGO,2025-06-24,TAN HOCK E,Chief Executive Officer,40000,10486920.0,Sale at price 262.17 per share.,I,sale
-AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
 AVGO,2025-06-24,BRAZEAL MARK DAVID,Officer,50000,13105050.0,Sale at price 262.10 per share.,D,sale
+AVGO,2025-06-24,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,36350,9497128.0,Sale at price 261.27 per share.,D,sale
 AVGO,2025-06-23,TAN HOCK E,Chief Executive Officer,190000,0.0,Stock Gift at price 0.00 per share.,D,gift
 AVGO,2025-06-23,BRAZEAL MARK DAVID,Officer,50000,12664250.0,Sale at price 253.28 per share.,D,sale
 AVGO,2025-06-18,SPEARS KIRSTEN MARGRETA,Chief Financial Officer,56310,14175986.0,Sale at price 251.75 per share.,D,sale
@@ -75,13 +75,13 @@ AVGO,2025-06-16,PAGE JUSTINE F.,Director,800,200280.0,Sale at price 250.35 per s
 AVGO,2025-06-12,TAN HOCK E,Chief Executive Officer,117758,29782176.0,Sale at price 252.91 per share.,I,sale
 AVGO,2025-06-11,KAWWAS CHARLIE B,Officer,10000,2528810.0,Sale at price 252.88 per share.,I,sale
 AVGO,2025-05-14,PAGE JUSTINE F.,Director,800,184152.0,Sale at price 230.19 per share.,D,sale
-AVGO,2025-04-21,PAGE JUSTINE F.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,BRYANT DIANE M,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,LOW CHECK KIAN,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2025-04-21,PAGE JUSTINE F.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,SAMUELI HENRY,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
+AVGO,2025-04-21,HARTENSTEIN EDDY W.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,HAO KENNETH Y,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,YOU HARRY L,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-AVGO,2025-04-21,HARTENSTEIN EDDY W.,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-21,DELLY GAYLA J,Director,1602,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
 AVGO,2025-04-14,PAGE JUSTINE F.,Director,800,148000.0,Sale at price 185.00 per share.,D,sale
 AVGO,2025-03-26,SAMUELI HENRY,Director,136248,0.0,Stock Gift at price 0.00 per share.,I,gift
@@ -104,14 +104,14 @@ AVGO,2024-12-17,PAGE JUSTINE F.,Director,1000,0.0,Stock Gift at price 0.00 per s
 AVGO,2024-12-17,YOU HARRY L,Director,6540,1569626.0,Sale at price 240.00 per share.,D,sale
 AVGO,2024-12-16,SAMUELI HENRY,Director,137795,0.0,Stock Gift at price 0.00 per share.,I,gift
 AVGO,2024-11-06,TAN HOCK E,Chief Executive Officer,1477110,0.0,Stock Award(Grant) at price 0.00 per share.,D,award
-CRWV,2026-11-20,MCBEE BRANNIN,Officer,8038,,,D,other
+CRWV,2026-11-20,AGRAWAL NITIN,Chief Financial Officer,19450,,,D,other
+CRWV,2026-11-20,MCVEETY KRISTEN J,General Counsel,7696,,,D,other
+CRWV,2026-11-20,BAKER JEFFREY R,Officer,2425,,,D,other
+CRWV,2026-11-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
 CRWV,2026-11-20,GOLDBERG CHEN,Officer,16733,,,D,other
+CRWV,2026-11-20,MCBEE BRANNIN,Officer,8038,,,D,other
 CRWV,2026-11-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
 CRWV,2026-11-20,JAIN SACHIN,Chief Operating Officer,15645,,,D,other
-CRWV,2026-11-20,MCVEETY KRISTEN J,General Counsel,7696,,,D,other
-CRWV,2026-11-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
-CRWV,2026-11-20,BAKER JEFFREY R,Officer,2425,,,D,other
-CRWV,2026-11-20,AGRAWAL NITIN,Chief Financial Officer,19450,,,D,other
 CRWV,2026-11-20,BAKER JEFFREY R,Officer,1318,55730.0,Sale at price 42.28 per share.,D,sale
 CRWV,2026-11-20,AGRAWAL NITIN,Chief Financial Officer,10550,446090.0,Sale at price 42.28 per share.,D,sale
 CRWV,2026-11-20,MCVEETY KRISTEN J,General Counsel,4173,176450.0,Sale at price 42.28 per share.,D,sale
@@ -142,13 +142,13 @@ CRWV,2026-09-15,INTRATOR MICHAEL N,Chief Executive Officer,307692,25204098.0,Sal
 CRWV,2026-09-14,WHITMAN MARGARET C.,Director,1200,,,D,other
 CRWV,2026-09-14,AGRAWAL NITIN,Chief Financial Officer,66576,5572345.0,Sale at price 83.64 - 84.88 per share.,D,sale
 CRWV,2026-09-11,AGRAWAL NITIN,Chief Financial Officer,122340,,,D,other
-CRWV,2026-09-08,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-09-08,MCVEETY KRISTEN J,General Counsel,97500,53625.0,Conversion of Exercise of derivative security at price 0.55 per share.,D,other
+CRWV,2026-09-08,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-09-08,MCVEETY KRISTEN J,General Counsel,97500,9158766.0,Sale at price 93.54 - 94.47 per share.,D,sale
 CRWV,2026-09-08,GOLDBERG CHEN,Officer,22424,2150715.0,Sale at price 92.97 - 100.00 per share.,D,sale
 CRWV,2026-09-08,INTRATOR MICHAEL N,Chief Executive Officer,307692,30794542.0,Sale at price 93.35 - 104.44 per share.,D/I,sale
-CRWV,2026-09-01,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-09-01,MCVEETY KRISTEN J,General Counsel,156000,85800.0,Conversion of Exercise of derivative security at price 0.55 per share.,D,other
+CRWV,2026-09-01,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-09-01,MCVEETY KRISTEN J,General Counsel,156000,12734129.0,Sale at price 81.16 - 82.50 per share.,D,sale
 CRWV,2026-09-01,INTRATOR MICHAEL N,Chief Executive Officer,307692,25127375.0,Sale at price 81.20 - 82.54 per share.,D/I,sale
 CRWV,2026-08-26,MCVEETY KRISTEN J,General Counsel,2100,184855.0,Sale at price 87.39 - 89.24 per share.,D,sale
@@ -158,16 +158,16 @@ CRWV,2026-08-25,INTRATOR MICHAEL N,Chief Executive Officer,307692,27262966.0,Sal
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,249500,,,D/I,other
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,249500,21335903.0,Sale at price 83.93 - 86.48 per share.,D/I,sale
 CRWV,2026-08-24,MCBEE BRANNIN,Officer,500,42756.0,Sale at price 83.95 - 86.55 per share.,I,sale
-CRWV,2026-08-20,MCBEE BRANNIN,Officer,8038,,,D,other
-CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
-CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
-CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,15646,,,D,other
 CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,7697,,,D,other
-CRWV,2026-08-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
 CRWV,2026-08-20,BAKER JEFFREY R,Officer,2426,,,D,other
 CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,19451,,,D,other
-CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,10062,924497.0,Sale at price 91.88 per share.,D,sale
+CRWV,2026-08-20,VENTURO BRIAN M,Officer and Director,11387,,,D,other
+CRWV,2026-08-20,GOLDBERG CHEN,Officer,16733,,,D,other
+CRWV,2026-08-20,INTRATOR MICHAEL N,Chief Executive Officer,23443,,,D,other
+CRWV,2026-08-20,MCBEE BRANNIN,Officer,8038,,,D,other
+CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,15646,,,D,other
 CRWV,2026-08-20,BAKER JEFFREY R,Officer,1256,115401.0,Sale at price 91.88 per share.,D,sale
+CRWV,2026-08-20,AGRAWAL NITIN,Chief Financial Officer,10062,924497.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,MCVEETY KRISTEN J,General Counsel,3980,365682.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,JAIN SACHIN,Chief Operating Officer,6339,582427.0,Sale at price 91.88 per share.,D,sale
 CRWV,2026-08-20,VENTURO BRIAN M,Officer and Director,5899,542000.0,Sale at price 91.88 per share.,D,sale
@@ -188,9 +188,9 @@ CRWV,2026-08-12,"MAGNETAR FINANCIAL, L.L.C.",Beneficial Owner of more than 10% o
 CRWV,2026-08-12,JAIN SACHIN,Chief Operating Officer,1,110.0,Sale at price 110.00 per share.,D,sale
 CRWV,2026-08-11,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
 CRWV,2026-08-11,INTRATOR MICHAEL N,Chief Executive Officer,307692,27440423.0,Sale at price 87.97 - 93.20 per share.,D/I,sale
+CRWV,2026-08-10,HUTCHINS GLENN H,Director,1440,,,D,other
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,197000,,,D/I,other
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,52500,,,I,other
-CRWV,2026-08-10,HUTCHINS GLENN H,Director,1440,,,D,other
 CRWV,2026-08-10,JAIN SACHIN,Chief Operating Officer,13608,1253161.0,Sale at price 92.09 per share.,D,sale
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,197000,17676497.0,Sale at price 88.70 - 93.50 per share.,D/I,sale
 CRWV,2026-08-10,MCBEE BRANNIN,Officer,53000,4755580.0,Sale at price 88.70 - 93.50 per share.,I,sale
@@ -232,23 +232,23 @@ CRWV,2026-07-13,MCBEE BRANNIN,Officer,53000,4486099.0,Sale at price 83.27 - 88.2
 CRWV,2026-07-08,AGRAWAL NITIN,Chief Financial Officer,3,249.0,Sale at price 82.98 per share.,D,sale
 CRWV,2026-07-08,INTRATOR MICHAEL N,Chief Executive Officer,369489,30803188.0,Sale at price 80.20 - 89.88 per share.,D/I,sale
 CRWV,2026-07-07,INTRATOR MICHAEL N,Chief Executive Officer,107692,,,I,other
+CRWV,2026-07-06,BOONE KAREN,Director,1480,,,D,other
 CRWV,2026-07-06,MCBEE BRANNIN,Officer,197000,,,D/I,other
 CRWV,2026-07-06,MCBEE BRANNIN,Officer,52500,,,I,other
-CRWV,2026-07-06,BOONE KAREN,Director,1480,,,D,other
 CRWV,2026-07-06,MCVEETY KRISTEN J,General Counsel,22,1890.0,Sale at price 83.36 - 86.91 per share.,D,sale
 CRWV,2026-07-06,MCBEE BRANNIN,Officer,197000,16967521.0,Sale at price 83.09 - 87.11 per share.,D/I,sale
 CRWV,2026-07-06,MCBEE BRANNIN,Officer,53000,4564858.0,Sale at price 83.07 - 87.11 per share.,I,sale
 CRWV,2026-07-01,VENTURO BRIAN M,Officer and Director,203683,,,D/I,other
 CRWV,2026-07-01,VENTURO BRIAN M,Officer and Director,142405,12957630.0,Sale at price 85.63 - 95.69 per share.,D/I,sale
+CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,7,,,D,other
+CRWV,2026-06-30,BAKER JEFFREY R,Officer,7,,,D,other
+CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,7,,,D,other
 CRWV,2026-06-30,MCBEE BRANNIN,Officer,121118,,,D,other
 CRWV,2026-06-30,GOLDBERG CHEN,Officer,7,,,D,other
 CRWV,2026-06-30,INTRATOR MICHAEL N,Chief Executive Officer,248049,,,D/I,other
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,7,,,D,other
-CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,7,,,D,other
-CRWV,2026-06-30,BAKER JEFFREY R,Officer,7,,,D,other
-CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,7,,,D,other
-CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,BAKER JEFFREY R,Officer,4,383.0,Sale at price 95.69 per share.,D,sale
+CRWV,2026-06-30,AGRAWAL NITIN,Chief Financial Officer,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,MCVEETY KRISTEN J,General Counsel,4,383.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,JAIN SACHIN,Chief Operating Officer,3,287.0,Sale at price 95.69 per share.,D,sale
 CRWV,2026-06-30,GOLDBERG CHEN,Officer,4,383.0,Sale at price 95.69 per share.,D,sale
