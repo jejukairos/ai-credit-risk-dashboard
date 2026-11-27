@@ -3971,6 +3971,13 @@ const TURN_MEMO = `<b>🔄 변곡점은 모든 게 '아다리'가 맞아떨어�
   <div>· 그쯤 되면 사람들이 성공한 자기 포지션을 다 밝혀요 — "나 현금 얼마 있다", "나 무슨 주식 가지고 있다"</div>
   <div>· 그러고 보통 한두 달 지나 보면…</div>
   <div class="src">사용자 메모(26.11.09)</div>`;
+// 내년 기대치 메모(user: 사용자 제공 그림 '주식 체감 곡선(광기와 외면의 과정)'·글 26.11.27) — 그림은 위 곡선과 12단계가 같아 다시 그리지 않음. 예탁금 숫자만 매일 자동
+const nextMemo = () => { const L = DATA.kofia && DATA.kofia.last;
+  return `<b>💬 내년엔 어디까지? — 최대 '안정'까지 (26.11.27)</b>
+  <div>· 내년엔 다른 건 몰라도 최소 <b>'희망'</b>은 지나지 않을까, 그리고 <b>'안정'</b> 구간 도달 — 그 정도를 <b>최대</b>로 잡아요.</div>
+  <div>· 그런데 다들 <b>현금이 부족한 게</b> 문제 😭 — 바닥('외면')이 기회여도 살 돈이 있어야 잡을 수 있어요.${L && L.deposit_peak ? ` <span class="small">(자동: 고객예탁금 <b>${L.deposit.toFixed(1)}조</b>, ${L.deposit_peak.date.slice(2).replace(/-/g, '.')} 고점 ${L.deposit_peak.value}조보다 <b class="down">${L.deposit_peak.chg}%</b> · ${L.date.slice(2).replace(/-/g, '.')} 금융투자협회)</span>` : ''}</div>
+  <div class="small">같이 보낸 그림 '주식 체감 곡선'은 위 곡선과 단계·순서가 같아서 따로 넣지 않았어요. 그 그림은 <b>분노 뒤 ~ 희망 앞(외면 바닥)</b>을 '진짜 기회를 잡을 수 있는 구간', 광기 쪽을 '위험 극대화 구간'이라고 적었어요.</div>
+  <div class="src">사용자 제공 그림·글(26.11.27, user:)</div>`; };
 // o: mk([[시장 이름, idx_temp 줄], …]), title, intro, fold, memo
 function renderCurve(id, o) {
   const el = document.getElementById(id), st = o.mk.map(([, r]) => r.stage);
@@ -3992,6 +3999,7 @@ function renderCurve(id, o) {
       <text x="235" y="183" text-anchor="middle" font-size="9.5" fill="${css('--g1')}">↑ 기회가 가장 큰 구간</text>${pts}</svg>
     ${row(STAGE_UP, true)}${row(STAGE_DN, false)}
     <div class="memo">${o.fold ? `<details class="more"><summary>${o.fold}</summary>${o.memo}</details>` : o.memo}</div>
+    <div class="memo">${nextMemo()}</div>
     <div class="memo">${TURN_MEMO}</div>`;
 }
 
